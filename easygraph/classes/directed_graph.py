@@ -187,10 +187,12 @@ class DiGraph(object):
         weighted : boolean
             if true, add an weighted edge
         """
+        import re
         with open(file, 'r') as fp:
             edges = fp.readlines()
         if weighted:
             for edge in edges:
+                edge = re.sub(',', ' ', edge)
                 edge = edge.split()
                 try:
                     self.add_edge(edge[0], edge[1], weight=float(edge[2]))
@@ -198,6 +200,7 @@ class DiGraph(object):
                     pass
         else:
             for edge in edges:
+                edge = re.sub(',', ' ', edge)
                 edge = edge.split()
                 try:
                     self.add_edge(edge[0], edge[1])
