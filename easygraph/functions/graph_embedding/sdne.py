@@ -26,8 +26,9 @@ def get_relation_of_index_and_node(graph):
 
 def l_2nd(beta):
     def loss_2nd(y_true, y_pred):
-        b_ = np.ones_like(y_true)
-        b_[y_true != 0] = beta
+        y_true_numpy = y_true.numpy()
+        b_ = np.ones_like(y_true.numpy())
+        b_[y_true_numpy != 0] = beta
         x = K.square((y_true - y_pred) * b_)
         t = K.sum(x, axis=-1, )
         return K.mean(t)
@@ -39,7 +40,7 @@ def l_1st(alpha):
     def loss_1st(y_true, y_pred):
         L = y_true
         Y = y_pred
-        batch_size = tf.to_float(K.shape(L)[0])
+        batch_size = tf.cast(K.shape(L)[0], dtype=tf.float32)
         return alpha * 2 * tf.linalg.trace(tf.matmul(tf.matmul(Y, L, transpose_a=True), Y)) / batch_size
 
     return loss_1st
@@ -90,7 +91,7 @@ class SDNE(object):
 
         self.model, self.emb_model = create_model(self.node_size, hidden_size=self.hidden_size, l1=self.nu1,
                                                   l2=self.nu2)
-        self.model.compile(optimizer=opt, loss=[l_2nd(self.beta), l_1st(self.alpha)])
+        self.model.compile(optimizer=opt, loss=[l_2nd(self.beta), l_1st(self.alpha)], run_eagerly=True)
         self.get_embeddings()
 
     def train(self, batch_size=1024, epochs=1, initial_epoch=0, verbose=1):
@@ -124,7 +125,8 @@ class SDNE(object):
                 logs['2nd_loss'] = losses[1]
                 logs['1st_loss'] = losses[2]
                 epoch_time = int(time.time() - start_time)
-                hist.on_epoch_end(epoch, logs)
+                # TODO: Fixed the bug derivated by the following code in TF2:
+                # hist.on_epoch_end(epoch, logs)
                 if verbose > 0:
                     print('Epoch {0}/{1}'.format(epoch + 1, epochs))
                     print('{0}s - loss: {1: .4f} - 2nd_loss: {2: .4f} - 1st_loss: {3: .4f}'.format(
