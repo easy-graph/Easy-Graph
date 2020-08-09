@@ -2,7 +2,6 @@ import sys
 sys.path.append('../../../')
 import easygraph as eg
 
-from .node2vec_multi_thread import Node2Vec
 import random
 import numpy as np
 from tqdm import tqdm
@@ -39,7 +38,7 @@ def node2vec(G, dimensions=128, walk_length=80, num_walks=10, p=1.0, q=1.0, weig
         The inout parameter (default: 1.0)
 
     weight_key : string
-        On weighted graphs, this is the key for the weight attribute (default: 'weight')
+        On weighted graphs, this is the key for the weight attribute (default: None)
 
     skip_gram_params : dict
         Parameteres for gensim.models.Word2Vec - do not supply 'size', it is taken from the 'dimensions' parameter
@@ -52,7 +51,7 @@ def node2vec(G, dimensions=128, walk_length=80, num_walks=10, p=1.0, q=1.0, weig
     if workers is None:
         walks = simulate_walks(
             G_index, walk_length=walk_length, num_walks=num_walks,
-            p=p, q=q, start_nodes=G_index.nodes, weight_key=weight_key)
+            p=p, q=q, weight_key=weight_key)
     else:
         from joblib import Parallel, delayed
         num_walks_lists = np.array_split(range(num_walks), workers)
