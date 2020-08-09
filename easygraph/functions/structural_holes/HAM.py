@@ -138,7 +138,7 @@ def label_by_neighbors(AdjMat,labels):
     return labels
 
 
-def get_structural_holes_HAM(G, k, c,ground_truth_labels):
+def get_structural_holes_HAM(G, k, c, ground_truth_labels):
     '''
     using HAM to jointly detect SHS and communities.
     https://dl.acm.org/doi/10.1145/2939672.2939807
