@@ -79,7 +79,7 @@ def effective_size(G, nodes=None, weight=None):
 
 def efficiency(G, nodes=None, weight=None):
     e_size = effective_size(G=G, nodes=nodes, weight=weight)
-    degree = G.degree(weihgt=weight)
+    degree = G.degree(weight=weight)
     efficiency = {n: v / degree[n] for n, v in e_size.items()}
 
 
