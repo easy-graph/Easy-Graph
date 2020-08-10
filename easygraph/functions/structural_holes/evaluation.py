@@ -1,11 +1,13 @@
 import sys
 sys.path.append('../../../')
 import easygraph as eg
+import math
 
 __all__ = [
     'effective_size',
     'efficiency',
-    'constraint'
+    'constraint',
+    'hierarchy'
 ]
 
 
@@ -122,3 +124,22 @@ def local_constraint(G, u, v, weight=None):
         result = (direct + indirect) ** 2
         local_constraint_rec[(u, v)] = result
         return result
+
+def hierarchy(G,nodes=None,weight=None):
+    if nodes is None:
+        nodes = G.nodes
+    hierarchy = {}
+    con=constraint(G)
+    for v in G.nodes:
+        E = G.ego_subgraph(v)
+        n=len(E)-1
+        C=0
+        c={}
+        neighbors_of_v = set(G.all_neighbors(v))
+        for w in neighbors_of_v:
+            C+=local_constraint(G,v,w)
+            c[w]=local_constraint(G,v,w)
+        if n>1:
+            hierarchy[v]=sum(c[w]/C*n*math.log(c[w]/C*n)/(n*math.log(n)) for w in neighbors_of_v)
+    return hierarchy
+
