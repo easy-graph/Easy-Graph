@@ -5,6 +5,24 @@ import numpy as np
 import numpy.matlib 
 
 def ego_betweenness(G,node):
+    """Returns the betweenness centrality of a ego network whose ego is set
+
+    Parameters
+    ---------- 
+    G : graph
+    node : int
+    
+    Returns
+    -------
+    sum : float
+        the betweenness centrality of a ego network whose ego is set
+
+    Reference
+    ---------
+    .. [1] Martin Everett, Stephen P. Borgatti. "Ego network betweenness."
+    Social Networks, Volume 27, Issue 1, Pages 31-38, 2005.
+
+    """
     g=G.ego_subgraph(node)
     n=len(g)+1
     A=np.matlib.zeros((n,n))
