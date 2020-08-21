@@ -1,4 +1,23 @@
-def  laplacian(G,nodes=None,weight=None):
+def  laplacian(G):
+    """Returns the laplacian centrality of each node in the weighted graph
+
+    Parameters
+    ---------- 
+    G : graph
+        weighted graph
+    
+    Returns
+    -------
+    CL : dict
+        the laplacian centrality of each node in the weighted graph
+
+    Reference
+    ---------
+    .. [1] Xingqin Qi, Eddie Fuller, Qin Wu, Yezhou Wu, Cun-Quan Zhang. 
+    "Laplacian centrality: A new centrality measure for weighted networks." 
+    Information Sciences, Volume 194, Pages 240-253, 2012.
+
+    """
     adj=G.adj
     n=len(adj)+1
     X=[0]*n

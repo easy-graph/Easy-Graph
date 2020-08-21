@@ -6,6 +6,20 @@ __all__=[
 ]
 
 def Dijkstra(G,node):
+    """Returns the length of paths from the certain node to remaining nodes
+
+    Parameters
+    ---------- 
+    G : graph
+        weighted graph
+    node : int
+
+    Returns
+    -------
+    result_dict : dict
+        the length of paths from the certain node to remaining nodes
+
+    """
     adj=G.adj.copy()
     n=len(adj)+1
     visited=[0]*n
@@ -31,6 +45,19 @@ def Dijkstra(G,node):
     return result_dict
 
 def Floyd(G):
+    """Returns the length of paths from all nodes to remaining nodes
+
+    Parameters
+    ---------- 
+    G : graph
+        weighted graph
+    
+    Returns
+    -------
+    result_dict : dict
+        the length of paths from all nodes to remaining nodes
+
+    """
     adj=G.adj.copy()
     n=len(adj)+1
     result_dict={}
@@ -54,6 +81,19 @@ def Floyd(G):
     return result_dict
 
 def Prim(G):
+    """Returns the edges that make up the minimum spanning tree
+
+    Parameters
+    ---------- 
+    G : graph
+        weighted graph
+    
+    Returns
+    -------
+    result_dict : dict
+        the edges that make up the minimum spanning tree
+
+    """
     adj=G.adj.copy()
     n=len(adj)+1
     result_dict={}
@@ -78,6 +118,19 @@ def Prim(G):
 
 
 def Kruskal(G):
+    """Returns the edges that make up the minimum spanning tree
+
+    Parameters
+    ---------- 
+    G : graph
+        weighted graph
+    
+    Returns
+    -------
+    result_dict : dict
+        the edges that make up the minimum spanning tree
+
+    """
     adj=G.adj.copy()
     n=len(adj)+1
     result_dict={}

@@ -126,6 +126,24 @@ def local_constraint(G, u, v, weight=None):
         return result
 
 def hierarchy(G,nodes=None,weight=None):
+    """Returns the hierarchy of nodes in the graph
+
+    Parameters
+    ---------- 
+    G : graph
+    nodes :  dict, optional (default=None)
+    weight : dict, optional (default=None)
+
+    Returns
+    -------
+    hierarchy : dict
+        the hierarchy of nodes in the graph
+
+    Reference
+    ---------
+    https://m.book118.com/html/2019/0318/5320024122002021.shtm
+
+    """
     if nodes is None:
         nodes = G.nodes
     hierarchy = {}
