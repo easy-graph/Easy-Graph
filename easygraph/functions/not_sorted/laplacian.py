@@ -11,6 +11,12 @@ def  laplacian(G):
     CL : dict
         the laplacian centrality of each node in the weighted graph
 
+    Examples
+    --------
+    Returns the laplacian centrality of each node in the weighted graph G
+
+    >>> laplacian(G)
+
     Reference
     ---------
     .. [1] Xingqin Qi, Eddie Fuller, Qin Wu, Yezhou Wu, Cun-Quan Zhang. 

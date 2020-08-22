@@ -131,13 +131,19 @@ def hierarchy(G,nodes=None,weight=None):
     Parameters
     ---------- 
     G : graph
-    nodes :  dict, optional (default=None)
-    weight : dict, optional (default=None)
+    nodes :  dict, optional (default: None)
+    weight : dict, optional (default: None)
 
     Returns
     -------
     hierarchy : dict
         the hierarchy of nodes in the graph
+
+    Examples
+    --------
+    Returns the hierarchy of nodes in the graph G
+
+    >>> hierarchy(G)
 
     Reference
     ---------

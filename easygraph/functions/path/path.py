@@ -19,6 +19,12 @@ def Dijkstra(G,node):
     result_dict : dict
         the length of paths from the certain node to remaining nodes
 
+    Examples
+    --------
+    Returns the length of paths from node 1 to remaining nodes
+
+    >>> Dijkstra(G,node=1)
+
     """
     adj=G.adj.copy()
     n=len(adj)+1
@@ -57,6 +63,12 @@ def Floyd(G):
     result_dict : dict
         the length of paths from all nodes to remaining nodes
 
+    Examples
+    --------
+    Returns the length of paths from all nodes to remaining nodes
+
+    >>> Floyd(G)
+
     """
     adj=G.adj.copy()
     n=len(adj)+1
@@ -92,6 +104,12 @@ def Prim(G):
     -------
     result_dict : dict
         the edges that make up the minimum spanning tree
+
+    Examples
+    --------
+    Returns the edges that make up the minimum spanning tree
+
+    >>> Prim(G)
 
     """
     adj=G.adj.copy()
@@ -129,6 +147,12 @@ def Kruskal(G):
     -------
     result_dict : dict
         the edges that make up the minimum spanning tree
+
+    Examples
+    --------
+    Returns the edges that make up the minimum spanning tree
+
+    >>> Kruskal(G)
 
     """
     adj=G.adj.copy()
