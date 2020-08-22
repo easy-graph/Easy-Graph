@@ -17,6 +17,12 @@ def ego_betweenness(G,node):
     sum : float
         the betweenness centrality of a ego network whose ego is set
 
+    Examples
+    --------
+    Returns the betwenness centrality of node 1.
+
+    >>> ego_betweenness(G,node=1)
+
     Reference
     ---------
     .. [1] Martin Everett, Stephen P. Borgatti. "Ego network betweenness."
