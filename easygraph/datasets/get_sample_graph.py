@@ -1,24 +1,97 @@
-import sys
-sys.path.append('../../')
 import easygraph as eg
 
 __all__ = [
+    'get_graph_karateclub',
     'get_graph_blogcatalog',
     'get_graph_youtube',
     'get_graph_flickr'
 ]
 
 
-def get_graph_blogcatalog():
+def get_graph_karateclub():
+    """Returns the undirected graph of Karate Club.
+
+    Returns
+    -------
+    get_graph_karateclub : easygraph.Graph
+        The undirected graph instance of karate club from dataset:
+        http://vlado.fmf.uni-lj.si/pub/networks/data/Ucinet/UciData.htm
+    
+    References
+    ----------
+    .. [1] http://vlado.fmf.uni-lj.si/pub/networks/data/Ucinet/UciData.htm
+
     """
-    Returns the undirected graph of blogcatalog.
-    Dataset from:
-    https://github.com/phanein/deepwalk/blob/master/example_graphs/blogcatalog.mat
+    all_members = set(range(34))
+    club1 = {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 16, 17, 19, 21}
+    # club2 = all_members - club1
+
+    G = eg.Graph(name="Zachary's Karate Club")
+    for node in all_members:
+        G.add_node(node+1)
+
+    zacharydat = """\
+0 1 1 1 1 1 1 1 1 0 1 1 1 1 0 0 0 1 0 1 0 1 0 0 0 0 0 0 0 0 0 1 0 0
+1 0 1 1 0 0 0 1 0 0 0 0 0 1 0 0 0 1 0 1 0 1 0 0 0 0 0 0 0 0 1 0 0 0
+1 1 0 1 0 0 0 1 1 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 1 0
+1 1 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+1 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+1 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+1 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 1
+0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+1 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1
+0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1
+1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1
+1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 0 1 1
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 1 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1
+0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 1
+0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0 0 0 0 1 1
+0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 1 0 0 0 1 1
+0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 1 0 0 1 0 1 0 1 1 0 0 0 0 0 1 1 1 0 1
+0 0 0 0 0 0 0 0 1 1 0 0 0 1 1 1 0 0 1 1 1 0 1 1 0 0 1 1 1 1 1 1 1 0"""
+
+    for row, line in enumerate(zacharydat.split('\n')):
+        thisrow = [int(b) for b in line.split()]
+        for col, entry in enumerate(thisrow):
+            if entry == 1:
+                G.add_edge(row+1, col+1)
+
+    # Add the name of each member's club as a node attribute.
+    for v in G:
+        G.nodes[v]['club'] = 'Mr. Hi' if v in club1 else 'Officer'
+    return G
+
+
+
+def get_graph_blogcatalog():
+    """Returns the undirected graph of blogcatalog.
+
+    Returns
+    -------
+    get_graph_blogcatalog : easygraph.Graph
+        The undirected graph instance of blogcatalog from dataset:
+        https://github.com/phanein/deepwalk/blob/master/example_graphs/blogcatalog.mat
 
     References
     ----------
-    .. [1] Bryan Perozzi, Rami Al-Rfou, Steven Skiena. KDD'2014
-       DeepWalk: Online Learning of Social Representations
+    .. [1] https://github.com/phanein/deepwalk/blob/master/example_graphs/blogcatalog.mat
+
     """
     from scipy.io import loadmat
     def sparse2graph(x):
@@ -43,10 +116,18 @@ def get_graph_blogcatalog():
 
 
 def get_graph_youtube():
-    """
-    Returns the undirected graph of youtube dataset.
-    Dataset from:
-    http://socialnetworks.mpi-sws.mpg.de/data/youtube-links.txt.gz
+    """Returns the undirected graph of Youtube dataset.
+
+    Returns
+    -------
+    get_graph_youtube : easygraph.Graph
+        The undirected graph instance of Youtube from dataset:
+        http://socialnetworks.mpi-sws.mpg.de/data/youtube-links.txt.gz
+
+    References
+    ----------
+    .. [1] http://socialnetworks.mpi-sws.mpg.de/data/youtube-links.txt.gz
+    
     """
     from urllib import request
     import gzip
@@ -69,10 +150,18 @@ def get_graph_youtube():
 
 
 def get_graph_flickr():
-    """
-    Returns the undirected graph of youtube dataset.
-    Dataset from:
-    http://socialnetworks.mpi-sws.mpg.de/data/flickr-links.txt.gz
+    """Returns the undirected graph of Flickr dataset.
+
+    Returns
+    -------
+    get_graph_flickr : easygraph.Graph
+        The undirected graph instance of Flickr from dataset:
+        http://socialnetworks.mpi-sws.mpg.de/data/flickr-links.txt.gz
+
+    References
+    ----------
+    .. [1] http://socialnetworks.mpi-sws.mpg.de/data/flickr-links.txt.gz
+
     """
     from urllib import request
     import gzip
