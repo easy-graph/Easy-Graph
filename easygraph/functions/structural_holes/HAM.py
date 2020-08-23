@@ -1,7 +1,6 @@
 __all__ = [
     "get_structural_holes_HAM"
 ]
-import sys
 import numpy as np
 import json, os
 import scipy.sparse as sps
@@ -139,23 +138,42 @@ def label_by_neighbors(AdjMat,labels):
 
 
 def get_structural_holes_HAM(G, k, c, ground_truth_labels):
-    '''
-    using HAM to jointly detect SHS and communities.
-    https://dl.acm.org/doi/10.1145/2939672.2939807
+    '''Structural hole spanners detection via HAM method.
+
+    Using HAM [1]_ to jointly detect SHS and communities.
 
     Parameters
     ----------
-    G : graph
+    G : easygraph.Graph
         An undirected graph.
+
     k : int
         top - k structural hole spanners
-    c : the number of communities
 
-    ground_truth_labels : ground truth labels of nodes.
+    c : int
+        the number of communities
+
+    ground_truth_labels : list of lists
+        The label of each node's community.
 
     Returns
     -------
-    a Ndarray of top k nodes as structural hole spanners, and a Ndarray of labeled communities of the nodes.
+    get_structural_holes_HAM : NumPy Ndarray
+        A Ndarray of top k nodes as structural hole spanners, and a Ndarray of labeled communities of the nodes.
+    
+    Examples
+    --------
+
+    >>> get_structural_holes_HAM(G,
+    ...                         k = 2, # To find top two structural holes spanners.
+    ...                          c = 2,
+    ...                          ground_truth_labels = [[0], [0], [1], [0], [1]] # The ground truth labels for each node - community detection result, for example.
+    ...                         )
+
+    References
+    ----------
+    .. [1] https://dl.acm.org/doi/10.1145/2939672.2939807
+    
     '''
     A_mat = load_adj_matrix(G)
     A = A_mat  # adjacency matrix

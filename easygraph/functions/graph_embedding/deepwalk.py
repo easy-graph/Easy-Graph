@@ -1,5 +1,3 @@
-import sys
-sys.path.append('../../../')
 import easygraph as eg
 
 from easygraph.functions.graph_embedding.node2vec import learn_embeddings
@@ -13,27 +11,50 @@ __all__ = [
 ]
 
 def deepwalk(G, dimensions=128, walk_length=80, num_walks=10, **skip_gram_params):
-    """
-    Returns 
-        1. The embedding vector of each node via DeepWalk: https://arxiv.org/abs/1403.6652
-        2. The most similar nodes of each node and its similarity
-    Using Word2Vec model of package gensim.
+    """Graph embedding via DeepWalk.
 
     Parameters
     ----------
-    G : graph
+    G : easygraph.Graph or easygraph.DiGraph
 
     dimensions : int
-        Embedding dimensions (default: 128)
+        Embedding dimensions, optinal(default: 128)
 
     walk_length : int
-        Number of nodes in each walk (default: 80)
+        Number of nodes in each walk, optinal(default: 80)
 
     num_walks : int
-        Number of walks per node (default: 10)
+        Number of walks per node, optinal(default: 10)
 
     skip_gram_params : dict
-        Parameteres for gensim.models.Word2Vec - do not supply 'size', it is taken from the 'dimensions' parameter
+        Parameteres for gensim.models.Word2Vec - do not supply `size`, it is taken from the `dimensions` parameter
+
+    Returns 
+    -------
+    embedding_vector : dict
+        The embedding vector of each node
+
+    most_similar_nodes_of_node : dict
+        The most similar nodes of each node and its similarity
+
+    Examples
+    --------
+    
+    >>> deepwalk(G,
+    ...          dimensions=128, # The graph embedding dimensions.
+    ...          walk_length=80, # Walk length of each random walks.
+    ...          num_walks=10, # Number of random walks.
+    ...          skip_gram_params = dict( # The skip_gram parameters in Python package gensim.
+    ...          window=10,
+    ...             min_count=1,
+    ...             batch_words=4,
+    ...             iter=15
+    ...          ))
+
+    References
+    ----------
+    .. [1] https://arxiv.org/abs/1403.6652
+
     """
     G_index, index_of_node, node_of_index = G.to_index_node_graph()
 

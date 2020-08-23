@@ -1,5 +1,3 @@
-import sys
-sys.path.append('../../../')
 import easygraph as eg
 from easygraph.functions.community.modularity import modularity
 from easygraph.utils.mapped_queue import MappedQueue
@@ -9,8 +7,9 @@ __all__ = [
 ]
 
 
-def greedy_modularity_communities(G, weight=None):
-    """
+def greedy_modularity_communities(G, weight='weight'):
+    """Communities detection via greedy modularity method.
+
     Find communities in graph using Clauset-Newman-Moore greedy modularity
     maximization. This method currently supports the Graph class.
 
@@ -20,7 +19,11 @@ def greedy_modularity_communities(G, weight=None):
 
     Parameters
     ----------
-    G : graph
+    G : easygraph.Graph or easygraph.DiGraph
+    
+    weight : string (default : 'weight')
+        The key for edge weight. For undirected graph, it will regard each edge 
+        weight as 1. 
 
     Returns
     ----------
@@ -37,7 +40,7 @@ def greedy_modularity_communities(G, weight=None):
 
     # Count nodes and edges
     N = len(G.nodes)
-    m = sum([d.get('weight', 1) for u, v, d in G.edges])
+    m = sum([d.get(weight, 1) for u, v, d in G.edges])
     q0 = 1.0 / (2.0*m)
 
     # Map node labels to contiguous integers

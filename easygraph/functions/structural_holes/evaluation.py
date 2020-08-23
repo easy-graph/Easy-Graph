@@ -49,6 +49,37 @@ def normalized_mutual_weight(G, u, v, norm=sum, weight=None):
 
 
 def effective_size(G, nodes=None, weight=None):
+    """Burt's metric - Effective Size.
+
+    Parameters
+    ----------
+    G : easygraph.Graph
+
+    nodes : list of nodes or None, optional (default : None)
+        The nodes you want to calculate. If *None*, all nodes in `G` will be calculated.
+
+    weight : string or None, optional (default : None)
+        The key for edge weight. If *None*, `G` will be regarded as unweighted graph.
+
+    Returns
+    -------
+    effective_size : dict
+        The Effective Size of node in `nodes`.
+
+    Examples
+    --------
+
+    >>> effective_size(G,
+    ...                nodes=[1,2,3], # Compute the Effective Size of some nodes. The default is None for all nodes in G.
+    ...                weight='weight' # The weight key of the graph. The default is None for unweighted graph.
+    ...                )
+
+    References
+    ----------
+    .. [1] Burt R S. Structural holes: The social structure of competition[M]. 
+       Harvard university press, 2009.
+
+    """
     sum_nmw_rec.clear()
     max_nmw_rec.clear()
     def redundancy(G, u, v, weight=None):
@@ -80,12 +111,79 @@ def effective_size(G, nodes=None, weight=None):
 
 
 def efficiency(G, nodes=None, weight=None):
+    """Burt's metric - Efficiency.
+
+    Parameters
+    ----------
+    G : easygraph.Graph
+
+    nodes : list of nodes or None, optional (default : None)
+        The nodes you want to calculate. If *None*, all nodes in `G` will be calculated.
+
+    weight : string or None, optional (default : None)
+        The key for edge weight. If *None*, `G` will be regarded as unweighted graph.
+
+    Returns
+    -------
+    efficiency : dict
+        The Efficiency of node in `nodes`.
+
+    Examples
+    --------
+
+    >>> efficiency(G,
+    ...            nodes=[1,2,3], # Compute the Efficiency of some nodes. The default is None for all nodes in G.
+    ...            weight='weight' # The weight key of the graph. The default is None for unweighted graph.
+    ...            )
+
+    References
+    ----------
+    .. [1] Burt R S. Structural holes: The social structure of competition[M]. 
+       Harvard university press, 2009.
+
+    """
     e_size = effective_size(G=G, nodes=nodes, weight=weight)
     degree = G.degree(weight=weight)
     efficiency = {n: v / degree[n] for n, v in e_size.items()}
 
 
 def constraint(G, nodes=None, weight=None, n_workers=None):
+    """Burt's metric - Constraint.
+
+    Parameters
+    ----------
+    G : easygraph.Graph
+
+    nodes : list of nodes or None, optional (default : None)
+        The nodes you want to calculate. If *None*, all nodes in `G` will be calculated.
+
+    weight : string or None, optional (default : None)
+        The key for edge weight. If *None*, `G` will be regarded as unweighted graph.
+
+    workers : int or None, optional (default : None)
+        The number of workers calculating (default: None). 
+        None if not using only one worker.
+
+    Returns
+    -------
+    constraint : dict
+        The Constraint of node in `nodes`.
+
+    Examples
+    --------
+
+    >>> constraint(G,
+    ...            nodes=[1,2,3], # Compute the Constraint of some nodes. The default is None for all nodes in G.
+    ...            weight='weight', # The weight key of the graph. The default is None for unweighted graph.
+    ...            n_workers=4 # Parallel computing on four workers. The default is None for serial computing.
+    ...            )
+
+    References
+    ----------
+    .. [1] Burt R S. Structural holes: The social structure of competition[M]. 
+       Harvard university press, 2009.
+
+    """
     sum_nmw_rec.clear()
     max_nmw_rec.clear()
     local_constraint_rec.clear()

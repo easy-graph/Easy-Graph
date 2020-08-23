@@ -1,5 +1,3 @@
-import sys
-sys.path.append('../../../')
 import easygraph as eg
 from easygraph.utils.alias import create_alias_table, alias_sample
 from easygraph.utils.index_of_node import get_relation_of_index_and_node
@@ -53,17 +51,35 @@ def create_model(numNodes, embedding_size, order='second'):
 
 
 class LINE:
-    def __init__(self, graph, embedding_size=8, negative_ratio=5, order='second',):
-        """
+    def __init__(self, graph, embedding_size=8, negative_ratio=5, order='all',):
+        """Graph embedding via SDNE.
+
         Parameters
         ----------
-        graph : graph
+        graph : easygraph.Graph or easygraph.DiGraph
 
-        embedding_size : int
+        embedding_size : int, optinal (default : 8)
         
-        negative_ratio : 
+        negative_ratio : int, optinal (default : 5)
 
-        order: 'first','second','all'
+        order : string, optinal (default : 'all')
+            'first','second','all'
+
+        Examples
+        --------
+        
+        >>> model = LINE(G,
+        ...              embedding_size=16,
+        ...              order='all') # The order of model LINE. 'first'，'second' or 'all'.
+        >>> model.train(batch_size=1024, epochs=1, verbose=2)
+        >>> embeddings = model.get_embeddings() # Returns the graph embedding results.
+
+        References
+        ----------
+        .. [1] Tang J, Qu M, Wang M, et al. 
+           Line: Large-scale information network embedding[C]
+           //Proceedings of the 24th international conference on World Wide Web. 2015: 1067-1077  
+
         """
         if order not in ['first', 'second', 'all']:
             raise ValueError('mode must be fisrt,second,or all')
@@ -181,6 +197,14 @@ class LINE:
                 end_index = min(start_index + self.batch_size, data_size)
 
     def get_embeddings(self,):
+        """Returns the embedding of each node.
+
+        Returns
+        -------
+        get_embeddings : dict
+            The graph embedding result of each node.
+
+        """
         self._embeddings = {}
         if self.order == 'first':
             embeddings = self.embedding_dict['first'].get_weights()[0]
@@ -195,7 +219,22 @@ class LINE:
 
         return self._embeddings
 
-    def train(self, batch_size=1024, epochs=1, initial_epoch=0, verbose=1, times=1):
+    def train(self, batch_size=1024, epochs=2, initial_epoch=0, verbose=1, times=1):
+        """Train LINE model.
+
+        Parameters
+        ----------
+        batch_size : int, optional (default : 1024)
+
+        epochs : int, optional (default : 2)
+
+        inital_epoch : int, optional (default : 0)
+
+        verbose : int, optional (default : 1)
+
+        times : int, optional (default : 1)
+
+        """
         self.reset_training_config(batch_size, times)
         hist = self.model.fit(self.batch_it, epochs=epochs, initial_epoch=initial_epoch, steps_per_epoch=self.steps_per_epoch,
                                         verbose=verbose)

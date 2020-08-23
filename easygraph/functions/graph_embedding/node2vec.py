@@ -1,5 +1,3 @@
-import sys
-sys.path.append('../../../')
 import easygraph as eg
 
 import random
@@ -12,39 +10,64 @@ __all__ = [
 ]
 
 def node2vec(G, dimensions=128, walk_length=80, num_walks=10, p=1.0, q=1.0, weight_key=None, workers=None, **skip_gram_params):
-    """
-    Returns 
-        1. The embedding vector of each node via node2vec: https://arxiv.org/abs/1607.00653
-        2. The most similar nodes of each node and its similarity
-    Using Word2Vec model of package gensim.
+    """Graph embedding via Node2Vec.
 
     Parameters
     ----------
-    G : graph
+    G : easygraph.Graph or easygraph.DiGraph
 
     dimensions : int
-        Embedding dimensions (default: 128)
+        Embedding dimensions, optinal(default: 128)
 
     walk_length : int
-        Number of nodes in each walk (default: 80)
+        Number of nodes in each walk, optinal(default: 80)
 
     num_walks : int
-        Number of walks per node (default: 10)
+        Number of walks per node, optinal(default: 10)
 
     p : float
-        The return hyper parameter (default: 1.0)
+        The return hyper parameter, optinal(default: 1.0)
 
     q : float
-        The inout parameter (default: 1.0)
+        The inout parameter, optinal(default: 1.0)
 
-    weight_key : string
-        On weighted graphs, this is the key for the weight attribute (default: None)
+    weight_key : string or None (default: None)
+        On weighted graphs, this is the key for the weight attribute 
+
+    workers : int or None, optinal(default : None)
+        The number of workers generating random walks (default: None). None if not using only one worker.
 
     skip_gram_params : dict
         Parameteres for gensim.models.Word2Vec - do not supply 'size', it is taken from the 'dimensions' parameter
 
-    workers : int or None
-        The number of workers generating random walks (default: None). None if not using only one worker.
+    Returns
+    -------
+    embedding_vector : dict
+        The embedding vector of each node
+
+    most_similar_nodes_of_node : dict
+        The most similar nodes of each node and its similarity
+
+    Examples
+    --------
+
+    >>> node2vec(G,
+    ...          dimensions=128, # The graph embedding dimensions.
+    ...          walk_length=80, # Walk length of each random walks.
+    ...          num_walks=10, # Number of random walks.
+    ...          p=1.0, # The `p` possibility in random walk in [1]_
+    ...          q=1.0, # The `q` possibility in random walk in [1]_
+    ...          weight_key='weight',
+    ...          skip_gram_params=dict( # The skip_gram parameters in Python package gensim.
+    ...          window=10,
+    ...             min_count=1,
+    ...             batch_words=4
+    ...          ))
+
+    References
+    ----------
+    .. [1] https://arxiv.org/abs/1607.00653
+
     """
     G_index, index_of_node, node_of_index = G.to_index_node_graph()
 

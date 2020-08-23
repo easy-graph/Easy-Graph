@@ -10,6 +10,23 @@ __all__ = [
 
 
 def is_biconnected(G):
+    """Returns whether the graph is biconnected or not.
+
+    Parameters
+    ----------
+    G : easygraph.Graph or easygraph.DiGraph
+
+    Returns
+    -------
+    is_biconnected : boolean
+        `True` if the graph is biconnected.
+
+    Examples
+    --------
+
+    >>> is_biconnected(G)
+
+    """
     bc_nodes = list(generator_biconnected_components_nodes(G))
     if len(bc_nodes) == 1:
         return len(bc_nodes[0]) == len(G) # avoid situations where there is isolated vertex
@@ -18,21 +35,91 @@ def is_biconnected(G):
 
 # TODO: get the subgraph of each biconnected graph
 def biconnected_components(G):
+    """Returns a list of biconnected components, each of which denotes the edges set of a biconnected component.
+
+    Parameters
+    ----------
+    G : easygraph.Graph or easygraph.DiGraph
+
+    Returns
+    -------
+    biconnected_components : list of list
+        Each element list is the edges set of a biconnected component.
+
+    Examples
+    --------
+    >>> connected_components(G)
+
+    """
     return list(generator_biconnected_components_edges(G))
 
 
 def generator_biconnected_components_nodes(G):
+    """Returns a generator of nodes in each biconnected component.
+
+    Parameters
+    ----------
+    G : easygraph.Graph or easygraph.DiGraph
+
+    Returns
+    -------
+    Yields nodes set of each biconnected component.
+
+    See Also
+    --------
+    generator_biconnected_components_edges
+
+    Examples
+    --------
+    >>> generator_biconnected_components_nodes(G)
+
+
+    """
     for component in _biconnected_dfs_record_edges(G, need_components=True):
         # TODO: only one edge = biconnected_component?
         yield set(chain.from_iterable(component))
 
 
 def generator_biconnected_components_edges(G):
+    """Returns a generator of nodes in each biconnected component.
+
+    Parameters
+    ----------
+    G : easygraph.Graph or easygraph.DiGraph
+
+    Returns
+    -------
+    Yields edges set of each biconnected component.
+
+    See Also
+    --------
+    generator_biconnected_components_nodes
+
+    Examples
+    --------
+    >>> generator_biconnected_components_edges(G)
+
+    """
     for component in _biconnected_dfs_record_edges(G, need_components=True):
         yield component
 
 
 def generator_articulation_points(G):
+    """Returns a generator of articulation points.
+
+    Parameters
+    ----------
+    G : easygraph.Graph or easygraph.DiGraph
+
+    Returns
+    -------
+    Yields the articulation point in *G*.
+
+    Examples
+    --------
+    >>> generator_articulation_points(G)
+
+    """
     seen = set()
     for cut_vertex in _biconnected_dfs_record_edges(G, need_components=False):
         if cut_vertex not in seen:

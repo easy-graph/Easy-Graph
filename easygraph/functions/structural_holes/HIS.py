@@ -7,8 +7,56 @@ __all__ = [
 
 
 def get_structural_holes_HIS(G, C: [frozenset], epsilon, weight='weight'):
-    """
-    Returns S, I, H in paper https://www.aminer.cn/structural-hole
+    """Structural hole spanners detection via HIS method.
+
+    Both **HIS** and **MaxD** are methods in [1]_. 
+    The authors developed these two methods to find the structural holes spanners, 
+    based on theory of information diffusion. 
+
+    Returns the value of `S`, `I`, `H` ,defined in **HIS** of [1], of each node in the graph. 
+    Note that `H` quantifies the possibility that a node is a structural hole spanner. 
+    To use `HIS` method, you should provide the community detection result as parameter.
+
+    Parameters
+    ----------
+    C : list of frozenset
+        Each frozenset denotes a community of nodes.
+
+    epsilon : float
+        The threshold value.
+
+    weight : string, optional (default : 'weight')
+        The key for edge weight.
+
+    Returns
+    -------
+    S : list of tuple
+        The `S` value in [1]_.
+
+    I : float
+        The `I` value in [1]_.
+
+    H : float
+        The `H` value in [1]_.
+
+    See Also
+    --------
+    MaxD
+
+    Examples
+    --------
+
+    >>> get_structural_holes_HIS(G,
+    ...                          C = [frozenset([1,2,3]), frozenset([4,5,6])], # Two communities
+    ...                          epsilon = 0.01,
+    ...                          weight = 'weight'
+    ...                          )
+    
+
+    References
+    ----------
+    .. [1] https://www.aminer.cn/structural-hole
+
     """
     # S: list[subset_index]
     S = []

@@ -1,5 +1,3 @@
-import sys
-sys.path.append('../../../')
 import easygraph as eg
 
 
@@ -19,15 +17,15 @@ def random_position(G, center=None, dim=2, random_seed=None):
 
     Parameters
     ----------
-    G : graph
+    G : easygraph.Graph or easygraph.DiGraph
 
-    center : array-like or None
+    center : array-like or None, optional (default : None)
         Coordinate pair around which to center the layout
 
-    dim : int
+    dim : int, optional (default : 2)
         Dimension of layout
 
-    random_seed : int or None
+    random_seed : int or None, optinal (default : None)
         Seed for RandomState instance
 
     Returns
@@ -53,13 +51,13 @@ def circular_position(G, center=None, scale=1):
 
     Parameters
     ----------
-    G : NetworkX graph or list of nodes
+    G : easygraph.Graph or easygraph.DiGraph
         A position will be assigned to every node in G
 
-    center : array-like or None
+    center : array-like or None, optional (default : None)
         Coordinate pair around which to center the layout
 
-    scale : number (default: 1)
+    scale : number, optional (default : 1)
         Scale factor for positions
 
     Returns
@@ -92,15 +90,15 @@ def shell_position(G, nlist=None, scale=1, center=None):
 
     Parameters
     ----------
-    G : graph
+    G : easygraph.Graph or easygraph.DiGraph
 
-    nlist : list of lists or None
+    nlist : list of lists or None, optional (default : None)
        List of node lists for each shell.
 
-    scale : number (default: 1)
+    scale : number, optional (default : 1)
         Scale factor for positions.
 
-    center : array-like or None
+    center : array-like or None, optional (default : None)
         Coordinate pair around which to center the layout.
 
 
@@ -179,7 +177,7 @@ def rescale_position(pos, scale=1):
     pos : numpy array
         positions to be scaled. Each row is a position.
 
-    scale : number (default: 1)
+    scale : number, optional (default : 1)
         The size of the resulting extent in all directions.
 
     Returns

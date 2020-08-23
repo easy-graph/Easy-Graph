@@ -1,5 +1,3 @@
-import sys
-sys.path.append('../../../')
 import easygraph as eg
 from easygraph.utils.alias import create_alias_table, alias_sample
 
@@ -70,7 +68,41 @@ def create_model(node_size, hidden_size=[256, 128], l1=1e-5, l2=1e-4):
 
 class SDNE(object):
     def __init__(self, graph, hidden_size=[32, 16], alpha=1e-6, beta=5., nu1=1e-5, nu2=1e-4, ):
+        """Graph embedding via SDNE.
 
+        Parameters
+        ----------
+        graph : easygraph.Graph, easygraph.DiGraph
+
+        hidden_size : list of two elements, optinal (default : [32, 16])
+            The hidden size.
+
+        alpla : float, optinal (default : 1e-6)
+            The alpha value in [1]_.
+
+        beta : float, optinal (default : 5.)
+            The beta value in [1]_.
+
+        nu1 : float, optinal (default : 1e-5)
+            The nu1 value in [1]_.
+            
+        nu2 : float, optinal (default : 1e-4)
+            The nu2 value in [1]_.
+
+        Examples
+        --------
+        >>> model = SDNE(G, 
+            ...          hidden_size=[256, 128]) # The hidden size in SDNE.
+        >>> model.train(batch_size=3000, epochs=40, verbose=2)
+        >>> embeddings = model.get_embeddings() # Returns the graph embedding results.
+
+        References
+        ----------
+        .. [1] Wang D, Cui P, Zhu W. Structural deep network embedding[C]
+           //Proceedings of the 22nd ACM SIGKDD international conference on 
+           Knowledge Discovery and Data mining. 2016: 1225-1234.
+
+        """
         self.graph = graph
         self.idx2node, self.node2idx = get_relation_of_index_and_node(self.graph)
 
@@ -94,7 +126,20 @@ class SDNE(object):
         self.model.compile(optimizer=opt, loss=[l_2nd(self.beta), l_1st(self.alpha)], run_eagerly=True)
         self.get_embeddings()
 
-    def train(self, batch_size=1024, epochs=1, initial_epoch=0, verbose=1):
+    def train(self, batch_size=1024, epochs=2, initial_epoch=0, verbose=1):
+        """Train SDNE model.
+
+        Parameters
+        ----------
+        batch_size : int, optional (default : 1024)
+
+        epochs : int, optional (default : 2)
+
+        inital_epoch : int, optional (default : 0)
+
+        verbose : int, optional (default : 1)
+
+        """
         if batch_size >= self.node_size:
             if batch_size > self.node_size:
                 print('batch_size({0}) > node_size({1}),set batch_size = {1}'.format(
@@ -137,6 +182,14 @@ class SDNE(object):
         return self.model.evaluate(x=self.inputs, y=self.inputs, batch_size=self.node_size)
 
     def get_embeddings(self):
+        """Returns the embedding of each node.
+
+        Returns
+        -------
+        get_embeddings : dict
+            The graph embedding result of each node.
+
+        """
         self._embeddings = {}
         embeddings = self.emb_model.predict(self.A.todense(), batch_size=self.node_size)
         look_back = self.idx2node

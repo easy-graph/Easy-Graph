@@ -1,5 +1,3 @@
-import sys
-sys.path.append('../../../')
 import easygraph as eg
 
 import random
@@ -17,26 +15,49 @@ __all__ = [
 
 @only_implemented_for_UnDirected_graph
 def common_greedy(G, k, c=1.0, weight='weight'):
-    """
+    """Common greedy method for structural hole spanners detection.
+
     Returns top k nodes as structural hole spanners,
-    Algorithm 1 of https://dl.acm.org/profile/81484650642
+    Algorithm 1 of [1]_
 
     Parameters
     ----------
-    G : graph
+    G : easygraph.Graph
         An undirected graph.
 
     k : int
         top - k structural hole spanners
 
-    c : float
+    c : float, optional (default : 1.0)
         To define zeta: zeta = c * (n*n*n), and zeta is the large
         value assigned as the shortest distance of two unreachable
         vertices.
         Default is 1.
 
-    weight : String or None
+    weight : String or None, optinal (defautl : 'weight')
         Key for edge weight. None if not concerning about edge weight.
+
+    Returns
+    -------
+    common_greedy : list
+        The list of each top-k structural hole spanners.
+    
+    See Also
+    --------
+    AP_Greedy
+
+    Examples
+    --------
+    Returns the top k nodes as structural hole spanners, using **common_greedy**.
+
+    >>> common_greedy(G,
+    ...               k = 3, # To find top three structural holes spanners.
+    ...               c = 1.0, # To define zeta: zeta = c * (n*n*n), and zeta is the large value assigned as the shortest distance of two unreachable vertices.
+    ...               weight = 'weight')
+
+    References
+    ----------
+    .. [1] https://dl.acm.org/profile/81484650642
     
     """
     v_sns = []
@@ -86,6 +107,7 @@ def procedure1(G, c=1.0):
     c : float
         To define zeta: zeta = c * (n*n*n)
         Default is 1.
+
     """
     components = connected_components(G)
     upper_bound = 0
@@ -209,26 +231,45 @@ def _get_sum_all_shortest_paths_of_component(G):
 
 @only_implemented_for_UnDirected_graph
 def AP_Greedy(G, k, c=1.0, weight='weight'):
-    """
+    """AP greedy method for structural hole spanners detection.
+
     Returns top k nodes as structural hole spanners,
-    Algorithm 2 of https://dl.acm.org/profile/81484650642
+    Algorithm 2 of [1]_
 
     Parameters
     ----------
-    G : graph
+    G : easygraph.Graph
         An undirected graph.
 
     k : int
         top - k structural hole spanners
 
-    c : float
+    c : float, optional (default : 1.0)
         To define zeta: zeta = c * (n*n*n), and zeta is the large
         value assigned as the shortest distance of two unreachable
         vertices.
         Default is 1.
         
-    weight : String or None
+    weight : String or None, optional (default : 'weight')
         Key for edge weight. None if not concerning about edge weight.
+
+    Returns
+    -------
+    AP_greedy : list
+        The list of each top-k structural hole spanners.
+
+    Examples
+    --------
+    Returns the top k nodes as structural hole spanners, using **AP_greedy**.
+
+    >>> AP_greedy(G,
+    ...           k = 3, # To find top three structural holes spanners.
+    ...           c = 1.0, # To define zeta: zeta = c * (n*n*n), and zeta is the large value assigned as the shortest distance of two unreachable vertices.
+    ...           weight = 'weight')
+
+    References
+    ----------
+    .. [1] https://dl.acm.org/profile/81484650642
     """
     v_sns = []
     G_i = G.copy()

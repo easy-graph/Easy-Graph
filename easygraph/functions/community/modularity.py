@@ -5,7 +5,6 @@ __all__ = [
 ]
 
 def modularity(G, communities, weight='weight'):
-    # TODO: multigraph not included.
     """
     Returns the modularity of the given partition of the graph.
     Modularity is defined in [1]_ as
@@ -21,12 +20,13 @@ def modularity(G, communities, weight='weight'):
 
     Parameters
     ----------
-    G : graph
+    G : easygraph.Graph or easygraph.DiGraph
 
     communities : list or iterable of set of nodes
         These node sets must represent a partition of G's nodes.
 
-    weight : the key for edge weight
+    weight : string, optinal (default : 'weight')
+        The key for edge weight.
 
     Returns
     ----------
@@ -39,6 +39,7 @@ def modularity(G, communities, weight='weight'):
        Oxford University Press, 2011.
 
     """
+    # TODO: multigraph not included.
 
     if not isinstance(communities, list):
         communities = list(communities)

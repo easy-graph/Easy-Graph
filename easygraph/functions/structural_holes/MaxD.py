@@ -48,26 +48,41 @@ def get_community_kernel(G, C: [frozenset], weight='weight'):
     return kernels
 
 
-def get_structural_holes_MaxD (G, k_size, C: [frozenset]):
-    '''
-    To calc the strucutral hole spanners using MaxD.
+def get_structural_holes_MaxD (G, k, C: [frozenset]):
+    """Structural hole spanners detection via MaxD method.
 
-
+    Both **HIS** and **MaxD** are methods in [1]_. 
+    The authors developed these two methods to find the structural holes spanners, 
+    based on theory of information diffusion. 
+    
     Parameters
     ----------
-    G : graph
-        An undirected graph.
 
-    k_size : int
-        top-k SHS
+    k : int
+        Top-`k` structural hole spanners
 
-    C : [frozenset]
-        communities
-        
+    C : list of frozenset
+        Each frozenset denotes a community of nodes.
+
     Returns
     -------
-    A list of top-k spanners.
-    '''
+    get_structural_holes_MaxD : int
+        Top-`k` structural hole spanners
+
+    Examples
+    --------
+
+    >>> get_structural_holes_MaxD(G,
+    ...                           k = 5, # To find top five structural holes spanners.
+    ...                           C = [frozenset([1,2,3]), frozenset([4,5,6])] # Two communities
+    ...                           )
+    
+
+    References
+    ----------
+    .. [1] https://www.aminer.cn/structural-hole
+
+    """
 
 
     kernels = get_community_kernel(G, C)
@@ -85,18 +100,18 @@ def get_structural_holes_MaxD (G, k_size, C: [frozenset]):
         save.append(True)
     q = []
     ans_list = []
-    for step in range(k_size):
+    for step in range(k):
         q.clear()
         sflow.clear()
         for i in range(n):
             sflow.append(0)
         max_flow(n, kernels, save)
         for i in range(n*(c-1)):
-            k = head[i]
-            while k >= 0:
-                if flow[k] > 0:
-                    sflow[i % n] += flow[k]
-                k = nex[k]
+            k_ = head[i]
+            while k_ >= 0:
+                if flow[k_] > 0:
+                    sflow[i % n] += flow[k_]
+                k_ = nex[k_]
         for i in range(n):
             if save[i] == False:
                 q.append((-1, i))
@@ -106,7 +121,7 @@ def get_structural_holes_MaxD (G, k_size, C: [frozenset]):
         q.reverse()
         candidates = []
         for i in range(n):
-            if save[q[i][1]] == True and len(candidates) < k_size:
+            if save[q[i][1]] == True and len(candidates) < k:
                 candidates.append(q[i][1])
         ret = pick_candidates(n, candidates, kernels, save)
         ans_list.append(ret[1]+1)
@@ -186,11 +201,11 @@ def dinic_bfs():
     Q.append(src)
     cl = 0
     while cl < len(Q):
-        k = Q[cl]
-        i = head[k]
+        k_ = Q[cl]
+        i = head[k_]
         while i >= 0:
             if flow[i] < capa[i] and dsave[point[i]]==True and dist[point[i]]<0:
-                dist[point[i]] = dist[k]+1
+                dist[point[i]] = dist[k_]+1
                 Q.append(point[i])
             i = nex[i]
         cl += 1
@@ -274,8 +289,8 @@ def max_flow(n,kernels, save, prev_flow = None):
 
     c = len(kernels)
     for i in range(n):
-        for k in range(c-1):
-            dsave[k*n+i] = save[i]
+        for k_ in range(c-1):
+            dsave[k_*n+i] = save[i]
     ret = dinic_flow()
     return ret
 
