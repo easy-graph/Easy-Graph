@@ -168,12 +168,11 @@ def Kruskal(G):
     for i in G:
         result_dict[i]={}
     for i in G:
-        for j in G:
-            if j in G[i]:
-                weight=adj[i][j]['weight']
-                edge_list.append([i,j,weight])
+        for j in G[i]:
+            weight=adj[i][j]['weight']
+            edge_list.append([i,j,weight])
     edge_list.sort(key=lambda a:a[2])
-    group = [[i] for i in range(len(G))]
+    group = [[i] for i in G]
     for edge in edge_list:
       for i in range(len(group)):
         if edge[0] in group[i]:

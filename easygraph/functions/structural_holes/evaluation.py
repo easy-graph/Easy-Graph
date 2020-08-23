@@ -83,6 +83,7 @@ def efficiency(G, nodes=None, weight=None):
     e_size = effective_size(G=G, nodes=nodes, weight=weight)
     degree = G.degree(weight=weight)
     efficiency = {n: v / degree[n] for n, v in e_size.items()}
+    return efficiency
 
 
 def constraint(G, nodes=None, weight=None, n_workers=None):
