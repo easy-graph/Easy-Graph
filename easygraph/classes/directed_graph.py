@@ -82,8 +82,8 @@ class DiGraph(object):
 
     @property
     def nodes(self):
-        # return self._node
-        return [node for node in self._node]
+        return self._node
+        # return [node for node in self._node]
 
     @property
     def edges(self):
