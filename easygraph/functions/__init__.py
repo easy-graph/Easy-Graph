@@ -6,3 +6,4 @@ from easygraph.functions.drawing import *
 
 from easygraph.functions.not_sorted import *
 from easygraph.functions.path import *
+from easygraph.functions.centrality import *

@@ -39,8 +39,12 @@ def greedy_modularity_communities(G, weight='weight'):
     """
 
     # Count nodes and edges
+
     N = len(G.nodes)
     m = sum([d.get(weight, 1) for u, v, d in G.edges])
+    if N == 0 or m == 0:
+        print("Please input the graph which has at least one edge!")
+        exit()
     q0 = 1.0 / (2.0*m)
 
     # Map node labels to contiguous integers

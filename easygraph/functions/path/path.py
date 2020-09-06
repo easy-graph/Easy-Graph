@@ -32,7 +32,7 @@ def Dijkstra(G,node):
     temp_key = adj[node].keys()
     for i in G:
         if i in temp_key:
-            result_dict[i]=adj[node][i]['weight']
+            result_dict[i]=adj[node][i].get("weight",1)
         else:
             result_dict[i]=float("inf") 
         visited[i]=0
@@ -40,14 +40,15 @@ def Dijkstra(G,node):
     visited[node]=1
     for i in G: 
         min=float("inf") 
+        k = node
         for j in G:
             if not visited[j] and result_dict[j] < min:
                 k = j
                 min = result_dict[j]
         visited[k] = 1
         for j in G:
-            if not visited[j] and j in adj[k].keys() and min + adj[k][j]['weight'] < result_dict[j]:
-                result_dict[j] = min + adj[k][j]['weight']
+            if not visited[j] and j in adj[k].keys() and min + adj[k][j].get("weight",1) < result_dict[j]:
+                result_dict[j] = min + adj[k][j].get("weight",1)
     return result_dict
 
 
@@ -79,7 +80,7 @@ def Floyd(G):
         temp_key = adj[i].keys()
         for j in G:
             if j in temp_key:
-                result_dict[i][j]=adj[i][j]['weight']
+                result_dict[i][j]=adj[i][j].get("weight",1)
             else:
                 result_dict[i][j]=float("inf") 
             if i==j:
@@ -129,10 +130,10 @@ def Prim(G):
         min_weight=float("inf")
         for i in selected:
             for j in candidate:
-                if i in G and j in G[i] and adj[i][j]['weight']<min_weight:
+                if i in G and j in G[i] and adj[i][j].get("weight",1)<min_weight:
                     start=i
                     end=j
-                    min_weight=adj[i][j]['weight']
+                    min_weight=adj[i][j].get("weight",1)
         if start!=None and end!=None:
             result_dict[start][end]=min_weight
             selected.append(end)
@@ -169,7 +170,7 @@ def Kruskal(G):
         result_dict[i]={}
     for i in G:
         for j in G[i]:
-            weight=adj[i][j]['weight']
+            weight=adj[i][j].get("weight",1)
             edge_list.append([i,j,weight])
     edge_list.sort(key=lambda a:a[2])
     group = [[i] for i in G]
