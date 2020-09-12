@@ -225,18 +225,23 @@ def local_constraint(G, u, v, weight=None):
         return result
 
 def hierarchy(G,nodes=None,weight=None):
-    """Returns the hierarchy of nodes in the graph
+    """Burt's metric - Hierarchy.
 
     Parameters
     ---------- 
-    G : graph
-    nodes :  dict, optional (default: None)
-    weight : dict, optional (default: None)
+    G : easygraph.Graph
+
+    nodes : list of nodes or None, optional (default : None)
+        The nodes you want to calculate. If *None*, all nodes in `G` will be calculated.
+
+    weight : string or None, optional (default : None)
+        The key for edge weight. If *None*, `G` will be regarded as unweighted graph.
+
 
     Returns
     -------
     hierarchy : dict
-        the hierarchy of nodes in the graph
+        The hierarchy of node in `nodes`
 
     Examples
     --------
@@ -246,7 +251,8 @@ def hierarchy(G,nodes=None,weight=None):
 
     Reference
     ---------
-    https://m.book118.com/html/2019/0318/5320024122002021.shtm
+    .. [1] Burt R S. Structural holes: The social structure of competition[M]. 
+       Harvard university press, 2009.
 
     """
     if nodes is None:
