@@ -1,4 +1,5 @@
 import easygraph as eg
+import progressbar
 
 __all__ = [
     'get_graph_karateclub',
@@ -16,7 +17,7 @@ def get_graph_karateclub():
     get_graph_karateclub : easygraph.Graph
         The undirected graph instance of karate club from dataset:
         http://vlado.fmf.uni-lj.si/pub/networks/data/Ucinet/UciData.htm
-    
+
     References
     ----------
     .. [1] http://vlado.fmf.uni-lj.si/pub/networks/data/Ucinet/UciData.htm
@@ -78,7 +79,6 @@ def get_graph_karateclub():
     return G
 
 
-
 def get_graph_blogcatalog():
     """Returns the undirected graph of blogcatalog.
 
@@ -94,6 +94,7 @@ def get_graph_blogcatalog():
 
     """
     from scipy.io import loadmat
+
     def sparse2graph(x):
         from collections import defaultdict
         from six import iteritems
@@ -103,15 +104,16 @@ def get_graph_blogcatalog():
         for i, j, v in zip(cx.row, cx.col, cx.data):
             G[i].add(j)
         return {str(k): [str(x) for x in v] for k, v in iteritems(G)}
-    
+
     mat = loadmat('./samples/blogcatalog.mat')
+    A = mat['network']
     data = sparse2graph(A)
 
     G = eg.Graph()
     for u in data:
         for v in data[u]:
             G.add_edge(u, v)
-    
+
     return G
 
 
@@ -127,7 +129,7 @@ def get_graph_youtube():
     References
     ----------
     .. [1] http://socialnetworks.mpi-sws.mpg.de/data/youtube-links.txt.gz
-    
+
     """
     from urllib import request
     import gzip
@@ -136,7 +138,8 @@ def get_graph_youtube():
     unzipped_data_path = './samples/youtube-links.txt'
 
     # Download .gz file
-    request.urlretrieve(url, zipped_data_path)
+    print("Downloading Youtube dataset...")
+    request.urlretrieve(url, zipped_data_path, _show_progress)
 
     # Unzip
     unzipped_data = gzip.GzipFile(zipped_data_path)
@@ -170,7 +173,8 @@ def get_graph_flickr():
     unzipped_data_path = './samples/flickr-links.txt'
 
     # Download .gz file
-    request.urlretrieve(url, zipped_data_path)
+    print("Downloading Flickr dataset...")
+    request.urlretrieve(url, zipped_data_path, _show_progress)
 
     # Unzip
     unzipped_data = gzip.GzipFile(zipped_data_path)
@@ -181,3 +185,20 @@ def get_graph_flickr():
     G = eg.Graph()
     G.add_edges_from_file(file=unzipped_data_path)
     return G
+
+
+_pbar = None
+
+
+def _show_progress(block_num, block_size, total_size):
+    global _pbar
+    if _pbar is None:
+        _pbar = progressbar.ProgressBar(maxval=total_size)
+        _pbar.start()
+
+    downloaded = block_num * block_size
+    if downloaded < total_size:
+        _pbar.update(downloaded)
+    else:
+        _pbar.finish()
+        _pbar = None
