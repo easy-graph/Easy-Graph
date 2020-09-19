@@ -6,7 +6,7 @@ __all__ = [
 ]
 
 
-def get_structural_holes_HIS(G, C: [frozenset], epsilon, weight='weight'):
+def get_structural_holes_HIS(G, C: [frozenset], epsilon=1e-4, weight='weight'):
     """Structural hole spanners detection via HIS method.
 
     Both **HIS** and **MaxD** are methods in [1]_. 
@@ -51,7 +51,7 @@ def get_structural_holes_HIS(G, C: [frozenset], epsilon, weight='weight'):
     ...                          epsilon = 0.01,
     ...                          weight = 'weight'
     ...                          )
-    
+
 
     References
     ----------
@@ -145,4 +145,3 @@ def is_convergence(G, C, I, I_new, epsilon):
             deltas.append(
                 abs(I[node][cmnt_index] - I_new[node][cmnt_index]))
     return max(deltas) < epsilon
-    
