@@ -682,11 +682,16 @@ class Graph(object):
         neighbors_of_center.append(center)
         return self.nodes_subgraph(from_nodes=neighbors_of_center)
 
-    def to_index_node_graph(self):
+    def to_index_node_graph(self, begin_index=0):
         """Returns a deep copy of graph, with each node switched to its index.
 
         Considering that the nodes of your graph may be any possible hashable Python object, 
         you can get an isomorphic graph of the original one, with each node switched to its index.
+
+        Parameters
+        ----------
+        begin_index : int
+            The begin index of the index graph.
 
         Returns
         -------
@@ -718,9 +723,9 @@ class Graph(object):
         index_of_node = dict()
         node_of_index = dict()
         for index, (node, node_attr) in enumerate(self._node.items()):
-            G.add_node(index, **node_attr)
-            index_of_node[node] = index
-            node_of_index[index] = node
+            G.add_node(index + begin_index, **node_attr)
+            index_of_node[node] = index + begin_index
+            node_of_index[index + begin_index] = node
         for u, nbrs in self._adj.items():
             for v, edge_data in nbrs.items():
                 G.add_edge(index_of_node[u], index_of_node[v], **edge_data) 

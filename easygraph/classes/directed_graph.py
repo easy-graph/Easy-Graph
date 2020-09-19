@@ -1,12 +1,13 @@
 from copy import deepcopy
 
+
 class DiGraph(object):
     """ 
     Base class for directed graphs.
-	
-	Nodes are allowed for any hashable Python objects, including int, string, dict, etc.
-	Edges are stored as Python dict type, with optional key/value attributes.
-	
+
+        Nodes are allowed for any hashable Python objects, including int, string, dict, etc.
+        Edges are stored as Python dict type, with optional key/value attributes.
+
     Parameters
     ----------
     graph_attr : keywords arguments, optional (default : None)
@@ -127,7 +128,7 @@ class DiGraph(object):
                 degree[u] += d.get(weight, 1)
             else:
                 degree[u] = d.get(weight, 1)
-        
+
         # For isolated nodes
         for node in self.nodes:
             if node not in degree:
@@ -169,7 +170,7 @@ class DiGraph(object):
                 degree[v] += d.get(weight, 1)
             else:
                 degree[v] = d.get(weight, 1)
-        
+
         # For isolated nodes
         for node in self.nodes:
             if node not in degree:
@@ -226,7 +227,7 @@ class DiGraph(object):
         weight : String or None, optional
             The weight key. If None, it will calculate the number of
             edges, instead of total of all edge weights.
-        
+
         Returns
         -------
         size : int or float, optional (default: None)
@@ -234,9 +235,9 @@ class DiGraph(object):
 
         Examples
         --------
-        
+
         Returns the number of edges in G:
-        
+
         >>> G.size()
 
         Returns the total of all edge weights in G:
@@ -275,7 +276,7 @@ class DiGraph(object):
             print("No node {}".format(node))
 
     successors = neighbors
-    
+
     def predecessors(self, node):
         """Returns an iterator of a node's neighbors (predecessors).
 
@@ -371,10 +372,10 @@ class DiGraph(object):
         Parameters
         ----------
         nodes_for_adding : list
-        
+
         nodes_attr : list of dict
             The corresponding attribute for each of *nodes_for_adding*.
-        
+
         See Also
         --------
         add_node
@@ -402,7 +403,7 @@ class DiGraph(object):
         ...         'gender': 'F'
         ...     }
         ... ])
-        
+
         """
         if not len(nodes_attr) == 0:  # Nodes attributes included in input
             assert len(nodes_for_adding) == len(
@@ -457,7 +458,7 @@ class DiGraph(object):
         >>> G.add_edge('Jack', 'Tom', weight=10)  
 
         Add edge with attributes, edge weight, for example,
-        
+
         >>> G.add_edge(1, 2, **{
         ...     'weight': 20
         ... })
@@ -479,7 +480,7 @@ class DiGraph(object):
 
         edges_attr : list of dict, optional
             The corresponding attributes for each edge in *edges_for_adding*. 
-        
+
         Examples
         --------
         Add a list of edges into *G*
@@ -543,7 +544,7 @@ class DiGraph(object):
         Jack Mary 23.0
 
         Mary Tom 15.0
-        
+
         Tom Ben 20.0
 
         Then add them to *G*
@@ -651,7 +652,7 @@ class DiGraph(object):
         ----------
         u : object
             The start end of the edge.
-    
+
         v : object
             The destination end of the edge.
 
@@ -754,12 +755,12 @@ class DiGraph(object):
         for u, nbrs in self._adj.items():
             for v, edge_data in nbrs.items():
                 G.add_edge(u, v, **edge_data)
-        
+
         return G
 
     def nodes_subgraph(self, from_nodes: list):
         """Returns a subgraph of some nodes
-        
+
         Parameters
         ----------
         from_nodes : list of object
@@ -821,17 +822,22 @@ class DiGraph(object):
         neighbors_of_center.append(center)
         return self.nodes_subgraph(from_nodes=neighbors_of_center)
 
-    def to_index_node_graph(self):
+    def to_index_node_graph(self, begin_index=0):
         """Returns a deep copy of graph, with each node switched to its index.
 
         Considering that the nodes of your graph may be any possible hashable Python object, 
         you can get an isomorphic graph of the original one, with each node switched to its index.
 
+        Parameters
+        ----------
+        begin_index : int
+            The begin index of the index graph.
+
         Returns
         -------
         G : easygraph.Graph
             Deep copy of graph, with each node switched to its index.
-        
+
         index_of_node : dict
             Index of node
 
@@ -842,7 +848,7 @@ class DiGraph(object):
         --------
         The following method returns this isomorphic graph and index-to-node dictionary 
         as well as node-to-index dictionary.
-        
+
         >>> G = eg.Graph()
         >>> G.add_edges([
         ...     ('Jack', 'Maria'),
@@ -857,11 +863,11 @@ class DiGraph(object):
         index_of_node = dict()
         node_of_index = dict()
         for index, (node, node_attr) in enumerate(self._node.items()):
-            G.add_node(index, **node_attr)
-            index_of_node[node] = index
-            node_of_index[index] = node
+            G.add_node(index + begin_index, **node_attr)
+            index_of_node[node] = index + begin_index
+            node_of_index[index + begin_index] = node
         for u, nbrs in self._adj.items():
             for v, edge_data in nbrs.items():
-                G.add_edge(index_of_node[u], index_of_node[v], **edge_data) 
-        
+                G.add_edge(index_of_node[u], index_of_node[v], **edge_data)
+
         return G, index_of_node, node_of_index
