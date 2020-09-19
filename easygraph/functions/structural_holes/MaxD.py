@@ -3,6 +3,7 @@ __all__ = [
     "get_structural_holes_MaxD"
 ]
 
+
 def get_community_kernel(G, C: [frozenset], weight='weight'):
     '''
     To get community kernels with most degrees.
@@ -26,8 +27,8 @@ def get_community_kernel(G, C: [frozenset], weight='weight'):
     kernels = []
     cnt = 0
     for i in range(len(C)):
-        mask = 1<<i
-        cnt+=1
+        mask = 1 << i
+        cnt += 1
         q = []
         p = []
         for i in range(len(G)):
@@ -36,7 +37,7 @@ def get_community_kernel(G, C: [frozenset], weight='weight'):
         q.sort()
         q.reverse()
         for i in range(max(int(len(q)/100),
-                           min(2, len(q)))): # latter of min for test.
+                           min(2, len(q)))):  # latter of min for test.
             p.append(q[i][1])
         kernels.append(p)
     if len(kernels) < 2:
@@ -48,13 +49,13 @@ def get_community_kernel(G, C: [frozenset], weight='weight'):
     return kernels
 
 
-def get_structural_holes_MaxD (G, k, C: [frozenset]):
+def get_structural_holes_MaxD(G, k, C: [frozenset]):
     """Structural hole spanners detection via MaxD method.
 
     Both **HIS** and **MaxD** are methods in [1]_. 
     The authors developed these two methods to find the structural holes spanners, 
     based on theory of information diffusion. 
-    
+
     Parameters
     ----------
 
@@ -76,24 +77,31 @@ def get_structural_holes_MaxD (G, k, C: [frozenset]):
     ...                           k = 5, # To find top five structural holes spanners.
     ...                           C = [frozenset([1,2,3]), frozenset([4,5,6])] # Two communities
     ...                           )
-    
+
 
     References
     ----------
     .. [1] https://www.aminer.cn/structural-hole
 
     """
+    G_index, index_of_node, node_of_index = G.to_index_node_graph(
+        begin_index=1)
+    C_index = []
+    for cmnt in C:
+        cmnt_index = []
+        for node in cmnt:
+            cmnt_index.append(index_of_node[node])
+        C_index.append(frozenset(cmnt_index))
 
-
-    kernels = get_community_kernel(G, C)
+    kernels = get_community_kernel(G_index, C_index)
     c = len(kernels)
     save = []
-    for i in range(len(G)):
+    for i in range(len(G_index)):
         save.append(False)
 
-    build_network(kernels, c, G)
+    build_network(kernels, c, G_index)
 
-    n = len(G)
+    n = len(G_index)
     sflow = []
     save = []
     for i in range(n):
@@ -116,7 +124,7 @@ def get_structural_holes_MaxD (G, k, C: [frozenset]):
             if save[i] == False:
                 q.append((-1, i))
             else:
-                q.append((sflow[i]+G.degree(weight="weight")[i+1], i))
+                q.append((sflow[i]+G_index.degree(weight="weight")[i+1], i))
         q.sort()
         q.reverse()
         candidates = []
@@ -127,7 +135,12 @@ def get_structural_holes_MaxD (G, k, C: [frozenset]):
         ans_list.append(ret[1]+1)
     del sflow
     del q
+
+    for i in range(len(ans_list)):
+        ans_list[i] = node_of_index[ans_list[i]]
+
     return ans_list
+
 
 def pick_candidates(n, candidates, kernels, save):
     '''
@@ -166,6 +179,7 @@ def pick_candidates(n, candidates, kernels, save):
         save[best_key] = False
     return (old_flow+mcut, best_key)
 
+
 head = []
 
 point = []
@@ -183,6 +197,7 @@ node = 0
 nedge = 0
 prev_flow = []
 oo = 1000000000
+
 
 def dinic_bfs():
     '''
@@ -204,12 +219,13 @@ def dinic_bfs():
         k_ = Q[cl]
         i = head[k_]
         while i >= 0:
-            if flow[i] < capa[i] and dsave[point[i]]==True and dist[point[i]]<0:
+            if flow[i] < capa[i] and dsave[point[i]] == True and dist[point[i]] < 0:
                 dist[point[i]] = dist[k_]+1
                 Q.append(point[i])
             i = nex[i]
         cl += 1
     return dist[dest] >= 0
+
 
 def dinic_dfs(x, exp):
     '''
@@ -231,17 +247,18 @@ def dinic_dfs(x, exp):
     while i >= 0:
         v = point[i]
         tmp = 0
-        if flow[i] < capa[i] and dist[v]==dist[x]+1:
+        if flow[i] < capa[i] and dist[v] == dist[x]+1:
             tmp = dinic_dfs(v, min(exp, capa[i] - flow[i]))
-            if tmp>0:
+            if tmp > 0:
                 flow[i] += tmp
-                flow[i^1] -= tmp
+                flow[i ^ 1] -= tmp
                 res += tmp
                 exp -= tmp
                 if exp == 0:
                     break
         i = nex[i]
     return res
+
 
 def dinic_flow():
     '''
@@ -260,7 +277,8 @@ def dinic_flow():
         result += dinic_dfs(src, oo)
     return result
 
-def max_flow(n,kernels, save, prev_flow = None):
+
+def max_flow(n, kernels, save, prev_flow=None):
     '''
     Calculate max_flow.
     Parameters
@@ -279,7 +297,6 @@ def max_flow(n,kernels, save, prev_flow = None):
     for i in range(node):
         dsave.append(True)
 
-
     if prev_flow != None:
         for i in range(nedge):
             flow.append(prev_flow[i])
@@ -293,6 +310,7 @@ def max_flow(n,kernels, save, prev_flow = None):
             dsave[k_*n+i] = save[i]
     ret = dinic_flow()
     return ret
+
 
 def init_MaxD(_node, _src, _dest):
     '''
@@ -323,6 +341,7 @@ def init_MaxD(_node, _src, _dest):
 
     return
 
+
 def addedge(u, v, c1, c2):
     '''
     Add an edge(u,v) with capacity c1 and inverse capacity c2.
@@ -351,8 +370,9 @@ def addedge(u, v, c1, c2):
     flow.append(0)
     nex.append(head[v])
     head[v] = nedge
-    nedge +=1
+    nedge += 1
     return
+
 
 def build_network(kernels, c, G):
     '''
