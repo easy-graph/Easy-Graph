@@ -1,15 +1,17 @@
+import scipy.stats as stat
 __all__ = [
     "get_structural_holes_HAM"
 ]
 import numpy as np
-import json, os
+import json
+import os
 import scipy.sparse as sps
 import scipy.linalg as spl
 from sklearn import metrics
 from scipy.cluster.vq import kmeans, vq, kmeans2
 from collections import Counter
-eps=2.220446049250313e-16
-import scipy.stats as stat
+eps = 2.220446049250313e-16
+
 
 def sym(w):
     '''
@@ -23,6 +25,7 @@ def sym(w):
     F : a random orthogonal matrix.
     '''
     return w.dot(spl.inv(spl.sqrtm(w.T.dot(w))))
+
 
 def avg_entropy(predicted_labels, actual_labels):
     '''
@@ -40,22 +43,23 @@ def avg_entropy(predicted_labels, actual_labels):
     actual_labels_dict = {}
     predicted_labels_dict = {}
     for label in np.unique(actual_labels):
-        actual_labels_dict[label] = np.nonzero(actual_labels==label)[0]
+        actual_labels_dict[label] = np.nonzero(actual_labels == label)[0]
     for label in np.unique(predicted_labels):
-        predicted_labels_dict[label] = np.nonzero(predicted_labels==label)[0]
+        predicted_labels_dict[label] = np.nonzero(predicted_labels == label)[0]
     avg_value = 0
     N = len(predicted_labels)
     # store entropy for each community
     for label, items in predicted_labels_dict.items():
         N_i = float(len(items))
         p_i = []
-        for label2, items2  in actual_labels_dict.items():
+        for label2, items2 in actual_labels_dict.items():
             common = set(items.tolist()).intersection(set(items2.tolist()))
-            p_ij = float(len(common))/ N_i
+            p_ij = float(len(common)) / N_i
             p_i.append(p_ij)
         entropy_i = stat.entropy(p_i)
         avg_value += entropy_i * (N_i / float(N))
     return avg_value
+
 
 def load_adj_matrix(G):
     '''
@@ -73,13 +77,15 @@ def load_adj_matrix(G):
     for edge in G.edges:
         listE.append(edge[0]-1)
         listE.append(edge[1]-1)
-    adj_tuples = np.array(listE).reshape(-1,2)
+    adj_tuples = np.array(listE).reshape(-1, 2)
     n = len(np.unique(adj_tuples))
     vals = np.array([1] * len(G.edges))
     max_id = max(max(adj_tuples[:, 0]), max(adj_tuples[:, 1])) + 1
-    A = sps.csr_matrix((vals, (adj_tuples[:, 0], adj_tuples[:, 1])), shape=(max_id, max_id))
+    A = sps.csr_matrix(
+        (vals, (adj_tuples[:, 0], adj_tuples[:, 1])), shape=(max_id, max_id))
     A = A + A.T
     return sps.csr_matrix(A)
+
 
 def majority_voting(votes):
     '''
@@ -95,16 +101,17 @@ def majority_voting(votes):
     '''
     C = Counter(votes)
     pairs = C.most_common(2)
-    if len(pairs)==0:
+    if len(pairs) == 0:
         return 0
     if pairs[0][0] > 0:
         return pairs[0][0]
-    elif len(pairs)>1:
+    elif len(pairs) > 1:
         return pairs[1][0]
     else:
         return 0
 
-def label_by_neighbors(AdjMat,labels):
+
+def label_by_neighbors(AdjMat, labels):
     '''
     classifify SHS using majority voting.
 
@@ -118,21 +125,21 @@ def label_by_neighbors(AdjMat,labels):
     labels : a Ndarray of labeled communities of the nodes.
     '''
     assert (AdjMat.shape[0] == len(labels)), "dimensions are not equal"
-    unlabeled_idx = (labels==0)
+    unlabeled_idx = (labels == 0)
     num_unlabeled = sum(unlabeled_idx)
     count = 0
     while num_unlabeled > 0:
         idxs = np.array(np.nonzero(unlabeled_idx)[0])
         next_labels = np.zeros(len(labels))
         for idx in idxs:
-            neighbors = np.nonzero(AdjMat[idx,:] > 0)[1]
-            if len(neighbors)==0:
+            neighbors = np.nonzero(AdjMat[idx, :] > 0)[1]
+            if len(neighbors) == 0:
                 next_labels[idx] = majority_voting(labels)
-            else :
+            else:
                 neighbor_labels = labels[neighbors]
                 next_labels[idx] = majority_voting(neighbor_labels)
         labels[idxs] = next_labels[idxs]
-        unlabeled_idx = (labels==0)
+        unlabeled_idx = (labels == 0)
         num_unlabeled = sum(unlabeled_idx)
     return labels
 
@@ -158,9 +165,16 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
 
     Returns
     -------
-    get_structural_holes_HAM : NumPy Ndarray
-        A Ndarray of top k nodes as structural hole spanners, and a Ndarray of labeled communities of the nodes.
-    
+    top_k_nodes : list
+        The top-k structural hole spanners. 
+
+    SH_score : dict
+        The structural hole spanners score for each node, given by HAM.
+
+    cmnt_labels : dict
+        The communities label of each node.
+
+
     Examples
     --------
 
@@ -173,9 +187,13 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
     References
     ----------
     .. [1] https://dl.acm.org/doi/10.1145/2939672.2939807
-    
+
     '''
-    A_mat = load_adj_matrix(G)
+
+    G_index, _, node_of_index = G.to_index_node_graph(
+        begin_index=1)
+
+    A_mat = load_adj_matrix(G_index)
     A = A_mat  # adjacency matrix
     n = A.shape[0]  # the number of nodes
 
@@ -185,9 +203,12 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
     np.random.seed(seeeed)
     topk = k
 
-    invD = sps.diags((np.array(A.sum(axis=0))[0, :]+eps) ** (-1.0), 0) # Inv of degree matrix D^-1
-    L = (sps.identity(n) - invD.dot(A)).tocsr()  # Laplacian matrix L = I - D^-1 * A
-    F = sym(np.random.random((n, c))) # Initialize a random orthogonal matrix F
+    # Inv of degree matrix D^-1
+    invD = sps.diags((np.array(A.sum(axis=0))[0, :]+eps) ** (-1.0), 0)
+    # Laplacian matrix L = I - D^-1 * A
+    L = (sps.identity(n) - invD.dot(A)).tocsr()
+    # Initialize a random orthogonal matrix F
+    F = sym(np.random.random((n, c)))
 
     # Algorithm 1
     for step in range(max_iter):
@@ -208,8 +229,6 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
         SH[i] = np.linalg.norm(F[i, :])
     SHrank = np.argsort(SH)  # index of SH
 
-
-
     # METRICS BEGIN
 
     to_keep_index = np.sort(SHrank[topk:])
@@ -223,21 +242,42 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
     HAM_labels, dist = vq(cluster_matrix[to_keep_index, :], labelbook)
 
     print("AMI")
-    print('HAM: ' + str(metrics.adjusted_mutual_info_score(HAM_labels, HAM_labels_keep.T[0])))
+    print('HAM: ' + str(metrics.adjusted_mutual_info_score(HAM_labels,
+                                                           HAM_labels_keep.T[0])))
 
     # classifify SHS using majority voting
     predLabels = np.zeros(len(ground_truth_labels))
     predLabels[to_keep_index] = HAM_labels + 1
 
     HAM_predLabels = label_by_neighbors(A, predLabels)
-    print('HAM_all: ' + str(metrics.adjusted_mutual_info_score(HAM_predLabels, allLabels.T[0])))
+    print('HAM_all: ' +
+          str(metrics.adjusted_mutual_info_score(HAM_predLabels, allLabels.T[0])))
 
     print("NMI")
-    print('HAM: ' + str(metrics.normalized_mutual_info_score(HAM_labels, HAM_labels_keep.T[0])))
-    print('HAM_all: ' + str(metrics.normalized_mutual_info_score(HAM_predLabels, allLabels.T[0])))
+    print('HAM: ' + str(metrics.normalized_mutual_info_score(HAM_labels,
+                                                             HAM_labels_keep.T[0])))
+    print('HAM_all: ' +
+          str(metrics.normalized_mutual_info_score(HAM_predLabels, allLabels.T[0])))
 
     print("Entropy")
     print('HAM: ' + str(avg_entropy(HAM_labels, HAM_labels_keep.T[0])))
     print('HAM_all: ' + str(avg_entropy(HAM_predLabels, allLabels.T[0])))
 
     # METRICS END
+
+    SH_score = dict()
+    for index, rank in enumerate(SHrank):
+        SH_score[node_of_index[index+1]] = int(rank)
+
+    cmnt_labels = dict()
+    for index, label in enumerate(HAM_predLabels):
+        cmnt_labels[node_of_index[index+1]] = int(label)
+
+    # top-k SHS
+    top_k_ind = np.argpartition(SHrank, -k)[-k:]
+    top_k_ind = top_k_ind[np.argsort(SHrank[top_k_ind])[::-1][:k]]
+    top_k_nodes = []
+    for ind in top_k_ind:
+        top_k_nodes.append(node_of_index[ind+1])
+
+    return top_k_nodes, SH_score, cmnt_labels
