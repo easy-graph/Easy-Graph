@@ -67,7 +67,7 @@ def get_structural_holes_MaxD(G, k, C: [frozenset]):
 
     Returns
     -------
-    get_structural_holes_MaxD : int
+    get_structural_holes_MaxD : list
         Top-`k` structural hole spanners
 
     Examples
