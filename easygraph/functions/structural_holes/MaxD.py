@@ -84,6 +84,8 @@ def get_structural_holes_MaxD(G, k, C: [frozenset]):
     .. [1] https://www.aminer.cn/structural-hole
 
     """
+    _init_data()
+    
     G_index, index_of_node, node_of_index = G.to_index_node_graph(
         begin_index=1)
     C_index = []
@@ -197,6 +199,29 @@ node = 0
 nedge = 0
 prev_flow = []
 oo = 1000000000
+
+def _init_data():
+    global head, point, nex, flow, capa
+    global dist, work, dsave
+    global src, dest, node, nedge, prev_flow, oo
+
+    head = []
+
+    point = []
+    nex = []
+    flow = []
+    capa = []
+
+    dist = []
+    work = []
+    dsave = []
+
+    src = 0
+    dest = 0
+    node = 0
+    nedge = 0
+    prev_flow = []
+    oo = 1000000000
 
 
 def dinic_bfs():
