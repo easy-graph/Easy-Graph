@@ -1,4 +1,4 @@
-# Easy-Graph
+# EasyGraph(v.0.2a4)
 
 EasyGraph is an open source graph processing library. It is written in Python and supports analysis for undirected graphs and directed graphs. It covers advanced graph processing methods in structural hole spanners detection, graph embedding and several classic methods (subgraph generation, connected component discovery and isomorphic graph generation).
 
