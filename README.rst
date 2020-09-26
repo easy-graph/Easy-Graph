@@ -34,7 +34,8 @@ or ``conda``
 Simple Example
 --------------
 
-This is a simple example of `sturctural hole spanners <https://en.wikipedia.org/wiki/Structural_holes>`_ detection with `HIS <https://keg.cs.tsinghua.edu.cn/jietang/publications/WWW13-Lou&Tang-Structural-Hole-Information-Diffusion.pdf>`_.
+This is a simple example of the detection of `sturctural hole spanners <https://en.wikipedia.org/wiki/Structural_holes>`_ 
+using the `HIS <https://keg.cs.tsinghua.edu.cn/jietang/publications/WWW13-Lou&Tang-Structural-Hole-Information-Diffusion.pdf>`_ algorithm.
 
 .. code:: python
 
