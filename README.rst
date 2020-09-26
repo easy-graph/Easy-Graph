@@ -9,6 +9,9 @@ Copyright (C) <2020> by Mobile Systems and Networking Group, Fudan University
 .. image:: https://img.shields.io/pypi/pyversions/Python-EasyGraph.svg
    :target: https://pypi.org/project/Python-EasyGraph/
    
+.. image:: https://img.shields.io/pypi/l/Python-EasyGraph
+   :target: https://github.com/easy-graph/Easy-Graph/blob/master/LICENSE
+   
 - **Documentation:** https://easy-graph.github.io/
 - **Source:** https://github.com/easy-graph/Easy-Graph
 - **Bug Reports:** https://github.com/easy-graph/Easy-Graph/issues
