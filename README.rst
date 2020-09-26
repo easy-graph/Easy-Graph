@@ -1,4 +1,4 @@
-EasyGraph(v.0.2a4)
+EasyGraph(v.0.2a5)
 ==================
 
 Copyright (C) <2020> by Mobile Systems and Networking Group, Fudan University
