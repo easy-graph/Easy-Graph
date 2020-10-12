@@ -1,9 +1,19 @@
 __all__=[
+    "weight_function",
     "Dijkstra",
     "Floyd",
     "Prim",
-    "Kruskal"
+    "Kruskal",
+    "Dijkstra_mutilsource_path_predecessor_distance",
+    "all_shortest_paths",
+    "all_pairs_dijkstra_path"
 ]
+
+def weight_function(G, weight):
+    if callable(weight):
+        return weight
+    return lambda u, v, data: data.get(weight, 1)
+
 
 def Dijkstra(G,node):
     """Returns the length of paths from the certain node to remaining nodes
@@ -51,6 +61,173 @@ def Dijkstra(G,node):
                 result_dict[j] = min + adj[k][j].get("weight",1)
     return result_dict
 
+def Dijkstra_mutilsource_path_predecessor_distance(G, sources, weight=None):
+    """Returns the length of paths from the certain node to remaining nodes
+
+    Parameters
+    ---------- 
+    G : graph
+        weighted graph
+    node : int
+
+    Returns
+    -------
+    result_dict : dict
+        the length of paths from the certain node to remaining nodes
+
+    Examples
+    --------
+    Returns the length of paths from node 1 to remaining nodes
+
+    >>> Dijkstra(G,node=1)
+
+    """
+    adj = G.adj
+    pred = {}
+    path = {source: [source] for source in sources}
+    source = next(iter(sources))
+    for i in sources:
+        pred[i] = []
+    result_dict = {}
+    seen_dict = {}
+    for i in G:
+        if i in sources:
+            result_dict[i] = 0
+        else:
+            result_dict[i] = float("inf")
+    for i in G:
+        for j in sources:
+            if i in adj[j] and i not in sources:
+                result_dict[i]=min( result_dict[i],adj[j][i].get("weight",1))
+                pred[i] = [j]
+                path[i] = path[j] + [i]
+    seen_dict[source] = 0
+    for i in G: 
+        Min=float("inf") 
+        k = source
+        for j in G:
+            if j not in seen_dict and result_dict[j] < Min:
+                k = j
+                Min = result_dict[j]
+        if k not in pred:
+            pred[k] = [source]
+        seen_dict[k] = Min
+        for j in G:
+            if j in adj[k]:
+                cost = weight(k,j,adj[k][j]) + Min
+                if j in seen_dict:
+                    if cost < seen_dict[j]:
+                        raise ValueError('Contradictory paths found:',
+                                        'negative weights?')
+                elif cost < result_dict[j]:
+                    result_dict[j] = Min + adj[k][j].get("weight",1)
+                    pred[j] = [k]
+                    path[j] = path[k] + [j]
+                elif cost == result_dict[j]:
+                    pred[j].append(k) 
+    return (path, pred, result_dict)
+
+def all_pairs_dijkstra_path(G, weight=None):
+    """Compute shortest paths between all nodes in a weighted graph.
+
+    Parameters
+    ----------
+    G : NetworkX graph
+
+    cutoff : integer or float, optional
+       Depth to stop the search. Only return paths with length <= cutoff.
+
+    weight : string or function
+       If this is a string, then edge weights will be accessed via the
+       edge attribute with this key (that is, the weight of the edge
+       joining `u` to `v` will be ``G.edges[u, v][weight]``). If no
+       such edge attribute exists, the weight of the edge is assumed to
+       be one.
+
+       If this is a function, the weight of an edge is the value
+       returned by the function. The function must accept exactly three
+       positional arguments: the two endpoints of an edge and the
+       dictionary of edge attributes for that edge. The function must
+       return a number.
+
+    Returns
+    -------
+    distance : dictionary
+       Dictionary, keyed by source and target, of shortest paths.
+
+    Examples
+    --------
+    >>> G = nx.path_graph(5)
+    >>> path = dict(nx.all_pairs_dijkstra_path(G))
+    >>> print(path[0][4])
+    [0, 1, 2, 3, 4]
+
+    Notes
+    -----
+    Edge weight attributes must be numerical.
+    Distances are calculated as sums of weighted edges traversed.
+
+    See Also
+    --------
+    floyd_warshall(), all_pairs_bellman_ford_path()
+
+    """
+    # TODO This can be trivially parallelized.
+    weight = weight_function(G,weight)
+    for n in G:
+        path, _, _ =  Dijkstra_mutilsource_path_predecessor_distance(G, [n], weight=weight)
+        yield (n, path)
+
+def all_shortest_paths(G, source, target, weight=None):
+    """Compute all shortest paths in the graph.
+
+    Parameters
+    ----------
+    G : easygraph graph
+
+    source : node
+       Starting node for path.
+
+    target : node
+       Ending node for path.
+
+    weight : None or string, optional (default = None)
+       If None, every edge has weight/distance/cost 1.
+       If a string, use this edge attribute as the edge weight.
+       Any edge attribute not present defaults to 1.
+
+    Returns
+    -------
+    paths : generator of lists
+        A generator of all paths between source and target.
+
+    Notes
+    -----
+    There may be many shortest paths between the source and target.
+
+    """
+    weight = weight_function(G,weight)
+    _, pred, _ = Dijkstra_mutilsource_path_predecessor_distance(G, [source], weight=weight)  
+    if target not in pred:
+        print('Target {} cannot be reached'
+                                'from Source {}'.format(target, source))
+        exit()
+
+    stack = [[target, 0]]
+    top = 0
+    while top >= 0:
+        node, i = stack[top]
+        if node == source:
+            yield [p for p, n in reversed(stack[:top + 1])]
+        if len(pred[node]) > i:
+            top += 1
+            if top == len(stack):
+                stack.append([pred[node][i], 0])
+            else:
+                stack[top] = [pred[node][i], 0]
+        else:
+            stack[top - 1][1] += 1
+            top -= 1
 
 def Floyd(G):
     """Returns the length of paths from all nodes to remaining nodes
@@ -141,7 +318,6 @@ def Prim(G):
         else:
             break
     return result_dict
-
 
 def Kruskal(G):
     """Returns the edges that make up the minimum spanning tree

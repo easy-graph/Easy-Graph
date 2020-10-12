@@ -1,12 +1,14 @@
 import collections
 import copy
 import sys
-sys.path.append('../../../')
 from easygraph.functions.path import *
+
 __all__ = [
     "betweenness_centrality",
     "closeness_centrality",
-    "flowbetweenness_centrality"
+    "flowbetweenness_centrality",
+    "NumberOfShortest",
+    "GetAllDistance"
 ]
 def closeness_centrality(G):
     '''Compute closeness centrality for nodes.
