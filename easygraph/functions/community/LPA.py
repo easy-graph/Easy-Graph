@@ -1,10 +1,5 @@
 import random
-import sys
-import os
-import networkx as nx
-sys.path.append('../../../')
 import easygraph as eg
-import matplotlib.pyplot as plt
 from queue import Queue
 
 __all__ = [
@@ -89,7 +84,7 @@ def LPA(G):
         random.shuffle(nodes)
         for node in nodes:
             labels = SelectLabels(G,node,label_dict)
-            # 异步更新, 如果使用同步更新，注释下面的这行代码
+            # Asynchronous updates. If you want to use synchronous updates, comment the line below
             label_dict[node] = random.choice(labels)
             Next_label_dict[node] = random.choice(labels)
         label_dict = Next_label_dict
@@ -103,7 +98,6 @@ def LPA(G):
             cluster_community[label] = [node]
         else:
             cluster_community[label].append(node) 
-    print(cluster_community) 
     community = [community for label,community in cluster_community.items()]     
     communityx = []   
     for nodes in community:
@@ -115,14 +109,6 @@ def LPA(G):
     return result_community
 
 if __name__ == '__main__':
-    karate_TG = nx.karate_club_graph()
-    karate_G = eg.Graph()
-    karate_G.add_edges(list(karate_TG.edges()))
+    karate_G = eg.datasets.get_graph_karateclub()
     community = LPA(karate_G)
-    partition = dict()
-    for count,com in community.items():
-        for i in com:
-            partition[i] = count
-    color_list = [partition[i] for i in range(0,len(karate_G))]
-    nx.draw(karate_TG, with_labels=True, node_color=color_list)
-    plt.show()
+    print(community)
