@@ -51,6 +51,8 @@ def CheckConnect(G, nodes, result):
 def LPA(G):
     '''Detect community by label propagation algotithm
 
+    Return the detected Communities. But the result is random.
+
     Each node in the network is initially assigned to its own community. At every iteration,nodes have
     a label that the maximum number of their neighbors have. If there are more than one nodes fit and 
     available, choose a label randomly. Finally, nodes having the same labels are grouped together as 
