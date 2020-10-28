@@ -7,6 +7,7 @@ from collections import defaultdict
 __all__ = [
     "LPA",
     "SLPA",
+    "HANP",
 ]
 
 def SelectLabels(G,node,label_dict):
@@ -22,6 +23,47 @@ def SelectLabels(G,node,label_dict):
 def estimate_stop_cond(G,label_dict):
     for node in G.nodes:
         if label_dict[node] not in SelectLabels(G,node,label_dict):
+            return False
+    return True
+
+def SelectLabels_HANP(G,node,label_dict,score_dict,degrees,m):
+    adj = G.adj
+    count = defaultdict(float)
+    for neighbor in adj[node]:
+        neighbor_label = label_dict[neighbor]
+        count[neighbor_label] += score_dict[neighbor_label] * (degrees[neighbor] ** m) * adj[node][neighbor].get("weight",1)
+    count_items = sorted(count.items(),key = lambda x: x[1], reverse = True)
+    labels = [k for k,v in count_items if v == count_items[0][1]]
+    return labels
+
+def HopAttenuation(G, node, label_dict, node_dict, distance_dict):
+    distance = float("inf")
+    Max_distance = 0
+    adj = G.adj
+    label = label_dict[node]
+    ori_node = node_dict[label]
+    for _, distancex in distance_dict[ori_node].items():
+        Max_distance = max(Max_distance, distancex)
+    for neighbor in adj[node]:
+        if label_dict[neighbor] == label:
+            distance = min(distance, distance_dict[ori_node][neighbor])
+    return (1 + distance) / Max_distance
+
+def HopUpdateScore(G, node, label_dict, node_dict, distance_dict):
+    return 1 - HopAttenuation(G, node, label_dict, node_dict,distance_dict)
+
+def UpdateScore(G, node, label_dict, score_dict, delta):
+    adj = G.adj
+    Max_score = 0
+    label = label_dict[node]
+    for neighbor in adj[node]:
+        if label_dict[neighbor] == label:
+            Max_score = max(Max_score, score_dict[label_dict[neighbor]])
+    return Max_score - delta
+
+def estimate_stop_cond_HANP(G,label_dict,score_dict,degrees,m):
+    for node in G.nodes:
+        if label_dict[node] not in SelectLabels_HANP(G,node,label_dict,score_dict,degrees,m):
             return False
     return True
 
@@ -219,4 +261,93 @@ def SLPA(G, T, r):
 
     # Check Connectivity
     result_community = CheckConnectivity(G, communities)
+    return result_community
+
+def HANP(G, m, delta):
+    '''Detect community by Hop attenuation & node preference algotithm
+
+    Return the detected communities. But the result is random.
+
+    Implement the basic HANP algorithm to give more freedom, but also provide the choice to use 
+    geodesic distance as the measure(instead of receiving the current hop scores from the neighborhood 
+    and carry out a subtraction). If you want to use geodesic distance as score measure, see 
+    the comment in the middle of code.
+
+    Compared to paper[1], one feature didn't unimplemented is the second proposal in "Hierarchical and 
+    overlapping communities" session in paper[1]. It treats newly combined communities as a single node.
+    Another feature unimplemented is the Optimization part in paper[1]. It does make sense that by updating 
+    nodes whose number of neighbors sharing the maximal label is less than a certain percentage we can save 
+    the running time.
+
+    Parameters
+    ----------
+    G : graph
+      A easygraph graph
+    m : 
+      when m > 0, more preference is given to node with more neighbors; m < 0, less
+    delta :
+      Hop attenuation
+
+    Returns
+    ----------
+    communities : dictionary
+      key: serial number of community , value: nodes in the community.
+
+    Examples
+    ----------
+    >>> HANP(G,
+    ...     m = 0.1, 
+    ...     delta = 0.05
+    ...     )    
+
+    References
+    ----------
+    .. [1] Ian X. Y. Leung, Pan Hui, Pietro Liò, and Jon Crowcrof: 
+        Towards real-time community detection in large networks
+
+    '''
+    label_dict = dict()
+    score_dict = dict()
+    node_dict = dict()
+    Next_label_dict = dict()
+    cluster_community = dict()
+    nodes = list(G.nodes.keys())
+    distance_dict = eg.Floyd(G)
+    degrees = G.degree()
+    loop_count = 0
+    i = 0
+    for node in nodes:
+        label_dict[node] = i
+        score_dict[i] = 1
+        node_dict[i] = node
+        i = i + 1
+    while True:
+        loop_count += 1
+        print ('loop', loop_count)
+        random.shuffle(nodes)
+        for node in nodes:
+            labels = SelectLabels_HANP(G, node, label_dict, score_dict, degrees,m)
+            old_node = label_dict[node]
+            Next_label_dict[node] = random.choice(labels)
+             # Asynchronous updates. If you want to use synchronous updates, comment the line below
+            label_dict[node] = Next_label_dict[node]
+            # If your network are known to be Hierarchical and overlapping communities, uncomment the line below and comment the following 5 lines
+            # score_dict[Next_label_dict[node]] = HopUpdateScore(G, node, label_dict, node_dict, distance_dict)
+            if old_node == Next_label_dict[node]:
+                cdelta = 0
+            else:
+                cdelta = delta
+            score_dict[Next_label_dict[node]] = UpdateScore(G, node, label_dict, score_dict, cdelta)
+        label_dict = Next_label_dict
+        if estimate_stop_cond_HANP(G,label_dict,score_dict,degrees,m) is True:
+            print ('complete')
+            break
+    for node in label_dict.keys():
+        label = label_dict[node]
+        # print ("label, node", label, node)
+        if label not in cluster_community.keys():
+            cluster_community[label] = [node]
+        else:
+            cluster_community[label].append(node) 
+    result_community = CheckConnectivity(G, cluster_community)
     return result_community
