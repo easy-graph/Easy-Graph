@@ -26,17 +26,22 @@ def estimate_stop_cond(G,label_dict):
             return False
     return True
 
-def SelectLabels_HANP(G,node,label_dict,score_dict,degrees,m):
+def SelectLabels_HANP(G,node,label_dict,score_dict,degrees,m,threshod):
     adj = G.adj
     count = defaultdict(float)
+    cnt = defaultdict(int)
     for neighbor in adj[node]:
         neighbor_label = label_dict[neighbor]
+        cnt[neighbor_label] += 1
         count[neighbor_label] += score_dict[neighbor_label] * (degrees[neighbor] ** m) * adj[node][neighbor].get("weight",1)
     count_items = sorted(count.items(),key = lambda x: x[1], reverse = True)
     labels = [k for k,v in count_items if v == count_items[0][1]]
+    # only update node whose number of neighbors sharing the maximal label is less than a certain percentage.
+    if cnt[count_items[0][0]] / len(adj[node]) > threshod:
+        return [label_dict[node]]
     return labels
 
-def HopAttenuation(G, node, label_dict, node_dict, distance_dict):
+def HopAttenuation_Hier(G, node, label_dict, node_dict, distance_dict):
     distance = float("inf")
     Max_distance = 0
     adj = G.adj
@@ -49,8 +54,8 @@ def HopAttenuation(G, node, label_dict, node_dict, distance_dict):
             distance = min(distance, distance_dict[ori_node][neighbor])
     return (1 + distance) / Max_distance
 
-def HopUpdateScore(G, node, label_dict, node_dict, distance_dict):
-    return 1 - HopAttenuation(G, node, label_dict, node_dict,distance_dict)
+def UpdateScore_Hier(G, node, label_dict, node_dict, distance_dict):
+    return 1 - HopAttenuation_Hier(G, node, label_dict, node_dict,distance_dict)
 
 def UpdateScore(G, node, label_dict, score_dict, delta):
     adj = G.adj
@@ -61,11 +66,89 @@ def UpdateScore(G, node, label_dict, score_dict, delta):
             Max_score = max(Max_score, score_dict[label_dict[neighbor]])
     return Max_score - delta
 
-def estimate_stop_cond_HANP(G,label_dict,score_dict,degrees,m):
+def estimate_stop_cond_HANP(G,label_dict,score_dict,degrees,m,threshod):
     for node in G.nodes:
-        if label_dict[node] not in SelectLabels_HANP(G,node,label_dict,score_dict,degrees,m):
+        if label_dict[node] not in SelectLabels_HANP(G,node,label_dict,score_dict,degrees,m,threshod):
             return False
     return True
+
+def MobineNodes(records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict):
+    onerecord = dict()
+    for node,label in label_dict.items():
+        if label in onerecord:
+            onerecord[label].append(node)
+        else:
+            onerecord[label] = [node]
+    records.append(onerecord)
+    Gx = eg.Graph()
+    label_dictx = dict()
+    score_dictx = dict()
+    node_dictx = dict()
+    nodesx = []
+    cnt = 0
+    for record_label in onerecord:
+        nodesx.append(cnt)
+        label_dictx[cnt] = record_label
+        score_dictx[record_label] = score_dict[record_label]
+        node_dictx[record_label] = cnt
+        cnt += 1
+    record_labels = list(onerecord.keys())
+    i = 0
+    edge = dict()
+    adj = G.adj
+    for i in range(0, len(record_labels)):
+        edge[i] =dict()
+        for j in range(0, len(record_labels)):
+            if i == j: continue
+            inodes = onerecord[record_labels[i]]
+            jnodes = onerecord[record_labels[j]]
+            for unode in inodes:
+                for vnode in jnodes:
+                    if unode in adj and vnode in adj[unode]:
+                        if j not in edge[i]:
+                            edge[i][j] = 0
+                        edge[i][j] += adj[unode][vnode].get("weight",1)
+    for unode in edge:
+        for vnode, w in edge[unode].items():
+            if unode < vnode:
+                Gx.add_edge(unode, vnode, weight = w )
+    G = Gx
+    label_dict = label_dictx
+    score_dict = score_dictx
+    node_dict = node_dictx
+    Next_label_dict = label_dictx
+    nodes = nodesx
+    degrees = G.degree()
+    distance_dict = eg.Floyd(G)
+    return records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict
+    
+def ShowRecord(records):
+    """
+    e.g.
+        records : [ {1:[1,2,3,4],2:[5,6,7,8],3:[9],4:[10],5:[11],6:[12]},
+                        {2:[0,1,3],3:[2,4,5]},
+                            {2:[0,1]} ]
+
+        process :   {1:[1,2,3,4],2:[5,6,7,8],3:[9],4:[10],5:[11],6:[12]} -> 
+                        {2:[ [1,2,3,4] + [5,6,7,8] + [10] ], 3:[ [9] + [11] + [12] ]} ->
+                            {2:[ ([ [1,2,3,4] + [5,6,7,8] + [10] ]) + ([ [9] + [11] + [12] ] ]) } ->
+
+        return :    {2:[1,2,3,4,5,6,7,8,10,9,11,12]}
+    """
+    result = dict()
+    first = records[0]
+    for i in range(1, len(records)):
+        keys = list(first.keys())
+        onerecord = records[i]
+        result = {}
+        for label, nodes in onerecord.items():
+            for unode in nodes:
+                for vnode in first[keys[unode]]:
+                    if label not in result:
+                        result[label] = []
+                    result[label].append(vnode)
+        first = result
+    return first   
 
 def CheckConnectivity(G, communities):
     result_community = dict()
@@ -152,9 +235,9 @@ def LPA(G):
         random.shuffle(nodes)
         for node in nodes:
             labels = SelectLabels(G,node,label_dict)
-            # Asynchronous updates. If you want to use synchronous updates, comment the line below
-            label_dict[node] = random.choice(labels)
             Next_label_dict[node] = random.choice(labels)
+            # Asynchronous updates. If you want to use synchronous updates, comment the line below
+            label_dict[node] = Next_label_dict[node]
         label_dict = Next_label_dict
         if estimate_stop_cond(G, label_dict) is True:
             print ('complete')
@@ -169,7 +252,6 @@ def LPA(G):
     
     result_community = CheckConnectivity(G, cluster_community)
     return result_community
-
 
 def SLPA(G, T, r):
     '''Detect Overlapping Communities by Speaker-listener Label Propagation Algorithm
@@ -263,30 +345,27 @@ def SLPA(G, T, r):
     result_community = CheckConnectivity(G, communities)
     return result_community
 
-def HANP(G, m, delta):
+def HANP(G, m, delta, threshod = 1):
     '''Detect community by Hop attenuation & node preference algotithm
 
     Return the detected communities. But the result is random.
 
-    Implement the basic HANP algorithm to give more freedom, but also provide the choice to use 
-    geodesic distance as the measure(instead of receiving the current hop scores from the neighborhood 
-    and carry out a subtraction). If you want to use geodesic distance as score measure, see 
-    the comment in the middle of code.
-
-    Compared to paper[1], one feature didn't unimplemented is the second proposal in "Hierarchical and 
-    overlapping communities" session in paper[1]. It treats newly combined communities as a single node.
-    Another feature unimplemented is the Optimization part in paper[1]. It does make sense that by updating 
-    nodes whose number of neighbors sharing the maximal label is less than a certain percentage we can save 
-    the running time.
+    Implement the basic HANP algorithm and give more freedom through the parameters, e.g., you can use threshod 
+    to set the condition for node updating. You can choose geodesic distance as the measure(instead of receiving the current hop scores 
+    from the neighborhood and carry out a subtraction) and When an equilibrium is reached, treat newly combined 
+    communities as a single node. If you want to use geodesic distance as score measure, see the comment in the middle of code.
 
     Parameters
     ----------
     G : graph
       A easygraph graph
-    m : 
-      when m > 0, more preference is given to node with more neighbors; m < 0, less
-    delta :
+    m : float
+      used to calculate score, when m > 0, more preference is given to node with more neighbors; m < 0, less
+    delta : float
       Hop attenuation
+    threshod : float 
+      Between 0 and 1, only update node whose number of neighbors sharing the maximal label is less than the threshod.
+      e.g., threshod == 1 means updating all nodes. 
 
     Returns
     ----------
@@ -297,7 +376,8 @@ def HANP(G, m, delta):
     ----------
     >>> HANP(G,
     ...     m = 0.1, 
-    ...     delta = 0.05
+    ...     delta = 0.05,
+    ...     threshod = 1
     ...     )    
 
     References
@@ -314,8 +394,11 @@ def HANP(G, m, delta):
     nodes = list(G.nodes.keys())
     distance_dict = eg.Floyd(G)
     degrees = G.degree()
+    records = []
     loop_count = 0
     i = 0
+    old_score = 1
+    ori_G = G
     for node in nodes:
         label_dict[node] = i
         score_dict[i] = 1
@@ -325,21 +408,30 @@ def HANP(G, m, delta):
         loop_count += 1
         print ('loop', loop_count)
         random.shuffle(nodes)
+        score = 1
         for node in nodes:
-            labels = SelectLabels_HANP(G, node, label_dict, score_dict, degrees,m)
+            labels = SelectLabels_HANP(G, node, label_dict, score_dict, degrees,m,threshod)
             old_node = label_dict[node]
             Next_label_dict[node] = random.choice(labels)
-             # Asynchronous updates. If you want to use synchronous updates, comment the line below
+            # Asynchronous updates. If you want to use synchronous updates, comment the line below
             label_dict[node] = Next_label_dict[node]
-            # If your network are known to be Hierarchical and overlapping communities, uncomment the line below and comment the following 5 lines
-            # score_dict[Next_label_dict[node]] = HopUpdateScore(G, node, label_dict, node_dict, distance_dict)
+
             if old_node == Next_label_dict[node]:
                 cdelta = 0
             else:
                 cdelta = delta
             score_dict[Next_label_dict[node]] = UpdateScore(G, node, label_dict, score_dict, cdelta)
+            # If your network are known to be Hierarchical and overlapping communities, uncomment the lines below and comment the 5 lines above
+        # if you choose geodesic distance as the measure, uncomment the 2 lines below.
+        #     score_dict[Next_label_dict[node]] = UpdateScore_Hier(G, node, label_dict, node_dict, distance_dict)           
+        #     score = min(score, score_dict[Next_label_dict[node]])   
+        # if you want to treat newly combined communities as a single node, unomment 4 line below.
+        # if old_score - score > 1/3:
+        #     old_score = score
+        #     #  When an equilibrium is reached, treat newly combined communities as a single node.
+        #     records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict = MobineNodes(records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict)
         label_dict = Next_label_dict
-        if estimate_stop_cond_HANP(G,label_dict,score_dict,degrees,m) is True:
+        if estimate_stop_cond_HANP(G,label_dict,score_dict,degrees,m,threshod) is True:
             print ('complete')
             break
     for node in label_dict.keys():
@@ -349,5 +441,9 @@ def HANP(G, m, delta):
             cluster_community[label] = [node]
         else:
             cluster_community[label].append(node) 
-    result_community = CheckConnectivity(G, cluster_community)
+    #expand the newly combined communities treated as a single node
+    # if you treat newly combined communities as a single node, unomment 2 line below.
+    # records.append(cluster_community)
+    # cluster_community = ShowRecord(records)
+    result_community = CheckConnectivity(ori_G, cluster_community)
     return result_community
