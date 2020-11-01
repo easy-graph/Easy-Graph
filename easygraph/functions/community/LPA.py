@@ -124,6 +124,10 @@ def MobineNodes(records, G, label_dict, score_dict, node_dict, Next_label_dict, 
     
 def ShowRecord(records):
     """
+<<<<<<< HEAD
+    expand the newly combined communities treated as a single node
+=======
+>>>>>>> d2fd488... Add HANP
     e.g.
         records : [ {1:[1,2,3,4],2:[5,6,7,8],3:[9],4:[10],5:[11],6:[12]},
                         {2:[0,1,3],3:[2,4,5]},
@@ -345,27 +349,35 @@ def SLPA(G, T, r):
     result_community = CheckConnectivity(G, communities)
     return result_community
 
-def HANP(G, m, delta, threshod = 1):
+def HANP(G, m, delta, threshod = 1, hier_open = 0, combine_open = 0):
     '''Detect community by Hop attenuation & node preference algotithm
 
     Return the detected communities. But the result is random.
 
     Implement the basic HANP algorithm and give more freedom through the parameters, e.g., you can use threshod 
-    to set the condition for node updating. You can choose geodesic distance as the measure(instead of receiving the current hop scores 
+    to set the condition for node updating. If network are known to be Hierarchical and overlapping communities,
+    it's recommended to choose geodesic distance as the measure(instead of receiving the current hop scores 
     from the neighborhood and carry out a subtraction) and When an equilibrium is reached, treat newly combined 
-    communities as a single node. If you want to use geodesic distance as score measure, see the comment in the middle of code.
+    communities as a single node.
 
     Parameters
     ----------
     G : graph
       A easygraph graph
     m : float
-      used to calculate score, when m > 0, more preference is given to node with more neighbors; m < 0, less
+      Used to calculate score, when m > 0, more preference is given to node with more neighbors; m < 0, less
     delta : float
       Hop attenuation
     threshod : float 
       Between 0 and 1, only update node whose number of neighbors sharing the maximal label is less than the threshod.
       e.g., threshod == 1 means updating all nodes. 
+    hier_open : 
+      1 means using geodesic distance as the score measure.
+      0 means not.
+    combine_open :
+      this option is valid only when hier_open = 1
+      1 means When an equilibrium is reached, treat newly combined communities as a single node.
+      0 means not.
 
     Returns
     ----------
@@ -377,7 +389,9 @@ def HANP(G, m, delta, threshod = 1):
     >>> HANP(G,
     ...     m = 0.1, 
     ...     delta = 0.05,
-    ...     threshod = 1
+    ...     threshod = 1,
+    ...     hier_open = 0,
+    ...     combine_open = 0
     ...     )    
 
     References
@@ -415,35 +429,31 @@ def HANP(G, m, delta, threshod = 1):
             Next_label_dict[node] = random.choice(labels)
             # Asynchronous updates. If you want to use synchronous updates, comment the line below
             label_dict[node] = Next_label_dict[node]
-
-            if old_node == Next_label_dict[node]:
-                cdelta = 0
-            else:
-                cdelta = delta
-            score_dict[Next_label_dict[node]] = UpdateScore(G, node, label_dict, score_dict, cdelta)
-            # If your network are known to be Hierarchical and overlapping communities, uncomment the lines below and comment the 5 lines above
-        # if you choose geodesic distance as the measure, uncomment the 2 lines below.
-        #     score_dict[Next_label_dict[node]] = UpdateScore_Hier(G, node, label_dict, node_dict, distance_dict)           
-        #     score = min(score, score_dict[Next_label_dict[node]])   
-        # if you want to treat newly combined communities as a single node, unomment 4 line below.
-        # if old_score - score > 1/3:
-        #     old_score = score
-        #     #  When an equilibrium is reached, treat newly combined communities as a single node.
-        #     records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict = MobineNodes(records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict)
+            if hier_open == 1:
+                score_dict[Next_label_dict[node]] = UpdateScore_Hier(G, node, label_dict, node_dict, distance_dict)           
+                score = min(score, score_dict[Next_label_dict[node]])
+            else :
+                if old_node == Next_label_dict[node]:
+                    cdelta = 0
+                else:
+                    cdelta = delta
+                score_dict[Next_label_dict[node]] = UpdateScore(G, node, label_dict, score_dict, cdelta)
+        if hier_open == 1 and combine_open == 1:
+           if old_score - score > 1/3:
+               old_score = score
+               records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict = MobineNodes(records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict)
         label_dict = Next_label_dict
         if estimate_stop_cond_HANP(G,label_dict,score_dict,degrees,m,threshod) is True:
             print ('complete')
             break
     for node in label_dict.keys():
         label = label_dict[node]
-        # print ("label, node", label, node)
         if label not in cluster_community.keys():
             cluster_community[label] = [node]
         else:
             cluster_community[label].append(node) 
-    #expand the newly combined communities treated as a single node
-    # if you treat newly combined communities as a single node, unomment 2 line below.
-    # records.append(cluster_community)
-    # cluster_community = ShowRecord(records)
+    if hier_open == 1 and combine_open == 1:
+        records.append(cluster_community)
+        cluster_community = ShowRecord(records)
     result_community = CheckConnectivity(ori_G, cluster_community)
     return result_community
