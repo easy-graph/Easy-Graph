@@ -21,7 +21,10 @@ def sum_of_shortest_paths(G, S):
 
     Examples
     --------
-    >>> differ_between_sum(G, S)
+    >>> G_t=eg.datasets.get_graph_blogcatalog()
+    >>> S_t=eg.AP_Greedy(G_t, 10000)
+    >>> diff = sum_of_shortest_paths(G_t, S_t)
+    >>> print(diff)
 
     References
     ----------
@@ -67,7 +70,10 @@ def nodes_of_max_cc_without_shs(G, S):
 
     Examples
     --------
-    >>> G_S_nodes_of_max_CC(G, S)
+    >>> G_t=eg.datasets.get_graph_blogcatalog()
+    >>> S_t=eg.AP_Greedy(G_t, 10000)
+    >>> maxx = nodes_of_max_cc_without_shs(G_t, S_t)
+    >>> print(maxx)
 
     References
     ----------
@@ -82,27 +88,3 @@ def nodes_of_max_cc_without_shs(G, S):
         if len(cc) > max_num:
             max_num = len(cc)
     return max_num
-
-
-if __name__ == '__main__':
-    # G_t = eg.Graph()
-    # G_t.add_edges([(1, 2), (2, 3), (1, 3), (3, 4), (4, 5), (3, 5), (5, 6)])
-    # ccs = eg.connected_components(G_t)
-    # for cc in ccs:
-      #   print(cc)
-    # print(G_t.nodes)
-    # S_t = [4, 5, 3]
-    G_t=eg.datasets.get_graph_blogcatalog()
-    # unzipped_data_path = '.\samples\youtube-links.txt'
-    # G_t = eg.Graph()
-    # G_t.add_edges_from_file(file=unzipped_data_path)
-    print(G_t.number_of_nodes())
-    print(G_t.number_of_edges())
-    S_t=eg.AP_Greedy(G_t, 10000)
-    # print("done")
-    diff = sum_of_shortest_paths(G_t, S_t)
-    # print("done")
-    maxx = nodes_of_max_cc_without_shs(G_t, S_t)
-    # print("done")
-    print(diff)
-    print(maxx)
