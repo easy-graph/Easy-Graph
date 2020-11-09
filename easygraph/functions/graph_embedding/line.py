@@ -1,4 +1,3 @@
-import easygraph as eg
 from easygraph.utils.alias import create_alias_table, alias_sample
 from easygraph.utils.index_of_node import get_relation_of_index_and_node
 
@@ -6,19 +5,21 @@ import math
 import random
 
 import numpy as np
-import tensorflow as tf
-from tensorflow.python.keras import backend as K
-from tensorflow.python.keras.layers import Embedding, Input, Lambda
-from tensorflow.python.keras.models import Model
 
 
 def line_loss(y_true, y_pred):
+    import tensorflow as tf
+    from tensorflow.python.keras import backend as K
+
     y = K.sigmoid(y_true*y_pred)
     # Avoid Nan in the result of 'K.log'
-    return -K.mean(K.log(tf.clip_by_value(y,1e-8,tf.reduce_max(y))))
+    return -K.mean(K.log(tf.clip_by_value(y, 1e-8, tf.reduce_max(y))))
 
 
 def create_model(numNodes, embedding_size, order='second'):
+    import tensorflow as tf
+    from tensorflow.python.keras.layers import Embedding, Input, Lambda
+    from tensorflow.python.keras.models import Model
 
     v_i = Input(shape=(1,))
     v_j = Input(shape=(1,))
@@ -59,7 +60,7 @@ class LINE:
         graph : easygraph.Graph or easygraph.DiGraph
 
         embedding_size : int, optinal (default : 8)
-        
+
         negative_ratio : int, optinal (default : 5)
 
         order : string, optinal (default : 'all')
@@ -67,7 +68,7 @@ class LINE:
 
         Examples
         --------
-        
+
         >>> model = LINE(G,
         ...              embedding_size=16,
         ...              order='all') # The order of model LINE. 'first'，'second' or 'all'.
@@ -237,6 +238,5 @@ class LINE:
         """
         self.reset_training_config(batch_size, times)
         hist = self.model.fit(self.batch_it, epochs=epochs, initial_epoch=initial_epoch, steps_per_epoch=self.steps_per_epoch,
-                                        verbose=verbose)
+                              verbose=verbose)
         return hist
-        

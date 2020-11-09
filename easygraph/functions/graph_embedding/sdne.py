@@ -5,12 +5,7 @@ import time
 
 import numpy as np
 import scipy.sparse as sp
-import tensorflow as tf
-from tensorflow.python.keras import backend as K
-from tensorflow.python.keras.callbacks import History
-from tensorflow.python.keras.layers import Dense, Input
-from tensorflow.python.keras.models import Model
-from tensorflow.python.keras.regularizers import l1_l2
+
 
 def get_relation_of_index_and_node(graph):
     node2idx = {}
@@ -22,7 +17,10 @@ def get_relation_of_index_and_node(graph):
         node_size += 1
     return idx2node, node2idx
 
+
 def l_2nd(beta):
+    from tensorflow.python.keras import backend as K
+
     def loss_2nd(y_true, y_pred):
         y_true_numpy = y_true.numpy()
         b_ = np.ones_like(y_true.numpy())
@@ -35,6 +33,9 @@ def l_2nd(beta):
 
 
 def l_1st(alpha):
+    import tensorflow as tf
+    from tensorflow.python.keras import backend as K
+
     def loss_1st(y_true, y_pred):
         L = y_true
         Y = y_pred
@@ -45,6 +46,10 @@ def l_1st(alpha):
 
 
 def create_model(node_size, hidden_size=[256, 128], l1=1e-5, l2=1e-4):
+    from tensorflow.python.keras.layers import Dense, Input
+    from tensorflow.python.keras.models import Model
+    from tensorflow.python.keras.regularizers import l1_l2
+
     A = Input(shape=(node_size,))
     L = Input(shape=(None,))
     fc = A
@@ -85,7 +90,7 @@ class SDNE(object):
 
         nu1 : float, optinal (default : 1e-5)
             The nu1 value in [1]_.
-            
+
         nu2 : float, optinal (default : 1e-4)
             The nu2 value in [1]_.
 
@@ -104,7 +109,8 @@ class SDNE(object):
 
         """
         self.graph = graph
-        self.idx2node, self.node2idx = get_relation_of_index_and_node(self.graph)
+        self.idx2node, self.node2idx = get_relation_of_index_and_node(
+            self.graph)
 
         self.node_size = self.graph.number_of_nodes()
         self.hidden_size = hidden_size
@@ -123,7 +129,8 @@ class SDNE(object):
 
         self.model, self.emb_model = create_model(self.node_size, hidden_size=self.hidden_size, l1=self.nu1,
                                                   l2=self.nu2)
-        self.model.compile(optimizer=opt, loss=[l_2nd(self.beta), l_1st(self.alpha)], run_eagerly=True)
+        self.model.compile(optimizer=opt, loss=[l_2nd(
+            self.beta), l_1st(self.alpha)], run_eagerly=True)
         self.get_embeddings()
 
     def train(self, batch_size=1024, epochs=2, initial_epoch=0, verbose=1):
@@ -140,6 +147,8 @@ class SDNE(object):
         verbose : int, optional (default : 1)
 
         """
+        from tensorflow.python.keras.callbacks import History
+
         if batch_size >= self.node_size:
             if batch_size > self.node_size:
                 print('batch_size({0}) > node_size({1}),set batch_size = {1}'.format(
@@ -191,7 +200,8 @@ class SDNE(object):
 
         """
         self._embeddings = {}
-        embeddings = self.emb_model.predict(self.A.todense(), batch_size=self.node_size)
+        embeddings = self.emb_model.predict(
+            self.A.todense(), batch_size=self.node_size)
         look_back = self.idx2node
         for i, embedding in enumerate(embeddings):
             self._embeddings[look_back[i]] = embedding
@@ -212,7 +222,8 @@ class SDNE(object):
             A_row_index.append(node2idx[v1])
             A_col_index.append(node2idx[v2])
 
-        A = sp.csr_matrix((A_data, (A_row_index, A_col_index)), shape=(node_size, node_size))
+        A = sp.csr_matrix((A_data, (A_row_index, A_col_index)),
+                          shape=(node_size, node_size))
         A_ = sp.csr_matrix((A_data + A_data, (A_row_index + A_col_index, A_col_index + A_row_index)),
                            shape=(node_size, node_size))
 
