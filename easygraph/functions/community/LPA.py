@@ -7,62 +7,9 @@ from collections import defaultdict
 __all__ = [
     "LPA",
     "SLPA",
+    "HANP",
+    "BMLPA",
 ]
-
-def SelectLabels(G,node,label_dict):
-    adj = G.adj
-    count = {}
-    for neighbor in adj[node]:
-        neighbor_label = label_dict[neighbor]
-        count[neighbor_label] = count.get(neighbor_label, 0) + 1
-        count_items = sorted(count.items(),key = lambda x: x[1], reverse = True)
-    labels = [k for k,v in count_items if v == count_items[0][1]]
-    return labels
-
-def estimate_stop_cond(G,label_dict):
-    for node in G.nodes:
-        if label_dict[node] not in SelectLabels(G,node,label_dict):
-            return False
-    return True
-
-def CheckConnectivity(G, communities):
-    result_community = dict()
-    community = [list(community) for label,community in communities.items()]     
-    communityx = []   
-    for nodes in community:
-        BFS(G, nodes, communityx)
-    i = 0
-    for com in communityx:
-        i += 1
-        result_community[i] = com
-    return result_community
-
-def BFS(G, nodes, result):
-    # check the nodes in G are connected or not. if not, desperate the nodes into different connected subgraphs.
-    if len(nodes) == 0:
-        return 
-    if len(nodes) == 1:
-        result.append(nodes)
-        return 
-    adj = G.adj
-    queue = Queue()
-    queue.put(nodes[0])
-    seen = set()
-    seen.add(nodes[0])
-    count = 0
-    while(queue.empty()==0):
-        vertex = queue.get()
-        count += 1
-        for w in adj[vertex]:
-            if w in nodes and w not in seen:
-                queue.put(w)
-                seen.add(w)
-    if count != len(nodes):
-        result.append([w for w in seen])
-        return BFS(G, [w for w in nodes if w not in seen],result) 
-    else :
-        result.append(nodes)
-        return 
 
 def LPA(G):
     '''Detect community by label propagation algotithm
@@ -103,9 +50,9 @@ def LPA(G):
         random.shuffle(nodes)
         for node in nodes:
             labels = SelectLabels(G,node,label_dict)
-            # Asynchronous updates. If you want to use synchronous updates, comment the line below
-            label_dict[node] = random.choice(labels)
             Next_label_dict[node] = random.choice(labels)
+            # Asynchronous updates. If you want to use synchronous updates, comment the line below
+            label_dict[node] = Next_label_dict[node]
         label_dict = Next_label_dict
         if estimate_stop_cond(G, label_dict) is True:
             print ('complete')
@@ -120,7 +67,6 @@ def LPA(G):
     
     result_community = CheckConnectivity(G, cluster_community)
     return result_community
-
 
 def SLPA(G, T, r):
     '''Detect Overlapping Communities by Speaker-listener Label Propagation Algorithm
@@ -190,7 +136,198 @@ def SLPA(G, T, r):
             else:
                 communities[label] = set([node])
 
-    # Remove nested communities            
+    # Remove nested communities  
+    RemoveNested(communities)   
+
+    # Check Connectivity
+    result_community = CheckConnectivity(G, communities)
+    return result_community
+
+def HANP(G, m, delta, threshod = 1, hier_open = 0, combine_open = 0):
+    '''Detect community by Hop attenuation & node preference algotithm
+
+    Return the detected communities. But the result is random.
+
+    Implement the basic HANP algorithm and give more freedom through the parameters, e.g., you can use threshod 
+    to set the condition for node updating. If network are known to be Hierarchical and overlapping communities,
+    it's recommended to choose geodesic distance as the measure(instead of receiving the current hop scores 
+    from the neighborhood and carry out a subtraction) and When an equilibrium is reached, treat newly combined 
+    communities as a single node.
+
+    Parameters
+    ----------
+    G : graph
+      A easygraph graph
+    m : float
+      Used to calculate score, when m > 0, more preference is given to node with more neighbors; m < 0, less
+    delta : float
+      Hop attenuation
+    threshod : float 
+      Between 0 and 1, only update node whose number of neighbors sharing the maximal label is less than the threshod.
+      e.g., threshod == 1 means updating all nodes. 
+    hier_open : 
+      1 means using geodesic distance as the score measure.
+      0 means not.
+    combine_open :
+      this option is valid only when hier_open = 1
+      1 means When an equilibrium is reached, treat newly combined communities as a single node.
+      0 means not.
+
+    Returns
+    ----------
+    communities : dictionary
+      key: serial number of community , value: nodes in the community.
+
+    Examples
+    ----------
+    >>> HANP(G,
+    ...     m = 0.1, 
+    ...     delta = 0.05,
+    ...     threshod = 1,
+    ...     hier_open = 0,
+    ...     combine_open = 0
+    ...     )    
+
+    References
+    ----------
+    .. [1] Ian X. Y. Leung, Pan Hui, Pietro Liò, and Jon Crowcrof: 
+        Towards real-time community detection in large networks
+
+    '''
+    label_dict = dict()
+    score_dict = dict()
+    node_dict = dict()
+    Next_label_dict = dict()
+    cluster_community = dict()
+    nodes = list(G.nodes.keys())
+    distance_dict = eg.Floyd(G)
+    degrees = G.degree()
+    records = []
+    loop_count = 0
+    i = 0
+    old_score = 1
+    ori_G = G
+    for node in nodes:
+        label_dict[node] = i
+        score_dict[i] = 1
+        node_dict[i] = node
+        i = i + 1
+    while True:
+        loop_count += 1
+        print ('loop', loop_count)
+        random.shuffle(nodes)
+        score = 1
+        for node in nodes:
+            labels = SelectLabels_HANP(G, node, label_dict, score_dict, degrees,m,threshod)
+            old_node = label_dict[node]
+            Next_label_dict[node] = random.choice(labels)
+            # Asynchronous updates. If you want to use synchronous updates, comment the line below
+            label_dict[node] = Next_label_dict[node]
+            if hier_open == 1:
+                score_dict[Next_label_dict[node]] = UpdateScore_Hier(G, node, label_dict, node_dict, distance_dict)           
+                score = min(score, score_dict[Next_label_dict[node]])
+            else :
+                if old_node == Next_label_dict[node]:
+                    cdelta = 0
+                else:
+                    cdelta = delta
+                score_dict[Next_label_dict[node]] = UpdateScore(G, node, label_dict, score_dict, cdelta)
+        if hier_open == 1 and combine_open == 1:
+           if old_score - score > 1/3:
+               old_score = score
+               records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict = MobineNodes(records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict)
+        label_dict = Next_label_dict
+        if estimate_stop_cond_HANP(G,label_dict,score_dict,degrees,m,threshod) is True:
+            print ('complete')
+            break
+    for node in label_dict.keys():
+        label = label_dict[node]
+        if label not in cluster_community.keys():
+            cluster_community[label] = [node]
+        else:
+            cluster_community[label].append(node) 
+    if hier_open == 1 and combine_open == 1:
+        records.append(cluster_community)
+        cluster_community = ShowRecord(records)
+    result_community = CheckConnectivity(ori_G, cluster_community)
+    return result_community
+
+def BMLPA(G, p):
+    '''Detect community by Balanced Multi-Label Propagation algotithm
+
+    Return the detected communities.
+
+    Firstly, initialize 'old' using cores generated by RC function, the propagate label till the number and size
+    of communities stay no change, check if there are subcommunity and delete it. Finally, split discontinuous 
+    communities.
+
+    Parameters
+    ----------
+    G : graph
+      A easygraph graph
+    p : float
+      Between 0 and 1, judge Whether a community identifier should be retained 
+
+    Returns
+    ----------
+    communities : dictionary
+      key: serial number of community , value: nodes in the community.
+
+    Examples
+    ----------
+    >>> HANP(G,
+    ...     p = 0.1, 
+    ...     )    
+
+    References
+    ----------
+    .. [1] Wu Zhihao, Lin You-Fang, Gregory Steve, Wan Huai-Yu, Tian Sheng-Feng
+        Balanced Multi-Label Propagation for Overlapping Community Detection in Social Networks
+
+    '''
+    cores = Rough_Cores(G)
+    nodes = G.nodes
+    i = 0
+    old_label_dict = dict()
+    new_label_dict = dict()
+    for core in cores:
+        for node in core:
+            if node not in old_label_dict:
+                old_label_dict[node] = {i:1}
+            else: 
+                old_label_dict[node][i] = 1
+            i += 1
+    oldMin = dict()
+    loop_count = 0
+    while True:
+        loop_count += 1
+        print ('loop', loop_count)
+        for node in nodes:
+            Propagate_bbc(G, node, old_label_dict, new_label_dict, p)
+        Min = dict()
+        if Id(old_label_dict) == Id(new_label_dict):
+            Min = mc( count(old_label_dict), count(new_label_dict) )
+        else:
+            Min = count(new_label_dict)
+        if Min != oldMin:
+            old_label_dict = new_label_dict
+            new_label_dict = dict()
+            oldMin = Min
+        else:
+            print ('complete')
+            break
+    communities = dict()
+    for node in nodes:
+        for label, _ in old_label_dict[node].items():
+            if label in communities:
+                communities[label].add(node)
+            else:
+                communities[label] = set([node])
+    RemoveNested(communities)
+    result_community = CheckConnectivity(G, communities)
+    return result_community
+
+def RemoveNested(communities):
     nestedCommunities = set()
     keys = list(communities.keys())
     for i, label0 in enumerate(keys[:-1]):
@@ -204,6 +341,280 @@ def SLPA(G, T, r):
     for comm in nestedCommunities:
         del communities[comm]
 
-    # Check Connectivity
-    result_community = CheckConnectivity(G, communities)
+def SelectLabels(G,node,label_dict):
+    adj = G.adj
+    count = {}
+    for neighbor in adj[node]:
+        neighbor_label = label_dict[neighbor]
+        count[neighbor_label] = count.get(neighbor_label, 0) + 1
+        count_items = sorted(count.items(),key = lambda x: x[1], reverse = True)
+    labels = [k for k,v in count_items if v == count_items[0][1]]
+    return labels
+
+def estimate_stop_cond(G,label_dict):
+    for node in G.nodes:
+        if label_dict[node] not in SelectLabels(G,node,label_dict):
+            return False
+    return True
+
+def SelectLabels_HANP(G,node,label_dict,score_dict,degrees,m,threshod):
+    adj = G.adj
+    count = defaultdict(float)
+    cnt = defaultdict(int)
+    for neighbor in adj[node]:
+        neighbor_label = label_dict[neighbor]
+        cnt[neighbor_label] += 1
+        count[neighbor_label] += score_dict[neighbor_label] * (degrees[neighbor] ** m) * adj[node][neighbor].get("weight",1)
+    count_items = sorted(count.items(),key = lambda x: x[1], reverse = True)
+    labels = [k for k,v in count_items if v == count_items[0][1]]
+    # only update node whose number of neighbors sharing the maximal label is less than a certain percentage.
+    if cnt[count_items[0][0]] / len(adj[node]) > threshod:
+        return [label_dict[node]]
+    return labels
+
+def HopAttenuation_Hier(G, node, label_dict, node_dict, distance_dict):
+    distance = float("inf")
+    Max_distance = 0
+    adj = G.adj
+    label = label_dict[node]
+    ori_node = node_dict[label]
+    for _, distancex in distance_dict[ori_node].items():
+        Max_distance = max(Max_distance, distancex)
+    for neighbor in adj[node]:
+        if label_dict[neighbor] == label:
+            distance = min(distance, distance_dict[ori_node][neighbor])
+    return (1 + distance) / Max_distance
+
+def UpdateScore_Hier(G, node, label_dict, node_dict, distance_dict):
+    return 1 - HopAttenuation_Hier(G, node, label_dict, node_dict,distance_dict)
+
+def UpdateScore(G, node, label_dict, score_dict, delta):
+    adj = G.adj
+    Max_score = 0
+    label = label_dict[node]
+    for neighbor in adj[node]:
+        if label_dict[neighbor] == label:
+            Max_score = max(Max_score, score_dict[label_dict[neighbor]])
+    return Max_score - delta
+
+def estimate_stop_cond_HANP(G,label_dict,score_dict,degrees,m,threshod):
+    for node in G.nodes:
+        if label_dict[node] not in SelectLabels_HANP(G,node,label_dict,score_dict,degrees,m,threshod):
+            return False
+    return True
+
+def MobineNodes(records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict):
+    onerecord = dict()
+    for node,label in label_dict.items():
+        if label in onerecord:
+            onerecord[label].append(node)
+        else:
+            onerecord[label] = [node]
+    records.append(onerecord)
+    Gx = eg.Graph()
+    label_dictx = dict()
+    score_dictx = dict()
+    node_dictx = dict()
+    nodesx = []
+    cnt = 0
+    for record_label in onerecord:
+        nodesx.append(cnt)
+        label_dictx[cnt] = record_label
+        score_dictx[record_label] = score_dict[record_label]
+        node_dictx[record_label] = cnt
+        cnt += 1
+    record_labels = list(onerecord.keys())
+    i = 0
+    edge = dict()
+    adj = G.adj
+    for i in range(0, len(record_labels)):
+        edge[i] =dict()
+        for j in range(0, len(record_labels)):
+            if i == j: continue
+            inodes = onerecord[record_labels[i]]
+            jnodes = onerecord[record_labels[j]]
+            for unode in inodes:
+                for vnode in jnodes:
+                    if unode in adj and vnode in adj[unode]:
+                        if j not in edge[i]:
+                            edge[i][j] = 0
+                        edge[i][j] += adj[unode][vnode].get("weight",1)
+    for unode in edge:
+        for vnode, w in edge[unode].items():
+            if unode < vnode:
+                Gx.add_edge(unode, vnode, weight = w )
+    G = Gx
+    label_dict = label_dictx
+    score_dict = score_dictx
+    node_dict = node_dictx
+    Next_label_dict = label_dictx
+    nodes = nodesx
+    degrees = G.degree()
+    distance_dict = eg.Floyd(G)
+    return records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict
+    
+def ShowRecord(records):
+    """
+    e.g.
+        records : [ {1:[1,2,3,4],2:[5,6,7,8],3:[9],4:[10],5:[11],6:[12]},
+                        {2:[0,1,3],3:[2,4,5]},
+                            {2:[0,1]} ]
+
+        process :   {1:[1,2,3,4],2:[5,6,7,8],3:[9],4:[10],5:[11],6:[12]} -> 
+                        {2:[ [1,2,3,4] + [5,6,7,8] + [10] ], 3:[ [9] + [11] + [12] ]} ->
+                            {2:[ ([ [1,2,3,4] + [5,6,7,8] + [10] ]) + ([ [9] + [11] + [12] ] ]) } ->
+
+        return :    {2:[1,2,3,4,5,6,7,8,10,9,11,12]}
+    """
+    result = dict()
+    first = records[0]
+    for i in range(1, len(records)):
+        keys = list(first.keys())
+        onerecord = records[i]
+        result = {}
+        for label, nodes in onerecord.items():
+            for unode in nodes:
+                for vnode in first[keys[unode]]:
+                    if label not in result:
+                        result[label] = []
+                    result[label].append(vnode)
+        first = result
+    return first   
+
+def CheckConnectivity(G, communities):
+    result_community = dict()
+    community = [list(community) for label,community in communities.items()]     
+    communityx = []   
+    for nodes in community:
+        BFS(G, nodes, communityx)
+    i = 0
+    for com in communityx:
+        i += 1
+        result_community[i] = com
     return result_community
+
+def BFS(G, nodes, result):
+    # check the nodes in G are connected or not. if not, desperate the nodes into different connected subgraphs.
+    if len(nodes) == 0:
+        return 
+    if len(nodes) == 1:
+        result.append(nodes)
+        return 
+    adj = G.adj
+    queue = Queue()
+    queue.put(nodes[0])
+    seen = set()
+    seen.add(nodes[0])
+    count = 0
+    while(queue.empty()==0):
+        vertex = queue.get()
+        count += 1
+        for w in adj[vertex]:
+            if w in nodes and w not in seen:
+                queue.put(w)
+                seen.add(w)
+    if count != len(nodes):
+        result.append([w for w in seen])
+        return BFS(G, [w for w in nodes if w not in seen],result) 
+    else :
+        result.append(nodes)
+        return 
+
+def Rough_Cores(G):
+    nodes = G.nodes
+    degrees = G.degree()
+    adj =G.adj
+    seen_dict = dict()
+    label_dict = dict()
+    cores = []
+    i = 0
+    for node in nodes:
+        label_dict[node] = i
+        seen_dict[node] = 1
+        i += 1
+    degree_list = sorted(degrees.items(),key = lambda x: x[1], reverse = True)
+    for node,_ in degree_list:
+        core = []
+        if degrees[node] >= 3 and seen_dict[node] == 1:
+            for neighbor in adj[node]:  
+                max_degree = 0
+                j = node
+                if seen_dict[neighbor] == 1:
+                    if degrees[neighbor] > max_degree:
+                        max_degree = degrees[neighbor]
+                        j = neighbor
+                    elif degrees[neighbor] == max_degree:
+                        pass
+                if j != []:
+                    core = [node] + [j]
+                    commNeiber = [i for i in adj[node] if i in adj[j]]
+                    commNeiber = [node for node,_ in degree_list if node in commNeiber]
+                    while commNeiber != []:
+                        for h in commNeiber[::-1]:
+                            core.append(h)
+                            commNeiber = [i for i in commNeiber if i in adj[h]]
+        if len(core) >= 3:
+            for i in core:
+                seen_dict[i] = 0
+            cores.append(core)
+    core_node = []
+    for core in cores:
+        core_node += core
+    for node in nodes:
+        if node not in core_node:
+            cores.append([node])
+    return cores
+
+def Normalizer(l):
+    Sum = 0
+    for identifier, coefficient in l.items():
+        Sum += coefficient
+    for identifier, coefficient in l.items():
+        l[identifier] = coefficient / Sum
+
+def Propagate_bbc(G, x, source, dest, p):
+    dest[x] = dict()
+    adj =G.adj
+    for y in adj[x]:
+        for identifier, coefficient in source[y].items():
+            b = coefficient
+            if identifier in dest[x]:
+                dest[x][identifier] += b 
+            else:
+                dest[x][identifier] = b
+    max_b = 0
+    for identifier, coefficient in dest[x].items():
+        if coefficient > max_b:
+            max_b = coefficient
+    for identifier in list(dest[x].keys()):
+        if dest[x][identifier] / max_b < p:
+            del dest[x][identifier]
+    Normalizer(dest[x])
+
+def Id(l):
+    ids = dict()
+    for x in l:
+        ids[x] = Id1(l[x])
+    return ids 
+
+def Id1(x):
+    ids = []
+    for identifier, _ in x.items():
+        ids.append(identifier)
+    return ids 
+
+def count(l):
+    counts = dict()
+    for x in l:
+        for identifier, _ in l[x].items():
+            if identifier in counts:
+                counts[identifier] += 1
+            else:
+                counts[identifier] = 1
+    return counts
+
+def mc(cs1, cs2):
+    cs = dict()
+    for identifier, _ in cs1:
+        cs[identifier] = min(cs1[identifier], cs2[identifier])
+    return cs
