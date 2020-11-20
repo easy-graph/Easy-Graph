@@ -40,6 +40,8 @@ def LPA(G):
     cluster_community = dict()
     Next_label_dict = dict()
     nodes = list(G.nodes.keys())
+    if len(nodes) == 1:
+        return {1:[nodes[0]]}
     for node in nodes:
         label_dict[node] = i
         i = i + 1
@@ -94,6 +96,9 @@ def SLPA(G, T, r):
     .. [1] Jierui Xie, Boleslaw K. Szymanski, Xiaoming Liu:
         SLPA: Uncovering Overlapping Communities in Social Networks via A Speaker-listener Interaction Dynamic Process
     '''
+    nodes = list(G.nodes.keys())
+    if len(nodes) == 1:
+        return {1:[nodes[0]]}
     nodes = G.nodes
     adj = G.adj
     memory = {i:{i:1} for i in nodes}
@@ -194,6 +199,9 @@ def HANP(G, m, delta, threshod = 1, hier_open = 0, combine_open = 0):
         Towards real-time community detection in large networks
 
     '''
+    nodes = list(G.nodes.keys())
+    if len(nodes) == 1:
+        return {1:[nodes[0]]}
     label_dict = dict()
     score_dict = dict()
     node_dict = dict()
@@ -285,6 +293,9 @@ def BMLPA(G, p):
         Balanced Multi-Label Propagation for Overlapping Community Detection in Social Networks
 
     '''
+    nodes = list(G.nodes.keys())
+    if len(nodes) == 1:
+        return {1:[nodes[0]]}
     cores = Rough_Cores(G)
     nodes = G.nodes
     i = 0
