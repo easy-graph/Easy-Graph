@@ -3,6 +3,7 @@ import numpy as np
 from queue import Queue
 import easygraph as eg
 from collections import defaultdict
+import copy
 
 __all__ = [
     "LPA",
@@ -40,6 +41,8 @@ def LPA(G):
     cluster_community = dict()
     Next_label_dict = dict()
     nodes = list(G.nodes.keys())
+    if len(nodes) == 1:
+        return {1:[nodes[0]]}
     for node in nodes:
         label_dict[node] = i
         i = i + 1
@@ -50,6 +53,9 @@ def LPA(G):
         random.shuffle(nodes)
         for node in nodes:
             labels = SelectLabels(G,node,label_dict)
+            if labels == []:
+                Next_label_dict[node] = label_dict[node]
+                continue
             Next_label_dict[node] = random.choice(labels)
             # Asynchronous updates. If you want to use synchronous updates, comment the line below
             label_dict[node] = Next_label_dict[node]
@@ -94,6 +100,9 @@ def SLPA(G, T, r):
     .. [1] Jierui Xie, Boleslaw K. Szymanski, Xiaoming Liu:
         SLPA: Uncovering Overlapping Communities in Social Networks via A Speaker-listener Interaction Dynamic Process
     '''
+    nodes = list(G.nodes.keys())
+    if len(nodes) == 1:
+        return {1:[nodes[0]]}
     nodes = G.nodes
     adj = G.adj
     memory = {i:{i:1} for i in nodes}
@@ -109,7 +118,7 @@ def SLPA(G, T, r):
                 # Speaker Rule
                 total = float(sum(memory[speaker].values()))
                 keys = list(memory[speaker].keys())
-                index = np.random.multinomial(1,[freq / total for freq in memory[speaker].values()]).argmax()
+                index = np.random.multinomial(1,[round(freq / total, 2) for freq in memory[speaker].values()]).argmax()
                 chosen_label = keys[index]
                 labels[chosen_label] += 1
             # Listener Rule
@@ -122,7 +131,7 @@ def SLPA(G, T, r):
     for node, labels in memory.items():
         name_list = []
         for label_name, label_number in labels.items():
-            if label_number / float(T + 1) < r:
+            if round(label_number / float(T + 1), 2) < r:
                 name_list.append(label_name)
         for name in name_list:
             del labels[name]
@@ -153,6 +162,8 @@ def HANP(G, m, delta, threshod = 1, hier_open = 0, combine_open = 0):
     it's recommended to choose geodesic distance as the measure(instead of receiving the current hop scores 
     from the neighborhood and carry out a subtraction) and When an equilibrium is reached, treat newly combined 
     communities as a single node.
+
+    For using Floyd to get the shortest distance, the time complexity is a little high.
 
     Parameters
     ----------
@@ -194,19 +205,23 @@ def HANP(G, m, delta, threshod = 1, hier_open = 0, combine_open = 0):
         Towards real-time community detection in large networks
 
     '''
+    nodes = list(G.nodes.keys())
+    if len(nodes) == 1:
+        return {1:[nodes[0]]}
     label_dict = dict()
     score_dict = dict()
     node_dict = dict()
     Next_label_dict = dict()
     cluster_community = dict()
     nodes = list(G.nodes.keys())
-    distance_dict = eg.Floyd(G)
     degrees = G.degree()
     records = []
     loop_count = 0
     i = 0
     old_score = 1
     ori_G = G
+    if hier_open == 1:
+        distance_dict = eg.Floyd(G)
     for node in nodes:
         label_dict[node] = i
         score_dict[i] = 1
@@ -219,7 +234,10 @@ def HANP(G, m, delta, threshod = 1, hier_open = 0, combine_open = 0):
         score = 1
         for node in nodes:
             labels = SelectLabels_HANP(G, node, label_dict, score_dict, degrees,m,threshod)
-            old_node = label_dict[node]
+            if labels == []:
+                Next_label_dict[node] = label_dict[node]
+                continue
+            old_label = label_dict[node]
             Next_label_dict[node] = random.choice(labels)
             # Asynchronous updates. If you want to use synchronous updates, comment the line below
             label_dict[node] = Next_label_dict[node]
@@ -227,15 +245,15 @@ def HANP(G, m, delta, threshod = 1, hier_open = 0, combine_open = 0):
                 score_dict[Next_label_dict[node]] = UpdateScore_Hier(G, node, label_dict, node_dict, distance_dict)           
                 score = min(score, score_dict[Next_label_dict[node]])
             else :
-                if old_node == Next_label_dict[node]:
+                if old_label == Next_label_dict[node]:
                     cdelta = 0
                 else:
                     cdelta = delta
                 score_dict[Next_label_dict[node]] = UpdateScore(G, node, label_dict, score_dict, cdelta)
         if hier_open == 1 and combine_open == 1:
            if old_score - score > 1/3:
-               old_score = score
-               records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict = MobineNodes(records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict)
+                old_score = score
+                records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict = CombineNodes(records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict)
         label_dict = Next_label_dict
         if estimate_stop_cond_HANP(G,label_dict,score_dict,degrees,m,threshod) is True:
             print ('complete')
@@ -261,6 +279,8 @@ def BMLPA(G, p):
     of communities stay no change, check if there are subcommunity and delete it. Finally, split discontinuous 
     communities.
 
+    For some directed graphs lead to oscillations of labels, modify the stop condition.
+
     Parameters
     ----------
     G : graph
@@ -285,6 +305,9 @@ def BMLPA(G, p):
         Balanced Multi-Label Propagation for Overlapping Community Detection in Social Networks
 
     '''
+    nodes = list(G.nodes.keys())
+    if len(nodes) == 1:
+        return {1:[nodes[0]]}
     cores = Rough_Cores(G)
     nodes = G.nodes
     i = 0
@@ -299,19 +322,26 @@ def BMLPA(G, p):
             i += 1
     oldMin = dict()
     loop_count = 0
+    old_label_dictx = dict()
     while True:
         loop_count += 1
         print ('loop', loop_count)
+        old_label_dictx = old_label_dict
         for node in nodes:
             Propagate_bbc(G, node, old_label_dict, new_label_dict, p)
+        if  loop_count > 50 and old_label_dict == old_label_dictx:
+            print ('complete')
+            break
         Min = dict()
         if Id(old_label_dict) == Id(new_label_dict):
             Min = mc( count(old_label_dict), count(new_label_dict) )
         else:
             Min = count(new_label_dict)
+        if loop_count > 15000:
+            print ('complete')
+            break
         if Min != oldMin:
-            old_label_dict = new_label_dict
-            new_label_dict = dict()
+            old_label_dict = copy.deepcopy(new_label_dict)
             oldMin = Min
         else:
             print ('complete')
@@ -344,6 +374,7 @@ def RemoveNested(communities):
 def SelectLabels(G,node,label_dict):
     adj = G.adj
     count = {}
+    count_items = []
     for neighbor in adj[node]:
         neighbor_label = label_dict[neighbor]
         count[neighbor_label] = count.get(neighbor_label, 0) + 1
@@ -353,7 +384,7 @@ def SelectLabels(G,node,label_dict):
 
 def estimate_stop_cond(G,label_dict):
     for node in G.nodes:
-        if label_dict[node] not in SelectLabels(G,node,label_dict):
+        if SelectLabels(G,node,label_dict) != [] and (label_dict[node] not in SelectLabels(G,node,label_dict)):
             return False
     return True
 
@@ -368,7 +399,9 @@ def SelectLabels_HANP(G,node,label_dict,score_dict,degrees,m,threshod):
     count_items = sorted(count.items(),key = lambda x: x[1], reverse = True)
     labels = [k for k,v in count_items if v == count_items[0][1]]
     # only update node whose number of neighbors sharing the maximal label is less than a certain percentage.
-    if cnt[count_items[0][0]] / len(adj[node]) > threshod:
+    if count_items == []:
+        return []
+    if round(cnt[count_items[0][0]] / len(adj[node]), 2) > threshod:
         return [label_dict[node]]
     return labels
 
@@ -383,7 +416,7 @@ def HopAttenuation_Hier(G, node, label_dict, node_dict, distance_dict):
     for neighbor in adj[node]:
         if label_dict[neighbor] == label:
             distance = min(distance, distance_dict[ori_node][neighbor])
-    return (1 + distance) / Max_distance
+    return round((1 + distance) / Max_distance, 2)
 
 def UpdateScore_Hier(G, node, label_dict, node_dict, distance_dict):
     return 1 - HopAttenuation_Hier(G, node, label_dict, node_dict,distance_dict)
@@ -399,11 +432,11 @@ def UpdateScore(G, node, label_dict, score_dict, delta):
 
 def estimate_stop_cond_HANP(G,label_dict,score_dict,degrees,m,threshod):
     for node in G.nodes:
-        if label_dict[node] not in SelectLabels_HANP(G,node,label_dict,score_dict,degrees,m,threshod):
+        if SelectLabels_HANP(G,node,label_dict,score_dict,degrees,m,threshod) != [] and label_dict[node] not in SelectLabels_HANP(G,node,label_dict,score_dict,degrees,m,threshod):
             return False
     return True
 
-def MobineNodes(records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict):
+def CombineNodes(records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict):
     onerecord = dict()
     for node,label in label_dict.items():
         if label in onerecord:
@@ -570,11 +603,12 @@ def Normalizer(l):
     for identifier, coefficient in l.items():
         Sum += coefficient
     for identifier, coefficient in l.items():
-        l[identifier] = coefficient / Sum
+        l[identifier] = round(coefficient / Sum, 2)
 
-def Propagate_bbc(G, x, source, dest, p):
+def Propagate_bbc(G, x, source, dest, p):    
+    adj = G.adj
     dest[x] = dict()
-    adj =G.adj
+    max_b = 0
     for y in adj[x]:
         for identifier, coefficient in source[y].items():
             b = coefficient
@@ -582,10 +616,10 @@ def Propagate_bbc(G, x, source, dest, p):
                 dest[x][identifier] += b 
             else:
                 dest[x][identifier] = b
-    max_b = 0
-    for identifier, coefficient in dest[x].items():
-        if coefficient > max_b:
-            max_b = coefficient
+            max_b = max(dest[x][identifier], max_b)
+    if max_b == 0:
+        dest[x] = source[x]
+        return
     for identifier in list(dest[x].keys()):
         if dest[x][identifier] / max_b < p:
             del dest[x][identifier]
@@ -600,7 +634,8 @@ def Id(l):
 def Id1(x):
     ids = []
     for identifier, _ in x.items():
-        ids.append(identifier)
+        if identifier not in ids:
+            ids.append(identifier)
     return ids 
 
 def count(l):
@@ -615,6 +650,6 @@ def count(l):
 
 def mc(cs1, cs2):
     cs = dict()
-    for identifier, _ in cs1:
+    for identifier, _ in cs1.items():
         cs[identifier] = min(cs1[identifier], cs2[identifier])
-    return cs
+    return cs    
