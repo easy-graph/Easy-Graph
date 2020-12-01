@@ -1,3 +1,5 @@
+from easygraph.utils.decorators import only_implemented_for_UnDirected_graph
+
 __all__=[
     "Dijkstra",
     "Floyd",
@@ -5,6 +7,7 @@ __all__=[
     "Kruskal"
 ]
 
+@only_implemented_for_UnDirected_graph
 def Dijkstra(G,node):
     """Returns the length of paths from the certain node to remaining nodes
 
@@ -51,7 +54,7 @@ def Dijkstra(G,node):
                 result_dict[j] = min + adj[k][j].get("weight",1)
     return result_dict
 
-
+@only_implemented_for_UnDirected_graph
 def Floyd(G):
     """Returns the length of paths from all nodes to remaining nodes
 
@@ -93,6 +96,7 @@ def Floyd(G):
                     result_dict[i][j] = temp  
     return result_dict
 
+@only_implemented_for_UnDirected_graph
 def Prim(G):
     """Returns the edges that make up the minimum spanning tree
 
@@ -142,7 +146,7 @@ def Prim(G):
             break
     return result_dict
 
-
+@only_implemented_for_UnDirected_graph
 def Kruskal(G):
     """Returns the edges that make up the minimum spanning tree
 
