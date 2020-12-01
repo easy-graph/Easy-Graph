@@ -3,6 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 
+__all__=[
+    "SHS_layout"
+]
+
 def SHS_layout(G,SHS):
     """
     Draw the graph whose the SH Spanners are in the center.
