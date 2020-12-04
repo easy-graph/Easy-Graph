@@ -98,7 +98,10 @@ def effective_size(G, nodes=None, weight=None):
                 effective_size[v] = float('nan')
                 continue
             E = G.ego_subgraph(v)
-            effective_size[v] = len(E) - 1 - (2 * E.size()) / (len(E) - 1)
+            if len(E)>1:
+                effective_size[v] = len(E) - 1 - (2 * E.size()) / (len(E) - 1)
+            else:
+                effective_size[v]=0    
     else:
         for v in nodes:
             # Effective size is not defined for isolated nodes
