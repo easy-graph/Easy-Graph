@@ -1,8 +1,6 @@
 import easygraph as eg
-import matplotlib.pyplot as plt
 import numpy as np
 import random
-import time
  
 __all__ = [
     'erdos_renyi_M',
