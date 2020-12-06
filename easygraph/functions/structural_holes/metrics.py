@@ -1,6 +1,10 @@
 import easygraph as eg
 import math
 
+__all__ = [
+    "sum_of_shortest_paths",
+    "nodes_of_max_cc_without_shs"
+]
 
 def sum_of_shortest_paths(G, S):
     """Returns the difference between the sum of lengths of all pairs shortest paths in G and the one in G\S.
