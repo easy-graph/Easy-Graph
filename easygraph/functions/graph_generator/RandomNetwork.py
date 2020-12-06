@@ -1,45 +1,123 @@
 import easygraph as eg
-import matplotlib.pyplot as plt
 import numpy as np
 import random
-import time
  
 __all__ = [
-    'ER_M',
-    'ER_P',
-    'WS',
+    'erdos_renyi_M',
+    'erdos_renyi_P',
+    'WS_Random',
 ]
 
-def ER_M(NETWORK_SIZE,EDGE_NUMBER):
+def erdos_renyi_M(n,edge,FilePath=None):
+    """Given the number of nodes and the number of edges, return an Erdős-Rényi random graph, and store the graph in a document.
+
+    Parameters
+    ----------
+    n : int
+        The number of nodes.
+    edge : int
+        The number of edges.
+    FilePath : string
+        The file path of storing the graph G. 
+
+    Returns
+    -------
+    G : graph
+        an Erdős-Rényi random graph.
+
+    Examples
+    --------
+    Returns an Erdős-Rényi random graph G.
+
+    >>> erdos_renyi_M(100,180,"/users/fudanmsn/downloads/RandomNetwork.txt")
+
+    References
+    ----------
+    .. [1] P. Erdős and A. Rényi, On Random Graphs, Publ. Math. 6, 290 (1959).
+    .. [2] E. N. Gilbert, Random Graphs, Ann. Math. Stat., 30, 1141 (1959).
+    """
     G=eg.Graph()
-    adjacentMatrix=np.zeros((NETWORK_SIZE,NETWORK_SIZE),dtype=int)
+    adjacentMatrix=np.zeros((n,n),dtype=int)
     count=0
-    while count<EDGE_NUMBER:
-        i=random.randint(0,NETWORK_SIZE-1)
-        j=random.randint(0,NETWORK_SIZE-1)
+    while count<edge:
+        i=random.randint(0,n-1)
+        j=random.randint(0,n-1)
         if adjacentMatrix[i][j]==0 and i!=j:
             count =count+1
             adjacentMatrix[i][j]=adjacentMatrix[j][i]=1
             G.add_edge(i,j)
-    writeRandomNetworkToFile(NETWORK_SIZE,adjacentMatrix)
+    writeRandomNetworkToFile(n,adjacentMatrix,FilePath)
     return G
 
-def ER_P(NETWORK_SIZE,PROBABILITY):
+def erdos_renyi_P(n,p,FilePath=None):
+    """Given the number of nodes and the probability of edge creation, return an Erdős-Rényi random graph, and store the graph in a document.
+    
+    Parameters
+    ----------
+    n : int
+        The number of nodes.
+    p : float
+        Probability for edge creation.
+    FilePath : string
+        The file path of storing the graph G.
+
+    Returns
+    -------
+    G : graph
+        an Erdős-Rényi random graph.
+
+    Examples
+    --------
+    Returns an Erdős-Rényi random graph G
+
+    >>> erdos_renyi_P(100,0.5,"/users/fudanmsn/downloads/RandomNetwork.txt")
+
+    References
+    ----------
+    .. [1] P. Erdős and A. Rényi, On Random Graphs, Publ. Math. 6, 290 (1959).
+    .. [2] E. N. Gilbert, Random Graphs, Ann. Math. Stat., 30, 1141 (1959).
+    """
     G = eg.Graph()
-    adjacentMatrix=np.zeros((NETWORK_SIZE,NETWORK_SIZE),dtype=int)
+    adjacentMatrix=np.zeros((n,n),dtype=int)
     count=0
     probability=0.0
-    for i in range(NETWORK_SIZE):
-        for j in range(i+1,NETWORK_SIZE):
+    for i in range(n):
+        for j in range(i+1,n):
             probability=random.random()
-            if probability<PROBABILITY:
+            if probability<p:
                 count =count+1
                 adjacentMatrix[i][j]=adjacentMatrix[j][i]=1
                 G.add_edge(i,j)
-    writeRandomNetworkToFile(NETWORK_SIZE,adjacentMatrix)
+    writeRandomNetworkToFile(n,adjacentMatrix,FilePath)
     return G
 
-def WS(n,k,p):
+def WS_Random(n,k,p,FilePath=None):
+    """Returns a small-world graph.
+
+    Parameters
+    ----------
+    n : int
+        The number of nodes
+    k : int
+        Each node is joined with its `k` nearest neighbors in a ring
+        topology.
+    p : float
+        The probability of rewiring each edge
+    FilePath : string
+        The file path of storing the graph G 
+
+    Returns
+    -------
+    G : graph
+        a small-world graph
+
+    Examples
+    --------
+    Returns a small-world graph G
+
+    >>> WS_Random(100,10,0.3,"/users/fudanmsn/downloads/RandomNetwork.txt")
+
+    """
     adjacentMatrix=np.zeros((n,n),dtype=int)
     G = eg.Graph()
     NUM1 = n
@@ -79,10 +157,13 @@ def WS(n,k,p):
     writeRandomNetworkToFile(n,adjacentMatrix)
     return G
     
-def writeRandomNetworkToFile(NETWORK_SIZE,adjacentMatrix):
-    f=open('randomNetwork.txt','w+')
-    for i in range(NETWORK_SIZE):
-        for j in range(NETWORK_SIZE):
+def writeRandomNetworkToFile(n,adjacentMatrix,FilePath):
+    if FilePath!=None:
+        f=open(FilePath,'w+')
+    else:
+        f=open("RandomNetwork.txt",'w+')
+    for i in range(n):
+        for j in range(n):
             if adjacentMatrix[i][j]==1:
                 f.write(str(i))
                 f.write(' ')
