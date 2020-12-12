@@ -148,8 +148,8 @@ def WS_Random(n,k,p,FilePath=None):
         for e_del in range(i + 1, i + K1):
             if e_del >= NUM1:     
                 e_del = e_del - NUM1
-            P_random = random.randint(0, 9999)
-            if P_random <= p*10000-1:
+            P_random = random.random()
+            if P_random < p:
                 G.remove_edge(i, e_del)
                 adjacentMatrix[i][e_del]=adjacentMatrix[e_del][i]=0
                 e_add = random.randint(0, NUM2)    
