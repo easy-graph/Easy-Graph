@@ -157,7 +157,7 @@ def WS_Random(n,k,p,FilePath=None):
                     e_add = random.randint(0, NUM2)
                 G.add_edge(i, e_add)
                 adjacentMatrix[i][e_add]=adjacentMatrix[e_add][i]=1
-    writeRandomNetworkToFile(n,adjacentMatrix)
+    writeRandomNetworkToFile(n,adjacentMatrix,FilePath)
     return G
     
 def writeRandomNetworkToFile(n,adjacentMatrix,FilePath):
