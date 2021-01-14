@@ -5,7 +5,10 @@ import numpy as np
 import numpy.matlib 
 
 def ego_betweenness(G,node):
-    """Returns the betweenness centrality of a ego network whose ego is set
+    """
+    ego networks are networks consisting of a single actor (ego) together with the actors they are connected to (alters) and all the links among those alters.[1] 
+    Burt (1992), in his book Structural Holes, provides ample evidence that having high betweenness centrality, which is highly correlated with having many structural holes, can bring benefits to ego.[1]
+    Returns the betweenness centrality of a ego network whose ego is set
 
     Parameters
     ---------- 
@@ -25,8 +28,7 @@ def ego_betweenness(G,node):
 
     Reference
     ---------
-    .. [1] Martin Everett, Stephen P. Borgatti. "Ego network betweenness."
-    Social Networks, Volume 27, Issue 1, Pages 31-38, 2005.
+    .. [1] Martin Everett, Stephen P. Borgatti. "Ego network betweenness." Social Networks, Volume 27, Issue 1, Pages 31-38, 2005.
 
     """
     g=G.ego_subgraph(node)
