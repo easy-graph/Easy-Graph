@@ -6,7 +6,7 @@ with open("README.rst", "r") as fh:
 
 setuptools.setup(
     name="Python-EasyGraph",                                     
-    version="0.2a27",                                        
+    version="0.2a29",                                        
     author="Fudan MSN Group",                                       
     author_email="easygraph@163.com",                      
     description="Easy Graph",                            
