@@ -1,7 +1,7 @@
 EasyGraph(v0.2a24)
 ==================
 
-Copyright (C) <2020> by Mobile Systems and Networking Group, Fudan University
+Copyright (C) <2020-2021> by Mobile Systems and Networking Group, Fudan University
 
 .. image:: https://img.shields.io/pypi/v/Python-EasyGraph.svg
   :target: https://pypi.org/project/Python-EasyGraph/
