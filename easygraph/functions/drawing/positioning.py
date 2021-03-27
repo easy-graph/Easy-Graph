@@ -1,12 +1,13 @@
 import easygraph as eg
-
+import numpy as np
 
 
 __all__ = [
     "random_position",
     "circular_position",
     "shell_position",
-    "rescale_position"
+    "rescale_position",
+    "kamada_kawai_layout"
 ]
 
 
@@ -195,3 +196,133 @@ def rescale_position(pos, scale=1):
         for i in range(pos.shape[1]):
             pos[:, i] *= scale / lim
     return pos
+
+def kamada_kawai_layout(
+    G, dist=None, pos=None, weight="weight", scale=1, center=None, dim=2
+):
+    """Position nodes using Kamada-Kawai path-length cost-function.
+
+    Parameters
+    ----------
+    G : graph or list of nodes
+        A position will be assigned to every node in G.
+
+    dist : dict (default=None)
+        A two-level dictionary of optimal distances between nodes,
+        indexed by source and destination node.
+        If None, the distance is computed using shortest_path_length().
+
+    pos : dict or None  optional (default=None)
+        Initial positions for nodes as a dictionary with node as keys
+        and values as a coordinate list or tuple.  If None, then use
+        circular_layout() for dim >= 2 and a linear layout for dim == 1.
+
+    weight : string or None   optional (default='weight')
+        The edge attribute that holds the numerical value used for
+        the edge weight.  If None, then all edge weights are 1.
+
+    scale : number (default: 1)
+        Scale factor for positions.
+
+    center : array-like or None
+        Coordinate pair around which to center the layout.
+
+    dim : int
+        Dimension of layout.
+
+    Returns
+    -------
+    pos : dict
+        A dictionary of positions keyed by node
+
+    Examples
+    --------
+    >>> pos = eg.kamada_kawai_layout(G)
+    """
+
+    nNodes = len(G)
+    if nNodes == 0:
+        return {}
+
+    if dist is None:
+        dist = dict(eg.Floyd(G))
+    dist_mtx = 1e6 * np.ones((nNodes, nNodes))
+    for row, nr in enumerate(G):
+        if nr not in dist:
+            continue
+        rdist = dist[nr]
+        for col, nc in enumerate(G):
+            if nc not in rdist:
+                continue
+            dist_mtx[row][col] = rdist[nc]
+
+    if pos is None:
+        if dim >= 3:
+            pos = eg.random_position(G,dim=dim)
+        elif dim == 2:
+            pos = eg.circular_position(G)
+        else:
+            pos = {n: pt for n, pt in zip(G, np.linspace(0, 1, len(G)))}
+
+    pos_arr = np.array([pos[n] for n in G])
+
+    pos = _kamada_kawai_solve(dist_mtx, pos_arr, dim)
+
+    if center is None:
+        center = np.zeros(dim)
+    else:
+        center = np.asarray(center)
+
+    if len(center) != dim:
+        msg = "length of center coordinates must match dimension of layout"
+        raise ValueError(msg)
+
+    pos = eg.rescale_position(pos, scale=scale) + center
+    return dict(zip(G, pos))
+
+
+def _kamada_kawai_solve(dist_mtx, pos_arr, dim):
+    # Anneal node locations based on the Kamada-Kawai cost-function,
+    # using the supplied matrix of preferred inter-node distances,
+    # and starting locations.
+
+    import numpy as np
+    from scipy.optimize import minimize
+
+    meanwt = 1e-3
+    costargs = (np, 1 / (dist_mtx + np.eye(dist_mtx.shape[0]) * 1e-3), meanwt, dim)
+
+    optresult = minimize(
+        _kamada_kawai_costfn,
+        pos_arr.ravel(),
+        method="L-BFGS-B",
+        args=costargs,
+        jac=True,
+    )
+
+    return optresult.x.reshape((-1, dim))
+
+
+def _kamada_kawai_costfn(pos_vec, np, invdist, meanweight, dim):
+    # Cost-function and gradient for Kamada-Kawai layout algorithm
+    nNodes = invdist.shape[0]
+    pos_arr = pos_vec.reshape((nNodes, dim))
+
+    delta = pos_arr[:, np.newaxis, :] - pos_arr[np.newaxis, :, :]
+    nodesep = np.linalg.norm(delta, axis=-1)
+    direction = np.einsum("ijk,ij->ijk", delta, 1 / (nodesep + np.eye(nNodes) * 1e-3))
+
+    offset = nodesep * invdist - 1.0
+    offset[np.diag_indices(nNodes)] = 0
+
+    cost = 0.5 * np.sum(offset ** 2)
+    grad = np.einsum("ij,ij,ijk->ik", invdist, offset, direction) - np.einsum(
+        "ij,ij,ijk->jk", invdist, offset, direction
+    )
+
+    # Additional parabolic term to encourage mean position to be near origin:
+    sumpos = np.sum(pos_arr, axis=0)
+    cost += 0.5 * meanweight * np.sum(sumpos ** 2)
+    grad += meanweight * sumpos
+
+    return (cost, grad.ravel())
