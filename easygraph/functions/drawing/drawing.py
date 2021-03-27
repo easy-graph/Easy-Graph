@@ -4,10 +4,11 @@ import numpy as np
 import random
 
 __all__=[
-    "SHS_layout"
+    "draw_SHS_center",
+    "draw_kamada_kawai"
 ]
 
-def SHS_layout(G,SHS):
+def draw_SHS_center(G,SHS):
     """
     Draw the graph whose the SH Spanners are in the center.
 
@@ -57,5 +58,41 @@ def SHS_layout(G,SHS):
         p1=[pos[i[0]][0],pos[i[1]][0]]
         p2=[pos[i[0]][1],pos[i[1]][1]]
         plt.plot(p1,p2, 'k--',alpha=0.3) 
-    
     plt.show()
+    return
+
+def draw_kamada_kawai(G):
+    """Draw the graph G with a Kamada-Kawai force-directed layout.
+
+    Parameters
+    ----------
+    G : graph
+       A networkx graph
+
+    kwargs : optional keywords
+       See networkx.draw_networkx() for a description of optional keywords,
+       with the exception of the pos parameter which is not used by this
+       function.
+    """
+    pos=eg.kamada_kawai_layout(G)
+    node=np.zeros((len(pos),2),float)
+    m,n=0,0
+    for i in pos:
+        node[m][0]=pos[i][0]
+        node[m][1]=pos[i][1]
+        m+=1
+    plt.scatter(node[:,0], node[:,1], marker = '.', color = 'b', s=10)
+    k=0
+    for i in pos:
+        plt.text(pos[i][0], pos[i][1], i,
+        fontsize=5,
+        verticalalignment="top",
+        horizontalalignment="right")
+        k+=1
+    for i in G.edges:
+        p1=[pos[i[0]][0],pos[i[1]][0]]
+        p2=[pos[i[0]][1],pos[i[1]][1]]
+        plt.plot(p1,p2, 'k--',alpha=0.3)
+    plt.show()
+    return
+
