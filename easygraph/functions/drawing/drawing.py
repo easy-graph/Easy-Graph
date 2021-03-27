@@ -123,10 +123,6 @@ def draw_kamada_kawai(G):
     G : graph
        A networkx graph
 
-    kwargs : optional keywords
-       See networkx.draw_networkx() for a description of optional keywords,
-       with the exception of the pos parameter which is not used by this
-       function.
     """
     pos=eg.kamada_kawai_layout(G)
     node=np.zeros((len(pos),2),float)
