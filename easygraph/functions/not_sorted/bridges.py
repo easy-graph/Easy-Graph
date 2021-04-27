@@ -1,11 +1,11 @@
-import easygraph as eg 
+import easygraph as eg
 from easygraph.utils.decorators import only_implemented_for_UnDirected_graph
 from itertools import chain
 
-__all__={
+__all__=[
     "bridges", 
     "has_bridges"
-}
+]
 
 @only_implemented_for_UnDirected_graph
 def bridges(G, root=None):
