@@ -49,7 +49,6 @@ def LPA(G):
     loop_count = 0
     while True:
         loop_count += 1
-        print ('loop', loop_count)
         random.shuffle(nodes)
         for node in nodes:
             labels = SelectLabels(G,node,label_dict)
@@ -61,11 +60,9 @@ def LPA(G):
             label_dict[node] = Next_label_dict[node]
         label_dict = Next_label_dict
         if estimate_stop_cond(G, label_dict) is True:
-            print ('complete')
             break
     for node in label_dict.keys():
         label = label_dict[node]
-        # print ("label, node", label, node)
         if label not in cluster_community.keys():
             cluster_community[label] = [node]
         else:
@@ -229,11 +226,10 @@ def HANP(G, m, delta, threshod = 1, hier_open = 0, combine_open = 0):
         i = i + 1
     while True:
         loop_count += 1
-        print ('loop', loop_count)
         random.shuffle(nodes)
         score = 1
         for node in nodes:
-            labels = SelectLabels_HANP(G, node, label_dict, score_dict, degrees,m,threshod)
+            labels = SelectLabels_HANP(G, node, label_dict, score_dict, degrees, m, threshod)
             if labels == []:
                 Next_label_dict[node] = label_dict[node]
                 continue
@@ -256,8 +252,14 @@ def HANP(G, m, delta, threshod = 1, hier_open = 0, combine_open = 0):
                 records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict = CombineNodes(records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict)
         label_dict = Next_label_dict
         if estimate_stop_cond_HANP(G,label_dict,score_dict,degrees,m,threshod) is True:
-            print ('complete')
             break
+        """As mentioned in the paper, it's suggested that the number of iterations
+        required is independent to the number of nodes and that after
+        five iterations, 95% of their nodes are already accurately clustered
+        """
+        if loop_count > 20:
+            break
+    print("After %d iterations, HANP complete." % loop_count)
     for node in label_dict.keys():
         label = label_dict[node]
         if label not in cluster_community.keys():
@@ -295,7 +297,7 @@ def BMLPA(G, p):
 
     Examples
     ----------
-    >>> HANP(G,
+    >>> BMLPA(G,
     ...     p = 0.1, 
     ...     )    
 
@@ -325,27 +327,24 @@ def BMLPA(G, p):
     old_label_dictx = dict()
     while True:
         loop_count += 1
-        print ('loop', loop_count)
         old_label_dictx = old_label_dict
         for node in nodes:
             Propagate_bbc(G, node, old_label_dict, new_label_dict, p)
         if  loop_count > 50 and old_label_dict == old_label_dictx:
-            print ('complete')
             break
         Min = dict()
         if Id(old_label_dict) == Id(new_label_dict):
             Min = mc( count(old_label_dict), count(new_label_dict) )
         else:
             Min = count(new_label_dict)
-        if loop_count > 15000:
-            print ('complete')
+        if loop_count > 500:
             break
         if Min != oldMin:
             old_label_dict = copy.deepcopy(new_label_dict)
-            oldMin = Min
+            oldMin = copy.deepcopy(Min)
         else:
-            print ('complete')
             break
+    print("After %d iterations, BMLPA complete." % loop_count)
     communities = dict()
     for node in nodes:
         for label, _ in old_label_dict[node].items():
@@ -556,7 +555,7 @@ def BFS(G, nodes, result):
 def Rough_Cores(G):
     nodes = G.nodes
     degrees = G.degree()
-    adj =G.adj
+    adj = G.adj
     seen_dict = dict()
     label_dict = dict()
     cores = []
@@ -581,11 +580,16 @@ def Rough_Cores(G):
                 if j != []:
                     core = [node] + [j]
                     commNeiber = [i for i in adj[node] if i in adj[j]]
-                    commNeiber = [node for node,_ in degree_list if node in commNeiber]
+                    commNeiber = [node for node, _ in degree_list if node in commNeiber]
+                    commNeiber = commNeiber[::-1]
                     while commNeiber != []:
-                        for h in commNeiber[::-1]:
+                        for h in commNeiber:
                             core.append(h)
-                            commNeiber = [i for i in commNeiber if i in adj[h]]
+                            for x in commNeiber:
+                                if x not in adj[h]:
+                                    commNeiber.remove(x)
+                            if h in commNeiber:
+                                commNeiber.remove(h) 
         if len(core) >= 3:
             for i in core:
                 seen_dict[i] = 0

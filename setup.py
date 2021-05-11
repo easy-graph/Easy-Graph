@@ -1,5 +1,6 @@
 import setuptools
 import io
+import platform
 
 with open("README.rst", "r") as fh:
     long_description = fh.read()
@@ -12,6 +13,12 @@ sources=['easygraph/classes/GraphC/Graph.cpp',
          'easygraph/classes/GraphC/GraphMapIter.cpp',
          'easygraph/classes/GraphC/GraphModule.cpp',
          'easygraph/classes/GraphC/ModuleMethods.cpp',]
+
+uname = platform.uname()
+compileArgs = []
+if uname[0] == "Darwin":
+    compileArgs = ["-std=c++17"]
+
 
 setuptools.setup(
     name="Python-EasyGraph",                                     
@@ -31,7 +38,17 @@ setuptools.setup(
         "Operating System :: OS Independent",               
     ],
     python_requires=">=3.6,<3.9",
-    install_requires=['numpy>=1.18.5,<1.19.0','tqdm>=4.49.0','tensorflow>=2.0.0','joblib>=0.16.0','six>=1.15.0','gensim>=3.8.3','progressbar33>=2.4','scikit-learn>=0.23.2','scipy>=1.5.2',
+    install_requires=['numpy>=1.18.5,<1.19.0',
+                    'tqdm>=4.49.0',
+                    'tensorflow>=2.0.0',
+                    'joblib>=0.16.0',
+                    'six>=1.15.0',
+                    'gensim>=3.8.3',
+                    'progressbar33>=2.4',
+                    'scikit-learn>=0.23.2',
+                    'scipy>=1.5.2',
+                    'matplotlib>=3.5.0',
+                    'statsmodels>=0.13.0'
     ],
-    ext_modules=[setuptools.Extension('cpp_easygraph', sources, optional=True)]
+    ext_modules=[setuptools.Extension('cpp_easygraph', sources, optional=True, extra_compile_args=compileArgs)]
 )
