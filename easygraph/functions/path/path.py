@@ -4,10 +4,12 @@ __all__=[
     "Dijkstra",
     "Floyd",
     "Prim",
-    "Kruskal"
+    "Kruskal",
+    "single_source_bfs",
+    "single_source_dijkstra",
+    "multi_source_dijkstra",
 ]
 
-@only_implemented_for_UnDirected_graph
 def Dijkstra(G,node):
     """Returns the length of paths from the certain node to remaining nodes
 
@@ -29,30 +31,7 @@ def Dijkstra(G,node):
     >>> Dijkstra(G,node=1)
 
     """
-    adj=G.adj.copy()
-    visited={}
-    result_dict={}
-    temp_key = adj[node].keys()
-    for i in G:
-        if i in temp_key:
-            result_dict[i]=adj[node][i].get("weight",1)
-        else:
-            result_dict[i]=float("inf") 
-        visited[i]=0
-    result_dict[node]=0
-    visited[node]=1
-    for i in G: 
-        min=float("inf") 
-        k = node
-        for j in G:
-            if not visited[j] and result_dict[j] < min:
-                k = j
-                min = result_dict[j]
-        visited[k] = 1
-        for j in G:
-            if not visited[j] and j in adj[k].keys() and min + adj[k][j].get("weight",1) < result_dict[j]:
-                result_dict[j] = min + adj[k][j].get("weight",1)
-    return result_dict
+    return single_source_dijkstra(G, node)
 
 @only_implemented_for_UnDirected_graph
 def Floyd(G):
@@ -189,3 +168,66 @@ def Kruskal(G):
         group[m] = group[m] + group[n]
         group[n] = []
     return result_dict
+
+def single_source_bfs(G, source, target=None):
+    nextlevel = {source: 0}
+    return dict(_single_source_bfs(G.adj, nextlevel, target=target))
+
+def _single_source_bfs(adj, firstlevel, target=None):
+    seen = {}
+    level = 0
+    nextlevel = firstlevel
+
+    while nextlevel:
+        thislevel = nextlevel
+        nextlevel = {}
+        for v in thislevel:
+            if v not in seen:
+                seen[v] = level
+                nextlevel.update(adj[v])
+                yield (v, level)
+                if v == target:
+                    break
+        level += 1
+    del seen
+
+def single_source_dijkstra(G, source, weight="weight", target=None):
+    return multi_source_dijkstra(G, {source}, weight, target=target)
+
+def multi_source_dijkstra(G, sources, weight="weight", target=None):
+    return _dijkstra_multisource(G, sources, weight, target=target)
+
+def _dijkstra_multisource(G, sources, weight="weight", target=None):
+    from heapq import heappush, heappop
+    push = heappush
+    pop = heappop
+    adj = G.adj
+    print(adj[1])
+    dist = {}
+    seen = {}
+    from itertools import count
+    c = count()
+    Q = []
+    for source in sources:
+        seen[source] = 0
+        push(Q, (0, next(c), source))
+    while Q:
+        (d, _, v) = pop(Q)
+        if v in dist:
+            continue
+        dist[v] = d
+        if v == target:
+            break
+        for u in adj[v]:
+            cost = adj[v][u].get(weight, 1)
+            vu_dist = dist[v] + cost
+            if u in dist:
+                if vu_dist < dist[u]:
+                    raise ValueError('Contradictory paths found:',
+                                     'negative weights?')
+            elif u not in seen or vu_dist < seen[u]:
+                seen[u] = vu_dist
+                push(Q, (vu_dist, next(c), u))
+            else:
+                continue
+    return dist
