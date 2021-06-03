@@ -202,7 +202,6 @@ def _dijkstra_multisource(G, sources, weight="weight", target=None):
     push = heappush
     pop = heappop
     adj = G.adj
-    print(adj[1])
     dist = {}
     seen = {}
     from itertools import count

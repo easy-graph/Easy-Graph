@@ -60,7 +60,7 @@ def draw_SHS_center(G,SHS,rate=1):
         for i in G.edges:
             p1=[pos[i[0]][0],pos[i[1]][0]]
             p2=[pos[i[0]][1],pos[i[1]][1]]
-            plt.plot(p1,p2, 'k--',alpha=0.3) 
+            plt.plot(p1,p2, 'k-',alpha=0.3,linewidth=0.5) 
         plt.show()
     else:
         degree=G.degree()
@@ -101,7 +101,7 @@ def draw_SHS_center(G,SHS,rate=1):
             if u in s and v in s:
                 p1=[pos[i[0]][0],pos[i[1]][0]]
                 p2=[pos[i[0]][1],pos[i[1]][1]]
-                plt.plot(p1,p2, 'k--',alpha=0.3) 
+                plt.plot(p1,p2, 'k-',alpha=0.3,linewidth=0.5) 
         plt.show()
     return
 
@@ -156,7 +156,7 @@ def draw_SHS_center_kk(G,SHS,rate=1):
         for i in G.edges:
             p1=[pos[i[0]][0],pos[i[1]][0]]
             p2=[pos[i[0]][1],pos[i[1]][1]]
-            plt.plot(p1,p2, 'k--',alpha=0.3) 
+            plt.plot(p1,p2, 'k-',alpha=0.3,linewidth=0.5) 
         plt.show()
     else:
         degree=G.degree()
@@ -197,7 +197,7 @@ def draw_SHS_center_kk(G,SHS,rate=1):
             if u in s and v in s:
                 p1=[pos[i[0]][0],pos[i[1]][0]]
                 p2=[pos[i[0]][1],pos[i[1]][1]]
-                plt.plot(p1,p2, 'k--',alpha=0.3) 
+                plt.plot(p1,p2, 'k-',alpha=0.3,linewidth=0.5) 
         plt.show()
     return
 
@@ -232,7 +232,7 @@ def draw_kamada_kawai(G,rate=1):
         for i in G.edges:
             p1=[pos[i[0]][0],pos[i[1]][0]]
             p2=[pos[i[0]][1],pos[i[1]][1]]
-            plt.plot(p1,p2, 'k--',alpha=0.3)
+            plt.plot(p1,p2, 'k-',alpha=0.3,linewidth=0.5) 
         plt.show()
     else:
         degree=G.degree()
@@ -262,6 +262,6 @@ def draw_kamada_kawai(G,rate=1):
             if u in s and v in s:
                 p1=[pos[i[0]][0],pos[i[1]][0]]
                 p2=[pos[i[0]][1],pos[i[1]][1]]
-                plt.plot(p1,p2, 'k--',alpha=0.3)
+                plt.plot(p1,p2, 'k-',alpha=0.3,linewidth=0.5) 
         plt.show()
     return
