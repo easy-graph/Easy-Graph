@@ -256,7 +256,7 @@ def hierarchy(G,nodes=None,weight=None):
         nodes = G.nodes
     hierarchy = {}
     con=constraint(G)
-    for v in G.nodes:
+    for v in nodes:
         E = G.ego_subgraph(v)
         n=len(E)-1
         C=0
@@ -267,5 +267,7 @@ def hierarchy(G,nodes=None,weight=None):
             c[w]=local_constraint(G,v,w)
         if n>1:
             hierarchy[v]=sum(c[w]/C*n*math.log(c[w]/C*n)/(n*math.log(n)) for w in neighbors_of_v)
+        if v not in hierarchy:
+            hierarchy[v]=0
     return hierarchy
 
