@@ -6,3 +6,4 @@ from .HAM import *
 from .evaluation import *
 from .metrics import *
 from .ICC import *
+from .NOBE import *
