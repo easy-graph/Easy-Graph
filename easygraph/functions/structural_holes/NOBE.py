@@ -127,7 +127,7 @@ def Transition(LG):
         LLG.add_edge(v,u)
     degree=LLG.degree()
     P=np.zeros([2*M,2*M])
-    pair=np.zeros([2*M,2])
+    pair=[]
     k=0
     l=0
     for i in LLG.edges:
@@ -142,7 +142,7 @@ def Transition(LG):
     a=0
     for i in LLG.edges:
         (u,v,t)=i
-        pair[a]=[u,v]
+        pair.append([u,v])
         a+=1
     return P,pair
 
