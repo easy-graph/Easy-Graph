@@ -280,3 +280,9 @@ def AP_BICC(G,k,K,l):
     for i in T:
         V.append(i[0])
     return V
+
+if __name__ == '__main__':
+    G = eg.datasets.get_graph_karateclub()
+    print(ICC(G,3))
+    print(BICC(G,3,5,3))
+    print(AP_BICC(G,3,5,3))

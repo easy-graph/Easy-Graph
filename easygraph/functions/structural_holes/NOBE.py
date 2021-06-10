@@ -176,7 +176,7 @@ def NOBE_SH(G,K,topk):
     com={}
     cluster={}
     a=0
-    for i in range(1,len(G.nodes)+1):
+    for i in G.nodes:
         com[i]=kmeans.labels_[a]
         a+=1
     for i in com:
@@ -187,7 +187,7 @@ def NOBE_SH(G,K,topk):
             cluster[com[i]].append(i)
     vector={}
     a=0
-    for i in range(1,len(G.nodes)+1):
+    for i in G.nodes:
         vector[i]=Y[a]
         a+=1
     rds=RDS(Y,com,cluster,vector,K)
@@ -209,7 +209,7 @@ def NOBE_GA_SH(G,K,topk):
     com={}
     cluster={}
     a=0
-    for i in range(1,len(G.nodes)+1):
+    for i in G.nodes:
         com[i]=kmeans.labels_[a]
         a+=1
     for i in com:
@@ -220,7 +220,7 @@ def NOBE_GA_SH(G,K,topk):
             cluster[com[i]].append(i)
     vector={}
     a=0
-    for i in range(1,len(G.nodes)+1):
+    for i in G.nodes:
         vector[i]=Y[a]
         a+=1
     rds=RDS(Y,com,cluster,vector,K)
@@ -258,9 +258,7 @@ def RDS(Y,com,cluster,vector,K):
         rds[i]=maxx
     return rds
 
-"""
 if __name__ == '__main__':
     G = eg.datasets.get_graph_karateclub()
     print(NOBE_SH(G,K=2,topk=3))
     print(NOBE_GA_SH(G,K=2,topk=3))
-"""
