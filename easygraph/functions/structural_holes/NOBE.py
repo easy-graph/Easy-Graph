@@ -84,9 +84,7 @@ def NOBE_GA(G,K):
     b=0
     for i in degree:
         if degree[i]>1:
-            D_inv[b,b]=1/(degree[i]-1)
-        else:
-            D_inv[b,b]=0
+            D_I_inv[b,b]=1/(degree[i]-1)
         b+=1
     I=np.identity(N)
     M_D = 0.5*A*D_I_inv*(I-D_inv)
@@ -96,8 +94,8 @@ def NOBE_GA(G,K):
     T_ua[N:2*N,N:2*N] = M_D
     T_ua[N:2*N,0:N] = D_D
     T_ua[0:N,N:2*N] = D_D
-    Y1,Y=eigs(T_ua,K,which='LR')
-    Y=Y[0:N,:]
+    Y1,Y=eigs(T_ua,K+1,which='LR')
+    Y=Y[0:N,:-1]
     return Y
 
 def graph_to_d_atleast2(G):
@@ -260,7 +258,9 @@ def RDS(Y,com,cluster,vector,K):
         rds[i]=maxx
     return rds
 
+"""
 if __name__ == '__main__':
     G = eg.datasets.get_graph_karateclub()
     print(NOBE_SH(G,K=2,topk=3))
-    print(NOBE_GA_SH(G,K=3,topk=3))
+    print(NOBE_GA_SH(G,K=2,topk=3))
+"""

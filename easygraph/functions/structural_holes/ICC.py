@@ -29,12 +29,12 @@ def bounded_inverse_closeness_centrality(G,v,l):
                 result+=shortest_path[v][w]
     return result/(len(G)-1)      
 
-def Modified_DFS(G,u,V):
+def Modified_DFS(G,u,V,time,n):
     V[u]['color']='black'
-    V[u]['time']+=1
-    V[u]['discovered']=V[u]['time']
-    V[u]['lowest']=V[u]['time']
-    n=len(G)
+    time+=1
+    n-=1
+    V[u]['discovered']=time
+    V[u]['lowest']=time
     cc0=n
     V[u]['descendant']=0
     root=u
@@ -44,7 +44,7 @@ def Modified_DFS(G,u,V):
             V[u]['color']='grey'
             V[v]['parent']=u
             V[u]['child']+=1
-            V=Modified_DFS(G,v,V)
+            V,time,n=Modified_DFS(G,v,V,time,n)
             V[u]['descendant']=V[u]['descendant']+V[v]['descendant']
             V[u]['lowest']=min(V[u]['lowest'],V[v]['lowest'])
             if V[v]['lowest']>=V[u]['discovered'] or root==u and V[u]['child']>1:
@@ -53,7 +53,7 @@ def Modified_DFS(G,u,V):
         elif v!=V[u]['parent']:
             V[u]['lowest']=min(V[u]['lowest'],V[v]['discovered'])
     V[u]['c']+=cc0*(n-cc0-1)
-    return V
+    return V,time,n
 
 def approximate_inverse_closeness_centrality(G):
     V={}
@@ -62,14 +62,15 @@ def approximate_inverse_closeness_centrality(G):
         V[i]['child']=0
         V[i]['color']='white'
         V[i]['c']=0
-        V[i]['time']=0
         V[i]['parent']=None
         V[i]['discovered']=0
         V[i]['lowest']=0
         V[i]['descendant']=0 
+    time=0
+    n=len(G)
     for u in G.nodes:
         if V[u]['color']=='white':
-            V=Modified_DFS(G,u,V)
+            V,time,n=Modified_DFS(G,u,V,time,n)
     return V
 
 def ICC(G,k):
@@ -256,7 +257,18 @@ def AP_BICC(G,k,K,l):
         Q=[]
         for v in U:
             b_i_c=bounded_inverse_closeness_centrality(G,v,l)
-            Q.append([v,b_i_c])       
+            if len(Q)<K:
+                Q.append([v,b_i_c])   
+            else:
+                MIN=10000000
+                t=v
+                for i in Q:
+                    if MIN>i[1]:
+                        MIN=i[1]
+                        t=i[0]
+                if b_i_c>MIN:
+                    Q.remove([t,MIN])
+                    Q.append([v,b_i_c])    
     while len(T)!=k:
         MAX=0
         t=None
