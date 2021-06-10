@@ -35,11 +35,16 @@ def NOBE(G,K):
     .. [1] https://www.researchgate.net/publication/325004496_On_Spectral_Graph_Embedding_A_Non-Backtracking_Perspective_and_Graph_Approximation
     
     """
+    dict={}
+    a=0
+    for i in G.nodes:
+        dict[i]=a
+        a+=1
     LG=graph_to_d_atleast2(G)
     N=len(G)
     P,pair=Transition(LG)
     V=eigs_nodes(P,K)
-    Y=embedding(V,pair,K,N)
+    Y=embedding(V,pair,K,N,dict)
     return Y
 
 def NOBE_GA(G,K):
@@ -156,29 +161,32 @@ def eigs_nodes(P,K):
         a+=1
     return V
 
-def embedding(V,pair,K,N):
+def embedding(V,pair,K,N,dict):
     Y=np.zeros([N,K],dtype = complex)
     idx=0
     for i in pair:
         [v,u]=i
-        u=int(u)-1
+        t=dict[u]
         for j in range(0, len(V[idx])):
-            Y[u,j]+=V[idx,j] 
+            Y[t,j]+=V[idx,j] 
         idx+=1
     return Y
  
 from sklearn.cluster import KMeans
 def NOBE_SH(G,K,topk):
     Y=NOBE(G,K)
+    dict={}
+    a=0
+    for i in G.nodes:
+        dict[i]=a
+        a+=1
     if(isinstance(Y[0,0],complex)):
         Y = abs(Y)
     kmeans = KMeans(n_clusters=K, random_state=0).fit(Y)
     com={}
     cluster={}
-    a=0
-    for i in G.nodes:
-        com[i]=kmeans.labels_[a]
-        a+=1
+    for i in dict:
+        com[i]=kmeans.labels_[dict[i]]
     for i in com:
         if com[i] in cluster:
             cluster[com[i]].append(i)
@@ -186,11 +194,9 @@ def NOBE_SH(G,K,topk):
             cluster[com[i]]=[]
             cluster[com[i]].append(i)
     vector={}
-    a=0
-    for i in G.nodes:
-        vector[i]=Y[a]
-        a+=1
-    rds=RDS(Y,com,cluster,vector,K)
+    for i in dict:
+        vector[i]=Y[dict[i]]
+    rds=RDS(com,cluster,vector,K)
     rds_sort=sorted(rds.items(), key=lambda d: d[1],reverse=True)
     SHS=list()
     a=0
@@ -209,7 +215,7 @@ def NOBE_GA_SH(G,K,topk):
     com={}
     cluster={}
     a=0
-    for i in G.nodes:
+    for i in G.nodes:            
         com[i]=kmeans.labels_[a]
         a+=1
     for i in com:
@@ -223,7 +229,7 @@ def NOBE_GA_SH(G,K,topk):
     for i in G.nodes:
         vector[i]=Y[a]
         a+=1
-    rds=RDS(Y,com,cluster,vector,K)
+    rds=RDS(com,cluster,vector,K)
     rds_sort=sorted(rds.items(), key=lambda d: d[1],reverse=True)
     SHS=list()
     a=0
@@ -234,7 +240,7 @@ def NOBE_GA_SH(G,K,topk):
             break
     return SHS
 
-def RDS(Y,com,cluster,vector,K):
+def RDS(com,cluster,vector,K):
     rds={}
     Uc={}
     Rc={}
