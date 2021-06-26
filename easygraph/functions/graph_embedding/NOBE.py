@@ -33,13 +33,16 @@ def NOBE(G,K):
     .. [1] https://www.researchgate.net/publication/325004496_On_Spectral_Graph_Embedding_A_Non-Backtracking_Perspective_and_Graph_Approximation
     
     """
+    dict={}
+    a=0
+    for i in G.nodes:
+        dict[i]=a
+        a+=1
     LG=graph_to_d_atleast2(G)
-    N=len(LG)
+    N=len(G)
     P,pair=Transition(LG)
-    V=eigs_nodes(P,K,N)
-    print(V)
-    print(np.shape(V))
-    Y=embedding(V,pair,K,N)
+    V=eigs_nodes(P,K)
+    Y=embedding(V,pair,K,N,dict,G)
     return Y
 
 def NOBE_GA(G,K):
@@ -71,8 +74,8 @@ def NOBE_GA(G,K):
     A = np.eye(N,N)
     for i in G.edges:
         (u,v,t)=i
-        u=int(u)
-        v=int(v)
+        u=int(u)-1
+        v=int(v)-1
         A[u,v]=1
     degree=G.degree()
     D_inv=np.zeros([N,N])
@@ -83,7 +86,8 @@ def NOBE_GA(G,K):
     D_I_inv=np.zeros([N,N])
     b=0
     for i in degree:
-        D_inv[b,b]=1/(degree[i]-1)
+        if degree[i]>1:
+            D_I_inv[b,b]=1/(degree[i]-1)
         b+=1
     I=np.identity(N)
     M_D = 0.5*A*D_I_inv*(I-D_inv)
@@ -93,23 +97,25 @@ def NOBE_GA(G,K):
     T_ua[N:2*N,N:2*N] = M_D
     T_ua[N:2*N,0:N] = D_D
     T_ua[0:N,N:2*N] = D_D
-    Y1,Y=eigs(T_ua,K,which='LR')
-    Y=Y[0:N,:]
+    Y1,Y=eigs(T_ua,K+1,which='LR')
+    Y=Y[0:N,:-1]
     return Y
 
 def graph_to_d_atleast2(G):
     n=len(G)
+    LG=eg.Graph()
+    LG=G.copy()
     new_node = n
-    degree=G.degree()
-    node=G.nodes.copy()
+    degree=LG.degree()
+    node=LG.nodes.copy()
     for i in node:
         if degree[i] == 1:
-            for neighbors in G.neighbors(node=i):
-                G.add_edge(i,new_node)
-                G.add_edge(new_node,neighbors)
+            for neighbors in LG.neighbors(node=i):
+                LG.add_edge(i,new_node)
+                LG.add_edge(new_node,neighbors)
                 break
             new_node =  new_node + 1
-    return G
+    return LG
 
 def Transition(LG):
     N=len(LG)
@@ -121,7 +127,7 @@ def Transition(LG):
         LLG.add_edge(v,u)
     degree=LLG.degree()
     P=np.zeros([2*M,2*M])
-    pair=np.zeros([2*M,2])
+    pair=[]
     k=0
     l=0
     for i in LLG.edges:
@@ -136,11 +142,11 @@ def Transition(LG):
     a=0
     for i in LLG.edges:
         (u,v,t)=i
-        pair[a]=[u,v]
+        pair.append([u,v])
         a+=1
     return P,pair
 
-def eigs_nodes(P,K,N):
+def eigs_nodes(P,K):
     M=np.size(P,0)
     L=np.zeros([M,M])
     I=np.identity(M)
@@ -155,14 +161,14 @@ def eigs_nodes(P,K,N):
         a+=1
     return V
 
-def embedding(V,pair,K,N):
+def embedding(V,pair,K,N,dict,G):
     Y=np.zeros([N,K],dtype = complex)
     idx=0
     for i in pair:
         [v,u]=i
-        u=int(u)
-        for j in range(0, len(V[idx])):
-            Y[u,j]+=V[idx,j] 
-        idx+=1
+        if u in G.nodes:
+            t=dict[u]
+            for j in range(0, len(V[idx])):
+                Y[t,j]+=V[idx,j] 
+            idx+=1
     return Y
- 
