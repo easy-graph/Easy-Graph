@@ -1,8 +1,18 @@
 import setuptools
 import io
+from distutils.core import Extension
 
 with open("README.rst", "r") as fh:
     long_description = fh.read()
+
+sources=['easygraph/classes/GraphC/Graph.cpp',
+         'easygraph/classes/GraphC/GraphEdge.cpp',
+         'easygraph/classes/GraphC/GraphEdges.cpp',
+         'easygraph/classes/GraphC/GraphEdgesIter.cpp',
+         'easygraph/classes/GraphC/GraphMap.cpp',
+         'easygraph/classes/GraphC/GraphMapIter.cpp',
+         'easygraph/classes/GraphC/GraphModule.cpp',
+         'easygraph/classes/GraphC/ModuleMethods.cpp',]
 
 setuptools.setup(
     name="Python-EasyGraph",                                     
@@ -23,6 +33,6 @@ setuptools.setup(
     ],
     python_requires=">=3.6,<3.9",
     install_requires=['numpy>=1.18.5,<1.19.0','tqdm>=4.49.0','tensorflow>=2.0.0','joblib>=0.16.0','six>=1.15.0','gensim>=3.8.3','progressbar33>=2.4','scikit-learn>=0.23.2','scipy>=1.5.2',
-    ]
+    ],
+    ext_modules=[Extension('cpp_easygraph',sources)]
 )
-

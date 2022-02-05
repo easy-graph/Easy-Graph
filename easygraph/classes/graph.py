@@ -1,5 +1,5 @@
 from copy import deepcopy
-
+import cpp_easygraph
 
 class Graph(object):
     """ 
@@ -57,7 +57,7 @@ class Graph(object):
         self.graph = self.graph_attr_dict_factory()
         self._node = self.node_dict_factory()
         self._adj = self.adjlist_outer_dict_factory()
-
+        self.cflag = 0
         self.graph.update(graph_attr)
 
     def __iter__(self):
@@ -731,3 +731,7 @@ class Graph(object):
                 G.add_edge(index_of_node[u], index_of_node[v], **edge_data) 
         
         return G, index_of_node, node_of_index
+
+class GraphC(cpp_easygraph.Graph):
+    def __init__(self):
+        self.cflag = 1
