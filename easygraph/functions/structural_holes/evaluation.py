@@ -3,9 +3,12 @@ sys.path.append('../../../')
 import easygraph as eg
 import math
 
-from cpp_easygraph import cpp_constraint
-from cpp_easygraph import cpp_effective_size
-from cpp_easygraph import cpp_hierarchy
+try:
+    from cpp_easygraph import cpp_constraint
+    from cpp_easygraph import cpp_effective_size
+    from cpp_easygraph import cpp_hierarchy
+except ImportError:
+    pass
 
 __all__ = [
     'effective_size',

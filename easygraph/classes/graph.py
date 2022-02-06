@@ -1,5 +1,4 @@
 from copy import deepcopy
-import cpp_easygraph
 
 class Graph(object):
     """ 
@@ -732,6 +731,13 @@ class Graph(object):
         
         return G, index_of_node, node_of_index
 
-class GraphC(cpp_easygraph.Graph):
-    def __init__(self):
-        self.cflag = 1
+try:
+    import cpp_easygraph
+    class GraphC(cpp_easygraph.Graph):
+        cflag = 1
+except ImportError:
+    class GraphC():
+        def __init__(self, **graph_attr):
+            print("Object cannot be instantiated because C extension has not been successfully compiled and installed. Please refer to https://github.com/easy-graph/Easy-Graph/blob/master/README.rst and reinstall easygraph.")
+            raise RuntimeError
+            
