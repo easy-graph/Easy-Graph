@@ -10,6 +10,7 @@ struct commactype : std::ctype<char> {
             rc[' '] = std::ctype_base::space;
             rc['\t'] = std::ctype_base::space;
             rc['\n'] = std::ctype_base::space;
+            rc['\r'] = std::ctype_base::space;
         }
         return rc;
     }
