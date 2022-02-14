@@ -42,40 +42,15 @@ inline float redundancy(mimimsf_t& G, int u, int v, std::string weight = "None")
 }
 
 PyObject* effective_size(PyObject* easygraph, PyObject* args, PyObject* kwargs) {
+	PyObject* nodes = Py_None, * weight = Py_None;
+	Graph *graph = nullptr;
+	static char* kwlist[] = { (char*)"G", (char*)"nodes", (char*)"weight", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO", kwlist, &graph, &nodes, &weight))
+		return nullptr;
+	
 	sum_nmw_rec.clear();
 	max_nmw_rec.clear();
 	PyObject* ret = PyDict_New();
-	PyObject* nodes = Py_None, * weight = Py_None;
-	Graph *graph = nullptr;
-	PyObject* G_key = PyUnicode_FromString("G");
-	PyObject* nodes_key = PyUnicode_FromString("nodes");
-	PyObject* weight_key = PyUnicode_FromString("weight");
-	if (PyTuple_Size(args) == 3) {
-		graph = (Graph*)PyTuple_GetItem(args, 0);
-		nodes = PyTuple_GetItem(args, 1);
-		weight = PyTuple_GetItem(args, 2);
-	}
-	else if (PyTuple_Size(args) == 2) {
-		graph = (Graph*)PyTuple_GetItem(args, 0);
-		nodes = PyTuple_GetItem(args, 1);
-		if (kwargs && PyDict_Contains(kwargs, weight_key))
-			weight = PyDict_GetItem(kwargs, weight_key);
-	}
-	else if (PyTuple_Size(args) == 1) {
-		graph = (Graph*)PyTuple_GetItem(args, 0);
-		if (kwargs && PyDict_Contains(kwargs, nodes_key))
-			nodes = PyDict_GetItem(kwargs, nodes_key);
-		if (kwargs && PyDict_Contains(kwargs, weight_key))
-			weight = PyDict_GetItem(kwargs, weight_key);
-	}
-	else {
-		if (kwargs && PyDict_Contains(kwargs, G_key))
-			graph = (Graph*)PyDict_GetItem(kwargs, G_key);
-		if (kwargs && PyDict_Contains(kwargs, nodes_key))
-			nodes = PyDict_GetItem(kwargs, nodes_key);
-		if (kwargs && PyDict_Contains(kwargs, weight_key))
-			weight = PyDict_GetItem(kwargs, weight_key);
-	}
 	mimimsf_t& G = graph->adj;
 	if (PyObject_CallMethod((PyObject*)graph, "is_directed", "()") == Py_False && weight == Py_None) {
 		if (nodes == Py_None) {
@@ -180,46 +155,11 @@ std::pair<int, double> compute_constraint_of_v(mimimsf_t& G, int v, std::string 
 }
 
 PyObject* constraint(PyObject* easygraph, PyObject* args, PyObject* kwargs) {
-	Graph* graph = (Graph*)PyTuple_GetItem(args, 0);
-	PyObject* nodes = Py_None, * n_workers = Py_None;
-	PyObject* nodes_key = PyUnicode_FromString("nodes");
-	PyObject* weight_key = PyUnicode_FromString("weight");
-	PyObject* n_workers_key = PyUnicode_FromString("n_workers");
-	std::string weight = "None";
-	switch (PyTuple_Size(args)) {
-	case 1: {
-		if (kwargs && PyDict_Contains(kwargs, nodes_key))
-			nodes = PyDict_GetItemString(kwargs, "nodes");
-		if (kwargs && PyDict_Contains(kwargs, weight_key) && PyDict_GetItemString(kwargs, "weight") != Py_None)
-			weight = std::string(PyUnicode_AsUTF8(PyDict_GetItemString(kwargs, "weight")));
-		if (kwargs && PyDict_Contains(kwargs, n_workers_key))
-			n_workers = PyDict_GetItemString(kwargs, "n_workers");
-		break;
-	}
-	case 2: {
-		nodes = PyTuple_GetItem(args, 0);
-		if (kwargs && PyDict_Contains(kwargs, weight_key) && PyDict_GetItemString(kwargs, "weight") != Py_None)
-			weight = std::string(PyUnicode_AsUTF8(PyDict_GetItemString(kwargs, "weight")));
-		if (kwargs && PyDict_Contains(kwargs, n_workers_key))
-			n_workers = PyDict_GetItemString(kwargs, "n_workers");
-		break;
-	}
-	case 3: {
-		nodes = PyTuple_GetItem(args, 1);
-		if(PyTuple_GetItem(args, 2) != Py_None)
-			weight = std::string(PyUnicode_AsUTF8(PyTuple_GetItem(args, 2)));
-		if (kwargs && PyDict_Contains(kwargs, n_workers))
-			n_workers = PyDict_GetItemString(kwargs, "n_workers");
-		break;
-	}
-	case 4: {
-		nodes = PyTuple_GetItem(args, 1);
-		if (PyTuple_GetItem(args, 2) != Py_None)
-			weight = std::string(PyUnicode_AsUTF8(PyTuple_GetItem(args, 2)));
-		nodes = PyTuple_GetItem(args, 3);
-		break;
-	}
-	}
+	Graph* graph;
+	PyObject* nodes = Py_None, *weight = Py_None, * n_workers = Py_None;
+	static char* kwlist[] = { (char*)"G", (char*)"nodes", (char*)"weight", (char*)"n_workers", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOO", kwlist, &graph, &nodes, &weight, &n_workers))
+		return nullptr;
 	sum_nmw_rec.clear();
 	max_nmw_rec.clear();
 	local_constraint_rec.clear();
@@ -228,13 +168,13 @@ PyObject* constraint(PyObject* easygraph, PyObject* args, PyObject* kwargs) {
 	if (n_workers == Py_None) {
 		if (nodes == Py_None) {
 			for (auto& v : graph->node) {
-				constraints_results.push_back(compute_constraint_of_v(G, v.first, weight));
+				constraints_results.push_back(compute_constraint_of_v(G, v.first, weight == Py_None ? std::string("None") : std::string(PyUnicode_AsUTF8(weight))));
 			}
 		}
 		else {
 			for (Py_ssize_t i = 0;i < PyList_Size(nodes);i++) {
 				int v = PyLong_AsLong(PyDict_GetItem(graph->node_to_id, PyList_GetItem(nodes, i)));
-				constraints_results.push_back(compute_constraint_of_v(G, v, weight));
+				constraints_results.push_back(compute_constraint_of_v(G, v, weight == Py_None ? std::string("None") : std::string(PyUnicode_AsUTF8(weight))));
 			}
 		}
 	}
@@ -246,26 +186,12 @@ PyObject* constraint(PyObject* easygraph, PyObject* args, PyObject* kwargs) {
 }
 
 PyObject* hierarchy(PyObject* easygraph, PyObject* args, PyObject* kwargs) {
-	Graph* graph = (Graph*)PyTuple_GetItem(args, 0);
-	PyObject* hierarchy = PyDict_New();
+	Graph* graph;
 	PyObject* nodes = Py_None, * weight = Py_None;
-	PyObject* nodes_key = PyUnicode_FromString("nodes");
-	PyObject* weight_key = PyUnicode_FromString("weight");
-	if (PyTuple_Size(args) == 3) {
-		nodes = PyTuple_GetItem(args, 1);
-		weight = PyTuple_GetItem(args, 2);
-	}
-	else if (PyTuple_Size(args) == 2) {
-		nodes = PyTuple_GetItem(args, 1);
-		if (kwargs && PyDict_Contains(kwargs, weight_key))
-			weight = PyDict_GetItem(kwargs, weight_key);
-	}
-	else {
-		if (kwargs && PyDict_Contains(kwargs, nodes_key))
-			nodes = PyDict_GetItem(kwargs, nodes_key);
-		if (kwargs && PyDict_Contains(kwargs, weight_key))
-			weight = PyDict_GetItem(kwargs, weight_key);
-	}
+	PyObject* hierarchy = PyDict_New();
+	static char* kwlist[] = { (char*)"G", (char*)"nodes", (char*)"weight", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO", kwlist, & graph, &nodes, &weight))
+		return nullptr;
 	mimimsf_t& G = graph->adj;
 	PyObject* con = PyObject_CallMethod(easygraph, "cpp_constraint", "(O)", graph);
 	if (nodes == Py_None) {

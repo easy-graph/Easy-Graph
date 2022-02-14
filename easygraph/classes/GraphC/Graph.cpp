@@ -99,16 +99,11 @@ PyObject* Graph_add_node(Graph* self, PyObject* arg, PyObject* kwarg) {
 }
 
 PyObject* Graph_add_nodes(Graph* self, PyObject* args, PyObject* kwargs) {
-    PyObject* nodes_for_adding = PyTuple_GetItem(args, 0), * nodes_attr = nullptr;
-    switch (PyTuple_Size(args)) {
-    case 1:
-        if (kwargs != nullptr)
-            nodes_attr = PyDict_GetItemString(kwargs, "nodes_attr");
-        break;
-    case 2:
-        nodes_attr = PyTuple_GetItem(args, 1);
-        break;
-    }
+    
+    PyObject* nodes_for_adding, * nodes_attr = nullptr;
+    static char* kwlist[] = { (char*)"nodes_for_adding", (char*)"nodes_attr", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "(OO)", kwlist, &nodes_for_adding, &nodes_attr))
+        return nullptr;
     Py_ssize_t nodes_for_adding_len = PyList_Size(nodes_for_adding);
     if (nodes_attr != nullptr && nodes_for_adding_len != PyList_Size(nodes_attr)) {
         PyErr_SetString(PyExc_AssertionError, "Nodes and Attributes lists must have same length.");
@@ -170,10 +165,12 @@ PyObject* Graph_add_edge(Graph* self, PyObject* args, PyObject* kwargs) {
 }
 
 PyObject* Graph_add_weighted_edge(Graph* self, PyObject* args, PyObject* kwargs) {
-    PyObject* pu = nullptr, * pv = nullptr;
+    PyObject* pu, * pv;
     float weight;
+    static char* kwlist[] = { (char*)"u_of_edge", (char*)"v_of_edge", (char*)"weight", NULL };
     std::string key("weight");
-    PyArg_ParseTuple(args, "OOf", &pu, &pv, &weight);
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OOf", kwlist, &pu, &pv, &weight))
+        return nullptr;
     int u, v;
     if (!PyDict_Contains(self->node_to_id, pu)) {
         _add_one_node(self, pu, nullptr);
@@ -192,16 +189,10 @@ PyObject* Graph_add_weighted_edge(Graph* self, PyObject* args, PyObject* kwargs)
 }
 
 PyObject * Graph_add_edges(Graph * self, PyObject* args, PyObject* kwargs) {
-    PyObject* edges_for_adding = PyTuple_GetItem(args, 0), * edges_attr = nullptr;
-    switch (PyTuple_Size(args)) {
-    case 1:
-        if (kwargs != nullptr)
-            edges_attr = PyDict_GetItemString(kwargs, "edges_attr");
-        break;
-    case 2:
-        edges_attr = PyTuple_GetItem(args, 1);
-        break;
-    }
+    PyObject* edges_for_adding, * edges_attr = nullptr;
+    static char* kwlist[] = { (char*)"edges_for_adding", (char*)"edges_attr", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "(OO)", kwlist, &edges_for_adding, &edges_attr))
+        return nullptr;
     Py_ssize_t edges_for_adding_len = PyList_Size(edges_for_adding);
     if (edges_attr != nullptr && edges_for_adding_len != PyList_Size(edges_attr)) {
         PyErr_SetString(PyExc_AssertionError, "Edges and Attributes lists must have same length.");
@@ -226,27 +217,13 @@ PyObject * Graph_add_edges(Graph * self, PyObject* args, PyObject* kwargs) {
 
 PyObject* Graph_add_edges_from_file(Graph* self, PyObject* args, PyObject* kwargs) {
     std::ios::sync_with_stdio(0);
-    std::string file_path;
-    bool weighted = false;
-    switch (PyTuple_Size(args)) {
-    case 0: {
-        file_path = PyUnicode_AsUTF8(PyDict_GetItemString(kwargs, "file"));
-        weighted = PyObject_IsTrue(PyDict_GetItemString(kwargs, "weighted"));
-        break;
-    }
-    case 1: 
-        file_path = PyUnicode_AsUTF8(PyTuple_GetItem(args, 0));
-        if (kwargs) {
-            weighted = PyObject_IsTrue(PyDict_GetItemString(kwargs, "weighted"));
-        }
-        break;
-    case 2:
-        file_path = PyUnicode_AsUTF8(PyTuple_GetItem(args, 0));
-        weighted = PyObject_IsTrue(PyTuple_GetItem(args, 1));
-        break;
-    }
+    char* file_path;
+    PyObject* weighted = Py_False;
+    static char* kwlist[] = { (char*)"file", (char*)"weighted", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s|O", kwlist, &file_path, &weighted))
+        return nullptr;
     std::ifstream in;
-    in.open(file_path.c_str(), std::ios::in);
+    in.open(file_path, std::ios::in);
     in.imbue(std::locale(std::locale(), new commactype));
     std::string data, key("weight");
     std::string su, sv;
@@ -266,7 +243,7 @@ PyObject* Graph_add_edges_from_file(Graph* self, PyObject* args, PyObject* kwarg
         }
         else
             v = PyLong_AsLong(PyDict_GetItem(self->node_to_id, pv));
-        if (weighted) {
+        if (PyObject_IsTrue(weighted)) {
             in >> weight;
             self->adj[u][v][key] = self->adj[v][u][key] = weight;
         }
@@ -284,16 +261,11 @@ PyObject* Graph_add_edges_from_file(Graph* self, PyObject* args, PyObject* kwarg
 }
 
 PyObject* Graph_degree(Graph* self, PyObject* args, PyObject* kwargs) {
-    std::string weight_key;
-    if (args && PyTuple_Size(args)) {
-        weight_key = PyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 0)));
-    }
-    else if(kwargs && PyDict_Size(kwargs)){
-        weight_key = PyUnicode_AsUTF8(PyObject_Str(PyDict_GetItemString(kwargs, "weight")));
-    }
-    else {
-        weight_key = "weight";
-    }
+    char* weight_key_cstr = (char*)"weight";
+    static char* kwlist[] = { (char*)"weight", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|s", kwlist, &weight_key_cstr))
+        return nullptr;
+    std::string weight_key(weight_key_cstr);
     GraphEdges* temp_edges = (GraphEdges*)PyObject_GetAttr((PyObject*)self, PyUnicode_FromString("edges"));
     GraphMap* temp_degree = (GraphMap*)PyObject_CallFunctionObjArgs((PyObject*)&GraphMapType, nullptr);
     temp_degree->type = Mif;
@@ -315,41 +287,26 @@ PyObject* Graph_degree(Graph* self, PyObject* args, PyObject* kwargs) {
 }
 
 PyObject* Graph_size(Graph* self, PyObject* args, PyObject* kwargs) {
-    bool flag;
-    GraphMap* temp_degree = nullptr;
-    if (flag = !(args && PyTuple_Size(args)) && !(kwargs && PyDict_Size(kwargs))) {
-        temp_degree = (GraphMap*)PyObject_CallMethod((PyObject*)self, "degree", "(O)", Py_None);
-    }
-    else if (kwargs && PyDict_Size(kwargs)) {
-        temp_degree = (GraphMap*)PyObject_CallMethod((PyObject*)self, "degree", "(O)", Py_BuildValue("(O)", PyDict_GetItemString(kwargs, "weight")));
-    }
-    else {
-        temp_degree = (GraphMap*)PyObject_CallMethod((PyObject*)self, "degree", "(O)", PyTuple_GetItem(args, 0));
-    }
+    PyObject* weight = Py_None;
+    static char* kwlist[] = { (char*)"weight", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", kwlist, &weight))
+        return nullptr;
+    GraphMap* temp_degree = (GraphMap*)PyObject_CallMethod((PyObject*)self, "degree", "(O)", weight);
     std::unordered_map<int, float>* degree_pointer = (std::unordered_map<int, float>*)temp_degree->pointer;
     float result = 0;
     for (auto& each : *degree_pointer) {
         result += each.second;
     }
     Py_DecRef((PyObject*)temp_degree);
-    if (flag)
-        return Py_BuildValue("i", int(result) / 2);
-    else
-        return Py_BuildValue("f", result / 2);
+    return weight == Py_None? Py_BuildValue("i", int(result) / 2): Py_BuildValue("f", result / 2);
+        
 }
 
 PyObject* Graph_neighbors(Graph* self, PyObject* args, PyObject* kwargs) {
     PyObject* node;
-    if ( PyTuple_Size(args)) {
-        node = PyTuple_GetItem(args, 0);
-    }
-    else if (kwargs && PyDict_Size(kwargs)) {
-        node = PyDict_GetItemString(kwargs, "node");
-    }
-    else {
-        PyErr_SetString(PyExc_TypeError, "neighbors() missing 1 required positional argument: \'node\'");
+    static char* kwlist[] = { (char*)"node", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", kwlist, &node))
         return nullptr;
-    }
     PyObject* temp_adj = PyObject_GetAttr((PyObject*)self, PyUnicode_FromString("adj"));
     PyObject* obj = PyObject_GetItem(temp_adj, node);
     auto& adj = self->adj;
@@ -383,15 +340,8 @@ void _remove_one_node(Graph* self, PyObject* node_to_remove) {
 
 PyObject* Graph_remove_node(Graph* self, PyObject* args, PyObject* kwargs) {
     PyObject* node_to_remove;
-    if (PyLong_Check(PyTuple_GetItem(args, 0))) {
-        node_to_remove = PyTuple_GetItem(args, 0);
-    }
-    else {
-        PyErr_SetString(PyExc_TypeError, "Remove Error: The type of the parameter should be \'int\'.");
-        return nullptr;
-    }
-    if (!PyDict_Contains(self->node_to_id, node_to_remove)) {
-        PyErr_Format(PyExc_KeyError, "No node %d in graph.", node_to_remove);
+    static char* kwlist[] = { (char*)"node_to_remove", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", kwlist, &node_to_remove)) {
         return nullptr;
     }
     _remove_one_node(self, node_to_remove);
@@ -399,9 +349,12 @@ PyObject* Graph_remove_node(Graph* self, PyObject* args, PyObject* kwargs) {
 } 
 
 PyObject* Graph_remove_nodes(Graph* self, PyObject* args, PyObject* kwargs) {
-    PyObject* nodes_to_remove = PyTuple_GetItem(args, 0);
+    PyObject* nodes_to_remove;
+    static char* kwlist[] = { (char*)"nodes_to_remove", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", kwlist, &nodes_to_remove))
+        return nullptr;
     if (!PyList_Check(nodes_to_remove)) {
-        PyErr_Format(PyExc_TypeError, "Remove Error: The type of the parameter should be list.");
+        PyErr_Format(PyExc_TypeError, "Error: The type of the parameter should be list.");
         return nullptr;
     }
     Py_ssize_t nodes_len = PyList_Size(nodes_to_remove);
@@ -425,8 +378,10 @@ void _remove_one_edge(Graph* self, int u, int v) {
 }
 
 PyObject* Graph_remove_edge(Graph* self, PyObject* args, PyObject* kwargs) {
-    PyObject* pu = nullptr, * pv = nullptr;
-    PyArg_ParseTuple(args, "(OO)", &pu, &pv);
+    PyObject* pu , * pv;
+    static char* kwlist[] = { (char*)"u", (char*)"v", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO", kwlist, &pu, &pv))
+        return nullptr;
     int u = -1, v = -1;
     if (PyDict_Contains(self->node_to_id, pu) && PyDict_Contains(self->node_to_id, pv)) {
         u = PyLong_AsLong(PyDict_GetItem(self->node_to_id, pu));
@@ -436,12 +391,17 @@ PyObject* Graph_remove_edge(Graph* self, PyObject* args, PyObject* kwargs) {
             return Py_BuildValue("");
         }
     }
-    PyErr_Format(PyExc_KeyError, "No edge %R-%R in graph.", pu, pv);
-    return nullptr;
+    else {
+        PyErr_Format(PyExc_KeyError, "No edge %R-%R in graph.", pu, pv);
+        return nullptr;
+    }
 }
 
 PyObject* Graph_remove_edges(Graph* self, PyObject* args, PyObject* kwargs) {
-    PyObject* edges_to_remove = PyTuple_GetItem(args, 0);
+    PyObject* edges_to_remove;
+    static char* kwlist[] = { (char*)"edges_to_remove", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", kwlist, &edges_to_remove))
+        return nullptr;
     if (!PyList_Check(edges_to_remove)) {
         PyErr_Format(PyExc_TypeError, "Remove Error: The type of the parameter should be list.");
         return nullptr;
@@ -480,14 +440,18 @@ PyObject* Graph_remove_edges(Graph* self, PyObject* args, PyObject* kwargs) {
 }
 
 PyObject* Graph_has_node(Graph* self, PyObject* args, PyObject* kwargs) {
-    PyObject* node = PyTuple_GetItem(args, 0);
+    PyObject* node;
+    static char* kwlist[] = { (char*)"node", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", kwlist, &node))
+        return nullptr;
     return PyDict_Contains(self->node_to_id, node) ? Py_True : Py_False;
 }
 
 PyObject* Graph_has_edge(Graph* self, PyObject* args, PyObject* kwargs) {
-    PyObject* pu = nullptr, * pv = nullptr;
-    PyObject* edge = PyTuple_GetItem(args, 0);
-    PyArg_ParseTuple(edge, "OO", &pu, &pv);
+    PyObject* pu, * pv;
+    static char* kwlist[] = { (char*)"u", (char*)"v", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO", kwlist, &pu, &pv))
+        return nullptr;
     int u = -1, v = -1;
     if (PyDict_Contains(self->node_to_id, pu) && PyDict_Contains(self->node_to_id, pv)) {
         u = PyLong_AsLong(PyDict_GetItem(self->node_to_id, pu));
@@ -681,13 +645,12 @@ PyObject* Graph_copy(Graph* self, PyObject* args, PyObject* kwargs) {
 }
 
 PyObject* Graph_nodes_subgraph(Graph* self, PyObject* args, PyObject* kwargs) {
+    PyObject* from_nodes;
+    static char* kwlist[] = { (char*)"from_nodes", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", kwlist, &from_nodes))
+        return nullptr;
     Graph* temp_graph = (Graph*)PyObject_CallFunctionObjArgs((PyObject*)&GraphType, nullptr);
     temp_graph->graph = PyDict_Copy(self->graph);
-    PyObject* from_nodes = PyList_New(0);
-    if (PyTuple_Size(args))
-        from_nodes = PyTuple_GetItem(args, 0);
-    else
-        from_nodes = PyDict_GetItemString(kwargs, "from_nodes");
     Py_ssize_t len = PyList_Size(from_nodes);
     std::unordered_set<int> _from_nodes;
     for (Py_ssize_t i = 0;i < len;i++) {
@@ -708,37 +671,28 @@ PyObject* Graph_nodes_subgraph(Graph* self, PyObject* args, PyObject* kwargs) {
 }
 
 PyObject* Graph_ego_subgraph(Graph* self, PyObject* args, PyObject* kwargs) {
+    PyObject* center;
+    static char* kwlist[] = { (char*)"center", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", kwlist, &center))
+        return nullptr;
     Graph* temp_graph = (Graph*)PyObject_CallFunctionObjArgs((PyObject*)&GraphType, nullptr);
     temp_graph->graph = PyDict_Copy(self->graph);
-    PyObject* center = nullptr;
-    PyArg_ParseTuple(args, "O", &center);
-    if (center == nullptr) {
-        if (kwargs) {
-            center = PyDict_GetItemString(kwargs, "center");
-        }
-        else {
-            PyErr_SetString(PyExc_TypeError, "Parameter error!");
-            return nullptr;
-        }
-    }
     PyObject* neighbors_of_center = PySequence_List(PyObject_CallMethod((PyObject*)self, "neighbors", "(O)", center));
     PyList_Append(neighbors_of_center, center);
     return PyObject_CallMethod((PyObject*)self, "nodes_subgraph", "(O)", neighbors_of_center);
 }
 
 PyObject* Graph_to_index_node_graph(Graph* self, PyObject* args, PyObject* kwargs) {
-    int begin_index = -1;
-    if (PyTuple_Size(args)) {
-        PyArg_Parse(args, "i", &begin_index);
-    }
-    else if (kwargs) {
-        begin_index = PyLong_AsLong(PyDict_GetItemString(kwargs, "begin_index"));
-    }
+    int begin_index = 0;
+    static char* kwlist[] = { (char*)"begin_index", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwlist, &begin_index))
+        return nullptr;
     Graph* G = (Graph*)PyObject_CallFunctionObjArgs((PyObject*)&GraphType, nullptr);
     G->graph = PyDict_Copy(self->graph);
     auto& G_node = G->node;
     auto& G_adj = G->adj;
     PyObject* index_of_node = PyDict_New(), * node_of_index = PyDict_New();
+    begin_index--;
     for (auto& each_node : self->node) {
         ++begin_index;
         PyObject* pid = PyLong_FromLong(begin_index);
