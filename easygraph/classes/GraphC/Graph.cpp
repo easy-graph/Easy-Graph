@@ -631,7 +631,9 @@ PyTypeObject GraphType = {
     nullptr,                                           /* tp_del */
     0,                                                 /* tp_version_tag */
     nullptr,                                           /* tp_finalize */
+#if PY_VERSION_HEX >= 0x03080000
     nullptr,                                           /* tp_vectorcall */
+#endif
 };
 
 PyObject* Graph_copy(Graph* self, PyObject* args, PyObject* kwargs) {
