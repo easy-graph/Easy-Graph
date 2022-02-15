@@ -1,9 +1,16 @@
-
+from easygraph.utils import *
 __all__ = [
     "betweenness_centrality",
 ]
 
-def betweenness_centrality(G, weight=None, normalized=True, endpoints=False):
+def betweenness_centrality_parallel(nodes, G, path_length, accumulate):
+    betweenness = {node: 0.0 for node in G}
+    for node in nodes:
+        S, P, sigma = path_length(G, source=node)
+        betweenness = accumulate(betweenness, S, P, sigma, node)
+    return betweenness
+
+def betweenness_centrality(G, weight=None, normalized=True, endpoints=False, n_workers=None):
     '''Compute the shortest-path betweenness centrality for nodes.
 
     .. math::
@@ -38,20 +45,45 @@ def betweenness_centrality(G, weight=None, normalized=True, endpoints=False):
     nodes : dictionary
        Dictionary of nodes with betweenness centrality as the value.
     '''
-    betweenness = dict.fromkeys(G, 0.0)
+    
     import functools
     if weight is not None:
         path_length = functools.partial(_single_source_dijkstra_path, weight=weight)
     else:
         path_length = functools.partial(_single_source_bfs_path)
 
+    if endpoints:
+        accumulate = functools.partial(_accumulate_endpoints)
+    else:
+        accumulate = functools.partial(_accumulate_basic)
+
     nodes = G.nodes
-    for node in nodes:
-        S, P, sigma = path_length(G, source=node)
-        if endpoints:
-            betweenness = _accumulate_endpoints(betweenness, S, P, sigma, node)
+    betweenness = dict.fromkeys(G, 0.0)
+
+    if n_workers is not None:
+        #  use the parallel version for large graph 
+        from multiprocessing import Pool
+        from functools import partial
+        import random
+        
+        nodes = list(nodes)
+        random.shuffle(nodes)
+        
+        if len(nodes) > n_workers * 30000:
+            nodes = split_len(nodes, step=30000)
         else:
-            betweenness = _accumulate_basic(betweenness, S, P, sigma, node)
+            nodes = split(nodes, n_workers)
+        local_function = partial(betweenness_centrality_parallel, G=G, path_length=path_length, accumulate=accumulate)
+        with Pool(n_workers) as p:
+            ret = p.imap(local_function, nodes)
+            for key in betweenness:
+                betweenness[key] = sum(res[key] for res in ret)
+    else:
+        # use np-parallel version for small graph
+        for node in nodes:
+            S, P, sigma = path_length(G, source=node)
+            betweenness = accumulate(betweenness, S, P, sigma, node)
+            
     betweenness = _rescale(betweenness, len(G), normalized=normalized,
                            directed=G.is_directed(), endpoints=endpoints)
     return betweenness
