@@ -1,0 +1,8 @@
+include easygraph/classes/GraphC/Common.h
+include easygraph/classes/GraphC/Graph.h
+include easygraph/classes/GraphC/GraphEdge.h
+include easygraph/classes/GraphC/GraphEdges.h
+include easygraph/classes/GraphC/GraphMap.h
+include easygraph/classes/GraphC/ModuleMethods.h
+include easygraph/classes/GraphC/ReadFile.h
+include easygraph/classes/GraphC/STLHead.h
