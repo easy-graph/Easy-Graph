@@ -1,10 +1,256 @@
 import easygraph as eg
+from itertools import chain
+from easygraph.utils import *
 
 __all__ = [
+    "set_edge_attributes",
+    "add_path",
+    "set_node_attributes",
     "selfloop_edges", 
     "topological_sort",
     "number_of_selfloops",
 ]
+
+def set_edge_attributes(G, values, name=None):
+    """Sets edge attributes from a given value or dictionary of values.
+
+    .. Warning:: The call order of arguments `values` and `name`
+        switched between v1.x & v2.x.
+
+    Parameters
+    ----------
+    G : NetworkX Graph
+
+    values : scalar value, dict-like
+        What the edge attribute should be set to.  If `values` is
+        not a dictionary, then it is treated as a single attribute value
+        that is then applied to every edge in `G`.  This means that if
+        you provide a mutable object, like a list, updates to that object
+        will be reflected in the edge attribute for each edge.  The attribute
+        name will be `name`.
+
+        If `values` is a dict or a dict of dict, it should be keyed
+        by edge tuple to either an attribute value or a dict of attribute
+        key/value pairs used to update the edge's attributes.
+        For multigraphs, the edge tuples must be of the form ``(u, v, key)``,
+        where `u` and `v` are nodes and `key` is the edge key.
+        For non-multigraphs, the keys must be tuples of the form ``(u, v)``.
+
+    name : string (optional, default=None)
+        Name of the edge attribute to set if values is a scalar.
+
+    Examples
+    --------
+    After computing some property of the edges of a graph, you may want
+    to assign a edge attribute to store the value of that property for
+    each edge::
+
+        >>> G = eg.path_graph(3)
+        >>> bb = eg.edge_betweenness_centrality(G, normalized=False)
+        >>> eg.set_edge_attributes(G, bb, "betweenness")
+        >>> G.edges[1, 2]["betweenness"]
+        2.0
+
+    If you provide a list as the second argument, updates to the list
+    will be reflected in the edge attribute for each edge::
+
+        >>> labels = []
+        >>> eg.set_edge_attributes(G, labels, "labels")
+        >>> labels.append("foo")
+        >>> G.edges[0, 1]["labels"]
+        ['foo']
+        >>> G.edges[1, 2]["labels"]
+        ['foo']
+
+    If you provide a dictionary of dictionaries as the second argument,
+    the entire dictionary will be used to update edge attributes::
+
+        >>> G = eg.path_graph(3)
+        >>> attrs = {(0, 1): {"attr1": 20, "attr2": "nothing"}, (1, 2): {"attr2": 3}}
+        >>> eg.set_edge_attributes(G, attrs)
+        >>> G[0][1]["attr1"]
+        20
+        >>> G[0][1]["attr2"]
+        'nothing'
+        >>> G[1][2]["attr2"]
+        3
+
+    Note that if the dict contains edges that are not in `G`, they are
+    silently ignored::
+
+        >>> G = eg.Graph([(0, 1)])
+        >>> eg.set_edge_attributes(G, {(1, 2): {"weight": 2.0}})
+        >>> (1, 2) in G.edges()
+        False
+
+    """
+    if name is not None:
+        # `values` does not contain attribute names
+        try:
+            # if `values` is a dict using `.items()` => {edge: value}
+            if G.is_multigraph():
+                for (u, v, key), value in values.items():
+                    try:
+                        G[u][v][key][name] = value
+                    except KeyError:
+                        pass
+            else:
+                for (u, v), value in values.items():
+                    try:
+                        G[u][v][name] = value
+                    except KeyError:
+                        pass
+        except AttributeError:
+            # treat `values` as a constant
+            for u, v, data in G.edges:
+                data[name] = values
+    else:
+        # `values` consists of doct-of-dict {edge: {attr: value}} shape
+        if G.is_multigraph():
+            for (u, v, key), d in values.items():
+                try:
+                    G[u][v][key].update(d)
+                except KeyError:
+                    pass
+        else:
+            for (u, v), d in values.items():
+                try:
+                    G[u][v].update(d)
+                except KeyError:
+                    pass
+
+
+def add_path(G_to_add_to, nodes_for_path, **attr):
+    """Add a path to the Graph G_to_add_to.
+
+    Parameters
+    ----------
+    G_to_add_to : graph
+        A NetworkX graph
+    nodes_for_path : iterable container
+        A container of nodes.  A path will be constructed from
+        the nodes (in order) and added to the graph.
+    attr : keyword arguments, optional (default= no attributes)
+        Attributes to add to every edge in path.
+
+    See Also
+    --------
+    add_star, add_cycle
+
+    Examples
+    --------
+    >>> G = eg.Graph()
+    >>> eg.add_path(G, [0, 1, 2, 3])
+    >>> eg.add_path(G, [10, 11, 12], weight=7)
+    """
+    nlist = iter(nodes_for_path)
+    try:
+        first_node = next(nlist)
+    except StopIteration:
+        return
+    G_to_add_to.add_node(first_node)
+    G_to_add_to.add_edges_from(pairwise(chain((first_node,), nlist)), **attr)
+
+
+def set_node_attributes(G, values, name=None):
+    """Sets node attributes from a given value or dictionary of values.
+
+    .. Warning:: The call order of arguments `values` and `name`
+        switched between v1.x & v2.x.
+
+    Parameters
+    ----------
+    G : EasyGraph Graph
+
+    values : scalar value, dict-like
+        What the node attribute should be set to.  If `values` is
+        not a dictionary, then it is treated as a single attribute value
+        that is then applied to every node in `G`.  This means that if
+        you provide a mutable object, like a list, updates to that object
+        will be reflected in the node attribute for every node.
+        The attribute name will be `name`.
+
+        If `values` is a dict or a dict of dict, it should be keyed
+        by node to either an attribute value or a dict of attribute key/value
+        pairs used to update the node's attributes.
+
+    name : string (optional, default=None)
+        Name of the node attribute to set if values is a scalar.
+
+    Examples
+    --------
+    After computing some property of the nodes of a graph, you may want
+    to assign a node attribute to store the value of that property for
+    each node::
+
+        >>> G = eg.path_graph(3)
+        >>> bb = eg.betweenness_centrality(G)
+        >>> isinstance(bb, dict)
+        True
+        >>> eg.set_node_attributes(G, bb, "betweenness")
+        >>> G.nodes[1]["betweenness"]
+        1.0
+
+    If you provide a list as the second argument, updates to the list
+    will be reflected in the node attribute for each node::
+
+        >>> G = eg.path_graph(3)
+        >>> labels = []
+        >>> eg.set_node_attributes(G, labels, "labels")
+        >>> labels.append("foo")
+        >>> G.nodes[0]["labels"]
+        ['foo']
+        >>> G.nodes[1]["labels"]
+        ['foo']
+        >>> G.nodes[2]["labels"]
+        ['foo']
+
+    If you provide a dictionary of dictionaries as the second argument,
+    the outer dictionary is assumed to be keyed by node to an inner
+    dictionary of node attributes for that node::
+
+        >>> G = eg.path_graph(3)
+        >>> attrs = {0: {"attr1": 20, "attr2": "nothing"}, 1: {"attr2": 3}}
+        >>> eg.set_node_attributes(G, attrs)
+        >>> G.nodes[0]["attr1"]
+        20
+        >>> G.nodes[0]["attr2"]
+        'nothing'
+        >>> G.nodes[1]["attr2"]
+        3
+        >>> G.nodes[2]
+        {}
+
+    Note that if the dictionary contains nodes that are not in `G`, the
+    values are silently ignored::
+
+        >>> G = eg.Graph()
+        >>> G.add_node(0)
+        >>> eg.set_node_attributes(G, {0: "red", 1: "blue"}, name="color")
+        >>> G.nodes[0]["color"]
+        'red'
+        >>> 1 in G.nodes
+        False
+
+    """
+    # Set node attributes based on type of `values`
+    if name is not None:  # `values` must not be a dict of dict
+        try:  # `values` is a dict
+            for n, v in values.items():
+                try:
+                    G.nodes[n][name] = values[n]
+                except KeyError:
+                    pass
+        except AttributeError:  # `values` is a constant
+            for n in G:
+                G.nodes[n][name] = values
+    else:  # `values` must be dict of dict
+        for n, d in values.items():
+            try:
+                G.nodes[n].update(d)
+            except KeyError:
+                pass
+
 
 def topological_generations(G):
     if not G.is_directed():
