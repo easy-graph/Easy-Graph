@@ -1,9 +1,11 @@
 # build and upload easygraph
-This doc aims to help you with building and uploading easygraph in different OS.
+This doc aims to help you with building and uploading easygraph in different OS using pip and conda.
 
-## Windows
+## Using Pip 
 
-### build easygraph
+### Windows
+
+#### build easygraph
 
 1.Get the source code and cd to your project
 
@@ -17,14 +19,14 @@ This doc aims to help you with building and uploading easygraph in different OS.
 
     
 
-### upload easygraph
+#### upload easygraph
 
     cd to your project
     python -m twine upload dist/*
 
-## MacOS
+### MacOS
 
-### build easygraph
+#### build easygraph
 
 1.Get the source code and cd to your project
 
@@ -38,15 +40,15 @@ This doc aims to help you with building and uploading easygraph in different OS.
 
     
 
-### upload easygraph
+#### upload easygraph
 
 run the script:
 
     bash/zsh scripts/upload_easygraph.sh
 
-## Linux
+### Linux
 
-### build easygraph
+#### build easygraph
 
 1.Get the source code and cd to your project
 
@@ -58,7 +60,7 @@ run the script:
     bash/zsh scripts/build_easygraph_linux.sh
     【Note】 The premise is that you have to install prerequisites according to the comments in the script. 
 
-### upload easygraph
+#### upload easygraph
 
 modify the **docker name** in upload_easygraph.sh, then:
 
@@ -66,7 +68,7 @@ modify the **docker name** in upload_easygraph.sh, then:
     
 
 
-## Verify
+### Verify
 The verify process is the same in all OS.
 1. pip cache purge
 2. pip uninstall Python-EasyGraph
@@ -74,5 +76,13 @@ The verify process is the same in all OS.
 
 If the download file is whl, it means that your build&upload process is successful.
 
+
+## Using conda
+
+### run the commands below in Mac, Linux and Windows
+    conda build --python 3.6 Easy-Graph 
+    conda build --python 3.7 Easy-Graph 
+    conda build --python 3.8 Easy-Graph 
+    conda build --python 3.9 Easy-Graph 
 
 Finaly, you are free to change all the script to your taste.
