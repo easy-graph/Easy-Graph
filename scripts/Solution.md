@@ -9,6 +9,9 @@ This doc aims to record the problem encountered during packaging.
 
 ### Mac 
 
+* Q: ERROR: Package 'python-easygraph' requires a different Python: 3.9.10 not in '<=3.9,>=3.6'
+
+  A : you might need to update dependencies to compatibility: https://stackoverflow.com/questions/66593103/why-does-pip-claim-that-a-version-of-python-is-not-in-a-given-range
 
 ### Linux
 
