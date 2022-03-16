@@ -1,9 +1,10 @@
-from easygraph.utils.decorators import only_implemented_for_Directed_graph
+from easygraph.utils.decorators import *
 
 __all__ = ['degree_centrality',
            'in_degree_centrality',
            'out_degree_centrality']
 
+@not_implemented_for("multigraph")
 def degree_centrality(G):
     """Compute the degree centrality for nodes in a bipartite network.
 
@@ -13,7 +14,7 @@ def degree_centrality(G):
     parameters
     ----------
     G : graph
-      A networkx graph
+      A easygraph graph
 
     Returns
     -------
@@ -32,6 +33,7 @@ def degree_centrality(G):
     centrality = {n: d * s for n, d in G.degree()}
     return centrality
 
+@not_implemented_for("multigraph")
 @only_implemented_for_Directed_graph
 def in_degree_centrality(G):
     """Compute the in-degree centrality for nodes.
@@ -42,7 +44,7 @@ def in_degree_centrality(G):
     Parameters
     ----------
     G : graph
-        A NetworkX graph
+        A EasyGraph graph
 
     Returns
     -------
@@ -51,7 +53,7 @@ def in_degree_centrality(G):
 
     Raises
     ------
-    NetworkXNotImplemented:
+    EasyGraphNotImplemented:
         If G is undirected.
 
     See Also
@@ -74,7 +76,7 @@ def in_degree_centrality(G):
     centrality = {n: d * s for n, d in G.in_degree()}
     return centrality
 
-
+@not_implemented_for("multigraph")
 @only_implemented_for_Directed_graph
 def out_degree_centrality(G):
     """Compute the out-degree centrality for nodes.
@@ -85,7 +87,7 @@ def out_degree_centrality(G):
     Parameters
     ----------
     G : graph
-        A NetworkX graph
+        A EasyGraph graph
 
     Returns
     -------
@@ -94,7 +96,7 @@ def out_degree_centrality(G):
 
     Raises
     ------
-    NetworkXNotImplemented:
+    EasyGraphNotImplemented:
         If G is undirected.
 
     See Also

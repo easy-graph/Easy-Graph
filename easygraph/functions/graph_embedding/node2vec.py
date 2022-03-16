@@ -3,12 +3,13 @@ import easygraph as eg
 import random
 import numpy as np
 from tqdm import tqdm
-
+from easygraph.utils import *
 
 __all__ = [
     "node2vec"
 ]
 
+@not_implemented_for("multigraph")
 def node2vec(G, dimensions=128, walk_length=80, num_walks=10, p=1.0, q=1.0, weight_key=None, workers=None, **skip_gram_params):
     """Graph embedding via Node2Vec.
 

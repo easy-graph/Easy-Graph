@@ -1,4 +1,5 @@
 import easygraph as eg
+from easygraph.utils import *
 
 __all__ = [
     "weakTie",
@@ -126,7 +127,7 @@ def _computeScore(G, threshold):
                 score_dict[u] += (-1) * closeness_c_u
     return score_dict
 
-
+@not_implemented_for("multigraph")
 def weakTie(G, threshold, k):
     """Return top-k nodes with highest scores which were computed by WeakTie method.
 
@@ -171,7 +172,7 @@ def weakTie(G, threshold, k):
     print("top-k nodes:", SHS_list)
     return SHS_list, score_dict
 
-
+@not_implemented_for("multigraph")
 def _updateScore(u, G, threshold):
     score_u = 0
     for c in _strongly_connected_components(G, threshold):

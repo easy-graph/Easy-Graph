@@ -1,5 +1,10 @@
 from easygraph.utils import *
 
+__all__ = [
+    "laplacian"
+]
+
+@not_implemented_for("multigraph")
 def laplacian(G, n_workers=None):
     """Returns the laplacian centrality of each node in the weighted graph
 

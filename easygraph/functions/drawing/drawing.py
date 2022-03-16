@@ -244,7 +244,7 @@ def draw_kamada_kawai(G,rate=1,style="side"):
     Parameters
     ----------
     G : graph
-       A networkx graph
+       A easygraph graph
 
     rate : float
        The proportion of visible points and edges to the total 

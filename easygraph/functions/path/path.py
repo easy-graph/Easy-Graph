@@ -1,4 +1,4 @@
-from easygraph.utils.decorators import only_implemented_for_UnDirected_graph
+from easygraph.utils.decorators import *
 
 __all__=[
     "Dijkstra",
@@ -10,6 +10,7 @@ __all__=[
     "multi_source_dijkstra",
 ]
 
+@not_implemented_for("multigraph")
 def Dijkstra(G,node):
     """Returns the length of paths from the certain node to remaining nodes
 
@@ -33,6 +34,7 @@ def Dijkstra(G,node):
     """
     return single_source_dijkstra(G, node)
 
+@not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 def Floyd(G):
     """Returns the length of paths from all nodes to remaining nodes
@@ -75,6 +77,7 @@ def Floyd(G):
                     result_dict[i][j] = temp  
     return result_dict
 
+@not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 def Prim(G):
     """Returns the edges that make up the minimum spanning tree
@@ -125,6 +128,7 @@ def Prim(G):
             break
     return result_dict
 
+@not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 def Kruskal(G):
     """Returns the edges that make up the minimum spanning tree
@@ -169,6 +173,7 @@ def Kruskal(G):
         group[n] = []
     return result_dict
 
+@not_implemented_for("multigraph")
 def single_source_bfs(G, source, target=None):
     nextlevel = {source: 0}
     return dict(_single_source_bfs(G.adj, nextlevel, target=target))
@@ -191,9 +196,11 @@ def _single_source_bfs(adj, firstlevel, target=None):
         level += 1
     del seen
 
+@not_implemented_for("multigraph")
 def single_source_dijkstra(G, source, weight="weight", target=None):
     return multi_source_dijkstra(G, {source}, weight, target=target)
 
+@not_implemented_for("multigraph")
 def multi_source_dijkstra(G, sources, weight="weight", target=None):
     return _dijkstra_multisource(G, sources, weight, target=target)
 

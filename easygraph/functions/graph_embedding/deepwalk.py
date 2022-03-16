@@ -4,12 +4,13 @@ from easygraph.functions.graph_embedding.node2vec import learn_embeddings
 from easygraph.functions.graph_embedding.node2vec import _get_embedding_result_from_gensim_skipgram_model
 import random
 from tqdm import tqdm
-
+from easygraph.utils import *
 
 __all__ = [
     "deepwalk"
 ]
 
+@not_implemented_for("multigraph")
 def deepwalk(G, dimensions=128, walk_length=80, num_walks=10, **skip_gram_params):
     """Graph embedding via DeepWalk.
 

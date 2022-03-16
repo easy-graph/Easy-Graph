@@ -1,7 +1,9 @@
 from copy import deepcopy
+from easygraph.classes.graph import Graph
+from easygraph.utils.exception import EasyGraphError
+import easygraph.convert as convert
 
-
-class DiGraph(object):
+class DiGraph(Graph):
     """ 
     Base class for directed graphs.
 
@@ -53,12 +55,13 @@ class DiGraph(object):
     adjlist_inner_dict_factory = dict
     edge_attr_dict_factory = dict
 
-    def __init__(self, **graph_attr):
+    def __init__(self, incoming_graph_data=None, **graph_attr):
         self.graph = self.graph_attr_dict_factory()
         self._node = self.node_dict_factory()
         self._adj = self.adjlist_outer_dict_factory()
         self._pred = self.adjlist_outer_dict_factory()
-
+        if incoming_graph_data is not None:
+            convert.to_easygraph_graph(incoming_graph_data, create_using=self)
         self.graph.update(graph_attr)
 
     def __iter__(self):
@@ -93,6 +96,21 @@ class DiGraph(object):
             for v in self._adj[u]:
                 edges.append((u, v, self._adj[u][v]))
         return edges
+
+    @property
+    def name(self):
+        """String identifier of the graph.
+
+        This graph attribute appears in the attribute dict G.graph
+        keyed by the string `"name"`. as well as an attribute (technically
+        a property) `G.name`. This is entirely user controlled.
+        """
+        return self.graph.get("name", "")
+
+    @name.setter
+    def name(self, s):
+        self.graph["name"] = s
+
 
     def out_degree(self, weight='weight'):
         """Returns the weighted out degree of each node.
@@ -418,6 +436,67 @@ class DiGraph(object):
                 print(err)
                 pass
 
+    def add_nodes_from(self, nodes_for_adding, **attr):
+        """Add multiple nodes.
+
+        Parameters
+        ----------
+        nodes_for_adding : iterable container
+            A container of nodes (list, dict, set, etc.).
+            OR
+            A container of (node, attribute dict) tuples.
+            Node attributes are updated using the attribute dict.
+        attr : keyword arguments, optional (default= no attributes)
+            Update attributes for all nodes in nodes.
+            Node attributes specified in nodes as a tuple take
+            precedence over attributes specified via keyword arguments.
+
+        See Also
+        --------
+        add_node
+
+        Examples
+        --------
+        >>> G = eg.Graph()  # or DiGraph, MultiGraph, MultiDiGraph, etc
+        >>> G.add_nodes_from("Hello")
+        >>> K3 = eg.Graph([(0, 1), (1, 2), (2, 0)])
+        >>> G.add_nodes_from(K3)
+        >>> sorted(G.nodes(), key=str)
+        [0, 1, 2, 'H', 'e', 'l', 'o']
+
+        Use keywords to update specific node attributes for every node.
+
+        >>> G.add_nodes_from([1, 2], size=10)
+        >>> G.add_nodes_from([3, 4], weight=0.4)
+
+        Use (node, attrdict) tuples to update attributes for specific nodes.
+
+        >>> G.add_nodes_from([(1, dict(size=11)), (2, {"color": "blue"})])
+        >>> G.nodes[1]["size"]
+        11
+        >>> H = eg.Graph()
+        >>> H.add_nodes_from(G.nodes(data=True))
+        >>> H.nodes[1]["size"]
+        11
+
+        """
+        for n in nodes_for_adding:
+            try:
+                newnode = n not in self._node
+                newdict = attr
+            except TypeError:
+                n, ndict = n
+                newnode = n not in self._node
+                newdict = attr.copy()
+                newdict.update(ndict)
+            if newnode:
+                if n is None:
+                    raise ValueError("None cannot be a node")
+                self._adj[n] = self.adjlist_inner_dict_factory()
+                self._pred[n] = self.adjlist_inner_dict_factory()
+                self._node[n] = self.node_attr_dict_factory()
+            self._node[n].update(newdict)
+
     def _add_one_node(self, one_node_for_adding, node_attr: dict = {}):
         node = one_node_for_adding
         if node not in self._node:
@@ -518,6 +597,72 @@ class DiGraph(object):
                 self._add_one_edge(edge[0], edge[1], attr)
             except Exception as err:
                 print(err)
+
+    def add_edges_from(self, ebunch_to_add, **attr):
+        """Add all the edges in ebunch_to_add.
+
+        Parameters
+        ----------
+        ebunch_to_add : container of edges
+            Each edge given in the container will be added to the
+            graph. The edges must be given as 2-tuples (u, v) or
+            3-tuples (u, v, d) where d is a dictionary containing edge data.
+        attr : keyword arguments, optional
+            Edge data (or labels or objects) can be assigned using
+            keyword arguments.
+
+        See Also
+        --------
+        add_edge : add a single edge
+        add_weighted_edges_from : convenient way to add weighted edges
+
+        Notes
+        -----
+        Adding the same edge twice has no effect but any edge data
+        will be updated when each duplicate edge is added.
+
+        Edge attributes specified in an ebunch take precedence over
+        attributes specified via keyword arguments.
+
+        Examples
+        --------
+        >>> G = eg.Graph()  # or DiGraph, MultiGraph, MultiDiGraph, etc
+        >>> G.add_edges_from([(0, 1), (1, 2)])  # using a list of edge tuples
+        >>> e = zip(range(0, 3), range(1, 4))
+        >>> G.add_edges_from(e)  # Add the path graph 0-1-2-3
+
+        Associate data to edges
+
+        >>> G.add_edges_from([(1, 2), (2, 3)], weight=3)
+        >>> G.add_edges_from([(3, 4), (1, 4)], label="WN2898")
+        """
+        for e in ebunch_to_add:
+            ne = len(e)
+            if ne == 3:
+                u, v, dd = e
+            elif ne == 2:
+                u, v = e
+                dd = {}
+            else:
+                raise EasyGraphError(f"Edge tuple {e} must be a 2-tuple or 3-tuple.")
+            if u not in self._adj:
+                if u is None:
+                    raise ValueError("None cannot be a node")
+                self._adj[u] = self.adjlist_inner_dict_factory()
+                self._pred[u] = self.adjlist_inner_dict_factory()
+                self._node[u] = self.node_attr_dict_factory()
+            if v not in self._adj:
+                if v is None:
+                    raise ValueError("None cannot be a node")
+                self._adj[v] = self.adjlist_inner_dict_factory()
+                self._pred[v] = self.adjlist_inner_dict_factory()
+                self._node[v] = self.node_attr_dict_factory()
+            datadict = self._adj[u].get(v, self.edge_attr_dict_factory())
+            datadict.update(attr)
+            datadict.update(dd)
+            self._adj[u][v] = datadict
+            self._pred[v][u] = datadict
+
 
     def add_edges_from_file(self, file, weighted=False):
         """Added edges from file
@@ -701,6 +846,38 @@ class DiGraph(object):
             u, v = edge[:2]
             self.remove_edge(u, v)
 
+    def remove_edges_from(self, ebunch):
+        """Remove all edges specified in ebunch.
+
+        Parameters
+        ----------
+        ebunch: list or container of edge tuples
+            Each edge given in the list or container will be removed
+            from the graph. The edges can be:
+
+                - 2-tuples (u, v) edge between u and v.
+                - 3-tuples (u, v, k) where k is ignored.
+
+        See Also
+        --------
+        remove_edge : remove a single edge
+
+        Notes
+        -----
+        Will fail silently if an edge in ebunch is not in the graph.
+
+        Examples
+        --------
+        >>> G = eg.path_graph(4)  # or DiGraph, MultiGraph, MultiDiGraph, etc
+        >>> ebunch = [(1, 2), (2, 3)]
+        >>> G.remove_edges_from(ebunch)
+        """
+        for e in ebunch:
+            u, v = e[:2]  # ignore edge data
+            if u in self._adj and v in self._adj[u]:
+                del self._adj[u][v]
+                del self._pred[v][u]
+
     def has_node(self, node):
         return node in self._node
 
@@ -732,6 +909,10 @@ class DiGraph(object):
 
     def is_directed(self):
         return True
+
+    def is_multigraph(self):
+        """Returns True if graph is a multigraph, False otherwise."""
+        return False
 
     def copy(self):
         """Return a deep copy of the graph.

@@ -10,6 +10,7 @@ import scipy.linalg as spl
 from sklearn import metrics
 from scipy.cluster.vq import kmeans, vq, kmeans2
 from collections import Counter
+from easygraph.utils import *
 eps = 2.220446049250313e-16
 
 
@@ -143,7 +144,7 @@ def label_by_neighbors(AdjMat, labels):
         num_unlabeled = sum(unlabeled_idx)
     return labels
 
-
+@not_implemented_for("multigraph")
 def get_structural_holes_HAM(G, k, c, ground_truth_labels):
     '''Structural hole spanners detection via HAM method.
 

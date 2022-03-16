@@ -1,12 +1,13 @@
 import easygraph as eg
 from easygraph.functions.community.modularity import modularity
 from easygraph.utils.mapped_queue import MappedQueue
+from easygraph.utils import *
 
 __all__ = [
     "greedy_modularity_communities"
 ]
 
-
+@not_implemented_for("multigraph")
 def greedy_modularity_communities(G, weight='weight'):
     """Communities detection via greedy modularity method.
 

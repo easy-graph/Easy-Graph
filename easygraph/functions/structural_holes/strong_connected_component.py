@@ -1,5 +1,5 @@
 import easygraph as eg
-from easygraph.utils.decorators import only_implemented_for_Directed_graph
+from easygraph.utils.decorators import *
 
 __all__ = [
     "number_strongly_connected_components",
@@ -8,6 +8,7 @@ __all__ = [
 ]
 
 
+@not_implemented_for("multigraph")
 @only_implemented_for_Directed_graph
 def strongly_connected_components(G):
     """Generate nodes in strongly connected components of graph.
@@ -80,7 +81,7 @@ def strongly_connected_components(G):
                     else:
                         scc_queue.append(v)
 
-
+@not_implemented_for("multigraph")
 @only_implemented_for_Directed_graph
 def number_strongly_connected_components(G):
     """Returns number of strongly connected components in graph.
@@ -109,7 +110,7 @@ def number_strongly_connected_components(G):
     """
     return sum(1 for scc in strongly_connected_components(G))
 
-
+@not_implemented_for("multigraph")
 @only_implemented_for_Directed_graph
 def condensation(G, scc=None):
     """Returns the condensation of G.

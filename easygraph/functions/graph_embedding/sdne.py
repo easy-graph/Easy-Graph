@@ -5,6 +5,7 @@ import time
 
 import numpy as np
 import scipy.sparse as sp
+from easygraph.utils import *
 
 
 def get_relation_of_index_and_node(graph):
@@ -80,16 +81,8 @@ def create_model(node_size, hidden_size=[256, 128], l1=1e-5, l2=1e-4):
 
 
 class SDNE(object):
-
-    def __init__(
-        self,
-        graph,
-        hidden_size=[32, 16],
-        alpha=1e-6,
-        beta=5.,
-        nu1=1e-5,
-        nu2=1e-4,
-    ):
+    @not_implemented_for("multigraph")
+    def __init__(self, graph, hidden_size=[32, 16], alpha=1e-6, beta=5., nu1=1e-5, nu2=1e-4, ):
         """Graph embedding via SDNE.
 
         Parameters
