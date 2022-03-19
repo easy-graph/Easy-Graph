@@ -99,7 +99,7 @@ class DiGraph(object):
 
         Parameters
         ----------
-        weight : string, optinal (default : 'weight')
+        weight : string, optional (default : 'weight')
             Weight key of the original weighted graph.
 
         Returns
@@ -141,7 +141,7 @@ class DiGraph(object):
 
         Parameters
         ----------
-        weight : string, optinal (default : 'weight')
+        weight : string, optional (default : 'weight')
             Weight key of the original weighted graph.
 
         Returns
@@ -183,7 +183,7 @@ class DiGraph(object):
 
         Parameters
         ----------
-        weight : string, optinal (default : 'weight')
+        weight : string, optional (default : 'weight')
             Weight key of the original weighted graph.
 
         Returns
@@ -249,7 +249,7 @@ class DiGraph(object):
         return int(s) if weight is None else s
 
     def neighbors(self, node):
-        """Returns an iterator of a node's neighbors (sucessors).
+        """Returns an iterator of a node's neighbors (successors).
 
         Parameters
         ----------
@@ -533,7 +533,7 @@ class DiGraph(object):
             The file path.
 
         weighted : boolean, optional (default : False)
-            If the file consists of weight infomation, set `True`.
+            If the file consists of weight information, set `True`.
             The weight key will be set as 'weight'.
 
         Examples
@@ -739,7 +739,7 @@ class DiGraph(object):
         Returns
         -------
         copy : easygraph.DiGraph
-            A deep copy of the orginal graph.
+            A deep copy of the original graph.
 
         Examples
         --------

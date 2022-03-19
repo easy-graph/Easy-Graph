@@ -13,7 +13,7 @@ __all__ = [
 ]
 
 def LPA(G):
-    '''Detect community by label propagation algotithm
+    '''Detect community by label propagation algorithm
     Return the detected communities. But the result is random.
     Each node in the network is initially assigned to its own community. At every iteration,nodes have
     a label that the maximum number of their neighbors have. If there are more than one nodes fit and 
@@ -150,7 +150,7 @@ def SLPA(G, T, r):
     return result_community
 
 def HANP(G, m, delta, threshod = 1, hier_open = 0, combine_open = 0):
-    '''Detect community by Hop attenuation & node preference algotithm
+    '''Detect community by Hop attenuation & node preference algorithm
 
     Return the detected communities. But the result is random.
 
@@ -273,7 +273,7 @@ def HANP(G, m, delta, threshod = 1, hier_open = 0, combine_open = 0):
     return result_community
 
 def BMLPA(G, p):
-    '''Detect community by Balanced Multi-Label Propagation algotithm
+    '''Detect community by Balanced Multi-Label Propagation algorithm
 
     Return the detected communities.
 

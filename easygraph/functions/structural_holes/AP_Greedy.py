@@ -34,7 +34,7 @@ def common_greedy(G, k, c=1.0, weight='weight'):
         vertices.
         Default is 1.
 
-    weight : String or None, optinal (defautl : 'weight')
+    weight : String or None, optional (default : 'weight')
         Key for edge weight. None if not concerning about edge weight.
 
     Returns

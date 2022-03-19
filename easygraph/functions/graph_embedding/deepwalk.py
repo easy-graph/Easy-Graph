@@ -18,16 +18,16 @@ def deepwalk(G, dimensions=128, walk_length=80, num_walks=10, **skip_gram_params
     G : easygraph.Graph or easygraph.DiGraph
 
     dimensions : int
-        Embedding dimensions, optinal(default: 128)
+        Embedding dimensions, optional(default: 128)
 
     walk_length : int
-        Number of nodes in each walk, optinal(default: 80)
+        Number of nodes in each walk, optional(default: 80)
 
     num_walks : int
-        Number of walks per node, optinal(default: 10)
+        Number of walks per node, optional(default: 10)
 
     skip_gram_params : dict
-        Parameteres for gensim.models.Word2Vec - do not supply `size`, it is taken from the `dimensions` parameter
+        Parameters for gensim.models.Word2Vec - do not supply `size`, it is taken from the `dimensions` parameter
 
     Returns 
     -------

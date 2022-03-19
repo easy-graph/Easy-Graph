@@ -41,7 +41,7 @@ def get_community_kernel(G, C: list[frozenset], weight='weight'):
         print("ERROR: WE should have at least 2 communities.")
     for i in range(len(kernels)):
         if len(kernels[i]) == 0:
-            print("Comunity %d is too small." % i)
+            print("Community %d is too small." % i)
             return None
     return kernels
 

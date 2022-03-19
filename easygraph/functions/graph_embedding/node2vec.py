@@ -17,28 +17,28 @@ def node2vec(G, dimensions=128, walk_length=80, num_walks=10, p=1.0, q=1.0, weig
     G : easygraph.Graph or easygraph.DiGraph
 
     dimensions : int
-        Embedding dimensions, optinal(default: 128)
+        Embedding dimensions, optional(default: 128)
 
     walk_length : int
-        Number of nodes in each walk, optinal(default: 80)
+        Number of nodes in each walk, optional(default: 80)
 
     num_walks : int
-        Number of walks per node, optinal(default: 10)
+        Number of walks per node, optional(default: 10)
 
     p : float
-        The return hyper parameter, optinal(default: 1.0)
+        The return hyper parameter, optional(default: 1.0)
 
     q : float
-        The inout parameter, optinal(default: 1.0)
+        The input parameter, optional(default: 1.0)
 
     weight_key : string or None (default: None)
         On weighted graphs, this is the key for the weight attribute 
 
-    workers : int or None, optinal(default : None)
+    workers : int or None, optional(default : None)
         The number of workers generating random walks (default: None). None if not using only one worker.
 
     skip_gram_params : dict
-        Parameteres for gensim.models.Word2Vec - do not supply 'size', it is taken from the 'dimensions' parameter
+        Parameters for gensim.models.Word2Vec - do not supply 'size', it is taken from the 'dimensions' parameter
 
     Returns
     -------

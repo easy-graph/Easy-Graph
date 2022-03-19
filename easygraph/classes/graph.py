@@ -398,7 +398,7 @@ class Graph(object):
             The file path.
 
         weighted : boolean, optional (default : False)
-            If the file consists of weight infomation, set `True`.
+            If the file consists of weight information, set `True`.
             The weight key will be set as 'weight'.
 
         Examples
@@ -598,7 +598,7 @@ class Graph(object):
         Returns
         -------
         copy : easygraph.Graph
-            A deep copy of the orginal graph.
+            A deep copy of the original graph.
 
         Examples
         --------

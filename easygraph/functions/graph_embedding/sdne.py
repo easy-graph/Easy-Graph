@@ -18,10 +18,10 @@ def get_relation_of_index_and_node(graph):
     return idx2node, node2idx
 
 
-def l_2nd(beta):
+def l_2and(beta):
     from tensorflow.python.keras import backend as K
 
-    def loss_2nd(y_true, y_pred):
+    def loss_2and(y_true, y_pred):
         y_true_numpy = y_true.numpy()
         b_ = np.ones_like(y_true.numpy())
         b_[y_true_numpy != 0] = beta
@@ -29,7 +29,7 @@ def l_2nd(beta):
         t = K.sum(x, axis=-1, )
         return K.mean(t)
 
-    return loss_2nd
+    return loss_2and
 
 
 def l_1st(alpha):
@@ -79,19 +79,19 @@ class SDNE(object):
         ----------
         graph : easygraph.Graph, easygraph.DiGraph
 
-        hidden_size : list of two elements, optinal (default : [32, 16])
+        hidden_size : list of two elements, optional (default : [32, 16])
             The hidden size.
 
-        alpla : float, optinal (default : 1e-6)
+        alpla : float, optional (default : 1e-6)
             The alpha value in [1]_.
 
-        beta : float, optinal (default : 5.)
+        beta : float, optional (default : 5.)
             The beta value in [1]_.
 
-        nu1 : float, optinal (default : 1e-5)
+        nu1 : float, optional (default : 1e-5)
             The nu1 value in [1]_.
 
-        nu2 : float, optinal (default : 1e-4)
+        nu2 : float, optional (default : 1e-4)
             The nu2 value in [1]_.
 
         Examples
@@ -129,7 +129,7 @@ class SDNE(object):
 
         self.model, self.emb_model = create_model(self.node_size, hidden_size=self.hidden_size, l1=self.nu1,
                                                   l2=self.nu2)
-        self.model.compile(optimizer=opt, loss=[l_2nd(
+        self.model.compile(optimizer=opt, loss=[l_2and(
             self.beta), l_1st(self.alpha)], run_eagerly=True)
         self.get_embeddings()
 
@@ -142,7 +142,7 @@ class SDNE(object):
 
         epochs : int, optional (default : 2)
 
-        inital_epoch : int, optional (default : 0)
+        initial_epoch : int, optional (default : 0)
 
         verbose : int, optional (default : 1)
 
@@ -176,14 +176,14 @@ class SDNE(object):
                 losses = losses / steps_per_epoch
 
                 logs['loss'] = losses[0]
-                logs['2nd_loss'] = losses[1]
+                logs['2and_loss'] = losses[1]
                 logs['1st_loss'] = losses[2]
                 epoch_time = int(time.time() - start_time)
                 # TODO: Fixed the bug derivated by the following code in TF2:
                 # hist.on_epoch_end(epoch, logs)
                 if verbose > 0:
                     print('Epoch {0}/{1}'.format(epoch + 1, epochs))
-                    print('{0}s - loss: {1: .4f} - 2nd_loss: {2: .4f} - 1st_loss: {3: .4f}'.format(
+                    print('{0}s - loss: {1: .4f} - 2and_loss: {2: .4f} - 1st_loss: {3: .4f}'.format(
                         epoch_time, losses[0], losses[1], losses[2]))
             return hist
 
