@@ -26,7 +26,10 @@ def l_2nd(beta):
         b_ = np.ones_like(y_true.numpy())
         b_[y_true_numpy != 0] = beta
         x = K.square((y_true - y_pred) * b_)
-        t = K.sum(x, axis=-1, )
+        t = K.sum(
+            x,
+            axis=-1,
+        )
         return K.mean(t)
 
     return loss_2nd
@@ -40,7 +43,8 @@ def l_1st(alpha):
         L = y_true
         Y = y_pred
         batch_size = tf.cast(K.shape(L)[0], dtype=tf.float32)
-        return alpha * 2 * tf.linalg.trace(tf.matmul(tf.matmul(Y, L, transpose_a=True), Y)) / batch_size
+        return alpha * 2 * tf.linalg.trace(
+            tf.matmul(tf.matmul(Y, L, transpose_a=True), Y)) / batch_size
 
     return loss_1st
 
@@ -50,19 +54,23 @@ def create_model(node_size, hidden_size=[256, 128], l1=1e-5, l2=1e-4):
     from tensorflow.python.keras.models import Model
     from tensorflow.python.keras.regularizers import l1_l2
 
-    A = Input(shape=(node_size,))
-    L = Input(shape=(None,))
+    A = Input(shape=(node_size, ))
+    L = Input(shape=(None, ))
     fc = A
     for i in range(len(hidden_size)):
         if i == len(hidden_size) - 1:
-            fc = Dense(hidden_size[i], activation='relu',
-                       kernel_regularizer=l1_l2(l1, l2), name='1st')(fc)
+            fc = Dense(hidden_size[i],
+                       activation='relu',
+                       kernel_regularizer=l1_l2(l1, l2),
+                       name='1st')(fc)
         else:
-            fc = Dense(hidden_size[i], activation='relu',
+            fc = Dense(hidden_size[i],
+                       activation='relu',
                        kernel_regularizer=l1_l2(l1, l2))(fc)
     Y = fc
     for i in reversed(range(len(hidden_size) - 1)):
-        fc = Dense(hidden_size[i], activation='relu',
+        fc = Dense(hidden_size[i],
+                   activation='relu',
                    kernel_regularizer=l1_l2(l1, l2))(fc)
 
     A_ = Dense(node_size, 'relu', name='2nd')(fc)
@@ -72,26 +80,35 @@ def create_model(node_size, hidden_size=[256, 128], l1=1e-5, l2=1e-4):
 
 
 class SDNE(object):
-    def __init__(self, graph, hidden_size=[32, 16], alpha=1e-6, beta=5., nu1=1e-5, nu2=1e-4, ):
+
+    def __init__(
+        self,
+        graph,
+        hidden_size=[32, 16],
+        alpha=1e-6,
+        beta=5.,
+        nu1=1e-5,
+        nu2=1e-4,
+    ):
         """Graph embedding via SDNE.
 
         Parameters
         ----------
         graph : easygraph.Graph, easygraph.DiGraph
 
-        hidden_size : list of two elements, optinal (default : [32, 16])
+        hidden_size : list of two elements, optional (default : [32, 16])
             The hidden size.
 
-        alpla : float, optinal (default : 1e-6)
+        alpla : float, optional (default : 1e-6)
             The alpha value in [1]_.
 
-        beta : float, optinal (default : 5.)
+        beta : float, optional (default : 5.)
             The beta value in [1]_.
 
-        nu1 : float, optinal (default : 1e-5)
+        nu1 : float, optional (default : 1e-5)
             The nu1 value in [1]_.
 
-        nu2 : float, optinal (default : 1e-4)
+        nu2 : float, optional (default : 1e-4)
             The nu2 value in [1]_.
 
         Examples
@@ -119,18 +136,22 @@ class SDNE(object):
         self.nu1 = nu1
         self.nu2 = nu2
 
-        self.A, self.L = self._create_A_L(
-            self.graph, self.node2idx)  # Adj Matrix,L Matrix
+        self.A, self.L = self._create_A_L(self.graph,
+                                          self.node2idx)  # Adj Matrix,L Matrix
         self.reset_model()
         self.inputs = [self.A, self.L]
         self._embeddings = {}
 
     def reset_model(self, opt='adam'):
 
-        self.model, self.emb_model = create_model(self.node_size, hidden_size=self.hidden_size, l1=self.nu1,
+        self.model, self.emb_model = create_model(self.node_size,
+                                                  hidden_size=self.hidden_size,
+                                                  l1=self.nu1,
                                                   l2=self.nu2)
-        self.model.compile(optimizer=opt, loss=[l_2nd(
-            self.beta), l_1st(self.alpha)], run_eagerly=True)
+        self.model.compile(optimizer=opt,
+                           loss=[l_2nd(self.beta),
+                                 l_1st(self.alpha)],
+                           run_eagerly=True)
         self.get_embeddings()
 
     def train(self, batch_size=1024, epochs=2, initial_epoch=0, verbose=1):
@@ -142,7 +163,7 @@ class SDNE(object):
 
         epochs : int, optional (default : 2)
 
-        inital_epoch : int, optional (default : 0)
+        initial_epoch : int, optional (default : 0)
 
         verbose : int, optional (default : 1)
 
@@ -151,12 +172,18 @@ class SDNE(object):
 
         if batch_size >= self.node_size:
             if batch_size > self.node_size:
-                print('batch_size({0}) > node_size({1}),set batch_size = {1}'.format(
-                    batch_size, self.node_size))
+                print('batch_size({0}) > node_size({1}),set batch_size = {1}'.
+                      format(batch_size, self.node_size))
                 batch_size = self.node_size
-            return self.model.fit([self.A.todense(), self.L.todense()], [self.A.todense(), self.L.todense()],
-                                  batch_size=batch_size, epochs=epochs, initial_epoch=initial_epoch, verbose=verbose,
-                                  shuffle=False, )
+            return self.model.fit(
+                [self.A.todense(), self.L.todense()],
+                [self.A.todense(), self.L.todense()],
+                batch_size=batch_size,
+                epochs=epochs,
+                initial_epoch=initial_epoch,
+                verbose=verbose,
+                shuffle=False,
+            )
         else:
             steps_per_epoch = (self.node_size - 1) // batch_size + 1
             hist = History()
@@ -167,7 +194,8 @@ class SDNE(object):
                 losses = np.zeros(3)
                 for i in range(steps_per_epoch):
                     index = np.arange(
-                        i * batch_size, min((i + 1) * batch_size, self.node_size))
+                        i * batch_size,
+                        min((i + 1) * batch_size, self.node_size))
                     A_train = self.A[index, :].todense()
                     L_mat_train = self.L[index][:, index].todense()
                     inp = [A_train, L_mat_train]
@@ -183,12 +211,15 @@ class SDNE(object):
                 # hist.on_epoch_end(epoch, logs)
                 if verbose > 0:
                     print('Epoch {0}/{1}'.format(epoch + 1, epochs))
-                    print('{0}s - loss: {1: .4f} - 2nd_loss: {2: .4f} - 1st_loss: {3: .4f}'.format(
-                        epoch_time, losses[0], losses[1], losses[2]))
+                    print(
+                        '{0}s - loss: {1: .4f} - 2nd_loss: {2: .4f} - 1st_loss: {3: .4f}'
+                        .format(epoch_time, losses[0], losses[1], losses[2]))
             return hist
 
     def evaluate(self, ):
-        return self.model.evaluate(x=self.inputs, y=self.inputs, batch_size=self.node_size)
+        return self.model.evaluate(x=self.inputs,
+                                   y=self.inputs,
+                                   batch_size=self.node_size)
 
     def get_embeddings(self):
         """Returns the embedding of each node.
@@ -200,8 +231,8 @@ class SDNE(object):
 
         """
         self._embeddings = {}
-        embeddings = self.emb_model.predict(
-            self.A.todense(), batch_size=self.node_size)
+        embeddings = self.emb_model.predict(self.A.todense(),
+                                            batch_size=self.node_size)
         look_back = self.idx2node
         for i, embedding in enumerate(embeddings):
             self._embeddings[look_back[i]] = embedding
@@ -224,8 +255,10 @@ class SDNE(object):
 
         A = sp.csr_matrix((A_data, (A_row_index, A_col_index)),
                           shape=(node_size, node_size))
-        A_ = sp.csr_matrix((A_data + A_data, (A_row_index + A_col_index, A_col_index + A_row_index)),
-                           shape=(node_size, node_size))
+        A_ = sp.csr_matrix(
+            (A_data + A_data,
+             (A_row_index + A_col_index, A_col_index + A_row_index)),
+            shape=(node_size, node_size))
 
         D = sp.diags(A_.sum(axis=1).flatten().tolist()[0])
         L = D - A_

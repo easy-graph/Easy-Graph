@@ -24,7 +24,7 @@ def draw_SHS_center(G,SHS,rate=1,style="side"):
     rate : float
        The proportion of visible points and edges to the total 
 
-    style : stirng
+    style : string
         "side"- the label is next to the dot
         "center"- the label is in the center of the dot
 
@@ -139,7 +139,7 @@ def draw_SHS_center_kk(G,SHS,rate=1,style="side"):
     rate : float
        The proportion of visible points and edges to the total 
 
-    style : stirng
+    style : string
         "side"- the label is next to the dot
         "center"- the label is in the center of the dot
 
@@ -249,7 +249,7 @@ def draw_kamada_kawai(G,rate=1,style="side"):
     rate : float
        The proportion of visible points and edges to the total 
 
-    style : stirng
+    style : string
         "side"- the label is next to the dot
         "center"- the label is in the center of the dot
 

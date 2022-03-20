@@ -71,7 +71,7 @@ def closeness_centrality(G, weight=None, n_workers=None):
             res = [x for i in ret for x in i]
         closeness = dict(res)
     else:
-        # use np-parallel version for samll graph
+        # use np-parallel version for small graph
         for node in nodes:
             x = path_length(G, node)
         dist = sum(x.values())

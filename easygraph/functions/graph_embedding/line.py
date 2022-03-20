@@ -59,11 +59,11 @@ class LINE:
         ----------
         graph : easygraph.Graph or easygraph.DiGraph
 
-        embedding_size : int, optinal (default : 8)
+        embedding_size : int, optional (default : 8)
 
-        negative_ratio : int, optinal (default : 5)
+        negative_ratio : int, optional (default : 5)
 
-        order : string, optinal (default : 'all')
+        order : string, optional (default : 'all')
             'first','second','all'
 
         Examples
@@ -83,7 +83,7 @@ class LINE:
 
         """
         if order not in ['first', 'second', 'all']:
-            raise ValueError('mode must be fisrt,second,or all')
+            raise ValueError('mode must be first,second,or all')
 
         self.graph = graph
         self.idx2node, self.node2idx = get_relation_of_index_and_node(graph)
@@ -229,7 +229,7 @@ class LINE:
 
         epochs : int, optional (default : 2)
 
-        inital_epoch : int, optional (default : 0)
+        initial_epoch : int, optional (default : 0)
 
         verbose : int, optional (default : 1)
 

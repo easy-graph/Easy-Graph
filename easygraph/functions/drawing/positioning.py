@@ -26,7 +26,7 @@ def random_position(G, center=None, dim=2, random_seed=None):
     dim : int, optional (default : 2)
         Dimension of layout
 
-    random_seed : int or None, optinal (default : None)
+    random_seed : int or None, optional (default : None)
         Seed for RandomState instance
 
     Returns

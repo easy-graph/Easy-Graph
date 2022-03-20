@@ -1,12 +1,13 @@
 from itertools import combinations
 import math
 
-__all__ = [
-    "get_structural_holes_HIS"
-]
+__all__ = ["get_structural_holes_HIS"]
 
 
-def get_structural_holes_HIS(G, C: [frozenset], epsilon=1e-4, weight='weight'):
+def get_structural_holes_HIS(G,
+                             C: list[frozenset],
+                             epsilon=1e-4,
+                             weight='weight'):
     """Structural hole spanners detection via HIS method.
 
     Both **HIS** and **MaxD** are methods in [1]_. 
@@ -80,7 +81,7 @@ def get_structural_holes_HIS(G, C: [frozenset], epsilon=1e-4, weight='weight'):
     return S, I, H
 
 
-def initialize(G, C: [frozenset], S: [tuple], weight='weight'):
+def initialize(G, C: list[frozenset], S: [tuple], weight='weight'):
     I, H = dict(), dict()
     for node in G.nodes:
         I[node] = dict()
@@ -113,8 +114,7 @@ def update_P(G, C, alphas, betas, S, I, H):
                 if cmnt_index in S[subset_index]:
                     subsets_including_current_cmnt.append(
                         alphas[cmnt_index] * I[node][cmnt_index] +
-                        betas[subset_index] * H[node][subset_index]
-                    )
+                        betas[subset_index] * H[node][subset_index])
             P[node][cmnt_index] = max(subsets_including_current_cmnt)
     return P
 
@@ -127,10 +127,8 @@ def update_I_H(G, C, S, P, I):
 
     for node in G.nodes:
         for cmnt_index in range(len(C)):
-            P_max = max([
-                P[neighbour][cmnt_index]
-                for neighbour in G.adj[node]
-            ])
+            P_max = max(
+                [P[neighbour][cmnt_index] for neighbour in G.adj[node]])
             I_new[node][cmnt_index] = P_max if (
                 P_max > I[node][cmnt_index]) else I[node][cmnt_index]
         for subset_index, subset in enumerate(S):
@@ -142,6 +140,5 @@ def is_convergence(G, C, I, I_new, epsilon):
     deltas = []
     for node in G.nodes:
         for cmnt_index in range(len(C)):
-            deltas.append(
-                abs(I[node][cmnt_index] - I_new[node][cmnt_index]))
+            deltas.append(abs(I[node][cmnt_index] - I_new[node][cmnt_index]))
     return max(deltas) < epsilon
