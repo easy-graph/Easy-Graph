@@ -92,17 +92,21 @@ void _add_one_node(Graph* self, PyObject* one_node_for_adding, PyObject* node_at
     }
 }
 
-PyObject* Graph_add_node(Graph* self, PyObject* arg, PyObject* kwarg) {
-    PyObject* one_node_for_adding = PyTuple_GetItem(arg, 0);
-    _add_one_node(self, one_node_for_adding, kwarg);
+PyObject* Graph_add_node(Graph* self, PyObject* args, PyObject* kwargs) {
+    if(PyTuple_Size(args) != 1) {
+        PyErr_Format(PyExc_TypeError, "add_node() takes only 1 positional argument.");
+        return nullptr;
+    }
+    PyObject* one_node_for_adding = PyTuple_GetItem(args, 0);
+    _add_one_node(self, one_node_for_adding, kwargs);
     return Py_BuildValue("");
 }
 
 PyObject* Graph_add_nodes(Graph* self, PyObject* args, PyObject* kwargs) {
     
-    PyObject* nodes_for_adding, * nodes_attr = nullptr;
+    PyObject* nodes_for_adding = nullptr, * nodes_attr = nullptr;
     static char* kwlist[] = { (char*)"nodes_for_adding", (char*)"nodes_attr", NULL };
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "(OO)", kwlist, &nodes_for_adding, &nodes_attr))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O", kwlist, &nodes_for_adding, &nodes_attr))
         return nullptr;
     Py_ssize_t nodes_for_adding_len = PyList_Size(nodes_for_adding);
     if (nodes_attr != nullptr && nodes_for_adding_len != PyList_Size(nodes_attr)) {
@@ -159,6 +163,10 @@ void _add_one_edge(Graph* self, PyObject* pu, PyObject* pv, PyObject* edge_attr,
 
 PyObject* Graph_add_edge(Graph* self, PyObject* args, PyObject* kwargs) {
     PyObject* u = nullptr, * v = nullptr;
+    if(PyTuple_Size(args) != 2) {
+        PyErr_Format(PyExc_TypeError, "add_edge() takes only 2 positional arguments.");
+        return nullptr;
+    }
     PyArg_ParseTuple(args, "OO", &u, &v);
     _add_one_edge(self, u, v, kwargs);
     return Py_BuildValue("");
@@ -191,7 +199,7 @@ PyObject* Graph_add_weighted_edge(Graph* self, PyObject* args, PyObject* kwargs)
 PyObject * Graph_add_edges(Graph * self, PyObject* args, PyObject* kwargs) {
     PyObject* edges_for_adding, * edges_attr = nullptr;
     static char* kwlist[] = { (char*)"edges_for_adding", (char*)"edges_attr", NULL };
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "(OO)", kwlist, &edges_for_adding, &edges_attr))
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O", kwlist, &edges_for_adding, &edges_attr))
         return nullptr;
     Py_ssize_t edges_for_adding_len = PyList_Size(edges_for_adding);
     if (edges_attr != nullptr && edges_for_adding_len != PyList_Size(edges_attr)) {
