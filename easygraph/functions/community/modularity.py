@@ -1,9 +1,10 @@
 from itertools import product
-
+from easygraph.utils import *
 __all__ = [
     "modularity"
 ]
 
+@not_implemented_for("multigraph")
 def modularity(G, communities, weight='weight'):
     """
     Returns the modularity of the given partition of the graph.

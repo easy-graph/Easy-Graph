@@ -1,4 +1,5 @@
 import easygraph as eg 
+from easygraph.utils import *
 
 __all__ = [
     "ICC",
@@ -73,6 +74,7 @@ def approximate_inverse_closeness_centrality(G):
             V,time,n=Modified_DFS(G,u,V,time,n)
     return V
 
+@not_implemented_for("multigraph")
 def ICC(G,k):
     """an efficient algorithm for structural hole spanners detection.
 
@@ -123,6 +125,7 @@ def ICC(G,k):
         V.append(i[0])
     return V
 
+@not_implemented_for("multigraph")
 def BICC(G,k,K,l):
     """an efficient algorithm for structural hole spanners detection.
 
@@ -195,6 +198,7 @@ def BICC(G,k,K,l):
         VS.append(i[0])
     return VS
 
+@not_implemented_for("multigraph")
 def AP_BICC(G,k,K,l):
     """an efficient algorithm for structural hole spanners detection.
 

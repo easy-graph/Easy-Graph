@@ -2,7 +2,7 @@ import easygraph as eg
 import math
 import random
 import numpy as np
-
+from easygraph.utils import *
 
 __all__ = [
     "sum_of_shortest_paths",
@@ -10,6 +10,7 @@ __all__ = [
     "structural_hole_influence_index",
 ]
 
+@not_implemented_for("multigraph")
 def sum_of_shortest_paths(G, S):
     """Returns the difference between the sum of lengths of all pairs shortest paths in G and the one in G\S.
     The experiment metrics in [1]_
@@ -59,7 +60,7 @@ def sum_of_shortest_paths(G, S):
             sum_G_S += j
     return sum_G_S - sum_G
 
-
+@not_implemented_for("multigraph")
 def nodes_of_max_cc_without_shs(G, S):
     """Returns the number of nodes in the maximum connected component in graph G\S.
     The experiment metrics in [1]_
@@ -103,7 +104,7 @@ class NodeParams:
         self.inWeight = inWeight
         self.threshold = threshold
 
-
+@not_implemented_for("multigraph")
 def structural_hole_influence_index(G_original, S, C, model, variant=False, seedRatio=0.05, randSeedIter=10,
                                     countIterations=100, Directed=True):
     """Returns the SHII metric of each seed.

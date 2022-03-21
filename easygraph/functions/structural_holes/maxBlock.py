@@ -4,13 +4,13 @@ import numpy as np
 import random
 import math
 import sys
+from easygraph.utils import *
 
 from strong_connected_component import number_strongly_connected_components, strongly_connected_components, condensation
 
 __all__ = [
-    "number_strongly_connected_components",
-    "strongly_connected_components",
-    "condensation",
+    "maxBlock",
+    "maxBlockFast",
 ]
 
 tim = 0
@@ -378,7 +378,7 @@ def _find_ancestors_of_node(G, node_t):
             ancestors.append(node)
     return ancestors
 
-
+@not_implemented_for("multigraph")
 def maxBlock(G, k, f_set=None, delta=1, eps=0.5, c=1, flag_weight=False):
     """Structural hole spanners detection via maxBlock method.
 
@@ -441,7 +441,7 @@ def maxBlock(G, k, f_set=None, delta=1, eps=0.5, c=1, flag_weight=False):
     S_list, ave_H_Lt_S = _find_topk_shs_under_l(G, f_set, k, L_min)
     return S_list
 
-
+@not_implemented_for("multigraph")
 def maxBlockFast(G, k, f_set=None, L=None, flag_weight=False):
     """Structural hole spanners detection via maxBlockFast method.
 

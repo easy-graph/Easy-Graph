@@ -83,6 +83,7 @@ def redundancy(G, u, v, weight=None):
             for w in set(G.all_neighbors(u)))
     return 1 - r
 
+@not_implemented_for("multigraph")
 def effective_size(G, nodes=None, weight=None, n_workers=None):
     """Burt's metric - Effective Size.
 
@@ -177,6 +178,7 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
                                         for u in set(G.all_neighbors(v)))
     return effective_size
 
+@not_implemented_for("multigraph")
 def efficiency(G, nodes=None, weight=None):
     """Burt's metric - Efficiency.
 
@@ -228,6 +230,7 @@ def compute_constraint_of_nodes(nodes, G, weight):
                                 for u in neighbors_of_node)])
     return ret
 
+@not_implemented_for("multigraph")
 def constraint(G, nodes=None, weight=None, n_workers=None):
     """Burt's metric - Constraint.
 
@@ -337,6 +340,7 @@ def hierarchy_parallel(nodes, G):
 
     return ret
 
+@not_implemented_for("multigraph")
 def hierarchy(G,nodes=None,weight=None,n_workers=None):
     """Returns the hierarchy of nodes in the graph
 

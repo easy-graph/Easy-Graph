@@ -1,5 +1,5 @@
 import easygraph as eg
-from easygraph.utils.decorators import only_implemented_for_UnDirected_graph
+from easygraph.utils.decorators import *
 from itertools import chain
 
 __all__=[
@@ -7,6 +7,7 @@ __all__=[
     "has_bridges"
 ]
 
+@not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 def bridges(G, root=None):
     """Generate all bridges in a graph.
@@ -61,7 +62,7 @@ def bridges(G, root=None):
         if (u, v) not in chain_edges and (v, u) not in chain_edges:
             yield u, v
 
-
+@not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 def has_bridges(G, root=None):
     """Decide whether a graph has any bridges.
