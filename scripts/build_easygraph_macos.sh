@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Install pyenv：
 #       brew install pyenv: https://segmentfault.com/a/1190000016819226
 #
@@ -6,12 +8,12 @@
 #       pyenv
 
 export WORKDIR=$HOME/build
-if [ ! -d $WORKDIR ]; then
-    mkdir -p $WORKDIR
-    cd $WORKDIR
+if [ ! -d "$WORKDIR" ]; then
+    mkdir -p "$WORKDIR"
+    cd "$WORKDIR" || exit
     git clone https://github.com/easy-graph/Easy-Graph.git
 fi
-cd $WORKDIR/Easy-Graph
+cd "$WORKDIR"/Easy-Graph || exit
 
 pip install wheel
 
