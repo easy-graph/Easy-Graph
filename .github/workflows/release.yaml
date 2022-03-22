@@ -5,10 +5,12 @@ on: push
 jobs:
   build-n-publish:
     name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         python-version: ["3.6", "3.7", "3.8", "3.9"]
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@master
       - name: Set up Python 3.9
