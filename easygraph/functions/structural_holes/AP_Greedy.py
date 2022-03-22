@@ -2,7 +2,7 @@ import easygraph as eg
 
 import random
 import math
-from easygraph.utils.decorators import only_implemented_for_UnDirected_graph
+from easygraph.utils.decorators import *
 from easygraph.functions.components.connected import connected_components
 from easygraph.functions.components.biconnected import generator_articulation_points
 
@@ -12,7 +12,7 @@ __all__ = [
     "AP_Greedy"
 ]
 
-
+@not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 def common_greedy(G, k, c=1.0, weight='weight'):
     """Common greedy method for structural hole spanners detection.
@@ -228,7 +228,7 @@ def _get_sum_all_shortest_paths_of_component(G):
 
     return sum_paths
 
-
+@not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 def AP_Greedy(G, k, c=1.0, weight='weight'):
     """AP greedy method for structural hole spanners detection.

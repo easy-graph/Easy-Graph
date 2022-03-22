@@ -5,7 +5,7 @@ from operator import itemgetter
 from itertools import count
 from math import isnan
 
-from easygraph.utils.decorators import only_implemented_for_UnDirected_graph
+from easygraph.utils.decorators import *
 
 __all__ = [
     "minimum_spanning_edges",
@@ -22,7 +22,7 @@ def boruvka_mst_edges(
 
     Parameters
     ----------
-    G : NetworkX Graph
+    G : EasyGraph Graph
         The edges of `G` must have distinct weights,
         otherwise the edges may not form a tree.
 
@@ -113,7 +113,7 @@ def kruskal_mst_edges(
 
     Parameters
     ----------
-    G : NetworkX Graph
+    G : EasyGraph Graph
         The graph holding the tree of interest.
 
     minimum : bool (default: True)
@@ -163,7 +163,7 @@ def prim_mst_edges(G, minimum, weight="weight", data=True, ignore_nan=False):
 
     Parameters
     ----------
-    G : NetworkX Graph
+    G : EasyGraph Graph
         The graph holding the tree of interest.
 
     minimum : bool (default: True)
@@ -227,7 +227,7 @@ ALGORITHMS = {
     "prim": prim_mst_edges,
 }
 
-
+@not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 def minimum_spanning_edges(
     G, algorithm="kruskal", weight="weight", data=True, ignore_nan=False
@@ -268,12 +268,12 @@ def minimum_spanning_edges(
 
     Examples
     --------
-    >>> from networkx.algorithms import tree
+    >>> from easygraph.functions.not_sorted import mst
 
     Find minimum spanning edges by Kruskal's algorithm
 
     >>> G.add_edge(0, 3, weight=2)
-    >>> mst = tree.minimum_spanning_edges(G, algorithm="kruskal", data=False)
+    >>> mst = mst.minimum_spanning_edges(G, algorithm="kruskal", data=False)
     >>> edgelist = list(mst)
     >>> sorted(sorted(e) for e in edgelist)
     [[0, 1], [1, 2], [2, 3]]
@@ -281,7 +281,7 @@ def minimum_spanning_edges(
     Find minimum spanning edges by Prim's algorithm
 
     >>> G.add_edge(0, 3, weight=2)
-    >>> mst = tree.minimum_spanning_edges(G, algorithm="prim", data=False)
+    >>> mst = mst.minimum_spanning_edges(G, algorithm="prim", data=False)
     >>> edgelist = list(mst)
     >>> sorted(sorted(e) for e in edgelist)
     [[0, 1], [1, 2], [2, 3]]
@@ -308,7 +308,7 @@ def minimum_spanning_edges(
         G, minimum=True, weight=weight, data=data, ignore_nan=ignore_nan
     )
 
-
+@not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 def maximum_spanning_edges(
     G, algorithm="kruskal", weight="weight", data=True, ignore_nan=False
@@ -349,12 +349,12 @@ def maximum_spanning_edges(
 
     Examples
     --------
-    >>> from networkx.algorithms import tree
+    >>> from easygraph.functions.not_sorted import mst
 
     Find maximum spanning edges by Kruskal's algorithm
 
     >>> G.add_edge(0, 3, weight=2)
-    >>> mst = tree.maximum_spanning_edges(G, algorithm="kruskal", data=False)
+    >>> mst = mst.maximum_spanning_edges(G, algorithm="kruskal", data=False)
     >>> edgelist = list(mst)
     >>> sorted(sorted(e) for e in edgelist)
     [[0, 1], [0, 3], [1, 2]]
@@ -362,7 +362,7 @@ def maximum_spanning_edges(
     Find maximum spanning edges by Prim's algorithm
 
     >>> G.add_edge(0, 3, weight=2)  # assign weight 2 to edge 0-3
-    >>> mst = tree.maximum_spanning_edges(G, algorithm="prim", data=False)
+    >>> mst = mst.maximum_spanning_edges(G, algorithm="prim", data=False)
     >>> edgelist = list(mst)
     >>> sorted(sorted(e) for e in edgelist)
     [[0, 1], [0, 3], [2, 3]]
@@ -388,7 +388,7 @@ def maximum_spanning_edges(
         G, minimum=False, weight=weight, data=data, ignore_nan=ignore_nan
     )
 
-
+@not_implemented_for("multigraph")
 def minimum_spanning_tree(G, weight="weight", algorithm="kruskal", ignore_nan=False):
     """Returns a minimum spanning tree or forest on an undirected graph `G`.
 
@@ -412,7 +412,7 @@ def minimum_spanning_tree(G, weight="weight", algorithm="kruskal", ignore_nan=Fa
 
     Returns
     -------
-    G : NetworkX Graph
+    G : EasyGraph Graph
        A minimum spanning tree or forest.
 
     Examples
@@ -431,9 +431,6 @@ def minimum_spanning_tree(G, weight="weight", algorithm="kruskal", ignore_nan=Fa
     For the other algorithms, if the graph edges do not have a weight
     attribute a default weight of 1 will be used.
 
-    There may be more than one tree with the same minimum or maximum weight.
-    See :mod:`networkx.tree.recognition` for more detailed definitions.
-
     Isolated nodes with self-loops are in the tree as edgeless isolated nodes.
 
     """
@@ -448,7 +445,7 @@ def minimum_spanning_tree(G, weight="weight", algorithm="kruskal", ignore_nan=Fa
         T.add_edge(u,v,**t)
     return T
 
-
+@not_implemented_for("multigraph")
 def maximum_spanning_tree(G, weight="weight", algorithm="kruskal", ignore_nan=False):
     """Returns a maximum spanning tree or forest on an undirected graph `G`.
 
@@ -473,7 +470,7 @@ def maximum_spanning_tree(G, weight="weight", algorithm="kruskal", ignore_nan=Fa
 
     Returns
     -------
-    G : NetworkX Graph
+    G : EasyGraph Graph
        A maximum spanning tree or forest.
 
 
@@ -494,7 +491,7 @@ def maximum_spanning_tree(G, weight="weight", algorithm="kruskal", ignore_nan=Fa
     attribute a default weight of 1 will be used.
 
     There may be more than one tree with the same minimum or maximum weight.
-    See :mod:`networkx.tree.recognition` for more detailed definitions.
+    See :mod:`easygraph.tree.recognition` for more detailed definitions.
 
     Isolated nodes with self-loops are in the tree as edgeless isolated nodes.
 
@@ -520,7 +517,7 @@ def edge_boundary(G, nbunch1, nbunch2=None, data=False, default=None):
 
     Parameters
     ----------
-    G : NetworkX graph
+    G : EasyGraph graph
 
     nbunch1 : iterable
         Iterable of nodes in the graph representing the set of nodes

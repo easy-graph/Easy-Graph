@@ -4,6 +4,7 @@ from queue import Queue
 import easygraph as eg
 from collections import defaultdict
 import copy
+from easygraph.utils import *
 
 __all__ = [
     "LPA",
@@ -12,6 +13,7 @@ __all__ = [
     "BMLPA",
 ]
 
+@not_implemented_for("multigraph")
 def LPA(G):
     '''Detect community by label propagation algorithm
     Return the detected communities. But the result is random.
@@ -71,6 +73,7 @@ def LPA(G):
     result_community = CheckConnectivity(G, cluster_community)
     return result_community
 
+@not_implemented_for("multigraph")
 def SLPA(G, T, r):
     '''Detect Overlapping Communities by Speaker-listener Label Propagation Algorithm
     Return the detected Overlapping communities. But the result is random.
@@ -149,6 +152,7 @@ def SLPA(G, T, r):
     result_community = CheckConnectivity(G, communities)
     return result_community
 
+@not_implemented_for("multigraph")
 def HANP(G, m, delta, threshod = 1, hier_open = 0, combine_open = 0):
     '''Detect community by Hop attenuation & node preference algorithm
 
@@ -272,6 +276,7 @@ def HANP(G, m, delta, threshod = 1, hier_open = 0, combine_open = 0):
     result_community = CheckConnectivity(ori_G, cluster_community)
     return result_community
 
+@not_implemented_for("multigraph")
 def BMLPA(G, p):
     '''Detect community by Balanced Multi-Label Propagation algorithm
 

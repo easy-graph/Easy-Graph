@@ -1,6 +1,6 @@
 from easygraph.utils.alias import create_alias_table, alias_sample
 from easygraph.utils.index_of_node import get_relation_of_index_and_node
-
+from easygraph.utils import *
 import math
 import random
 
@@ -50,8 +50,8 @@ def create_model(numNodes, embedding_size, order='second'):
 
     return model, {'first': first_emb, 'second': second_emb}
 
-
 class LINE:
+    @not_implemented_for("multigraph")
     def __init__(self, graph, embedding_size=8, negative_ratio=5, order='all',):
         """Graph embedding via SDNE.
 

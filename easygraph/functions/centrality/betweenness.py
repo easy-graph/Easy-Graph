@@ -1,4 +1,6 @@
 from easygraph.utils import *
+from easygraph.utils.decorators import *
+
 __all__ = [
     "betweenness_centrality",
 ]
@@ -10,6 +12,7 @@ def betweenness_centrality_parallel(nodes, G, path_length, accumulate):
         betweenness = accumulate(betweenness, S, P, sigma, node)
     return betweenness
 
+@not_implemented_for("multigraph")
 def betweenness_centrality(G, weight=None, normalized=True, endpoints=False, n_workers=None):
     '''Compute the shortest-path betweenness centrality for nodes.
 

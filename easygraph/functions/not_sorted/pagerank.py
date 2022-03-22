@@ -1,11 +1,11 @@
 import easygraph as eg
-
+from easygraph.utils import *
 
 __all__ = [
     "pagerank"
 ]
 
-
+@not_implemented_for("multigraph")
 def pagerank(G, alpha = 0.85):
     """
     Returns the PageRank value of each node in G.

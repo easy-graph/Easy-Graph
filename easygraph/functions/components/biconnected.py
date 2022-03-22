@@ -1,4 +1,5 @@
 from itertools import chain
+from easygraph.utils import *
 
 __all__ = [
     "is_biconnected",
@@ -8,7 +9,7 @@ __all__ = [
     "generator_articulation_points"
 ]
 
-
+@not_implemented_for("multigraph")
 def is_biconnected(G):
     """Returns whether the graph is biconnected or not.
 
@@ -32,7 +33,7 @@ def is_biconnected(G):
         return len(bc_nodes[0]) == len(G) # avoid situations where there is isolated vertex
     return False
 
-
+@not_implemented_for("multigraph")
 # TODO: get the subgraph of each biconnected graph
 def biconnected_components(G):
     """Returns a list of biconnected components, each of which denotes the edges set of a biconnected component.
@@ -53,7 +54,7 @@ def biconnected_components(G):
     """
     return list(generator_biconnected_components_edges(G))
 
-
+@not_implemented_for("multigraph")
 def generator_biconnected_components_nodes(G):
     """Returns a generator of nodes in each biconnected component.
 
@@ -79,7 +80,7 @@ def generator_biconnected_components_nodes(G):
         # TODO: only one edge = biconnected_component?
         yield set(chain.from_iterable(component))
 
-
+@not_implemented_for("multigraph")
 def generator_biconnected_components_edges(G):
     """Returns a generator of nodes in each biconnected component.
 
@@ -103,7 +104,7 @@ def generator_biconnected_components_edges(G):
     for component in _biconnected_dfs_record_edges(G, need_components=True):
         yield component
 
-
+@not_implemented_for("multigraph")
 def generator_articulation_points(G):
     """Returns a generator of articulation points.
 
@@ -135,7 +136,7 @@ def _biconnected_dfs_record_edges(G, need_components=True):
     https://blog.csdn.net/gauss_acm/article/details/43493903
     """
     # record edges of each biconnected component in traversal
-    # Copied version from NetworkX
+    # Copied version from EasyGraph
     # depth-first search algorithm to generate articulation points
     # and biconnected components
 

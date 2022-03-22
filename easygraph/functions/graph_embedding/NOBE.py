@@ -2,12 +2,14 @@ import numpy as np
 import easygraph as eg
 import scipy as sp
 from scipy.sparse.linalg import eigs
+from easygraph.utils import *
 
 __all__ = [
     "NOBE",
     "NOBE_GA"
 ]
 
+@not_implemented_for("multigraph")
 def NOBE(G,K):
     """Graph embedding via NOBE[1].
 
@@ -45,6 +47,7 @@ def NOBE(G,K):
     Y=embedding(V,pair,K,N,dict,G)
     return Y
 
+@not_implemented_for("multigraph")
 def NOBE_GA(G,K):
     """Graph embedding via NOBE-GA[1].
 

@@ -1,10 +1,12 @@
 import collections
 import copy
+from easygraph.utils.decorators import *
 
 __all__ = [
     "flowbetweenness_centrality",
 ]
 
+@not_implemented_for("multigraph")
 def flowbetweenness_centrality(G):
     '''Compute the independent-path betweenness centrality for nodes in a flow network.
 

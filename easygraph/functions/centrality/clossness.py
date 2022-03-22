@@ -17,6 +17,7 @@ def closeness_centrality_parallel(nodes, G, path_length):
             ret.append([node, (cnt-1)*(cnt-1)/(dist*(length-1))])
     return ret
 
+@not_implemented_for("multigraph")
 def closeness_centrality(G, weight=None, n_workers=None):
     '''Compute closeness centrality for nodes.
 

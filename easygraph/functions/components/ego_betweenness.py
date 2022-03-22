@@ -3,7 +3,9 @@ __all__=[
 ]
 import numpy as np 
 import numpy.matlib 
+from easygraph.utils import *
 
+@not_implemented_for("multigraph")
 def ego_betweenness(G,node):
     """
     ego networks are networks consisting of a single actor (ego) together with the actors they are connected to (alters) and all the links among those alters.[1] 

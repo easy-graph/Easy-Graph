@@ -2,6 +2,7 @@ import numpy as np
 import easygraph as eg
 import scipy as sp
 from scipy.sparse.linalg import eigs
+from easygraph.utils import *
 
 __all__ = [
     "NOBE_SH",
@@ -9,6 +10,8 @@ __all__ = [
 ]
  
 from sklearn.cluster import KMeans
+
+@not_implemented_for("multigraph")
 def NOBE_SH(G,K,topk):
     """detect SH spanners via NOBE[1].
 
@@ -70,6 +73,7 @@ def NOBE_SH(G,K,topk):
             break
     return SHS
 
+@not_implemented_for("multigraph")
 def NOBE_GA_SH(G,K,topk):
     """detect SH spanners via NOBE-GA[1].
 
