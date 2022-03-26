@@ -8,13 +8,13 @@
 #       quay.io/pypa/manylinux1_x86_64 (docker container)
 
 export WORKDIR=$HOME/build
-if [ ! -d $WORKDIR ]; then
-    mkdir -p $WORKDIR
-    cd $WORKDIR
+if [ ! -d "$WORKDIR" ]; then
+    mkdir -p "$WORKDIR"
+    cd "$WORKDIR" || exit
     git clone https://github.com/easy-graph/Easy-Graph.git
 fi
 
-chmod -R 777 $WORKDIR/Easy-Graph/
-cd $WORKDIR/Easy-Graph
+chmod -R 777 "$WORKDIR"/Easy-Graph/
+cd "$WORKDIR"/Easy-Graph || exit
 
-docker run -it -v $WORKDIR:/src --user "$(id -u):$(id -g)" quay.io/pypa/manylinux1_x86_64 /src/Easy-Graph/scripts/build_packages_linux.sh
+docker run -it -v "$WORKDIR":/src --user "$(id -u):$(id -g)" quay.io/pypa/manylinux1_x86_64 /src/Easy-Graph/scripts/build_packages_linux.sh
