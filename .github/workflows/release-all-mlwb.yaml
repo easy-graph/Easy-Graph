@@ -1,0 +1,44 @@
+# https://github.com/marketplace/actions/manylinux-wheel-builder
+name: pypi deployer
+on:
+  workflow_dispatch
+  # push
+  # push:
+  #   tags:
+  #     - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
+jobs:
+  Linux-build:
+    runs-on: ubuntu-latest
+    env:
+      TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
+      TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: build and upload manylinux wheels
+        # cSpell:disable
+        uses: Niraj-Kamdar/manylinux-wheel-builder@master
+        # cSpell:enable
+  Matrix-build:
+    runs-on: ${{ matrix.os }}
+    env:
+      TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
+      TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9]
+        os: [macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: build wheel
+        run: |
+          pip install wheel
+          python setup.py bdist_wheel
+      - name: upload wheel
+        run: |
+          pip install twine
+          twine upload dist/*
+        continue-on-error: true

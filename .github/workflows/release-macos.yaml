@@ -1,26 +1,25 @@
-name: Publish Python 🐍 distributions 📦 to PyPI and TestPyPI
+name: Build and Publish to PyPI (macOS)
 
-on: push
+# on: push
+# disabled on push cuz Error: Container action is only supported on Linux
+# no solution found yet
+on: workflow_dispatch
 
 jobs:
   build-n-publish:
     # name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
     name: Build and publish Python 🐍 distributions 📦 to PyPI
     # runs-on: ubuntu-latest
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-latest
     strategy:
       matrix:
         python-version: ["3.6", "3.7", "3.8", "3.9"]
-        # os: [ubuntu-latest, macos-latest]
-        include:
-          - os: macos-latest
-          - os: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v1
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: ${{ matrix.python-version }}
       - name: Install pypa/build
         run: >-
           python -m
@@ -35,11 +34,6 @@ jobs:
           --wheel
           --outdir dist/
           .
-      # - name: Publish distribution 📦 to Test PyPI
-      #   uses: pypa/gh-action-pypi-publish@master
-      #   with:
-      #     password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-      #     repository_url: https://test.pypi.org/legacy/
       - name: Publish distribution 📦 to PyPI
         # if: startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@master
