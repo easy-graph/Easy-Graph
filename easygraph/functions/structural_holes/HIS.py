@@ -4,8 +4,12 @@ from easygraph.utils import *
 
 __all__ = ["get_structural_holes_HIS"]
 
+
 @not_implemented_for("multigraph")
-def get_structural_holes_HIS(G, C: [frozenset], epsilon=1e-4, weight='weight'):
+def get_structural_holes_HIS(G,
+                             C: list[frozenset],
+                             epsilon=1e-4,
+                             weight='weight'):
     """Structural hole spanners detection via HIS method.
 
     Both **HIS** and **MaxD** are methods in [1]_. 
@@ -79,7 +83,7 @@ def get_structural_holes_HIS(G, C: [frozenset], epsilon=1e-4, weight='weight'):
     return S, I, H
 
 
-def initialize(G, C: [frozenset], S: [tuple], weight='weight'):
+def initialize(G, C: list[frozenset], S: [tuple], weight='weight'):
     I, H = dict(), dict()
     for node in G.nodes:
         I[node] = dict()
