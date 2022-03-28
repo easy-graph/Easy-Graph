@@ -19,6 +19,7 @@ on:
 jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -36,6 +37,7 @@ jobs:
 
   build_sdist:
     name: Build source distribution
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
