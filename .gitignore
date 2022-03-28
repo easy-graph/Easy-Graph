@@ -1,3 +1,4 @@
+*.tmp
 .vscode
 __pycache__
 test/
