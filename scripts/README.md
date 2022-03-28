@@ -79,6 +79,8 @@ If the download file is whl, it means that your build&upload process is successf
 
 ## Using conda
 
+Refer to https://conda.io/projects/conda-build/en/latest/user-guide/tutorials/build-pkgs-skeleton.html
+
 ### run the commands below in Mac, Linux and Windows
     conda build --python 3.6 Easy-Graph 
     conda build --python 3.7 Easy-Graph 

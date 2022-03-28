@@ -1,0 +1,78 @@
+{% set name = "Python-EasyGraph" %}
+{% set version = "0.2a35" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+  url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
+  sha256: 5abe636cf0b90ac27bfad8eed7163c4218c8416c9aae01a4890db80fe1ee099a
+  # path: "/Users/bytedance/code/python/Easy-Graph/"
+
+build:
+  number: 0
+  # script: "{{ PYTHON }} -m pip install . -vv"
+  script: python setup.py install --single-version-externally-managed --record=record.txt
+  preserve_egg_dir: True
+
+requirements:
+  host:
+    - gensim >=3.8.3
+    - joblib >=0.16.0
+    - matplotlib >=3.3.0
+    - numpy >=1.18.5
+    - pip
+    - progressbar >=2.5
+    - progressbar33 >=2.4
+    - python
+    - scikit-learn >=0.23.2
+    - scipy >=1.5.2
+    - six >=1.15.0
+    - statsmodels >=0.12.0
+    - tensorflow >=2.0.0
+    - tqdm >=4.49.0
+  run:
+    - gensim >=3.8.3
+    - joblib >=0.16.0
+    - matplotlib >=3.3.0
+    - numpy >=1.18.5
+    - progressbar >=2.5
+    - progressbar33 >=2.4
+    - python
+    - scikit-learn >=0.23.2
+    - scipy >=1.5.2
+    - six >=1.15.0
+    - statsmodels >=0.12.0
+    - tensorflow >=2.0.0
+    - tqdm >=4.49.0
+
+test:
+  imports:
+    - easygraph
+    - easygraph.classes
+    - easygraph.datasets
+    - easygraph.functions
+    - easygraph.functions.centrality
+    - easygraph.functions.community
+    - easygraph.functions.components
+    - easygraph.functions.drawing
+    - easygraph.functions.graph_embedding
+    - easygraph.functions.graph_generator
+    - easygraph.functions.not_sorted
+    - easygraph.functions.path
+    - easygraph.functions.structural_holes
+    - easygraph.utils
+
+about:
+  home: "https://github.com/easy-graph/Easy-Graph"
+  license: BSD
+  license_family: BSD
+  license_file: 
+  summary: "Easy Graph"
+  doc_url: 
+  dev_url: 
+
+extra:
+  recipe-maintainers:
+    - your-github-id-here
