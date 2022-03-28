@@ -22,7 +22,7 @@ if uname[0] == "Darwin" or uname[0] == "Linux":
     compileArgs = ["-std=c++11"]
 
 setuptools.setup(name="Python-EasyGraph",
-                 version="0.2a37",
+                 version="0.2a38",
                  author="Fudan MSN Group",
                  author_email="easygraph@163.com",
                  description="Easy Graph",
