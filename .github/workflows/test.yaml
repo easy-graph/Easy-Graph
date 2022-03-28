@@ -20,6 +20,8 @@ jobs:
           python -m pip install --upgrade pip
           # pip install flake8 pytest
           pip install pytest
+          python setup.py egg_info
+          pip install -r *.egg-info/requires.txt
           # if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       # - name: Lint with flake8
       #   run: |
