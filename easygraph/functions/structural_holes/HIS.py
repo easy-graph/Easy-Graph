@@ -1,4 +1,5 @@
 from itertools import combinations
+from typing import List
 import math
 from easygraph.utils import *
 
@@ -7,7 +8,7 @@ __all__ = ["get_structural_holes_HIS"]
 
 @not_implemented_for("multigraph")
 def get_structural_holes_HIS(G,
-                             C: list[frozenset],
+                             C: List[frozenset],
                              epsilon=1e-4,
                              weight='weight'):
     """Structural hole spanners detection via HIS method.
@@ -83,7 +84,7 @@ def get_structural_holes_HIS(G,
     return S, I, H
 
 
-def initialize(G, C: list[frozenset], S: [tuple], weight='weight'):
+def initialize(G, C: List[frozenset], S: [tuple], weight='weight'):
     I, H = dict(), dict()
     for node in G.nodes:
         I[node] = dict()
