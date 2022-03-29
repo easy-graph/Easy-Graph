@@ -26,7 +26,7 @@ def write_gexf(G, path, encoding="utf-8", prettyprint=True, version="1.2draft"):
     Parameters
     ----------
     G : graph
-       A NetworkX graph
+       An EasyGraph graph
     path : file or string
        File or file name to write.
        File names ending in .gz or .bz2 will be compressed.
@@ -56,7 +56,7 @@ def generate_gexf(G, encoding="utf-8", prettyprint=True, version="1.2draft"):
     Parameters
     ----------
     G : graph
-    A NetworkX graph
+    A EasyGraph graph
     encoding : string (optional, default: 'utf-8')
     Encoding for text data.
     prettyprint : bool (optional, default: True)
@@ -107,7 +107,7 @@ def read_gexf(path, node_type=None, relabel=False, version="1.2draft"):
        Convert node ids to this type if not None.
     relabel : bool (default: False)
        If True relabel the nodes to use the GEXF node "label" attribute
-       instead of the node "id" attribute as the NetworkX node label.
+       instead of the node "id" attribute as the EasyGraph node label.
     version : string (default: 1.2draft)
     Version of GEFX File Format (see http://gexf.net/schema.html)
        Supported values: "1.1draft", "1.2draft"
@@ -965,21 +965,21 @@ def relabel_gexf_graph(G):
     Parameters
     ----------
     G : graph
-       A NetworkX graph read from GEXF data
+       A EasyGraph graph read from GEXF data
 
     Returns
     -------
     H : graph
-      A NetworkX graph with relabeled nodes
+      A EasyGraph graph with relabeled nodes
 
     Raises
     ------
-    NetworkXError
+    EasyGraphError
         If node labels are missing or not unique while relabel=True.
 
     Notes
     -----
-    This function relabels the nodes in a NetworkX graph with the
+    This function relabels the nodes in a EasyGraph graph with the
     "label" attribute.  It also handles relabeling the specific GEXF
     node attributes "parents", and "pid".
     """

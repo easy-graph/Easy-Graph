@@ -1330,7 +1330,7 @@ class TestWriteGraphML(BaseGraphML):
         H = eg.read_graphml(fname)
         assert nodes_equal(G.nodes, H.nodes)
         
-        # NetworkX adds explicit edge "id" from file as attribute
+        # EasyGraph adds explicit edge "id" from file as attribute
         eg.set_edge_attributes(G, edge_attributes, "id")
         assert edges_equal(G.edges, H.edges)
 
@@ -1351,7 +1351,7 @@ class TestWriteGraphML(BaseGraphML):
         J = eg.parse_graphml(data)
         assert sorted(G.nodes) == sorted(J.nodes)
         assert sorted(G.edges) == sorted(J.edges)
-        # NetworkX adds explicit edge "id" from file as attribute
+        # EasyGraph adds explicit edge "id" from file as attribute
         eg.set_edge_attributes(G, edge_attributes, "id")
         assert edges_equal(G.edges, J.edges)
 
@@ -1382,7 +1382,7 @@ class TestWriteGraphML(BaseGraphML):
         assert sorted(data.get("eid") for u, v, _, data in H.edges) == sorted(
             edge_attributes.values()
         )
-        # NetworkX uses edge_ids as keys in multigraphs if no key
+        # EasyGraph uses edge_ids as keys in multigraphs if no key
         assert sorted(key for u, v, key, _ in H.edges) == sorted(
             edge_attributes.values()
         )
@@ -1409,7 +1409,7 @@ class TestWriteGraphML(BaseGraphML):
         assert sorted(data.get("eid") for u, v, _, data in J.edges) == sorted(
             edge_attributes.values()
         )
-        # NetworkX uses edge_ids as keys in multigraphs if no key
+        # EasyGraph uses edge_ids as keys in multigraphs if no key
         assert sorted(key for u, v, key, _ in J.edges) == sorted(
             edge_attributes.values()
         )
