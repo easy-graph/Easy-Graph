@@ -1,15 +1,31 @@
 import pytest
 
 import easygraph as eg
+
 print("loca: ", eg.__file__)
-from easygraph.utils import edges_equal
+from utils import edges_equal
+
 
 class TestMultiGraph():
+
     def setup_method(self):
         self.Graph = eg.MultiGraph
         # build K3
         ed1, ed2, ed3 = ({0: {}}, {0: {}}, {0: {}})
-        self.k3adj = {0: {1: ed1, 2: ed2}, 1: {0: ed1, 2: ed3}, 2: {0: ed2, 1: ed3}}
+        self.k3adj = {
+            0: {
+                1: ed1,
+                2: ed2
+            },
+            1: {
+                0: ed1,
+                2: ed3
+            },
+            2: {
+                0: ed2,
+                1: ed3
+            }
+        }
         self.k3edges = [(0, 1), (0, 2), (1, 2)]
         self.k3nodes = [0, 1, 2]
         self.K3 = self.Graph()
@@ -54,7 +70,7 @@ class TestMultiGraph():
         assert list(G.edges) == multiple_edge
         G = self.Graph(dododod, multigraph_input=False)
         assert list(G.edges) == single_edge
-    
+
     def test_remove_node(self):
         G = self.K3
         G.remove_node(0)
