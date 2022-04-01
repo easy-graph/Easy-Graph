@@ -1,14 +1,12 @@
 import pytest
 import easygraph as eg
-from utils import nodes_equal, edges_equal
-from readwrite.graphml import GraphMLWriter
+from easygraph.utils import nodes_equal, edges_equal
+from easygraph.readwrite.graphml import GraphMLWriter
 import io
 import tempfile
 import os
 
-
 class BaseGraphML:
-
     @classmethod
     def setup_class(cls):
         cls.simple_directed_data = """<?xml version="1.0" encoding="UTF-8"?>
@@ -46,20 +44,21 @@ class BaseGraphML:
         cls.simple_directed_graph.add_node("n10")
         cls.simple_directed_graph.add_edge("n0", "n2", id="foo")
         cls.simple_directed_graph.add_edge("n0", "n2")
-        cls.simple_directed_graph.add_edges_from([
-            ("n1", "n2"),
-            ("n2", "n3"),
-            ("n3", "n5"),
-            ("n3", "n4"),
-            ("n4", "n6"),
-            ("n6", "n5"),
-            ("n5", "n7"),
-            ("n6", "n8"),
-            ("n8", "n7"),
-            ("n8", "n9"),
-        ])
-        cls.simple_directed_fh = io.BytesIO(
-            cls.simple_directed_data.encode("UTF-8"))
+        cls.simple_directed_graph.add_edges_from(
+            [
+                ("n1", "n2"),
+                ("n2", "n3"),
+                ("n3", "n5"),
+                ("n3", "n4"),
+                ("n4", "n6"),
+                ("n6", "n5"),
+                ("n5", "n7"),
+                ("n6", "n8"),
+                ("n8", "n7"),
+                ("n8", "n9"),
+            ]
+        )
+        cls.simple_directed_fh = io.BytesIO(cls.simple_directed_data.encode("UTF-8"))
 
         cls.attribute_data = """<?xml version="1.0" encoding="UTF-8"?>
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns"
@@ -150,7 +149,8 @@ class BaseGraphML:
         cls.node_attribute_default_graph.add_node("n1")
         cls.node_attribute_default_graph.add_edge("n0", "n1", id="e0")
         cls.node_attribute_default_fh = io.BytesIO(
-            cls.node_attribute_default_data.encode("UTF-8"))
+            cls.node_attribute_default_data.encode("UTF-8")
+        )
 
         cls.attribute_named_key_ids_data = """<?xml version='1.0' encoding='utf-8'?>
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns"
@@ -176,15 +176,9 @@ class BaseGraphML:
 </graphml>
 """
         cls.attribute_named_key_ids_graph = eg.DiGraph()
-        cls.attribute_named_key_ids_graph.add_node("0",
-                                                   prop1="val1",
-                                                   prop2="val2")
-        cls.attribute_named_key_ids_graph.add_node("1",
-                                                   prop1="val_one",
-                                                   prop2="val2")
-        cls.attribute_named_key_ids_graph.add_edge("0",
-                                                   "1",
-                                                   edge_prop="edge_value")
+        cls.attribute_named_key_ids_graph.add_node("0", prop1="val1", prop2="val2")
+        cls.attribute_named_key_ids_graph.add_node("1", prop1="val_one", prop2="val2")
+        cls.attribute_named_key_ids_graph.add_edge("0", "1", edge_prop="edge_value")
         fh = io.BytesIO(cls.attribute_named_key_ids_data.encode("UTF-8"))
         cls.attribute_named_key_ids_fh = fh
 
@@ -241,8 +235,7 @@ class BaseGraphML:
         cls.simple_undirected_graph = eg.Graph()
         cls.simple_undirected_graph.add_node("n10")
         cls.simple_undirected_graph.add_edge("n0", "n2", id="foo")
-        cls.simple_undirected_graph.add_edges_from([("n1", "n2"),
-                                                    ("n2", "n3")])
+        cls.simple_undirected_graph.add_edges_from([("n1", "n2"), ("n2", "n3")])
         fh = io.BytesIO(cls.simple_undirected_data.encode("UTF-8"))
         cls.simple_undirected_fh = fh
 
@@ -289,8 +282,7 @@ class BaseGraphML:
         cls.undirected_multigraph_no_multiedge.add_edge("n0", "n2", id="e0")
         cls.undirected_multigraph_no_multiedge.add_edge("n1", "n2", id="e1")
         cls.undirected_multigraph_no_multiedge.add_edge("n2", "n3", id="e2")
-        fh = io.BytesIO(
-            cls.undirected_multigraph_no_multiedge_data.encode("UTF-8"))
+        fh = io.BytesIO(cls.undirected_multigraph_no_multiedge_data.encode("UTF-8"))
         cls.undirected_multigraph_no_multiedge_fh = fh
 
         cls.multigraph_only_ids_for_multiedges_data = """<?xml version="1.0" encoding="UTF-8"?>
@@ -313,13 +305,11 @@ class BaseGraphML:
         cls.multigraph_only_ids_for_multiedges.add_edge("n0", "n2")
         cls.multigraph_only_ids_for_multiedges.add_edge("n1", "n2", id="e1")
         cls.multigraph_only_ids_for_multiedges.add_edge("n2", "n1", id="e2")
-        fh = io.BytesIO(
-            cls.multigraph_only_ids_for_multiedges_data.encode("UTF-8"))
+        fh = io.BytesIO(cls.multigraph_only_ids_for_multiedges_data.encode("UTF-8"))
         cls.multigraph_only_ids_for_multiedges_fh = fh
 
 
 class TestReadGraphML(BaseGraphML):
-
     def test_read_simple_directed_graphml(self):
         G = self.simple_directed_graph
         H = eg.read_graphml(self.simple_directed_fh)
@@ -524,18 +514,20 @@ class TestReadGraphML(BaseGraphML):
         G = eg.MultiGraph()
         G.add_node(1)
         G.add_node(2)
-        G.add_edges_from([
-            # edges with no data, no keys:
-            (1, 2),
-            # edges with only data:
-            (1, 2, dict(key="data_key1")),
-            (1, 2, dict(id="data_id2")),
-            (1, 2, dict(key="data_key3", id="data_id3")),
-            # edges with both data and keys:
-            (1, 2, 103, dict(key="data_key4")),
-            (1, 2, 104, dict(id="data_id5")),
-            (1, 2, 105, dict(key="data_key6", id="data_id7")),
-        ])
+        G.add_edges_from(
+            [
+                # edges with no data, no keys:
+                (1, 2),
+                # edges with only data:
+                (1, 2, dict(key="data_key1")),
+                (1, 2, dict(id="data_id2")),
+                (1, 2, dict(key="data_key3", id="data_id3")),
+                # edges with both data and keys:
+                (1, 2, 103, dict(key="data_key4")),
+                (1, 2, 104, dict(id="data_id5")),
+                (1, 2, 105, dict(key="data_key6", id="data_id7")),
+            ]
+        )
         fh = io.BytesIO()
         eg.write_graphml(G, fh)
         fh.seek(0)
@@ -545,8 +537,7 @@ class TestReadGraphML(BaseGraphML):
 
         Gadj = {
             str(node): {
-                str(nbr): {str(ekey): dd
-                           for ekey, dd in key_dict.items()}
+                str(nbr): {str(ekey): dd for ekey, dd in key_dict.items()}
                 for nbr, key_dict in nbr_dict.items()
             }
             for node, nbr_dict in G._adj.items()
@@ -1338,7 +1329,7 @@ class TestWriteGraphML(BaseGraphML):
 
         H = eg.read_graphml(fname)
         assert nodes_equal(G.nodes, H.nodes)
-
+        
         # NetworkX adds explicit edge "id" from file as attribute
         eg.set_edge_attributes(G, edge_attributes, "id")
         assert edges_equal(G.edges, H.edges)
@@ -1347,8 +1338,10 @@ class TestWriteGraphML(BaseGraphML):
         children = list(tree.getroot())
         assert len(children) == 2
         edge_ids = [
-            edge.attrib["id"] for edge in tree.getroot().findall(
-                ".//{http://graphml.graphdrawing.org/xmlns}edge")
+            edge.attrib["id"]
+            for edge in tree.getroot().findall(
+                ".//{http://graphml.graphdrawing.org/xmlns}edge"
+            )
         ]
         # verify edge id value is equal to sepcified attribute value
         assert sorted(edge_ids) == sorted(edge_attributes.values())
@@ -1387,17 +1380,21 @@ class TestWriteGraphML(BaseGraphML):
         # assert edges_equal(G.edges, H.edges)x
         x = [data.get("eid") for u, v, _, data in H.edges]
         assert sorted(data.get("eid") for u, v, _, data in H.edges) == sorted(
-            edge_attributes.values())
+            edge_attributes.values()
+        )
         # NetworkX uses edge_ids as keys in multigraphs if no key
         assert sorted(key for u, v, key, _ in H.edges) == sorted(
-            edge_attributes.values())
+            edge_attributes.values()
+        )
 
         tree = parse(fname)
         children = list(tree.getroot())
         assert len(children) == 2
         edge_ids = [
-            edge.attrib["id"] for edge in tree.getroot().findall(
-                ".//{http://graphml.graphdrawing.org/xmlns}edge")
+            edge.attrib["id"]
+            for edge in tree.getroot().findall(
+                ".//{http://graphml.graphdrawing.org/xmlns}edge"
+            )
         ]
         # verify edge id value is equal to sepcified attribute value
         assert sorted(edge_ids) == sorted(edge_attributes.values())
@@ -1410,10 +1407,12 @@ class TestWriteGraphML(BaseGraphML):
         assert nodes_equal(G.nodes, J.nodes)
         # assert edges_equal(G.edges, J.edges)
         assert sorted(data.get("eid") for u, v, _, data in J.edges) == sorted(
-            edge_attributes.values())
+            edge_attributes.values()
+        )
         # NetworkX uses edge_ids as keys in multigraphs if no key
         assert sorted(key for u, v, key, _ in J.edges) == sorted(
-            edge_attributes.values())
+            edge_attributes.values()
+        )
 
         os.close(fd)
         os.unlink(fname)
