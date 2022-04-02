@@ -145,14 +145,12 @@ class MultiDiGraph(MultiGraph, DiGraph):
         if u not in self._adj:
             if u is None:
                 raise ValueError("None cannot be a node")
-            print("====add u====")
             self._adj[u] = self.adjlist_inner_dict_factory()
             self._pred[u] = self.adjlist_inner_dict_factory()
             self._node[u] = self.node_attr_dict_factory()
         if v not in self._adj:
             if v is None:
                 raise ValueError("None cannot be a node")
-            print("====add v====")
             self._adj[v] = self.adjlist_inner_dict_factory()
             self._pred[v] = self.adjlist_inner_dict_factory()
             self._node[v] = self.node_attr_dict_factory()

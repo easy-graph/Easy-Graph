@@ -269,8 +269,6 @@ edgelist1|edgelist2|blockmatrix|partition)$""", token, lexer)
             G = eg.relabel_nodes(G, dict(zip(list(G.nodes), [i-1 for i in G.nodes])))
 
     # Relabel nodes
-    print("nodes: ", G.nodes)
-    print(labels)
     if labels:
         try:
             if len(list(G.nodes)) < number_of_nodes:

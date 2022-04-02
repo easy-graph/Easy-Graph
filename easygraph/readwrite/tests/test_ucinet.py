@@ -235,9 +235,6 @@ data:
         eg.write_ucinet(graph, fh)
         fh.seek(0)
         G = eg.parse_ucinet(fh.readlines())
-        print("log: ")
-        print(G.edges)
-        print(graph.edges)
         assert sorted(G.nodes) == sorted(graph.nodes)
         assert sorted([e[:3] for e in G.edges]) == sorted([e[:3] for e in graph.edges])
 
@@ -274,9 +271,6 @@ jane billy
 
         G1 = eg.parse_ucinet(data1)
         G2 = eg.parse_ucinet(data2)
-        print(G.nodes)
-        print(G1.nodes)
-        print(G2.nodes)
         assert sorted(G1.nodes) == sorted(G.nodes)
         assert sorted(G2.nodes) == sorted(G.nodes)
         assert sorted(G1.edges) == sorted(G.edges)
