@@ -20,6 +20,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           # pip install flake8 pytest
+          cd ${{ github.workspace }}/easygraph
           pip install pytest
           pip install .
           # python setup.py install
@@ -35,4 +36,4 @@ jobs:
       - name: Test with pytest
         run: |
           cd ${{ github.workspace }}/easygraph
-          pytest
+          pytest --disable-warnings
