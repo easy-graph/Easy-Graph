@@ -19,7 +19,7 @@ def set_edge_attributes(G, values, name=None):
 
     Parameters
     ----------
-    G : NetworkX Graph
+    G : EasyGraph Graph
 
     values : scalar value, dict-like
         What the edge attribute should be set to.  If `values` is
@@ -126,7 +126,7 @@ def add_path(G_to_add_to, nodes_for_path, **attr):
     Parameters
     ----------
     G_to_add_to : graph
-        A NetworkX graph
+        A EasyGraph graph
     nodes_for_path : iterable container
         A container of nodes.  A path will be constructed from
         the nodes (in order) and added to the graph.
