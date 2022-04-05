@@ -1,6 +1,7 @@
 import io
 import time
 import pytest
+import sys
 
 import easygraph as eg
 
@@ -265,6 +266,8 @@ org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/\
         assert list(H) == [7]
         assert H.nodes[7]["label"] == "77"
 
+    @pytest.mark.skipif(sys.version_info < (3,8),
+                    reason="requires >= python3.8")
     def test_edge_id_construct(self):
         G = eg.Graph()
         G.add_edges_from([(0, 1, {"id": 0}), (1, 2, {"id": 2}), (2, 3)])
@@ -293,34 +296,8 @@ gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
         obtained = "\n".join(eg.generate_gexf(G))
         assert expected == obtained
 
-    def test_edge_id_construct(self):
-        G = eg.Graph()
-        G.add_edges_from([(0, 1, {"id": 0}), (1, 2, {"id": 2}), (2, 3)])
-
-        expected = f"""<gexf xmlns="http://www.gexf.net/1.2draft" xmlns:xsi\
-="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.\
-gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
-  <meta lastmodifieddate="{time.strftime('%Y-%m-%d')}">
-    <creator>EasyGraph</creator>
-  </meta>
-  <graph defaultedgetype="undirected" mode="static" name="">
-    <nodes>
-      <node id="0" label="0" />
-      <node id="1" label="1" />
-      <node id="2" label="2" />
-      <node id="3" label="3" />
-    </nodes>
-    <edges>
-      <edge source="0" target="1" id="0" />
-      <edge source="1" target="2" id="2" />
-      <edge source="2" target="3" id="1" />
-    </edges>
-  </graph>
-</gexf>"""
-
-        obtained = "\n".join(eg.generate_gexf(G))
-        assert expected == obtained
-
+    @pytest.mark.skipif(sys.version_info < (3,8),
+                    reason="requires >= python3.8")
     def test_numpy_type(self):
         np = pytest.importorskip("numpy")
         G = eg.path_graph(4)

@@ -20,6 +20,7 @@ uname = platform.uname()
 compileArgs = []
 if uname[0] == "Darwin" or uname[0] == "Linux":
     compileArgs = ["-std=c++11"]
+CYTHON_STR = 'Cython'
 
 setuptools.setup(name="Python-EasyGraph",
                  version="0.2a40",
@@ -40,12 +41,38 @@ setuptools.setup(name="Python-EasyGraph",
                  ],
                  python_requires=">=3.6, <3.10",
                  install_requires=[
-                     'numpy>=1.18.5', 'tqdm>=4.49.0', 'tensorflow>=2.0.0',
-                     'joblib>=0.16.0', 'six>=1.15.0', 'gensim>=4.1.2',
-                     'progressbar33>=2.4', 'scikit-learn>=0.24.0',
-                     'scipy>=1.5.2', 'matplotlib>=3.3.0',
-                     'statsmodels>=0.12.0', 'progressbar>=2.5'
+                     "numpy>=1.18.5, <=1.19.5; python_version=='3.6'", 
+                     "numpy>=1.18.5; python_version>='3.7'", 
+
+                     "tqdm>=4.49.0", 
+                     
+                     "tensorflow>=2.4.0, <=2.6.2; python_version=='3.6'",
+                     "tensorflow>=2.4.0; python_version>='3.7'",
+
+                     "joblib>=0.16.0", 
+                     "six>=1.15.0, <1.16.0", 
+                     "gensim>=4.1.2",
+                     "progressbar33>=2.4", 
+
+                     "scikit-learn>=0.23.0, <=0.24.2; python_version=='3.6'",
+                     "scikit-learn>=0.24.0; python_version>='3.7'",
+                     
+                     "scipy>=1.5.0, <=1.5.4; python_version=='3.6'", 
+                     "scipy>=1.5.0, <=1.7.3; python_version=='3.7'", 
+                     "scipy>=1.8.0; python_version>='3.8'", 
+
+                     "matplotlib>=3.3.0, <=3.3.4",
+
+                     "statsmodels>=0.12.0, <=0.12.2; python_version=='3.6'", 
+                     "statsmodels>=0.12.0; python_version>='3.7'", 
+
+                     "progressbar>=2.5",
+                     "nose>=0.10.1",
+                     "pandas>=1.0.1, <=1.1.5; python_version<='3.7'",
                  ],
+                 setup_requires=[CYTHON_STR],
+                 test_suite='nose.collector',
+                 tests_require=[],
                  ext_modules=[
                      setuptools.Extension('cpp_easygraph',
                                           sources,

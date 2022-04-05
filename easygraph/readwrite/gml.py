@@ -29,7 +29,6 @@ Several example graphs in GML format may be found on Mark Newman's
 `Network data page <http://www-personal.umich.edu/~mejn/netdata/>`_.
 """
 
-from contextlib import AsyncExitStack
 from errno import E2BIG
 from io import StringIO
 from ast import literal_eval
