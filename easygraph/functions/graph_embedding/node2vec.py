@@ -265,8 +265,8 @@ def learn_embeddings(walks, dimensions, **skip_gram_params):
 
     walks = [list(map(str, walk)) for walk in walks]
 
-    if 'size' not in skip_gram_params:
-        skip_gram_params['size'] = dimensions
+    if 'vector_size' not in skip_gram_params:
+        skip_gram_params['vector_size'] = dimensions
 
     model = Word2Vec(walks, **skip_gram_params)
 

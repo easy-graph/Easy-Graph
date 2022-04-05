@@ -1,7 +1,6 @@
 import pytest
 
 import easygraph as eg
-print("loca: ", eg.__file__)
 from easygraph.utils import edges_equal
 
 class TestMultiGraph():
