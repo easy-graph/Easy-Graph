@@ -1,5 +1,6 @@
 import easygraph as eg
 from collections.abc import Collection, Generator, Iterator
+import warnings
 
 __all__ = [
     "from_dict_of_dicts", "to_easygraph_graph", "from_edgelist",
@@ -92,11 +93,55 @@ def to_easygraph_graph(data, create_using=None, multigraph_input=False):
             except Exception as err:
                 raise TypeError("Input is not known type.") from err
 
-    # Pandas DataFrame TODO
+    # Pandas DataFrame
+    try:
+        import pandas as pd
 
-    # numpy matrix or ndarray TODO
+        if isinstance(data, pd.DataFrame):
+            if data.shape[0] == data.shape[1]:
+                try:
+                    return eg.from_pandas_adjacency(data, create_using=create_using)
+                except Exception as err:
+                    msg = "Input is not a correct Pandas DataFrame adjacency matrix."
+                    raise eg.EasyGraphError(msg) from err
+            else:
+                try:
+                    return eg.from_pandas_edgelist(data, edge_attr=True, create_using=create_using)
+                except Exception as err:
+                    msg = "Input is not a correct Pandas DataFrame adjacency edge-list."
+                    raise eg.EasyGraphError(msg) from err
+    except ImportError:
+        warnings.warn("pandas not found, skipping conversion test.", ImportWarning)
 
-    # scipy sparse matrix - any format TODO
+    # numpy matrix or ndarray
+    try:
+        import numpy as np
+
+        if isinstance(data, np.ndarray):
+            try:
+                return eg.from_numpy_array(data, create_using=create_using)
+            except Exception as err:
+                raise eg.EasyGraphError(
+                    "Input is not a correct numpy matrix or array."
+                ) from err
+    except ImportError:
+        warnings.warn("numpy not found, skipping conversion test.", ImportWarning)
+
+
+    # scipy sparse matrix - any format
+    try:
+        import scipy
+
+        if hasattr(data, "format"):
+            try:
+                return eg.from_scipy_sparse_matrix(data, create_using=create_using)
+            except Exception as err:
+                raise eg.EasyGraphError(
+                    "Input is not a correct scipy sparse matrix type."
+                ) from err
+    except ImportError:
+        warnings.warn("scipy not found, skipping conversion test.", ImportWarning)
+
 
     # Note: most general check - should remain last in order of execution
     # Includes containers (e.g. list, set, dict, etc.), generators, and
@@ -107,6 +152,8 @@ def to_easygraph_graph(data, create_using=None, multigraph_input=False):
             return from_edgelist(data, create_using=create_using)
         except Exception as err:
             raise eg.EasyGraphError("Input is not a valid edge list") from err
+            
+    raise eg.EasyGraphError("Input is not a known data type for conversion.")
 
 
 def from_dict_of_lists(d, create_using=None):
