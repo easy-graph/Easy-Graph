@@ -2,9 +2,7 @@ import easygraph as eg
 import progressbar
 
 __all__ = [
-    'get_graph_karateclub',
-    'get_graph_blogcatalog',
-    'get_graph_youtube',
+    'get_graph_karateclub', 'get_graph_blogcatalog', 'get_graph_youtube',
     'get_graph_flickr'
 ]
 
@@ -29,7 +27,7 @@ def get_graph_karateclub():
 
     G = eg.Graph(name="Zachary's Karate Club")
     for node in all_members:
-        G.add_node(node+1)
+        G.add_node(node + 1)
 
     zacharydat = """\
 0 1 1 1 1 1 1 1 1 0 1 1 1 1 0 0 0 1 0 1 0 1 0 0 0 0 0 0 0 0 0 1 0 0
@@ -71,7 +69,7 @@ def get_graph_karateclub():
         thisrow = [int(b) for b in line.split()]
         for col, entry in enumerate(thisrow):
             if entry == 1:
-                G.add_edge(row+1, col+1)
+                G.add_edge(row + 1, col + 1)
 
     # Add the name of each member's club as a node attribute.
     for v in G:

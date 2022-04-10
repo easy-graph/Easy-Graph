@@ -1,8 +1,10 @@
 from easygraph.functions.path import *
 from easygraph.utils import *
+
 __all__ = [
     'closeness_centrality',
 ]
+
 
 def closeness_centrality_parallel(nodes, G, path_length):
     ret = []
@@ -14,8 +16,9 @@ def closeness_centrality_parallel(nodes, G, path_length):
         if dist == 0:
             ret.append([node, 0])
         else:
-            ret.append([node, (cnt-1)*(cnt-1)/(dist*(length-1))])
+            ret.append([node, (cnt - 1) * (cnt - 1) / (dist * (length - 1))])
     return ret
+
 
 @not_implemented_for("multigraph")
 def closeness_centrality(G, weight=None, n_workers=None):
@@ -52,13 +55,13 @@ def closeness_centrality(G, weight=None, n_workers=None):
         path_length = functools.partial(single_source_dijkstra, weight=weight)
     else:
         path_length = functools.partial(single_source_bfs)
-    
+
     if n_workers is not None:
         # use parallel version for large graph
         from multiprocessing import Pool
         from functools import partial
         import random
-        
+
         nodes = list(nodes)
         random.shuffle(nodes)
 
@@ -66,7 +69,9 @@ def closeness_centrality(G, weight=None, n_workers=None):
             nodes = split_len(nodes, step=30000)
         else:
             nodes = split(nodes, n_workers)
-        local_function = partial(closeness_centrality_parallel, G=G, path_length=path_length)
+        local_function = partial(closeness_centrality_parallel,
+                                 G=G,
+                                 path_length=path_length)
         with Pool(n_workers) as p:
             ret = p.imap(local_function, nodes)
             res = [x for i in ret for x in i]
@@ -77,7 +82,7 @@ def closeness_centrality(G, weight=None, n_workers=None):
             x = path_length(G, node)
         dist = sum(x.values())
         cnt = len(x)
-        if dist  == 0:
+        if dist == 0:
             closeness[node] = 0
         else:
             closeness[node] = (cnt - 1) * (cnt - 1) / (dist * (length - 1))

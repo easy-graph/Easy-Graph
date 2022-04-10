@@ -73,13 +73,15 @@ def strongly_connected_components(G):
                     queue.pop()
                     if lowlink[v] == preorder[v]:
                         scc = {v}
-                        while scc_queue and preorder[scc_queue[-1]] > preorder[v]:
+                        while scc_queue and preorder[
+                                scc_queue[-1]] > preorder[v]:
                             k = scc_queue.pop()
                             scc.add(k)
                         scc_found.update(scc)
                         yield scc
                     else:
                         scc_queue.append(v)
+
 
 @not_implemented_for("multigraph")
 @only_implemented_for_Directed_graph
@@ -109,6 +111,7 @@ def number_strongly_connected_components(G):
     For directed graphs only.
     """
     return sum(1 for scc in strongly_connected_components(G))
+
 
 @not_implemented_for("multigraph")
 @only_implemented_for_Directed_graph
@@ -174,4 +177,3 @@ def condensation(G, scc=None):
             incoming_info[edge[1]].add(edge[0])
     C.graph["incoming_info"] = incoming_info
     return C
-

@@ -3,6 +3,7 @@ import easygraph as eg
 from easygraph.utils.exception import EasyGraphError
 import easygraph.convert as convert
 
+
 class Graph:
     """ 
     Base class for undirected graphs.
@@ -101,7 +102,7 @@ class Graph:
                     edges.append((u, v, self._adj[u][v]))
         del seen
         return edges
-    
+
     @property
     def name(self):
         """String identifier of the graph.
@@ -115,7 +116,6 @@ class Graph:
     @name.setter
     def name(self, s):
         self.graph["name"] = s
-
 
     def degree(self, weight='weight'):
         """Returns the weighted degree of of each node.
@@ -294,7 +294,8 @@ class Graph:
         """
         if not len(nodes_attr) == 0:  # Nodes attributes included in input
             assert len(nodes_for_adding) == len(
-                nodes_attr), "Nodes and Attributes lists must have same length."
+                nodes_attr
+            ), "Nodes and Attributes lists must have same length."
         else:  # Set empty attribute for each node
             nodes_attr = [dict() for i in range(len(nodes_for_adding))]
 
@@ -450,7 +451,8 @@ class Graph:
         """
         if not len(edges_attr) == 0:  # Edges attributes included in input
             assert len(edges_for_adding) == len(
-                edges_attr), "Edges and Attributes lists must have same length."
+                edges_attr
+            ), "Edges and Attributes lists must have same length."
         else:  # Set empty attribute for each edge
             edges_attr = [dict() for i in range(len(edges_for_adding))]
 
@@ -458,12 +460,12 @@ class Graph:
             try:
                 edge = edges_for_adding[i]
                 attr = edges_attr[i]
-                assert len(
-                    edge) == 2, "Edge tuple {} must be 2-tuple.".format(edge)
+                assert len(edge) == 2, "Edge tuple {} must be 2-tuple.".format(
+                    edge)
                 self._add_one_edge(edge[0], edge[1], attr)
             except Exception as err:
                 print(err)
-    
+
     def add_edges_from(self, ebunch_to_add, **attr):
         """Add all the edges in ebunch_to_add.
 
@@ -510,7 +512,8 @@ class Graph:
                 u, v = e
                 dd = {}  # doesn't need edge_attr_dict_factory
             else:
-                raise EasyGraphError(f"Edge tuple {e} must be a 2-tuple or 3-tuple.")
+                raise EasyGraphError(
+                    f"Edge tuple {e} must be a 2-tuple or 3-tuple.")
             if u not in self._node:
                 if u is None:
                     raise ValueError("None cannot be a node")
@@ -642,8 +645,8 @@ class Graph:
 
         """
         for node in nodes_to_remove:  # If not all nodes included in graph, give up removing other nodes
-            assert (node in self._node), "Remove Error: No node {} in graph".format(
-                node)
+            assert (node in self._node
+                    ), "Remove Error: No node {} in graph".format(node)
         for node in nodes_to_remove:
             self.remove_node(node)
 
@@ -761,7 +764,7 @@ class Graph:
         for u, nbrs in self._adj.items():
             for v, edge_data in nbrs.items():
                 G.add_edge(u, v, **edge_data)
-        
+
         return G
 
     def nodes_subgraph(self, from_nodes: list):
@@ -874,17 +877,22 @@ class Graph:
             node_of_index[index + begin_index] = node
         for u, nbrs in self._adj.items():
             for v, edge_data in nbrs.items():
-                G.add_edge(index_of_node[u], index_of_node[v], **edge_data) 
-        
+                G.add_edge(index_of_node[u], index_of_node[v], **edge_data)
+
         return G, index_of_node, node_of_index
+
 
 try:
     import cpp_easygraph
+
     class GraphC(cpp_easygraph.Graph):
         cflag = 1
 except ImportError:
+
     class GraphC():
+
         def __init__(self, **graph_attr):
-            print("Object cannot be instantiated because C extension has not been successfully compiled and installed. Please refer to https://github.com/easy-graph/Easy-Graph/blob/master/README.rst and reinstall easygraph.")
+            print(
+                "Object cannot be instantiated because C extension has not been successfully compiled and installed. Please refer to https://github.com/easy-graph/Easy-Graph/blob/master/README.rst and reinstall easygraph."
+            )
             raise RuntimeError
-            

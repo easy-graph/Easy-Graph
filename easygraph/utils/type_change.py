@@ -5,6 +5,7 @@ __all__ = [
     "to_pyGraphviz_agraph",
 ]
 
+
 def from_pyGraphviz_agraph(A, create_using=None):
     """Returns a EasyGraph Graph or DiGraph from a PyGraphviz graph.
 
@@ -104,9 +105,8 @@ def to_pyGraphviz_agraph(N):
     try:
         import pygraphviz
     except ImportError as err:
-        raise ImportError(
-            "requires pygraphviz " "http://pygraphviz.github.io/"
-        ) from err
+        raise ImportError("requires pygraphviz "
+                          "http://pygraphviz.github.io/") from err
     directed = N.is_directed()
     strict = eg.number_of_selfloops(N) == 0 and not N.is_multigraph()
     A = pygraphviz.AGraph(name=N.name, strict=strict, directed=directed)
@@ -116,9 +116,8 @@ def to_pyGraphviz_agraph(N):
     A.node_attr.update(N.graph.get("node", {}))
     A.edge_attr.update(N.graph.get("edge", {}))
 
-    A.graph_attr.update(
-        (k, v) for k, v in N.graph.items() if k not in ("graph", "node", "edge")
-    )
+    A.graph_attr.update((k, v) for k, v in N.graph.items()
+                        if k not in ("graph", "node", "edge"))
 
     # add nodes
     for n, nodedata in N.nodes(data=True):
@@ -130,7 +129,10 @@ def to_pyGraphviz_agraph(N):
     # loop over edges
     if N.is_multigraph():
         for u, v, key, edgedata in N.edges(data=True, keys=True):
-            str_edgedata = {k: str(v) for k, v in edgedata.items() if k != "key"}
+            str_edgedata = {
+                k: str(v)
+                for k, v in edgedata.items() if k != "key"
+            }
             A.add_edge(u, v, key=str(key))
             # Add edge data
             a = A.get_edge(u, v)

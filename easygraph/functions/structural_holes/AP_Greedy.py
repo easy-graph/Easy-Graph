@@ -6,11 +6,8 @@ from easygraph.utils.decorators import *
 from easygraph.functions.components.connected import connected_components
 from easygraph.functions.components.biconnected import generator_articulation_points
 
+__all__ = ["common_greedy", "AP_Greedy"]
 
-__all__ = [
-    "common_greedy",
-    "AP_Greedy"
-]
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
@@ -67,7 +64,7 @@ def common_greedy(G, k, c=1.0, weight='weight'):
         sorted_nodes = sort_nodes_by_degree(G_i, weight)
         C_max = 0
 
-        for j in range(N-i):
+        for j in range(N - i):
             G_i_j = G_i.copy()
             G_i_j.remove_node(sorted_nodes[j])
             upper_bound = procedure1(G_i_j, c)
@@ -91,7 +88,9 @@ def common_greedy(G, k, c=1.0, weight='weight'):
 
 def sort_nodes_by_degree(G, weight='weight'):
     sorted_nodes = []
-    for node, degree in sorted(G.degree(weight=weight).items(), key=lambda x: x[1], reverse=True):
+    for node, degree in sorted(G.degree(weight=weight).items(),
+                               key=lambda x: x[1],
+                               reverse=True):
         sorted_nodes.append(node)
     return sorted_nodes
 
@@ -115,8 +114,9 @@ def procedure1(G, c=1.0):
         component_subgraph = G.nodes_subgraph(from_nodes=list(component))
         spanning_tree = _get_spanning_tree_of_component(component_subgraph)
 
-        random_root = list(spanning_tree.nodes)[
-            random.randint(0, len(spanning_tree)-1)]
+        random_root = list(spanning_tree.nodes)[random.randint(
+            0,
+            len(spanning_tree) - 1)]
         num_subtree_nodes = _get_num_subtree_nodes(spanning_tree, random_root)
 
         N_tree = num_subtree_nodes[random_root]
@@ -228,6 +228,7 @@ def _get_sum_all_shortest_paths_of_component(G):
 
     return sum_paths
 
+
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 def AP_Greedy(G, k, c=1.0, weight='weight'):
@@ -278,17 +279,18 @@ def AP_Greedy(G, k, c=1.0, weight='weight'):
         v_ap, lower_bound = _get_lower_bound_of_ap_nodes(G_i, c)
         upper_bound = _get_upper_bound_of_non_ap_nodes(G_i, v_ap, c)
         lower_bound = sorted(lower_bound.items(),
-                             key=lambda x: x[1], reverse=True)
+                             key=lambda x: x[1],
+                             reverse=True)
 
         # print(upper_bound)
         # print(lower_bound)
-        if len(lower_bound) !=0 and lower_bound[0][1] > max(upper_bound):
+        if len(lower_bound) != 0 and lower_bound[0][1] > max(upper_bound):
             v_i = lower_bound[0][0]
         else:  # If acticulation points not chosen, use common_greedy instead.
             sorted_nodes = sort_nodes_by_degree(G_i, weight)
             C_max = 0
 
-            for j in range(N-i):
+            for j in range(N - i):
                 G_i_j = G_i.copy()
                 G_i_j.remove_node(sorted_nodes[j])
                 upper_bound = procedure1(G_i_j, c)
@@ -344,9 +346,12 @@ def _get_lower_bound_of_ap_nodes(G, c=1.0):
             lower_bound_value = 0
             lower_bound_value += sum([(len(temp) * (N_G - len(temp)))
                                       for temp in components])
-            lower_bound_value += sum([(len(temp) * (N_component - 1 - len(temp)))
-                                      for temp in connected_components(component_subgraph_after_remove)])
-            lower_bound_value += (2*N_component - 2*N_G)
+            lower_bound_value += sum([
+                (len(temp) * (N_component - 1 - len(temp)))
+                for temp in connected_components(
+                    component_subgraph_after_remove)
+            ])
+            lower_bound_value += (2 * N_component - 2 * N_G)
             lower_bound_value *= zeta
 
             v_ap.append(articulation)
@@ -387,11 +392,11 @@ def _get_upper_bound_of_non_ap_nodes(G, ap: list, c=1.0):
         non_articulation_points = component - set(ap)
         for node in non_articulation_points:
             upper_bound_value = 0
-            upper_bound_value += sum((len(temp) * (N_G - len(temp)))
-                                     for temp in components)
-            upper_bound_value += (2*len(component) + 1 - 2*N_G)
+            upper_bound_value += sum(
+                (len(temp) * (N_G - len(temp))) for temp in components)
+            upper_bound_value += (2 * len(component) + 1 - 2 * N_G)
             upper_bound_value *= zeta
 
             upper_bound.append(upper_bound_value)
-    
+
     return upper_bound

@@ -5,6 +5,7 @@ __all__ = [
     "betweenness_centrality",
 ]
 
+
 def betweenness_centrality_parallel(nodes, G, path_length, accumulate):
     betweenness = {node: 0.0 for node in G}
     for node in nodes:
@@ -12,8 +13,13 @@ def betweenness_centrality_parallel(nodes, G, path_length, accumulate):
         betweenness = accumulate(betweenness, S, P, sigma, node)
     return betweenness
 
+
 @not_implemented_for("multigraph")
-def betweenness_centrality(G, weight=None, normalized=True, endpoints=False, n_workers=None):
+def betweenness_centrality(G,
+                           weight=None,
+                           normalized=True,
+                           endpoints=False,
+                           n_workers=None):
     '''Compute the shortest-path betweenness centrality for nodes.
 
     .. math::
@@ -48,10 +54,11 @@ def betweenness_centrality(G, weight=None, normalized=True, endpoints=False, n_w
     nodes : dictionary
        Dictionary of nodes with betweenness centrality as the value.
     '''
-    
+
     import functools
     if weight is not None:
-        path_length = functools.partial(_single_source_dijkstra_path, weight=weight)
+        path_length = functools.partial(_single_source_dijkstra_path,
+                                        weight=weight)
     else:
         path_length = functools.partial(_single_source_bfs_path)
 
@@ -64,19 +71,22 @@ def betweenness_centrality(G, weight=None, normalized=True, endpoints=False, n_w
     betweenness = dict.fromkeys(G, 0.0)
 
     if n_workers is not None:
-        #  use the parallel version for large graph 
+        #  use the parallel version for large graph
         from multiprocessing import Pool
         from functools import partial
         import random
-        
+
         nodes = list(nodes)
         random.shuffle(nodes)
-        
+
         if len(nodes) > n_workers * 30000:
             nodes = split_len(nodes, step=30000)
         else:
             nodes = split(nodes, n_workers)
-        local_function = partial(betweenness_centrality_parallel, G=G, path_length=path_length, accumulate=accumulate)
+        local_function = partial(betweenness_centrality_parallel,
+                                 G=G,
+                                 path_length=path_length,
+                                 accumulate=accumulate)
         with Pool(n_workers) as p:
             ret = p.imap(local_function, nodes)
             for key in betweenness:
@@ -86,13 +96,16 @@ def betweenness_centrality(G, weight=None, normalized=True, endpoints=False, n_w
         for node in nodes:
             S, P, sigma = path_length(G, source=node)
             betweenness = accumulate(betweenness, S, P, sigma, node)
-            
-    betweenness = _rescale(betweenness, len(G), normalized=normalized,
-                           directed=G.is_directed(), endpoints=endpoints)
+
+    betweenness = _rescale(betweenness,
+                           len(G),
+                           normalized=normalized,
+                           directed=G.is_directed(),
+                           endpoints=endpoints)
     return betweenness
 
-def _rescale(betweenness, n, normalized,
-             directed=False, endpoints=False):
+
+def _rescale(betweenness, n, normalized, directed=False, endpoints=False):
     if normalized:
         if endpoints:
             if n < 2:
@@ -114,9 +127,10 @@ def _rescale(betweenness, n, normalized,
             betweenness[v] *= scale
     return betweenness
 
+
 def _single_source_bfs_path(G, source):
     S = []
-    P = { v: [] for v in G}
+    P = {v: [] for v in G}
     sigma = dict.fromkeys(G, 0.0)
     D = {}
     sigma[source] = 1.0
@@ -137,12 +151,13 @@ def _single_source_bfs_path(G, source):
                 P[w].append(v)
     return S, P, sigma
 
+
 def _single_source_dijkstra_path(G, source, weight="weight"):
     from heapq import heappush, heappop
     push = heappush
     pop = heappop
     S = []
-    P = { v: [] for v in G}
+    P = {v: [] for v in G}
     sigma = dict.fromkeys(G, 0.0)
     D = {}
     sigma[source] = 1.0
@@ -171,6 +186,7 @@ def _single_source_dijkstra_path(G, source, weight="weight"):
                 P[w].append(v)
     return S, P, sigma
 
+
 def _accumulate_endpoints(betweenness, S, P, sigma, s):
     betweenness[s] += len(S) - 1
     delta = dict.fromkeys(S, 0)
@@ -182,6 +198,7 @@ def _accumulate_endpoints(betweenness, S, P, sigma, s):
         if w != s:
             betweenness[w] += delta[w] + 1
     return betweenness
+
 
 def _accumulate_basic(betweenness, S, P, sigma, s):
     delta = dict.fromkeys(S, 0)

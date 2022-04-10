@@ -5,10 +5,10 @@ __all__ = [
     "from_numpy_array",
     "to_numpy_matrix",
     "to_numpy_array",
-    
 ]
 
-def to_numpy_matrix(G, edge_sign = 1.0, not_edge_sign = 0.0):
+
+def to_numpy_matrix(G, edge_sign=1.0, not_edge_sign=0.0):
     """
     Returns the graph adjacency matrix as a NumPy matrix.
 
@@ -32,6 +32,7 @@ def to_numpy_matrix(G, edge_sign = 1.0, not_edge_sign = 0.0):
 
     M = np.asmatrix(M)
     return M
+
 
 def from_numpy_array(A, parallel_edges=False, create_using=None):
     """Returns a graph from a 2D NumPy array.
@@ -135,7 +136,8 @@ def from_numpy_array(A, parallel_edges=False, create_using=None):
         raise eg.EasyGraphError(f"Input array must be 2D, not {A.ndim}")
     n, m = A.shape
     if n != m:
-        raise eg.EasyGraphError(f"Adjacency matrix not square: eg,ny={A.shape}")
+        raise eg.EasyGraphError(
+            f"Adjacency matrix not square: eg,ny={A.shape}")
     dt = A.dtype
     try:
         python_type = kind_to_python_type[dt.kind]
@@ -150,20 +152,16 @@ def from_numpy_array(A, parallel_edges=False, create_using=None):
     # handle numpy constructed data type
     if python_type == "void":
         # Sort the fields by their offset, then by dtype, then by name.
-        fields = sorted(
-            (offset, dtype, name) for name, (dtype, offset) in A.dtype.fields.items()
-        )
-        triples = (
-            (
-                u,
-                v,
-                {
-                    name: kind_to_python_type[dtype.kind](val)
-                    for (_, dtype, name), val in zip(fields, A[u, v])
-                },
-            )
-            for u, v in edges
-        )
+        fields = sorted((offset, dtype, name)
+                        for name, (dtype, offset) in A.dtype.fields.items())
+        triples = ((
+            u,
+            v,
+            {
+                name: kind_to_python_type[dtype.kind](val)
+                for (_, dtype, name), val in zip(fields, A[u, v])
+            },
+        ) for u, v in edges)
     # If the entries in the adjacency matrix are integers, the graph is a
     # multigraph, and parallel_edges is True, then create parallel edges, each
     # with weight 1, for each entry in the adjacency matrix. Otherwise, create
@@ -177,9 +175,9 @@ def from_numpy_array(A, parallel_edges=False, create_using=None):
         #         for d in range(A[u, v]):
         #             G.add_edge(u, v, weight=1)
         #
-        triples = chain(
-            ((u, v, {"weight": 1}) for d in range(A[u, v])) for (u, v) in edges
-        )
+        triples = chain(((u, v, {
+            "weight": 1
+        }) for d in range(A[u, v])) for (u, v) in edges)
     else:  # basic data type
         triples = ((u, v, dict(weight=python_type(A[u, v]))) for u, v in edges)
     # If we are creating an undirected multigraph, only add the edges from the
@@ -194,6 +192,7 @@ def from_numpy_array(A, parallel_edges=False, create_using=None):
         triples = ((u, v, d) for u, v, d in triples if u <= v)
     G.add_edges_from(triples)
     return G
+
 
 def to_numpy_array(
     G,
@@ -307,7 +306,8 @@ def to_numpy_array(
         if nlen != len(nodeset):
             for n in nodelist:
                 if n not in G:
-                    raise eg.EasyGraphError(f"Node {n} in nodelist is not in G")
+                    raise eg.EasyGraphError(
+                        f"Node {n} in nodelist is not in G")
             raise eg.EasyGraphError("nodelist contains duplicates.")
 
     undirected = not G.is_directed()
@@ -353,7 +353,8 @@ def to_numpy_array(
         try:
             op = operator[multigraph_weight]
         except Exception as err:
-            raise ValueError("multigraph_weight must be sum, min, or max") from err
+            raise ValueError(
+                "multigraph_weight must be sum, min, or max") from err
 
         for u, v, _, attrs in G.edges:
             if (u in nodeset) and (v in nodeset):

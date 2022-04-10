@@ -3,6 +3,7 @@ from easygraph.classes.graph import Graph
 from easygraph.utils.exception import EasyGraphError
 import easygraph.convert as convert
 
+
 class DiGraph(Graph):
     """ 
     Base class for directed graphs.
@@ -110,7 +111,6 @@ class DiGraph(Graph):
     @name.setter
     def name(self, s):
         self.graph["name"] = s
-
 
     def out_degree(self, weight='weight'):
         """Returns the weighted out degree of each node.
@@ -425,7 +425,8 @@ class DiGraph(Graph):
         """
         if not len(nodes_attr) == 0:  # Nodes attributes included in input
             assert len(nodes_for_adding) == len(
-                nodes_attr), "Nodes and Attributes lists must have same length."
+                nodes_attr
+            ), "Nodes and Attributes lists must have same length."
         else:  # Set empty attribute for each node
             nodes_attr = [dict() for i in range(len(nodes_for_adding))]
 
@@ -584,7 +585,8 @@ class DiGraph(Graph):
         """
         if not len(edges_attr) == 0:  # Edges attributes included in input
             assert len(edges_for_adding) == len(
-                edges_attr), "Edges and Attributes lists must have same length."
+                edges_attr
+            ), "Edges and Attributes lists must have same length."
         else:  # Set empty attribute for each edge
             edges_attr = [dict() for i in range(len(edges_for_adding))]
 
@@ -592,8 +594,8 @@ class DiGraph(Graph):
             try:
                 edge = edges_for_adding[i]
                 attr = edges_attr[i]
-                assert len(
-                    edge) == 2, "Edge tuple {} must be 2-tuple.".format(edge)
+                assert len(edge) == 2, "Edge tuple {} must be 2-tuple.".format(
+                    edge)
                 self._add_one_edge(edge[0], edge[1], attr)
             except Exception as err:
                 print(err)
@@ -644,7 +646,8 @@ class DiGraph(Graph):
                 u, v = e
                 dd = {}
             else:
-                raise EasyGraphError(f"Edge tuple {e} must be a 2-tuple or 3-tuple.")
+                raise EasyGraphError(
+                    f"Edge tuple {e} must be a 2-tuple or 3-tuple.")
             if u not in self._adj:
                 if u is None:
                     raise ValueError("None cannot be a node")
@@ -662,7 +665,6 @@ class DiGraph(Graph):
             datadict.update(dd)
             self._adj[u][v] = datadict
             self._pred[v][u] = datadict
-
 
     def add_edges_from_file(self, file, weighted=False):
         """Added edges from file
@@ -785,8 +787,8 @@ class DiGraph(Graph):
 
         """
         for node in nodes_to_remove:  # If not all nodes included in graph, give up removing other nodes
-            assert (node in self._node), "Remove Error: No node {} in graph".format(
-                node)
+            assert (node in self._node
+                    ), "Remove Error: No node {} in graph".format(node)
         for node in nodes_to_remove:
             self.remove_node(node)
 

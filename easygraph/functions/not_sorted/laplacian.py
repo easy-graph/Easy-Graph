@@ -1,8 +1,7 @@
 from easygraph.utils import *
 
-__all__ = [
-    "laplacian"
-]
+__all__ = ["laplacian"]
+
 
 @not_implemented_for("multigraph")
 def laplacian(G, n_workers=None):
@@ -33,12 +32,12 @@ def laplacian(G, n_workers=None):
     """
     adj = G.adj
     from collections import defaultdict
-    X=defaultdict(int)
+    X = defaultdict(int)
     W = defaultdict(int)
     CL = {}
 
     if n_workers is not None:
-        # use the parallel version for large graph 
+        # use the parallel version for large graph
         from multiprocessing import Pool
         from functools import partial
         import random
@@ -60,8 +59,13 @@ def laplacian(G, n_workers=None):
                     resW.append(x[1])
             X = dict(resX)
             W = dict(resW)
-            ELG=sum(X[i]*X[i] for i in G)+sum(W[i] for i in G)
-        local_function = partial(laplacian_parallel, G=G, X=X, W=W, adj=adj, ELG=ELG)
+            ELG = sum(X[i] * X[i] for i in G) + sum(W[i] for i in G)
+        local_function = partial(laplacian_parallel,
+                                 G=G,
+                                 X=X,
+                                 W=W,
+                                 adj=adj,
+                                 ELG=ELG)
         with Pool(n_workers) as p:
             ret = p.imap(local_function, nodes)
             res = [x for i in ret for x in i]
@@ -72,20 +76,23 @@ def laplacian(G, n_workers=None):
         for i in G:
             for j in G:
                 if i in G and j in G[i]:
-                    X[i]+=adj[i][j].get('weight', 1)
-                    W[i]+=adj[i][j].get('weight', 1)*adj[i][j].get('weight', 1)
-        ELG=sum(X[i]*X[i] for i in G)+sum(W[i] for i in G)
+                    X[i] += adj[i][j].get('weight', 1)
+                    W[i] += adj[i][j].get('weight', 1) * adj[i][j].get(
+                        'weight', 1)
+        ELG = sum(X[i] * X[i] for i in G) + sum(W[i] for i in G)
         for i in G:
             import copy
-            Xi=copy.deepcopy(X)
+            Xi = copy.deepcopy(X)
             for j in G:
                 if j in adj.keys() and i in adj[j].keys():
-                    Xi[j]-=adj[j][i].get('weight', 1)
-            Xi[i]=0
-            ELGi=sum(Xi[i]*Xi[i] for i in G)+sum(W[i] for i in G)-2*W[i]
+                    Xi[j] -= adj[j][i].get('weight', 1)
+            Xi[i] = 0
+            ELGi = sum(Xi[i] * Xi[i] for i in G) + sum(W[i]
+                                                       for i in G) - 2 * W[i]
             if ELG:
                 CL[i] = (float)(ELG - ELGi) / ELG
     return CL
+
 
 def initialize_parallel(nodes, G, adj):
     ret = []
@@ -94,27 +101,30 @@ def initialize_parallel(nodes, G, adj):
         W = 0
         for j in G:
             if j in G[i]:
-                X+=adj[i][j].get('weight', 1)
-                W+=adj[i][j].get('weight', 1)*adj[i][j].get('weight', 1)
+                X += adj[i][j].get('weight', 1)
+                W += adj[i][j].get('weight', 1) * adj[i][j].get('weight', 1)
         ret.append([[i, X], [i, W]])
     return ret
+
 
 def laplacian_parallel(nodes, G, X, W, adj, ELG):
     ret = []
     for i in nodes:
         import copy
-        Xi=copy.deepcopy(X)
+        Xi = copy.deepcopy(X)
         for j in G:
             if j in adj.keys() and i in adj[j].keys():
-                Xi[j]-=adj[j][i].get('weight', 1)
-        Xi[i]=0
-        ELGi=sum(Xi[i]*Xi[i] for i in G)+sum(W[i] for i in G)-2*W[i]
+                Xi[j] -= adj[j][i].get('weight', 1)
+        Xi[i] = 0
+        ELGi = sum(Xi[i] * Xi[i] for i in G) + sum(W[i] for i in G) - 2 * W[i]
         if ELG:
-            ret.append([i, (float)(ELG-ELGi)/ELG])
+            ret.append([i, (float)(ELG - ELGi) / ELG])
     return ret
 
+
 def sort(data):
-    return dict(sorted(data.items(), key = lambda x: x[0], reverse = True))
+    return dict(sorted(data.items(), key=lambda x: x[0], reverse=True))
+
 
 def output(data, path):
     import json

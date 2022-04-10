@@ -5,7 +5,9 @@ import sys
 
 import easygraph as eg
 
+
 class TestGEXF:
+
     @classmethod
     def setup_class(cls):
         cls.simple_directed_data = """<?xml version="1.0" encoding="UTF-8"?>
@@ -26,7 +28,8 @@ class TestGEXF:
         cls.simple_directed_graph.add_node("1", label="World")
         cls.simple_directed_graph.add_edge("0", "1", id="0")
 
-        cls.simple_directed_fh = io.BytesIO(cls.simple_directed_data.encode("UTF-8"))
+        cls.simple_directed_fh = io.BytesIO(
+            cls.simple_directed_data.encode("UTF-8"))
 
         cls.attribute_data = """<?xml version="1.0" encoding="UTF-8"?>\
 <gexf xmlns="http://www.gexf.net/1.2draft" xmlns:xsi="http://www.w3.\
@@ -86,15 +89,21 @@ org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/\
 """
         cls.attribute_graph = eg.DiGraph()
         cls.attribute_graph.graph["node_default"] = {"frog": True}
-        cls.attribute_graph.add_node(
-            "0", label="Gephi", url="https://gephi.org", indegree=1, frog=False
-        )
-        cls.attribute_graph.add_node(
-            "1", label="Webatlas", url="http://webatlas.fr", indegree=2, frog=False
-        )
-        cls.attribute_graph.add_node(
-            "2", label="RTGI", url="http://rtgi.fr", indegree=1, frog=True
-        )
+        cls.attribute_graph.add_node("0",
+                                     label="Gephi",
+                                     url="https://gephi.org",
+                                     indegree=1,
+                                     frog=False)
+        cls.attribute_graph.add_node("1",
+                                     label="Webatlas",
+                                     url="http://webatlas.fr",
+                                     indegree=2,
+                                     frog=False)
+        cls.attribute_graph.add_node("2",
+                                     label="RTGI",
+                                     url="http://rtgi.fr",
+                                     indegree=1,
+                                     frog=True)
         cls.attribute_graph.add_node(
             "3",
             label="BarabasiLab",
@@ -128,8 +137,7 @@ org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/\
         cls.simple_undirected_graph.add_edge("0", "1", id="0")
 
         cls.simple_undirected_fh = io.BytesIO(
-            cls.simple_undirected_data.encode("UTF-8")
-        )
+            cls.simple_undirected_data.encode("UTF-8"))
 
     def test_read_simple_directed_graphml(self):
         G = self.simple_directed_graph
@@ -147,7 +155,7 @@ org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/\
         assert sorted(G.nodes) == sorted(H.nodes)
         assert sorted(G.edges) == sorted(H.edges)
         self.simple_directed_fh.seek(0)
-    
+
     def test_read_simple_undirected_graphml(self):
         G = self.simple_undirected_graph
         H = eg.read_gexf(self.simple_undirected_fh)
@@ -164,7 +172,7 @@ org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/\
         for a, b in zip(ge, he):
             assert a == b
         self.attribute_fh.seek(0)
-    
+
     def test_directed_edge_in_undirected(self):
         s = """<?xml version="1.0" encoding="UTF-8"?>
 <gexf xmlns="http://www.gexf.net/1.2draft" version='1.2'>
@@ -181,7 +189,7 @@ org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/\
 """
         fh = io.BytesIO(s.encode("UTF-8"))
         pytest.raises(eg.EasyGraphError, eg.read_gexf, fh)
-    
+
     def test_undirected_edge_in_directed(self):
         s = """<?xml version="1.0" encoding="UTF-8"?>
 <gexf xmlns="http://www.gexf.net/1.2draft" version='1.2'>
@@ -266,8 +274,8 @@ org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/\
         assert list(H) == [7]
         assert H.nodes[7]["label"] == "77"
 
-    @pytest.mark.skipif(sys.version_info < (3,8),
-                    reason="requires >= python3.8")
+    @pytest.mark.skipif(sys.version_info < (3, 8),
+                        reason="requires >= python3.8")
     def test_edge_id_construct(self):
         G = eg.Graph()
         G.add_edges_from([(0, 1, {"id": 0}), (1, 2, {"id": 2}), (2, 3)])
@@ -296,8 +304,8 @@ gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
         obtained = "\n".join(eg.generate_gexf(G))
         assert expected == obtained
 
-    @pytest.mark.skipif(sys.version_info < (3,8),
-                    reason="requires >= python3.8")
+    @pytest.mark.skipif(sys.version_info < (3, 8),
+                        reason="requires >= python3.8")
     def test_numpy_type(self):
         np = pytest.importorskip("numpy")
         G = eg.path_graph(4)
@@ -413,9 +421,8 @@ gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
         fh.seek(0)
         H = eg.read_gexf(fh, node_type=int)
         assert sorted(G.nodes) == sorted(H.nodes)
-        assert sorted(sorted(e) for e in G.edges) == sorted(
-            sorted(e) for e in H.edges
-        )
+        assert sorted(sorted(e)
+                      for e in G.edges) == sorted(sorted(e) for e in H.edges)
 
     def test_slice_and_spell(self):
         # Test spell first, so version = 1.2
@@ -427,9 +434,8 @@ gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
         fh.seek(0)
         H = eg.read_gexf(fh, node_type=int)
         assert sorted(G.nodes) == sorted(H.nodes)
-        assert sorted(sorted(e) for e in G.edges) == sorted(
-            sorted(e) for e in H.edges
-        )
+        assert sorted(sorted(e)
+                      for e in G.edges) == sorted(sorted(e) for e in H.edges)
 
         G = eg.Graph()
         G.add_node(0, label="1", color="green")
@@ -439,9 +445,8 @@ gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
         fh.seek(0)
         H = eg.read_gexf(fh, node_type=int)
         assert sorted(G.nodes) == sorted(H.nodes)
-        assert sorted(sorted(e) for e in G.edges) == sorted(
-            sorted(e) for e in H.edges
-        )
+        assert sorted(sorted(e)
+                      for e in G.edges) == sorted(sorted(e) for e in H.edges)
 
     def test_add_parent(self):
         G = eg.Graph()
@@ -451,6 +456,5 @@ gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
         fh.seek(0)
         H = eg.read_gexf(fh, node_type=int)
         assert sorted(G.nodes) == sorted(H.nodes)
-        assert sorted(sorted(e) for e in G.edges) == sorted(
-            sorted(e) for e in H.edges
-        )
+        assert sorted(sorted(e)
+                      for e in G.edges) == sorted(sorted(e) for e in H.edges)

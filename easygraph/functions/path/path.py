@@ -1,6 +1,6 @@
 from easygraph.utils.decorators import *
 
-__all__=[
+__all__ = [
     "Dijkstra",
     "Floyd",
     "Prim",
@@ -10,8 +10,9 @@ __all__=[
     "multi_source_dijkstra",
 ]
 
+
 @not_implemented_for("multigraph")
-def Dijkstra(G,node):
+def Dijkstra(G, node):
     """Returns the length of paths from the certain node to remaining nodes
 
     Parameters
@@ -33,6 +34,7 @@ def Dijkstra(G,node):
 
     """
     return single_source_dijkstra(G, node)
+
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
@@ -56,26 +58,27 @@ def Floyd(G):
     >>> Floyd(G)
 
     """
-    adj=G.adj.copy()
-    result_dict={}
+    adj = G.adj.copy()
+    result_dict = {}
     for i in G:
-        result_dict[i]={}
+        result_dict[i] = {}
     for i in G:
         temp_key = adj[i].keys()
         for j in G:
             if j in temp_key:
-                result_dict[i][j]=adj[i][j].get("weight",1)
+                result_dict[i][j] = adj[i][j].get("weight", 1)
             else:
-                result_dict[i][j]=float("inf") 
-            if i==j:
-                result_dict[i][i]=0
+                result_dict[i][j] = float("inf")
+            if i == j:
+                result_dict[i][i] = 0
     for k in G:
-        for i in G: 
+        for i in G:
             for j in G:
-                temp = result_dict[i][k] + result_dict[k][j]  
-                if result_dict[i][j] > temp:  
-                    result_dict[i][j] = temp  
+                temp = result_dict[i][k] + result_dict[k][j]
+                if result_dict[i][j] > temp:
+                    result_dict[i][j] = temp
     return result_dict
+
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
@@ -99,34 +102,36 @@ def Prim(G):
     >>> Prim(G)
 
     """
-    adj=G.adj.copy()
-    result_dict={}
+    adj = G.adj.copy()
+    result_dict = {}
     for i in G:
-        result_dict[i]={}
-    selected=[]
-    candidate=[]
+        result_dict[i] = {}
+    selected = []
+    candidate = []
     for i in G:
         if not selected:
             selected.append(i)
         else:
             candidate.append(i)
     while len(candidate):
-        start=None
-        end=None
-        min_weight=float("inf")
+        start = None
+        end = None
+        min_weight = float("inf")
         for i in selected:
             for j in candidate:
-                if i in G and j in G[i] and adj[i][j].get("weight",1)<min_weight:
-                    start=i
-                    end=j
-                    min_weight=adj[i][j].get("weight",1)
-        if start!=None and end!=None:
-            result_dict[start][end]=min_weight
+                if i in G and j in G[i] and adj[i][j].get("weight",
+                                                          1) < min_weight:
+                    start = i
+                    end = j
+                    min_weight = adj[i][j].get("weight", 1)
+        if start != None and end != None:
+            result_dict[start][end] = min_weight
             selected.append(end)
             candidate.remove(end)
         else:
             break
     return result_dict
+
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
@@ -150,33 +155,35 @@ def Kruskal(G):
     >>> Kruskal(G)
 
     """
-    adj=G.adj.copy()
-    result_dict={}
-    edge_list=[]
+    adj = G.adj.copy()
+    result_dict = {}
+    edge_list = []
     for i in G:
-        result_dict[i]={}
+        result_dict[i] = {}
     for i in G:
         for j in G[i]:
-            weight=adj[i][j].get("weight",1)
-            edge_list.append([i,j,weight])
-    edge_list.sort(key=lambda a:a[2])
+            weight = adj[i][j].get("weight", 1)
+            edge_list.append([i, j, weight])
+    edge_list.sort(key=lambda a: a[2])
     group = [[i] for i in G]
     for edge in edge_list:
-      for i in range(len(group)):
-        if edge[0] in group[i]:
-          m = i
-        if edge[1] in group[i]:
-          n = i
-      if m != n:
-        result_dict[edge[0]][edge[1]]=edge[2]
-        group[m] = group[m] + group[n]
-        group[n] = []
+        for i in range(len(group)):
+            if edge[0] in group[i]:
+                m = i
+            if edge[1] in group[i]:
+                n = i
+        if m != n:
+            result_dict[edge[0]][edge[1]] = edge[2]
+            group[m] = group[m] + group[n]
+            group[n] = []
     return result_dict
+
 
 @not_implemented_for("multigraph")
 def single_source_bfs(G, source, target=None):
     nextlevel = {source: 0}
     return dict(_single_source_bfs(G.adj, nextlevel, target=target))
+
 
 def _single_source_bfs(adj, firstlevel, target=None):
     seen = {}
@@ -196,13 +203,16 @@ def _single_source_bfs(adj, firstlevel, target=None):
         level += 1
     del seen
 
+
 @not_implemented_for("multigraph")
 def single_source_dijkstra(G, source, weight="weight", target=None):
     return multi_source_dijkstra(G, {source}, weight, target=target)
 
+
 @not_implemented_for("multigraph")
 def multi_source_dijkstra(G, sources, weight="weight", target=None):
     return _dijkstra_multisource(G, sources, weight, target=target)
+
 
 def _dijkstra_multisource(G, sources, weight="weight", target=None):
     from heapq import heappush, heappop

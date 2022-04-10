@@ -7,10 +7,14 @@ from easygraph.utils.exception import EasyGraphError
 
 __all__ = ["MultiDiGraph"]
 
+
 class MultiDiGraph(MultiGraph, DiGraph):
     edge_key_dict_factory = dict
 
-    def __init__(self, incoming_graph_data=None, multigraph_input=None, **attr):
+    def __init__(self,
+                 incoming_graph_data=None,
+                 multigraph_input=None,
+                 **attr):
         """Initialize a graph with edges, name, or graph attributes.
 
         Parameters
@@ -58,12 +62,13 @@ class MultiDiGraph(MultiGraph, DiGraph):
         """
         self.edge_key_dict_factory = self.edge_key_dict_factory
         # multigraph_input can be None/True/False. So check "is not False"
-        if isinstance(incoming_graph_data, dict) and multigraph_input is not False:
+        if isinstance(incoming_graph_data,
+                      dict) and multigraph_input is not False:
             DiGraph.__init__(self)
             try:
-                convert.from_dict_of_dicts(
-                    incoming_graph_data, create_using=self, multigraph_input=True
-                )
+                convert.from_dict_of_dicts(incoming_graph_data,
+                                           create_using=self,
+                                           multigraph_input=True)
                 self.graph.update(attr)
             except Exception as err:
                 if multigraph_input is True:
@@ -212,7 +217,8 @@ class MultiDiGraph(MultiGraph, DiGraph):
         try:
             d = self._adj[u][v]
         except KeyError as err:
-            raise EasyGraphError(f"The edge {u}-{v} is not in the graph.") from err
+            raise EasyGraphError(
+                f"The edge {u}-{v} is not in the graph.") from err
         # remove the edge with specified data
         if key is None:
             d.popitem()
@@ -233,7 +239,7 @@ class MultiDiGraph(MultiGraph, DiGraph):
         for n, nbrs in self._adj.items():
             for nbr, kd in nbrs.items():
                 for k, dd in kd.items():
-                        edges.append((n, nbr, k, dd))
+                    edges.append((n, nbr, k, dd))
         return edges
 
     out_edges = edges
@@ -244,9 +250,9 @@ class MultiDiGraph(MultiGraph, DiGraph):
         for n, nbrs in self._adj.items():
             for nbr, kd in nbrs.items():
                 for k, dd in kd.items():
-                        edges.append((nbr, n, k))
+                    edges.append((nbr, n, k))
         return edges
-    
+
     @property
     def degree(self, weight='weight'):
         degree = dict()
@@ -255,22 +261,17 @@ class MultiDiGraph(MultiGraph, DiGraph):
                 succs = self._adj[n]
                 preds = self._pred[n]
                 deg = sum(len(keys) for keys in succs.values()) + sum(
-                    len(keys) for keys in preds.values()
-                )
+                    len(keys) for keys in preds.values())
                 degree[n] = deg
         else:
             for n in self._nodes:
                 succs = self._adj[n]
                 preds = self._pred[n]
                 deg = sum(
-                    d.get(weight, 1)
-                    for key_dict in succs.values()
-                    for d in key_dict.values()
-                ) + sum(
-                    d.get(weight, 1)
-                    for key_dict in preds.values()
-                    for d in key_dict.values()
-                )
+                    d.get(weight, 1) for key_dict in succs.values()
+                    for d in key_dict.values()) + sum(
+                        d.get(weight, 1) for key_dict in preds.values()
+                        for d in key_dict.values())
                 degree[n] = deg
 
     @property
@@ -279,18 +280,14 @@ class MultiDiGraph(MultiGraph, DiGraph):
         if weight is None:
             for n in self._nodes:
                 preds = self._pred[n]
-                deg = sum(
-                    len(keys) for keys in preds.values()
-                )
+                deg = sum(len(keys) for keys in preds.values())
                 degree[n] = deg
         else:
             for n in self._nodes:
                 preds = self._pred[n]
                 deg = sum(
-                    d.get(weight, 1)
-                    for key_dict in preds.values()
-                    for d in key_dict.values()
-                )
+                    d.get(weight, 1) for key_dict in preds.values()
+                    for d in key_dict.values())
                 degree[n] = deg
 
     @property
@@ -305,12 +302,10 @@ class MultiDiGraph(MultiGraph, DiGraph):
             for n in self._nodes:
                 succs = self._adj[n]
                 deg = sum(
-                    d.get(weight, 1)
-                    for key_dict in succs.values()
-                    for d in key_dict.values()
-                )
+                    d.get(weight, 1) for key_dict in succs.values()
+                    for d in key_dict.values())
                 degree[n] = deg
-    
+
     def is_multigraph(self):
         """Returns True if graph is a multigraph, False otherwise."""
         return True
@@ -372,20 +367,16 @@ class MultiDiGraph(MultiGraph, DiGraph):
         G.graph.update(deepcopy(self.graph))
         G.add_nodes_from((n, deepcopy(d)) for n, d in self._node.items())
         if reciprocal is True:
-            G.add_edges_from(
-                (u, v, key, deepcopy(data))
-                for u, nbrs in self._adj.items()
-                for v, keydict in nbrs.items()
-                for key, data in keydict.items()
-                if v in self._pred[u] and key in self._pred[u][v]
-            )
+            G.add_edges_from((u, v, key, deepcopy(data))
+                             for u, nbrs in self._adj.items()
+                             for v, keydict in nbrs.items()
+                             for key, data in keydict.items()
+                             if v in self._pred[u] and key in self._pred[u][v])
         else:
-            G.add_edges_from(
-                (u, v, key, deepcopy(data))
-                for u, nbrs in self._adj.items()
-                for v, keydict in nbrs.items()
-                for key, data in keydict.items()
-            )
+            G.add_edges_from((u, v, key, deepcopy(data))
+                             for u, nbrs in self._adj.items()
+                             for v, keydict in nbrs.items()
+                             for key, data in keydict.items())
         return G
 
     def reverse(self, copy=True):
@@ -407,7 +398,6 @@ class MultiDiGraph(MultiGraph, DiGraph):
             H.add_nodes_from((n, deepcopy(d)) for n, d in self._node.items())
             H.add_edges_from(
                 (v, u, k, deepcopy(d))
-                for u, v, k, d in self.edges(keys=True, data=True)
-            )
+                for u, v, k, d in self.edges(keys=True, data=True))
             return H
         return eg.graphviews.reverse_view(self)

@@ -1,11 +1,7 @@
 import easygraph as eg
 
-__all__ = [
-    "write_dot",
-    "read_dot",
-    "from_agraph",
-    "to_agraph"
-]
+__all__ = ["write_dot", "read_dot", "from_agraph", "to_agraph"]
+
 
 def from_agraph(A, create_using=None):
     """Returns a EasyGraph Graph or DiGraph from a PyGraphviz graph.
@@ -82,6 +78,7 @@ def from_agraph(A, create_using=None):
     N.graph["edge"] = dict(A.edge_attr)
     return N
 
+
 def to_agraph(N):
     """Returns a pygraphviz graph from a EasyGraph graph N.
 
@@ -105,9 +102,8 @@ def to_agraph(N):
     try:
         import pygraphviz
     except ImportError as err:
-        raise ImportError(
-            "requires pygraphviz " "http://pygraphviz.github.io/"
-        ) from err
+        raise ImportError("requires pygraphviz "
+                          "http://pygraphviz.github.io/") from err
     directed = N.is_directed()
     strict = eg.number_of_selfloops(N) == 0 and not N.is_multigraph()
     A = pygraphviz.AGraph(name=N.name, strict=strict, directed=directed)
@@ -117,9 +113,8 @@ def to_agraph(N):
     A.node_attr.update(N.graph.get("node", {}))
     A.edge_attr.update(N.graph.get("edge", {}))
 
-    A.graph_attr.update(
-        (k, v) for k, v in N.graph.items() if k not in ("graph", "node", "edge")
-    )
+    A.graph_attr.update((k, v) for k, v in N.graph.items()
+                        if k not in ("graph", "node", "edge"))
 
     # add nodes
     for n, nodedata in N.nodes:
@@ -131,7 +126,10 @@ def to_agraph(N):
     # loop over edges
     if N.is_multigraph():
         for u, v, key, edgedata in N.edges:
-            str_edgedata = {k: str(v) for k, v in edgedata.items() if k != "key"}
+            str_edgedata = {
+                k: str(v)
+                for k, v in edgedata.items() if k != "key"
+            }
             A.add_edge(u, v, key=str(key))
             # Add edge data
             a = A.get_edge(u, v)
@@ -146,6 +144,7 @@ def to_agraph(N):
             a.attr.update(str_edgedata)
 
     return A
+
 
 def write_dot(G, path):
     """Write EasyGraph graph G to Graphviz dot format on path.
@@ -162,6 +161,7 @@ def write_dot(G, path):
     A.clear()
     return
 
+
 def read_dot(path):
     """Returns a EasyGraph graph from a dot file on path.
 
@@ -173,9 +173,8 @@ def read_dot(path):
     try:
         import pygraphviz
     except ImportError as err:
-        raise ImportError(
-            "read_dot() requires pygraphviz " "http://pygraphviz.github.io/"
-        ) from err
+        raise ImportError("read_dot() requires pygraphviz "
+                          "http://pygraphviz.github.io/") from err
     A = pygraphviz.AGraph(file=path)
     gr = from_agraph(A)
     A.clear()

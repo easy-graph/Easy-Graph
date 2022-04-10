@@ -1,7 +1,6 @@
 import scipy.stats as stat
-__all__ = [
-    "get_structural_holes_HAM"
-]
+
+__all__ = ["get_structural_holes_HAM"]
 import numpy as np
 import json
 import os
@@ -11,6 +10,7 @@ from sklearn import metrics
 from scipy.cluster.vq import kmeans, vq, kmeans2
 from collections import Counter
 from easygraph.utils import *
+
 eps = 2.220446049250313e-16
 
 
@@ -76,14 +76,14 @@ def load_adj_matrix(G):
     '''
     listE = []
     for edge in G.edges:
-        listE.append(edge[0]-1)
-        listE.append(edge[1]-1)
+        listE.append(edge[0] - 1)
+        listE.append(edge[1] - 1)
     adj_tuples = np.array(listE).reshape(-1, 2)
     n = len(np.unique(adj_tuples))
     vals = np.array([1] * len(G.edges))
     max_id = max(max(adj_tuples[:, 0]), max(adj_tuples[:, 1])) + 1
-    A = sps.csr_matrix(
-        (vals, (adj_tuples[:, 0], adj_tuples[:, 1])), shape=(max_id, max_id))
+    A = sps.csr_matrix((vals, (adj_tuples[:, 0], adj_tuples[:, 1])),
+                       shape=(max_id, max_id))
     A = A + A.T
     return sps.csr_matrix(A)
 
@@ -144,6 +144,7 @@ def label_by_neighbors(AdjMat, labels):
         num_unlabeled = sum(unlabeled_idx)
     return labels
 
+
 @not_implemented_for("multigraph")
 def get_structural_holes_HAM(G, k, c, ground_truth_labels):
     '''Structural hole spanners detection via HAM method.
@@ -191,8 +192,7 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
 
     '''
 
-    G_index, _, node_of_index = G.to_index_node_graph(
-        begin_index=1)
+    G_index, _, node_of_index = G.to_index_node_graph(begin_index=1)
 
     A_mat = load_adj_matrix(G_index)
     A = A_mat  # adjacency matrix
@@ -205,7 +205,7 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
     topk = k
 
     # Inv of degree matrix D^-1
-    invD = sps.diags((np.array(A.sum(axis=0))[0, :]+eps) ** (-1.0), 0)
+    invD = sps.diags((np.array(A.sum(axis=0))[0, :] + eps)**(-1.0), 0)
     # Laplacian matrix L = I - D^-1 * A
     L = (sps.identity(n) - invD.dot(A)).tocsr()
     # Initialize a random orthogonal matrix F
@@ -225,7 +225,7 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
         F = V[:, Wsort[0:c]]  # select the smallest eigenvectors
 
     # find SH spanner
-    SH = np.zeros((n,))
+    SH = np.zeros((n, ))
     for i in range(n):
         SH[i] = np.linalg.norm(F[i, :])
     SHrank = np.argsort(SH)  # index of SH
@@ -243,22 +243,23 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
     HAM_labels, dist = vq(cluster_matrix[to_keep_index, :], labelbook)
 
     print("AMI")
-    print('HAM: ' + str(metrics.adjusted_mutual_info_score(HAM_labels,
-                                                           HAM_labels_keep.T[0])))
+    print('HAM: ' + str(
+        metrics.adjusted_mutual_info_score(HAM_labels, HAM_labels_keep.T[0])))
 
     # classifify SHS using majority voting
     predLabels = np.zeros(len(ground_truth_labels))
     predLabels[to_keep_index] = HAM_labels + 1
 
     HAM_predLabels = label_by_neighbors(A, predLabels)
-    print('HAM_all: ' +
-          str(metrics.adjusted_mutual_info_score(HAM_predLabels, allLabels.T[0])))
+    print('HAM_all: ' + str(
+        metrics.adjusted_mutual_info_score(HAM_predLabels, allLabels.T[0])))
 
     print("NMI")
-    print('HAM: ' + str(metrics.normalized_mutual_info_score(HAM_labels,
-                                                             HAM_labels_keep.T[0])))
-    print('HAM_all: ' +
-          str(metrics.normalized_mutual_info_score(HAM_predLabels, allLabels.T[0])))
+    print('HAM: ' + str(
+        metrics.normalized_mutual_info_score(HAM_labels, HAM_labels_keep.T[0]))
+          )
+    print('HAM_all: ' + str(
+        metrics.normalized_mutual_info_score(HAM_predLabels, allLabels.T[0])))
 
     print("Entropy")
     print('HAM: ' + str(avg_entropy(HAM_labels, HAM_labels_keep.T[0])))
@@ -268,17 +269,17 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
 
     SH_score = dict()
     for index, rank in enumerate(SHrank):
-        SH_score[node_of_index[index+1]] = int(rank)
+        SH_score[node_of_index[index + 1]] = int(rank)
 
     cmnt_labels = dict()
     for index, label in enumerate(HAM_predLabels):
-        cmnt_labels[node_of_index[index+1]] = int(label)
+        cmnt_labels[node_of_index[index + 1]] = int(label)
 
     # top-k SHS
     top_k_ind = np.argpartition(SHrank, -k)[-k:]
     top_k_ind = top_k_ind[np.argsort(SHrank[top_k_ind])[::-1][:k]]
     top_k_nodes = []
     for ind in top_k_ind:
-        top_k_nodes.append(node_of_index[ind+1])
+        top_k_nodes.append(node_of_index[ind + 1])
 
     return top_k_nodes, SH_score, cmnt_labels

@@ -2,7 +2,7 @@ import easygraph as eg
 import numpy as np
 import random
 import math
- 
+
 __all__ = [
     'erdos_renyi_M',
     'erdos_renyi_P',
@@ -10,7 +10,8 @@ __all__ = [
     'WS_Random',
 ]
 
-def erdos_renyi_M(n,edge,directed=False,FilePath=None):
+
+def erdos_renyi_M(n, edge, directed=False, FilePath=None):
     """Given the number of nodes and the number of edges, return an Erdős-Rényi random graph, and store the graph in a document.
 
     Parameters
@@ -41,78 +42,79 @@ def erdos_renyi_M(n,edge,directed=False,FilePath=None):
     .. [2] E. N. Gilbert, Random Graphs, Ann. Math. Stat., 30, 1141 (1959).
     """
     if directed:
-        G=eg.DiGraph()
-        adjacent={}
-        mmax = n * (n - 1) 
+        G = eg.DiGraph()
+        adjacent = {}
+        mmax = n * (n - 1)
         if edge >= mmax:
             for i in range(n):
                 for j in range(n):
-                    if i!=j:
-                        G.add_edge(i,j)
+                    if i != j:
+                        G.add_edge(i, j)
                         if i not in adjacent:
-                            adjacent[i]=[]
+                            adjacent[i] = []
                             adjacent[i].append(j)
                         else:
                             adjacent[i].append(j)
             return G
-        count=0
-        while count<edge:
-            i=random.randint(0,n-1)
-            j=random.randint(0,n-1)
+        count = 0
+        while count < edge:
+            i = random.randint(0, n - 1)
+            j = random.randint(0, n - 1)
             if i == j or G.has_edge(i, j):
                 continue
             else:
-                count =count+1
+                count = count + 1
                 if i not in adjacent:
-                    adjacent[i]=[]
+                    adjacent[i] = []
                     adjacent[i].append(j)
                 else:
                     adjacent[i].append(j)
-                G.add_edge(i,j)
+                G.add_edge(i, j)
     else:
-        G=eg.Graph()
-        adjacent={}
+        G = eg.Graph()
+        adjacent = {}
         mmax = n * (n - 1) / 2
         if edge >= mmax:
             for i in range(n):
                 for j in range(n):
-                    if i!=j:
-                        G.add_edge(i,j)
+                    if i != j:
+                        G.add_edge(i, j)
                         if i not in adjacent:
-                            adjacent[i]=[]
+                            adjacent[i] = []
                             adjacent[i].append(j)
                         else:
                             adjacent[i].append(j)
                         if j not in adjacent:
-                            adjacent[j]=[]
+                            adjacent[j] = []
                             adjacent[j].append(i)
                         else:
                             adjacent[j].append(i)
             return G
-        count=0
-        while count<edge:
-            i=random.randint(0,n-1)
-            j=random.randint(0,n-1)
+        count = 0
+        while count < edge:
+            i = random.randint(0, n - 1)
+            j = random.randint(0, n - 1)
             if i == j or G.has_edge(i, j):
                 continue
             else:
-                count =count+1
+                count = count + 1
                 if i not in adjacent:
-                    adjacent[i]=[]
+                    adjacent[i] = []
                     adjacent[i].append(j)
                 else:
                     adjacent[i].append(j)
                 if j not in adjacent:
-                    adjacent[j]=[]
+                    adjacent[j] = []
                     adjacent[j].append(i)
                 else:
                     adjacent[j].append(i)
-                G.add_edge(i,j)
+                G.add_edge(i, j)
 
-    writeRandomNetworkToFile(n,adjacent,FilePath)
+    writeRandomNetworkToFile(n, adjacent, FilePath)
     return G
 
-def erdos_renyi_P(n,p,directed=False,FilePath=None):
+
+def erdos_renyi_P(n, p, directed=False, FilePath=None):
     """Given the number of nodes and the probability of edge creation, return an Erdős-Rényi random graph, and store the graph in a document.
     
     Parameters
@@ -144,42 +146,43 @@ def erdos_renyi_P(n,p,directed=False,FilePath=None):
     """
     if directed:
         G = eg.DiGraph()
-        adjacent={}
-        probability=0.0
+        adjacent = {}
+        probability = 0.0
         for i in range(n):
-            for j in range(i+1,n):
-                probability=random.random()
-                if probability<p:
+            for j in range(i + 1, n):
+                probability = random.random()
+                if probability < p:
                     if i not in adjacent:
-                        adjacent[i]=[]
+                        adjacent[i] = []
                         adjacent[i].append(j)
                     else:
                         adjacent[i].append(j)
-                    G.add_edge(i,j)
+                    G.add_edge(i, j)
     else:
         G = eg.Graph()
-        adjacent={}
-        probability=0.0
+        adjacent = {}
+        probability = 0.0
         for i in range(n):
-            for j in range(i+1,n):
-                probability=random.random()
-                if probability<p:
+            for j in range(i + 1, n):
+                probability = random.random()
+                if probability < p:
                     if i not in adjacent:
-                        adjacent[i]=[]
+                        adjacent[i] = []
                         adjacent[i].append(j)
                     else:
                         adjacent[i].append(j)
                     if j not in adjacent:
-                        adjacent[j]=[]
+                        adjacent[j] = []
                         adjacent[j].append(i)
                     else:
                         adjacent[j].append(i)
-                    G.add_edge(i,j)
+                    G.add_edge(i, j)
 
-    writeRandomNetworkToFile(n,adjacent,FilePath)
+    writeRandomNetworkToFile(n, adjacent, FilePath)
     return G
 
-def fast_erdos_renyi_P(n, p, directed=False,FilePath=None):
+
+def fast_erdos_renyi_P(n, p, directed=False, FilePath=None):
     """Given the number of nodes and the probability of edge creation, return an Erdős-Rényi random graph, and store the graph in a document. Use this function for generating a huge scale graph.
     
     Parameters
@@ -214,7 +217,7 @@ def fast_erdos_renyi_P(n, p, directed=False,FilePath=None):
         w = -1
         lp = math.log(1.0 - p)
         v = 0
-        adjacent={}
+        adjacent = {}
         while v < n:
             lr = math.log(1.0 - random.random())
             w = w + 1 + int(lr / lp)
@@ -228,7 +231,7 @@ def fast_erdos_renyi_P(n, p, directed=False,FilePath=None):
             if v < n:
                 G.add_edge(v, w)
                 if v not in adjacent:
-                    adjacent[v]=[]
+                    adjacent[v] = []
                     adjacent[v].append(w)
                 else:
                     adjacent[v].append(w)
@@ -237,7 +240,7 @@ def fast_erdos_renyi_P(n, p, directed=False,FilePath=None):
         w = -1
         lp = math.log(1.0 - p)
         v = 1
-        adjacent={}
+        adjacent = {}
         while v < n:
             lr = math.log(1.0 - random.random())
             w = w + 1 + int(lr / lp)
@@ -247,20 +250,21 @@ def fast_erdos_renyi_P(n, p, directed=False,FilePath=None):
             if v < n:
                 G.add_edge(v, w)
                 if v not in adjacent:
-                    adjacent[v]=[]
+                    adjacent[v] = []
                     adjacent[v].append(w)
                 else:
                     adjacent[v].append(w)
                 if w not in adjacent:
-                    adjacent[w]=[]
+                    adjacent[w] = []
                     adjacent[w].append(v)
                 else:
                     adjacent[w].append(v)
 
-    writeRandomNetworkToFile(n,adjacent,FilePath)
+    writeRandomNetworkToFile(n, adjacent, FilePath)
     return G
-    
-def WS_Random(n,k,p,FilePath=None):
+
+
+def WS_Random(n, k, p, FilePath=None):
     """Returns a small-world graph.
 
     Parameters
@@ -290,71 +294,72 @@ def WS_Random(n,k,p,FilePath=None):
     if k >= n:
         print("k>=n, choose smaller k or larger n")
         return
-    adjacent={}
+    adjacent = {}
     G = eg.Graph()
     NUM1 = n
     NUM2 = NUM1 - 1
-    K = k          
+    K = k
     K1 = K + 1
     N = list(range(NUM1))
-    G.add_nodes(N)   
- 
+    G.add_nodes(N)
+
     for i in range(NUM1):
         for j in range(1, K1):
             K_add = NUM1 - K
             i_add_j = i + j + 1
-            if i >= K_add and i_add_j > NUM1:  
+            if i >= K_add and i_add_j > NUM1:
                 i_add = i + j - NUM1
                 G.add_edge(i, i_add)
             else:
                 i_add = i + j
                 G.add_edge(i, i_add)
             if i not in adjacent:
-                adjacent[i]=[]
+                adjacent[i] = []
                 adjacent[i].append(i_add)
             else:
                 adjacent[i].append(i_add)
             if i_add not in adjacent:
-                adjacent[i_add]=[]
+                adjacent[i_add] = []
                 adjacent[i_add].append(i)
             else:
                 adjacent[i_add].append(i)
     for i in range(NUM1):
         for e_del in range(i + 1, i + K1):
-            if e_del >= NUM1:     
+            if e_del >= NUM1:
                 e_del = e_del - NUM1
             P_random = random.random()
             if P_random < p:
                 G.remove_edge(i, e_del)
                 adjacent[i].remove(e_del)
-                if adjacent[i]==[]:
+                if adjacent[i] == []:
                     adjacent.pop(i)
                 adjacent[e_del].remove(i)
-                if adjacent[e_del]==[]:
+                if adjacent[e_del] == []:
                     adjacent.pop(e_del)
-                e_add = random.randint(0, NUM2)    
+                e_add = random.randint(0, NUM2)
                 while e_add == i or G.has_edge(i, e_add) == True:
                     e_add = random.randint(0, NUM2)
                 G.add_edge(i, e_add)
                 if i not in adjacent:
-                    adjacent[i]=[]
+                    adjacent[i] = []
                     adjacent[i].append(e_add)
                 else:
                     adjacent[i].append(e_add)
                 if e_add not in adjacent:
-                    adjacent[e_add]=[]
+                    adjacent[e_add] = []
                     adjacent[e_add].append(i)
                 else:
                     adjacent[e_add].append(i)
-    writeRandomNetworkToFile(n,adjacent,FilePath)
+    writeRandomNetworkToFile(n, adjacent, FilePath)
     return G
-    
-def writeRandomNetworkToFile(n,adjacent,FilePath):
-    if FilePath!=None:
-        f=open(FilePath,'w+')
+
+
+def writeRandomNetworkToFile(n, adjacent, FilePath):
+    if FilePath != None:
+        f = open(FilePath, 'w+')
     else:
-        f=open("RandomNetwork.txt",'w+')
-    adjacent= sorted(adjacent.items(), key=lambda d:d[0])
+        f = open("RandomNetwork.txt", 'w+')
+    adjacent = sorted(adjacent.items(), key=lambda d: d[0])
     for i in adjacent:
         i[1].sort()
         for j in i[1]:
@@ -363,4 +368,3 @@ def writeRandomNetworkToFile(n,adjacent,FilePath):
             f.write(str(j))
             f.write('\n')
     f.close()
-

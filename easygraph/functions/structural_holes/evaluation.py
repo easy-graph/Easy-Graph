@@ -9,12 +9,8 @@ try:
 except ImportError:
     pass
 
-__all__ = [
-    'effective_size',
-    'efficiency',
-    'constraint',
-    'hierarchy'
-]
+__all__ = ['effective_size', 'efficiency', 'constraint', 'hierarchy']
+
 
 def mutual_weight(G, u, v, weight=None):
     try:
@@ -27,8 +23,10 @@ def mutual_weight(G, u, v, weight=None):
         a_vu = 0
     return a_uv + a_vu
 
+
 sum_nmw_rec = {}
 max_nmw_rec = {}
+
 
 def normalized_mutual_weight(G, u, v, norm=sum, weight=None):
     if norm == sum:
@@ -37,20 +35,21 @@ def normalized_mutual_weight(G, u, v, norm=sum, weight=None):
             # print('yes')
             return sum_nmw_rec[(u, v)]
         except KeyError:
-            scale = norm(mutual_weight(G, u, w, weight)
-                    for w in G.all_neighbors(u))
+            scale = norm(
+                mutual_weight(G, u, w, weight) for w in G.all_neighbors(u))
             nmw = 0 if scale == 0 else mutual_weight(G, u, v, weight) / scale
-            sum_nmw_rec[(u,v)] = nmw
+            sum_nmw_rec[(u, v)] = nmw
             return nmw
     elif norm == max:
         try:
             return max_nmw_rec[(u, v)]
         except KeyError:
-            scale = norm(mutual_weight(G, u, w, weight)
-                    for w in G.all_neighbors(u))
+            scale = norm(
+                mutual_weight(G, u, w, weight) for w in G.all_neighbors(u))
             nmw = 0 if scale == 0 else mutual_weight(G, u, v, weight) / scale
-            max_nmw_rec[(u,v)] = nmw
+            max_nmw_rec[(u, v)] = nmw
             return nmw
+
 
 def effective_size_parallel(nodes, G, weight):
     ret = []
@@ -59,9 +58,12 @@ def effective_size_parallel(nodes, G, weight):
         if len(neighbors_of_node) == 0:
             ret.append([node, float('nan')])
             continue
-        ret.append([node, sum(redundancy(G, node, u, weight)
-                                for u in neighbors_of_node)])
+        ret.append([
+            node,
+            sum(redundancy(G, node, u, weight) for u in neighbors_of_node)
+        ])
     return ret
+
 
 def effective_size_borgatti_parallel(nodes, G, weight):
     ret = []
@@ -71,17 +73,20 @@ def effective_size_borgatti_parallel(nodes, G, weight):
             ret.append([node, float('nan')])
             continue
         E = G.ego_subgraph(node)
-        if len(E)>1:
-            ret.append([node, len(E) - 1 - (2 * E.size()) / (len(E) - 1)]) 
+        if len(E) > 1:
+            ret.append([node, len(E) - 1 - (2 * E.size()) / (len(E) - 1)])
         else:
-            ret.append([node, 0]) 
+            ret.append([node, 0])
     return ret
+
 
 def redundancy(G, u, v, weight=None):
     nmw = normalized_mutual_weight
-    r = sum(nmw(G, u, w, weight=weight) * nmw(G, v, w, norm=max, weight=weight)
-            for w in set(G.all_neighbors(u)))
+    r = sum(
+        nmw(G, u, w, weight=weight) * nmw(G, v, w, norm=max, weight=weight)
+        for w in set(G.all_neighbors(u)))
     return 1 - r
+
 
 @not_implemented_for("multigraph")
 def effective_size(G, nodes=None, weight=None, n_workers=None):
@@ -129,7 +134,9 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
             from multiprocessing import Pool
             from functools import partial
             import random
-            local_function = partial(effective_size_borgatti_parallel, G=G, weight=weight)
+            local_function = partial(effective_size_borgatti_parallel,
+                                     G=G,
+                                     weight=weight)
             nodes = list(nodes)
             random.shuffle(nodes)
             if len(nodes) > n_workers * 50000:
@@ -147,17 +154,20 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
                     effective_size[v] = float('nan')
                     continue
                 E = G.ego_subgraph(v)
-                if len(E)>1:
-                    effective_size[v] = len(E) - 1 - (2 * E.size()) / (len(E) - 1)
+                if len(E) > 1:
+                    effective_size[v] = len(E) - 1 - (2 * E.size()) / (len(E) -
+                                                                       1)
                 else:
-                    effective_size[v] = 0 
+                    effective_size[v] = 0
     else:
-        
+
         if n_workers is not None:
             from multiprocessing import Pool
             from functools import partial
             import random
-            local_function = partial(effective_size_parallel, G=G, weight=weight)
+            local_function = partial(effective_size_parallel,
+                                     G=G,
+                                     weight=weight)
             nodes = list(nodes)
             random.shuffle(nodes)
             if len(nodes) > n_workers * 30000:
@@ -174,9 +184,11 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
                 if len(G[v]) == 0:
                     effective_size[v] = float('nan')
                     continue
-                effective_size[v] = sum(redundancy(G, v, u, weight)
-                                        for u in set(G.all_neighbors(v)))
+                effective_size[v] = sum(
+                    redundancy(G, v, u, weight)
+                    for u in set(G.all_neighbors(v)))
     return effective_size
+
 
 @not_implemented_for("multigraph")
 def efficiency(G, nodes=None, weight=None):
@@ -219,6 +231,7 @@ def efficiency(G, nodes=None, weight=None):
     efficiency = {n: v / degree[n] for n, v in e_size.items()}
     return efficiency
 
+
 def compute_constraint_of_nodes(nodes, G, weight):
     ret = []
     for node in nodes:
@@ -226,9 +239,14 @@ def compute_constraint_of_nodes(nodes, G, weight):
         if len(neighbors_of_node) == 0:
             ret.append([node, float('nan')])
             continue
-        ret.append([node, sum(local_constraint(G, node, u, weight)
-                                for u in neighbors_of_node)])
+        ret.append([
+            node,
+            sum(
+                local_constraint(G, node, u, weight)
+                for u in neighbors_of_node)
+        ])
     return ret
+
 
 @not_implemented_for("multigraph")
 def constraint(G, nodes=None, weight=None, n_workers=None):
@@ -269,7 +287,10 @@ def constraint(G, nodes=None, weight=None, n_workers=None):
 
     """
     if G.cflag == 1:
-        return cpp_constraint(G, nodes=nodes, weight=weight, n_workers=n_workers)
+        return cpp_constraint(G,
+                              nodes=nodes,
+                              weight=weight,
+                              n_workers=n_workers)
     sum_nmw_rec.clear()
     max_nmw_rec.clear()
     local_constraint_rec.clear()
@@ -282,15 +303,17 @@ def constraint(G, nodes=None, weight=None, n_workers=None):
         if len(neighbors_of_v) == 0:
             constraint_of_v = float('nan')
         else:
-            constraint_of_v = sum(local_constraint(G, v, n, weight)
-                                for n in neighbors_of_v)
+            constraint_of_v = sum(
+                local_constraint(G, v, n, weight) for n in neighbors_of_v)
         return v, constraint_of_v
 
     if n_workers is not None:
         from multiprocessing import Pool
         from functools import partial
         import random
-        local_function = partial(compute_constraint_of_nodes, G=G, weight=weight)
+        local_function = partial(compute_constraint_of_nodes,
+                                 G=G,
+                                 weight=weight)
         nodes = list(nodes)
         random.shuffle(nodes)
         if len(nodes) > n_workers * 30000:
@@ -308,40 +331,50 @@ def constraint(G, nodes=None, weight=None, n_workers=None):
     constraint = dict(constraint_results)
     return constraint
 
+
 local_constraint_rec = {}
+
+
 def local_constraint(G, u, v, weight=None):
     try:
         return local_constraint_rec[(u, v)]
     except KeyError:
         nmw = normalized_mutual_weight
         direct = nmw(G, u, v, weight=weight)
-        indirect = sum(nmw(G, u, w, weight=weight) * nmw(G, w, v, weight=weight)
-                    for w in set(G.all_neighbors(u)))
-        result = (direct + indirect) ** 2
+        indirect = sum(
+            nmw(G, u, w, weight=weight) * nmw(G, w, v, weight=weight)
+            for w in set(G.all_neighbors(u)))
+        result = (direct + indirect)**2
         local_constraint_rec[(u, v)] = result
         return result
 
+
 def hierarchy_parallel(nodes, G):
-    
+
     ret = []
     for v in nodes:
         E = G.ego_subgraph(v)
-        n=len(E)-1
-        C=0
-        c={}
+        n = len(E) - 1
+        C = 0
+        c = {}
         neighbors_of_v = set(G.all_neighbors(v))
         for w in neighbors_of_v:
-            C+=local_constraint(G,v,w)
-            c[w]=local_constraint(G,v,w)
+            C += local_constraint(G, v, w)
+            c[w] = local_constraint(G, v, w)
         if n > 1:
-            ret.append([v, sum(c[w] / C * n * math.log(c[w] / C * n) / (n * math.log(n)) for w in neighbors_of_v)])
+            ret.append([
+                v,
+                sum(c[w] / C * n * math.log(c[w] / C * n) / (n * math.log(n))
+                    for w in neighbors_of_v)
+            ])
         else:
             ret.append([v, 0])
 
     return ret
 
+
 @not_implemented_for("multigraph")
-def hierarchy(G,nodes=None,weight=None,n_workers=None):
+def hierarchy(G, nodes=None, weight=None, n_workers=None):
     """Returns the hierarchy of nodes in the graph
 
     Parameters
@@ -392,16 +425,16 @@ def hierarchy(G,nodes=None,weight=None,n_workers=None):
     else:
         for v in G.nodes:
             E = G.ego_subgraph(v)
-            n=len(E)-1
-            C=0
-            c={}
+            n = len(E) - 1
+            C = 0
+            c = {}
             neighbors_of_v = set(G.all_neighbors(v))
             for w in neighbors_of_v:
-                C+=local_constraint(G,v,w)
-                c[w]=local_constraint(G,v,w)
-            if n>1:
-                hierarchy[v]=sum(c[w]/C*n*math.log(c[w]/C*n)/(n*math.log(n)) for w in neighbors_of_v)
+                C += local_constraint(G, v, w)
+                c[w] = local_constraint(G, v, w)
+            if n > 1:
+                hierarchy[v] = sum(c[w] / C * n * math.log(c[w] / C * n) /
+                                   (n * math.log(n)) for w in neighbors_of_v)
             if v not in hierarchy:
-                hierarchy[v]=0
+                hierarchy[v] = 0
     return hierarchy
-

@@ -1,5 +1,6 @@
 __all__ = ["get_relation_of_index_and_node"]
 
+
 def get_relation_of_index_and_node(graph):
     node2idx = {}
     idx2node = []
@@ -9,4 +10,3 @@ def get_relation_of_index_and_node(graph):
         idx2node.append(node)
         node_size += 1
     return idx2node, node2idx
-    

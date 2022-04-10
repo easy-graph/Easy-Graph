@@ -1,12 +1,11 @@
 import easygraph as eg
 from easygraph.utils import *
 
-__all__ = [
-    "pagerank"
-]
+__all__ = ["pagerank"]
+
 
 @not_implemented_for("multigraph")
-def pagerank(G, alpha = 0.85):
+def pagerank(G, alpha=0.85):
     """
     Returns the PageRank value of each node in G.
 
@@ -31,7 +30,6 @@ def pagerank(G, alpha = 0.85):
     largest = np.array(eigenvectors[:, ind]).flatten().real
     norm = float(largest.sum())
     return dict(zip(G, map(float, largest / norm)))
-
 
 
 def google_matrix(G, alpha):

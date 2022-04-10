@@ -7,14 +7,16 @@ pygraphviz = pytest.importorskip("pygraphviz")
 import easygraph as eg
 from easygraph.utils import nodes_equal, edges_equal
 
+
 class TestAGraph:
+
     def build_graph(self, G):
         edges = [("A", "B"), ("A", "C"), ("A", "C"), ("B", "C"), ("A", "D")]
         G.add_edges_from(edges)
         G.add_node("E")
         G.graph["metal"] = "bronze"
         return G
-    
+
     def assert_equal(self, G1, G2):
         assert nodes_equal(G1.nodes(), G2.nodes())
         assert edges_equal(G1.edges(), G2.edges())

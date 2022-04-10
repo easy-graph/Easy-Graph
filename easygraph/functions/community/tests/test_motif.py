@@ -1,7 +1,9 @@
 import pytest
 import easygraph as eg
 
+
 class TestMotif(object):
+
     @classmethod
     def setup_class(self):
         self.G = eg.Graph()
@@ -11,6 +13,7 @@ class TestMotif(object):
     def test_esu(self):
         res = eg.enumerate_subgraph(self.G, 3)
         res = [list(x) for x in res]
-        exp_res = [{1, 3, 4}, {1, 2, 3}, {1, 3, 5}, {2, 3, 5}, {2, 3, 4}, {3, 4, 5}]
+        exp_res = [{1, 3, 4}, {1, 2, 3}, {1, 3, 5}, {2, 3, 5}, {2, 3, 4},
+                   {3, 4, 5}]
         exp_res = [list(x) for x in exp_res]
         assert sorted(res) == sorted(exp_res)

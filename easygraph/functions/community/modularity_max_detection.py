@@ -3,9 +3,8 @@ from easygraph.functions.community.modularity import modularity
 from easygraph.utils.mapped_queue import MappedQueue
 from easygraph.utils import *
 
-__all__ = [
-    "greedy_modularity_communities"
-]
+__all__ = ["greedy_modularity_communities"]
+
 
 @not_implemented_for("multigraph")
 def greedy_modularity_communities(G, weight='weight'):
@@ -46,12 +45,11 @@ def greedy_modularity_communities(G, weight='weight'):
     if N == 0 or m == 0:
         print("Please input the graph which has at least one edge!")
         exit()
-    q0 = 1.0 / (2.0*m)
+    q0 = 1.0 / (2.0 * m)
 
     # Map node labels to contiguous integers
     label_for_node = dict((i, v) for i, v in enumerate(G.nodes))
     node_for_label = dict((label_for_node[i], i) for i in range(N))
-    
 
     # Calculate degrees
     k_for_label = G.degree(weight=weight)
@@ -71,24 +69,17 @@ def greedy_modularity_communities(G, weight='weight'):
     # dq_dict[i][j]: dQ for merging community i, j
     # dq_heap[i][n] : (-dq, i, j) for communitiy i nth largest dQ
     # H[n]: (-dq, i, j) for community with nth largest max_j(dQ_ij)
-    a = [k[i]*q0 for i in range(N)]
+    a = [k[i] * q0 for i in range(N)]
     dq_dict = dict(
-        (i, dict(
-            (j, 2*q0 - 2*k[i]*k[j]*q0*q0)
-            for j in [
-                node_for_label[u]
-                for u in G.neighbors(label_for_node[i])]
-            if j != i))
-        for i in range(N))
+        (i,
+         dict((j, 2 * q0 - 2 * k[i] * k[j] * q0 * q0) for j in
+              [node_for_label[u] for u in G.neighbors(label_for_node[i])]
+              if j != i)) for i in range(N))
     dq_heap = [
-        MappedQueue([
-            (-dq, i, j)
-            for j, dq in dq_dict[i].items()])
-        for i in range(N)]
-    H = MappedQueue([
-        dq_heap[i].h[0]
+        MappedQueue([(-dq, i, j) for j, dq in dq_dict[i].items()])
         for i in range(N)
-        if len(dq_heap[i]) > 0])
+    ]
+    H = MappedQueue([dq_heap[i].h[0] for i in range(N) if len(dq_heap[i]) > 0])
 
     # Merge communities until we can't improve modularity
     while len(H) > 1:
@@ -138,10 +129,10 @@ def greedy_modularity_communities(G, weight='weight'):
             if k in both_set:
                 dq_jk = dq_dict[j][k] + dq_dict[i][k]
             elif k in j_set:
-                dq_jk = dq_dict[j][k] - 2.0*a[i]*a[k]
+                dq_jk = dq_dict[j][k] - 2.0 * a[i] * a[k]
             else:
                 # k in i_set
-                dq_jk = dq_dict[i][k] - 2.0*a[j]*a[k]
+                dq_jk = dq_dict[i][k] - 2.0 * a[j] * a[k]
             # Update rows j and k
             for row, col in [(j, k), (k, j)]:
                 # Save old value for finding heap index
@@ -205,5 +196,6 @@ def greedy_modularity_communities(G, weight='weight'):
 
     communities = [
         frozenset([label_for_node[i] for i in c])
-        for c in communities.values()]
+        for c in communities.values()
+    ]
     return sorted(communities, key=len, reverse=True)

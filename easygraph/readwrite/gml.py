@@ -1,4 +1,3 @@
-
 """
 Read graphs in GML format.
 
@@ -49,6 +48,7 @@ __all__ = ["read_gml", "parse_gml", "generate_gml", "write_gml"]
 
 LIST_START_VALUE = "_easygraph_list_start"
 
+
 def escape(text):
     """Use XML character references to escape characters.
 
@@ -59,9 +59,10 @@ def escape(text):
     def fixup(m):
         ch = m.group(0)
         return "&#" + str(ord(ch)) + ";"
-    
+
     text = re.sub('[^ -~]|[&"]', fixup, text)
     return text if isinstance(text, str) else str(text)
+
 
 def unescape(text):
     """Replace XML character references with the referenced characters"""
@@ -84,8 +85,9 @@ def unescape(text):
             return chr(code)
         except (ValueError, OverflowError):
             return text  # leave unchanged
-    
+
     return re.sub("&(?:[0-9A-Za-z]+|#(?:[0-9]+|x[0-9A-Fa-f]+));", fixup, text)
+
 
 def literal_destringizer(rep):
     """Convert a Python literal to the value it represents.
@@ -112,9 +114,11 @@ def literal_destringizer(rep):
         try:
             return literal_eval(rep)
         except SyntaxError as err:
-            raise ValueError(f"{orig_rep!r} is not a valid Python literal") from err
+            raise ValueError(
+                f"{orig_rep!r} is not a valid Python literal") from err
     else:
         raise ValueError(f"{rep!r} is not a string")
+
 
 class Pattern(Enum):
     """encodes the index of each token-matching pattern in `tokenize`."""
@@ -127,11 +131,13 @@ class Pattern(Enum):
     DICT_END = 5
     COMMENT_WHITESPACE = 6
 
+
 class Token(NamedTuple):
     category: Pattern
     value: Any
     line: int
     position: int
+
 
 def parse_gml(lines, label="label", destringizer=None):
     """Parse GML graph from a string or iterable.
@@ -209,6 +215,7 @@ def parse_gml(lines, label="label", destringizer=None):
     G = parse_gml_lines(filter_lines(lines), label, destringizer)
     return G
 
+
 def parse_gml_lines(lines, label, destringizer):
     """Parse GML `lines` into a graph."""
 
@@ -254,7 +261,8 @@ def parse_gml_lines(lines, label, destringizer):
     def unexpected(curr_token, expected):
         category, value, lineno, pos = curr_token
         value = repr(value) if value is not None else "EOF"
-        raise EasyGraphError(f"expected {expected}, found {value} at ({lineno}, {pos})")
+        raise EasyGraphError(
+            f"expected {expected}, found {value} at ({lineno}, {pos})")
 
     def consume(curr_token, category, expected):
         if curr_token.category == category:
@@ -301,10 +309,8 @@ def parse_gml_lines(lines, label, destringizer):
                                 pass
                         curr_token = next(tokens)
                     except Exception:
-                        msg = (
-                            "an int, float, string, '[' or string"
-                            + " convertable ASCII value for node id or label"
-                        )
+                        msg = ("an int, float, string, '[' or string" +
+                               " convertable ASCII value for node id or label")
                         unexpected(curr_token, msg)
                 elif curr_token.value in {"NAN", "INF"}:
                     value = float(curr_token.value)
@@ -351,7 +357,8 @@ def parse_gml_lines(lines, label, destringizer):
         try:
             return dct.pop(attr)
         except KeyError as err:
-            raise EasyGraphError(f"{category} #{i} has no {attr!r} attribute") from err
+            raise EasyGraphError(
+                f"{category} #{i} has no {attr!r} attribute") from err
 
     nodes = graph.get("node", [])
     mapping = {}
@@ -363,11 +370,12 @@ def parse_gml_lines(lines, label, destringizer):
         if label is not None and label != "id":
             node_label = pop_attr(node, "node", label, i)
             if node_label in node_labels:
-                raise EasyGraphError(f"node label {node_label!r} is duplicated")
+                raise EasyGraphError(
+                    f"node label {node_label!r} is duplicated")
             node_labels.add(node_label)
             mapping[id] = node_label
         G.add_node(id, **node)
-    
+
     edges = graph.get("edge", [])
     for i, edge in enumerate(edges if isinstance(edges, list) else [edges]):
         source = pop_attr(edge, "edge", "source", i)
@@ -395,6 +403,7 @@ def parse_gml_lines(lines, label, destringizer):
     if label is not None and label != "id":
         G = eg.relabel_nodes(G, mapping)
     return G
+
 
 def generate_gml(G, stringizer=None):
     r"""Generate a single entry of the graph `G` in GML format.
@@ -475,7 +484,7 @@ def generate_gml(G, stringizer=None):
                 elif value is False:
                     yield indent + key + " 0"
                 # GML only supports signed 32-bit integers
-                elif value < -(2 ** 31) or value >= 2 ** 31:
+                elif value < -(2**31) or value >= 2**31:
                     yield indent + key + ' "' + str(value) + '"'
                 else:
                     yield indent + key + " " + str(value)
@@ -502,12 +511,8 @@ def generate_gml(G, stringizer=None):
                 for key, value in value.items():
                     yield from stringize(key, value, (), next_indent)
                 yield indent + "]"
-            elif (
-                isinstance(value, (list, tuple))
-                and key != "label"
-                and value
-                and not in_list
-            ):
+            elif (isinstance(value, (list, tuple)) and key != "label" and value
+                  and not in_list):
                 if len(value) == 1:
                     yield indent + key + " " + f'"{LIST_START_VALUE}"'
                 for val in value:
@@ -647,6 +652,7 @@ def read_gml(path, label="label", destringizer=None):
     G = parse_gml_lines(filter_lines(path), label, destringizer)
     return G
 
+
 @open_file(1, mode="wb")
 def write_gml(G, path, stringizer=None):
     """Write a graph `G` in GML format to the file or file handle `path`.
@@ -710,6 +716,7 @@ def write_gml(G, path, stringizer=None):
     """
     for line in generate_gml(G, stringizer):
         path.write((line + "\n").encode("ascii"))
+
 
 def literal_stringizer(value):
     msg = "literal_stringizer is deprecated and will be removed in 3.0."

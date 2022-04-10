@@ -3,6 +3,7 @@ from easygraph.utils import only_implemented_for_Directed_graph
 
 __all__ = ["reverse_view"]
 
+
 @only_implemented_for_Directed_graph
 def reverse_view(G):
     newG = G.__class__()

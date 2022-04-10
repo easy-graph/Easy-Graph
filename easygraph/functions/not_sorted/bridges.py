@@ -2,10 +2,8 @@ import easygraph as eg
 from easygraph.utils.decorators import *
 from itertools import chain
 
-__all__=[
-    "bridges", 
-    "has_bridges"
-]
+__all__ = ["bridges", "has_bridges"]
+
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
@@ -58,9 +56,10 @@ def bridges(G, root=None):
     """
     chains = chain_decomposition(G, root=root)
     chain_edges = set(chain.from_iterable(chains))
-    for u, v ,t in G.edges:
+    for u, v, t in G.edges:
         if (u, v) not in chain_edges and (v, u) not in chain_edges:
             yield u, v
+
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
@@ -110,7 +109,9 @@ def has_bridges(G, root=None):
     else:
         return True
 
+
 def chain_decomposition(G, root=None):
+
     def _dfs_cycle_forest(G, root=None):
         H = eg.DiGraph()
         nodes = []
@@ -150,16 +151,17 @@ def chain_decomposition(G, root=None):
     for u in nodes:
         visited.add(u)
         # For each nontree edge going out of node u...
-        edges=[]
+        edges = []
         for u, v, d in H.edges:
-            if d['nontree']==True:
-                edges.append((u,v))
+            if d['nontree'] == True:
+                edges.append((u, v))
         #edges = ((u, v) for u, v, d in H.out_edges(u, data="nontree") if d)
         for u, v in edges:
             # Create the cycle or cycle prefix starting with the
             # nontree edge.
             chain = list(_build_chain(H, u, v, visited))
             yield chain
+
 
 def dfs_labeled_edges(G, source=None, depth_limit=None):
     if source is None:

@@ -1,8 +1,9 @@
 from easygraph.utils.decorators import *
 
-__all__ = ['degree_centrality',
-           'in_degree_centrality',
-           'out_degree_centrality']
+__all__ = [
+    'degree_centrality', 'in_degree_centrality', 'out_degree_centrality'
+]
+
 
 @not_implemented_for("multigraph")
 def degree_centrality(G):
@@ -28,10 +29,11 @@ def degree_centrality(G):
     """
     if len(G) <= 1:
         return {n: 1 for n in G}
-    
+
     s = 1.0 / (len(G) - 1.0)
     centrality = {n: d * s for n, d in G.degree()}
     return centrality
+
 
 @not_implemented_for("multigraph")
 @only_implemented_for_Directed_graph
@@ -75,6 +77,7 @@ def in_degree_centrality(G):
     s = 1.0 / (len(G) - 1.0)
     centrality = {n: d * s for n, d in G.in_degree()}
     return centrality
+
 
 @not_implemented_for("multigraph")
 @only_implemented_for_Directed_graph

@@ -2,11 +2,8 @@ from easygraph.utils import nodes_or_number, pairwise
 from easygraph.classes import Graph
 import itertools
 
-__all__ = [
-    "empty_graph",
-    "path_graph",
-    "complete_graph"
-]
+__all__ = ["empty_graph", "path_graph", "complete_graph"]
+
 
 @nodes_or_number(0)
 def empty_graph(n=0, create_using=None, default=Graph):
@@ -23,12 +20,14 @@ def empty_graph(n=0, create_using=None, default=Graph):
     G.add_nodes_from(nodes)
     return G
 
+
 @nodes_or_number(0)
 def path_graph(n, create_using=None):
     n_name, nodes = n
     G = empty_graph(nodes, create_using)
     G.add_edges_from(pairwise(nodes))
     return G
+
 
 @nodes_or_number(0)
 def complete_graph(n, create_using=None):

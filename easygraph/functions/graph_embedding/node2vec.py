@@ -5,12 +5,19 @@ import numpy as np
 from tqdm import tqdm
 from easygraph.utils import *
 
-__all__ = [
-    "node2vec"
-]
+__all__ = ["node2vec"]
+
 
 @not_implemented_for("multigraph")
-def node2vec(G, dimensions=128, walk_length=80, num_walks=10, p=1.0, q=1.0, weight_key=None, workers=None, **skip_gram_params):
+def node2vec(G,
+             dimensions=128,
+             walk_length=80,
+             num_walks=10,
+             p=1.0,
+             q=1.0,
+             weight_key=None,
+             workers=None,
+             **skip_gram_params):
     """Graph embedding via Node2Vec.
 
     Parameters
@@ -73,31 +80,37 @@ def node2vec(G, dimensions=128, walk_length=80, num_walks=10, p=1.0, q=1.0, weig
     G_index, index_of_node, node_of_index = G.to_index_node_graph()
 
     if workers is None:
-        walks = simulate_walks(
-            G_index, walk_length=walk_length, num_walks=num_walks,
-            p=p, q=q, weight_key=weight_key)
+        walks = simulate_walks(G_index,
+                               walk_length=walk_length,
+                               num_walks=num_walks,
+                               p=p,
+                               q=q,
+                               weight_key=weight_key)
     else:
         from joblib import Parallel, delayed
         num_walks_lists = np.array_split(range(num_walks), workers)
-        walks = Parallel(n_jobs=workers)(
-            delayed(simulate_walks)(G_index, walk_length, len(num_walks), p, q, weight_key) for
-            num_walks in num_walks_lists
-        )
+        walks = Parallel(n_jobs=workers)(delayed(simulate_walks)(
+            G_index, walk_length, len(num_walks), p, q, weight_key)
+                                         for num_walks in num_walks_lists)
         # Change multidimensional array to one dimensional array
         walks = [walk for walk_group in walks for walk in walk_group]
 
-    model = learn_embeddings(
-        walks=walks, dimensions=dimensions, **skip_gram_params)
+    model = learn_embeddings(walks=walks,
+                             dimensions=dimensions,
+                             **skip_gram_params)
 
     embedding_vector, most_similar_nodes_of_node = _get_embedding_result_from_gensim_skipgram_model(
-        G=G, index_of_node=index_of_node, node_of_index=node_of_index, model=model
-    )
-    
+        G=G,
+        index_of_node=index_of_node,
+        node_of_index=node_of_index,
+        model=model)
+
     del G_index
     return embedding_vector, most_similar_nodes_of_node
 
 
-def _get_embedding_result_from_gensim_skipgram_model(G, index_of_node, node_of_index, model):
+def _get_embedding_result_from_gensim_skipgram_model(G, index_of_node,
+                                                     node_of_index, model):
     embedding_vector = dict()
     most_similar_nodes_of_node = dict()
 
@@ -116,8 +129,9 @@ def _get_embedding_result_from_gensim_skipgram_model(G, index_of_node, node_of_i
         embedding_vector[node] = model.wv[str(index_of_node[node])]
 
         most_similar_nodes = model.wv.most_similar(str(index_of_node[node]))
-        most_similar_nodes_of_node[node] = change_string_to_node_from_gensim_return_value(
-            most_similar_nodes)
+        most_similar_nodes_of_node[
+            node] = change_string_to_node_from_gensim_return_value(
+                most_similar_nodes)
 
     return embedding_vector, most_similar_nodes_of_node
 
@@ -130,9 +144,12 @@ def simulate_walks(G, walk_length, num_walks, p, q, weight_key=None):
     for walk_iter in tqdm(range(num_walks)):
         random.shuffle(nodes)
         for node in nodes:
-            walks.append(_node2vec_walk(G,
-                                        walk_length=walk_length, start_node=node,
-                                        alias_nodes=alias_nodes, alias_edges=alias_edges))
+            walks.append(
+                _node2vec_walk(G,
+                               walk_length=walk_length,
+                               start_node=node,
+                               alias_nodes=alias_nodes,
+                               alias_edges=alias_edges))
 
     return walks
 
@@ -145,11 +162,13 @@ def _preprocess_transition_probs(G, p, q, weight_key=None):
         if weight_key is None:
             unnormalized_probs = [1.0 for nbr in sorted(G.neighbors(node))]
         else:
-            unnormalized_probs = [G[node][nbr][weight_key]
-                                  for nbr in sorted(G.neighbors(node))]
+            unnormalized_probs = [
+                G[node][nbr][weight_key] for nbr in sorted(G.neighbors(node))
+            ]
         norm_const = sum(unnormalized_probs)
         normalized_probs = [
-            float(u_prob)/norm_const for u_prob in unnormalized_probs]
+            float(u_prob) / norm_const for u_prob in unnormalized_probs
+        ]
         alias_nodes[node] = _alias_setup(normalized_probs)
 
     alias_edges = {}
@@ -157,14 +176,17 @@ def _preprocess_transition_probs(G, p, q, weight_key=None):
 
     if is_directed:
         for edge in G.edges:
-            alias_edges[(edge[0], edge[1])] = _get_alias_edge(
-                G, edge[0], edge[1], p, q, weight_key)
+            alias_edges[(edge[0],
+                         edge[1])] = _get_alias_edge(G, edge[0], edge[1], p, q,
+                                                     weight_key)
     else:
         for edge in G.edges:
-            alias_edges[(edge[0], edge[1])] = _get_alias_edge(
-                G, edge[0], edge[1], p, q, weight_key)
-            alias_edges[(edge[1], edge[0])] = _get_alias_edge(
-                G, edge[1], edge[0], p, q, weight_key)
+            alias_edges[(edge[0],
+                         edge[1])] = _get_alias_edge(G, edge[0], edge[1], p, q,
+                                                     weight_key)
+            alias_edges[(edge[1],
+                         edge[0])] = _get_alias_edge(G, edge[1], edge[0], p, q,
+                                                     weight_key)
 
     return alias_nodes, alias_edges
 
@@ -175,23 +197,24 @@ def _get_alias_edge(G, src, dst, p, q, weight_key=None):
     if weight_key is None:
         for dst_nbr in sorted(G.neighbors(dst)):
             if dst_nbr == src:
-                unnormalized_probs.append(1.0/p)
+                unnormalized_probs.append(1.0 / p)
             elif G.has_edge(dst_nbr, src):
                 unnormalized_probs.append(1.0)
             else:
-                unnormalized_probs.append(1.0/q)
+                unnormalized_probs.append(1.0 / q)
     else:
         for dst_nbr in sorted(G.neighbors(dst)):
             if dst_nbr == src:
-                unnormalized_probs.append(G[dst][dst_nbr][weight_key]/p)
+                unnormalized_probs.append(G[dst][dst_nbr][weight_key] / p)
             elif G.has_edge(dst_nbr, src):
                 unnormalized_probs.append(G[dst][dst_nbr][weight_key])
             else:
-                unnormalized_probs.append(G[dst][dst_nbr][weight_key]/q)
+                unnormalized_probs.append(G[dst][dst_nbr][weight_key] / q)
 
     norm_const = sum(unnormalized_probs)
     normalized_probs = [
-        float(u_prob)/norm_const for u_prob in unnormalized_probs]
+        float(u_prob) / norm_const for u_prob in unnormalized_probs
+    ]
 
     return _alias_setup(normalized_probs)
 
@@ -204,7 +227,7 @@ def _alias_setup(probs):
     smaller = []
     larger = []
     for kk, prob in enumerate(probs):
-        q[kk] = K*prob
+        q[kk] = K * prob
         if q[kk] < 1.0:
             smaller.append(kk)
         else:
@@ -235,12 +258,12 @@ def _node2vec_walk(G, walk_length, start_node, alias_nodes, alias_edges):
         cur_nbrs = sorted(G.neighbors(cur))
         if len(cur_nbrs) > 0:
             if len(walk) == 1:
-                walk.append(cur_nbrs[_alias_draw(
-                    alias_nodes[cur][0], alias_nodes[cur][1])])
+                walk.append(cur_nbrs[_alias_draw(alias_nodes[cur][0],
+                                                 alias_nodes[cur][1])])
             else:
                 prev = walk[-2]
-                next_node = cur_nbrs[_alias_draw(
-                    alias_edges[(prev, cur)][0], alias_edges[(prev, cur)][1])]
+                next_node = cur_nbrs[_alias_draw(alias_edges[(prev, cur)][0],
+                                                 alias_edges[(prev, cur)][1])]
                 walk.append(next_node)
         else:
             break
@@ -250,7 +273,7 @@ def _node2vec_walk(G, walk_length, start_node, alias_nodes, alias_edges):
 
 def _alias_draw(J, q):
     K = len(J)
-    kk = int(np.floor(np.random.rand()*K))
+    kk = int(np.floor(np.random.rand() * K))
     if np.random.rand() < q[kk]:
         return kk
     else:

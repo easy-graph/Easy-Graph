@@ -29,6 +29,7 @@ from easygraph.utils import open_file
 
 __all__ = ['generate_ucinet', 'read_ucinet', 'parse_ucinet', 'write_ucinet']
 
+
 def generate_ucinet(G):
     """Generate lines in UCINET graph format.
     Parameters
@@ -62,7 +63,10 @@ def generate_ucinet(G):
 
     yield 'data:'
 
-    yield str(np.asmatrix(eg.to_numpy_array(G, nodelist=nodes, dtype=int))).replace('[', ' ').replace(']', ' ').lstrip().rstrip()
+    yield str(np.asmatrix(eg.to_numpy_array(
+        G, nodelist=nodes,
+        dtype=int))).replace('[', ' ').replace(']', ' ').lstrip().rstrip()
+
 
 @open_file(0, mode='rb')
 def read_ucinet(path, encoding='UTF-8'):
@@ -93,6 +97,7 @@ def read_ucinet(path, encoding='UTF-8'):
     lines = (line.decode(encoding) for line in path)
     return parse_ucinet(lines)
 
+
 @open_file(1, mode='wb')
 def write_ucinet(G, path, encoding='UTF-8'):
     """Write graph in UCINET format to path.
@@ -115,6 +120,7 @@ def write_ucinet(G, path, encoding='UTF-8'):
     for line in generate_ucinet(G):
         line += '\n'
         path.write(line.encode(encoding))
+
 
 def parse_ucinet(lines):
     """Parse UCINET format graph from string or iterable.
@@ -185,7 +191,8 @@ def parse_ucinet(lines):
             diagonal = get_param("present|absent", token, lexer)
 
         elif token.startswith("format"):
-            ucinet_format = get_param("""^(fullmatrix|upperhalf|lowerhalf|nodelist1|nodelist2|nodelist1b|\
+            ucinet_format = get_param(
+                """^(fullmatrix|upperhalf|lowerhalf|nodelist1|nodelist2|nodelist1b|\
 edgelist1|edgelist2|blockmatrix|partition)$""", token, lexer)
 
         # TODO : row and columns labels
@@ -203,7 +210,8 @@ edgelist1|edgelist2|blockmatrix|partition)$""", token, lexer)
                     cols_labels_embedded = True
                     break
                 else:
-                    labels[i] = token.replace('"', '')  # for labels with embedded spaces
+                    labels[i] = token.replace(
+                        '"', '')  # for labels with embedded spaces
                     i += 1
                     try:
                         token = next(lexer)
@@ -238,7 +246,9 @@ edgelist1|edgelist2|blockmatrix|partition)$""", token, lexer)
         mat = reshape(data, (max(number_of_nodes, nr), -1))
         G = eg.from_numpy_array(mat, create_using=eg.MultiDiGraph())
 
-    elif ucinet_format in ('nodelist1', 'nodelist1b'):  # Since genfromtxt only accepts square matrix...
+    elif ucinet_format in (
+            'nodelist1',
+            'nodelist1b'):  # Since genfromtxt only accepts square matrix...
         s = ''
         for i, line in enumerate(data_lines.splitlines()):
             row = line.split()
@@ -254,30 +264,36 @@ edgelist1|edgelist2|blockmatrix|partition)$""", token, lexer)
                         s += source + ' ' + neighbor + '\n'
 
         G = eg.parse_edgelist(s.splitlines(),
-                              nodetype=str if row_labels_embedded and cols_labels_embedded else int,
+                              nodetype=str if row_labels_embedded
+                              and cols_labels_embedded else int,
                               create_using=eg.MultiDiGraph())
 
         if not row_labels_embedded or not cols_labels_embedded:
-            G = eg.relabel_nodes(G, dict(zip(list(G.nodes), [i-1 for i in G.nodes])))
+            G = eg.relabel_nodes(
+                G, dict(zip(list(G.nodes), [i - 1 for i in G.nodes])))
 
     elif ucinet_format == 'edgelist1':
         G = eg.parse_edgelist(data_lines.splitlines(),
-                              nodetype=str if row_labels_embedded and cols_labels_embedded else int,
+                              nodetype=str if row_labels_embedded
+                              and cols_labels_embedded else int,
                               create_using=eg.MultiDiGraph())
 
         if not row_labels_embedded or not cols_labels_embedded:
-            G = eg.relabel_nodes(G, dict(zip(list(G.nodes), [i-1 for i in G.nodes])))
+            G = eg.relabel_nodes(
+                G, dict(zip(list(G.nodes), [i - 1 for i in G.nodes])))
 
     # Relabel nodes
     if labels:
         try:
             if len(list(G.nodes)) < number_of_nodes:
-                G.add_nodes_from(labels.values() if labels else range(0, number_of_nodes))
+                G.add_nodes_from(
+                    labels.values() if labels else range(0, number_of_nodes))
             G = eg.relabel_nodes(G, labels)
         except KeyError:
             pass  # Nodes already labelled
 
     return G
+
 
 def get_param(regex, token, lines):
     """
@@ -296,4 +312,3 @@ def get_param(regex, token, lines):
             raise Exception("Parameter %s value not recognized" % token)
         query = re.search(regex, n)
     return query.group()
-

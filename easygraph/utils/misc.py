@@ -1,22 +1,18 @@
 from itertools import tee
 
-__all__ = [
-    "split_len",
-    "split",
-    "nodes_equal",
-    "edges_equal",
-    "pairwise"
-]
+__all__ = ["split_len", "split", "nodes_equal", "edges_equal", "pairwise"]
+
 
 def split_len(nodes, step=30000):
     ret = []
     length = len(nodes)
     for i in range(0, length, step):
-        ret.append(nodes[i: i + step])
+        ret.append(nodes[i:i + step])
     if len(ret[-1]) * 3 < step:
         ret[-2] = ret[-2] + ret[-1]
         ret = ret[:-1]
     return ret
+
 
 def split(nodes, n):
     ret = []
@@ -25,6 +21,7 @@ def split(nodes, n):
     for i in range(0, length, step):
         ret.append(nodes[i:i + step])
     return ret
+
 
 def nodes_equal(nodes1, nodes2):
     """Check if nodes are equal.
@@ -107,11 +104,12 @@ def edges_equal(edges1, edges2):
                     return False
     return True
 
+
 # Recipe from the itertools documentation.
 def pairwise(iterable, cyclic=False):
     "s -> (s0, s1), (s1, s2), (s2, s3), ..."
     a, b = tee(iterable)
     first = next(b, None)
     if cyclic is True:
-        return zip(a, chain(b, (first,)))
+        return zip(a, chain(b, (first, )))
     return zip(a, b)

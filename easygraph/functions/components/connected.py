@@ -3,11 +3,10 @@ from easygraph.utils.decorators import *
 from threading import Thread
 
 __all__ = [
-    "is_connected",
-    "number_connected_components",
-    "connected_components",
+    "is_connected", "number_connected_components", "connected_components",
     "connected_component_of_node"
 ]
+
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
@@ -33,6 +32,7 @@ def is_connected(G):
     arbitrary_node = next(iter(G))  # Pick an arbitrary node to run BFS
     return len(G) == sum(1 for node in _plain_bfs(G, arbitrary_node))
 
+
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 def number_connected_components(G):
@@ -53,6 +53,7 @@ def number_connected_components(G):
 
     """
     return sum(1 for component in _generator_connected_components(G))
+
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
@@ -77,6 +78,7 @@ def connected_components(G):
     all_components = sorted(list(_generator_connected_components(G)), key=len)
     return all_components
 
+
 @only_implemented_for_UnDirected_graph
 def _generator_connected_components(G):
     seen = set()
@@ -85,6 +87,7 @@ def _generator_connected_components(G):
             component = set(_plain_bfs(G, v))
             yield component
             seen.update(component)
+
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
@@ -111,6 +114,7 @@ def connected_component_of_node(G, node):
     
     """
     return set(_plain_bfs(G, node))
+
 
 def _plain_bfs(G, source):
     """

@@ -8,10 +8,14 @@ from easygraph.utils.exception import EasyGraphError
 
 __all__ = ["MultiGraph"]
 
+
 class MultiGraph(Graph):
     edge_key_dict_factory = dict
 
-    def __init__(self, incoming_graph_data=None, multigraph_input=None, **attr):
+    def __init__(self,
+                 incoming_graph_data=None,
+                 multigraph_input=None,
+                 **attr):
         """Initialize a graph with edges, name, or graph attributes.
 
         Parameters
@@ -58,17 +62,18 @@ class MultiGraph(Graph):
 
         """
         self.edge_key_dict_factory = self.edge_key_dict_factory
-        if isinstance(incoming_graph_data, dict) and multigraph_input is not False:
+        if isinstance(incoming_graph_data,
+                      dict) and multigraph_input is not False:
             Graph.__init__(self)
             try:
-                convert.from_dict_of_dicts(
-                    incoming_graph_data, create_using=self, multigraph_input=True
-                )
+                convert.from_dict_of_dicts(incoming_graph_data,
+                                           create_using=self,
+                                           multigraph_input=True)
                 self.graph.update(attr)
             except Exception as err:
                 if multigraph_input is True:
                     raise eg.EasyGraphError(
-                            f"converting multigraph_input raised:\n{type(err)}: {err}"
+                        f"converting multigraph_input raised:\n{type(err)}: {err}"
                     )
                 Graph.__init__(self, incoming_graph_data, **attr)
         else:
@@ -320,7 +325,8 @@ class MultiGraph(Graph):
         try:
             d = self._adj[u][v]
         except KeyError as err:
-            raise EasyGraphError(f"The edge {u}-{v} is not in the graph.") from err
+            raise EasyGraphError(
+                f"The edge {u}-{v} is not in the graph.") from err
         # remove the edge with specified data
         if key is None:
             d.popitem()
@@ -513,22 +519,20 @@ class MultiGraph(Graph):
         if weight is None:
             for n in self._nodes:
                 nbrs = self._succ[n]
-                deg = sum(len(keys) for keys in nbrs.values()) + (
-                    n in nbrs and len(nbrs[n])
-                )
+                deg = sum(len(keys)
+                          for keys in nbrs.values()) + (n in nbrs
+                                                        and len(nbrs[n]))
                 degree[n] = deg
         else:
             for n in self._nodes:
                 nbrs = self._succ[n]
                 deg = sum(
-                    d.get(weight, 1)
-                    for key_dict in nbrs.values()
-                    for d in key_dict.values()
-                )
+                    d.get(weight, 1) for key_dict in nbrs.values()
+                    for d in key_dict.values())
                 if n in nbrs:
                     deg += sum(d.get(weight, 1) for d in nbrs[n].values())
                 degree[n] = deg
-   
+
     def is_multigraph(self):
         """Returns True if graph is a multigraph, False otherwise."""
         return True
@@ -604,14 +608,12 @@ class MultiGraph(Graph):
         G = self.__class__()
         G.graph.update(self.graph)
         G.add_nodes_from((n, d.copy()) for n, d in self._node.items())
-        G.add_edges_from(
-            (u, v, key, datadict.copy())
-            for u, nbrs in self._adj.items()
-            for v, keydict in nbrs.items()
-            for key, datadict in keydict.items()
-        )
+        G.add_edges_from((u, v, key, datadict.copy())
+                         for u, nbrs in self._adj.items()
+                         for v, keydict in nbrs.items()
+                         for key, datadict in keydict.items())
         return G
-    
+
     def to_directed(self):
         """Returns a directed representation of the graph.
 
@@ -657,14 +659,12 @@ class MultiGraph(Graph):
         G = eg.MultiDiGraph()
         G.graph.update(deepcopy(self.graph))
         G.add_nodes_from((n, deepcopy(d)) for n, d in self._node.items())
-        G.add_edges_from(
-            (u, v, key, deepcopy(datadict))
-            for u, nbrs in self.adj.items()
-            for v, keydict in nbrs.items()
-            for key, datadict in keydict.items()
-        )
+        G.add_edges_from((u, v, key, deepcopy(datadict))
+                         for u, nbrs in self.adj.items()
+                         for v, keydict in nbrs.items()
+                         for key, datadict in keydict.items())
         return G
-    
+
     def number_of_edges(self, u=None, v=None):
         """Returns the number of edges between two nodes.
 

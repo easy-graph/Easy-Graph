@@ -94,7 +94,8 @@ def _strongly_connected_components(G, threshold):
                     queue.pop()
                     if lowlink[v] == preorder[v]:
                         scc = {v}
-                        while scc_queue and preorder[scc_queue[-1]] > preorder[v]:
+                        while scc_queue and preorder[
+                                scc_queue[-1]] > preorder[v]:
                             k = scc_queue.pop()
                             scc.add(k)
                         scc_found.update(scc)
@@ -126,6 +127,7 @@ def _computeScore(G, threshold):
             if closeness_c_u < 0:
                 score_dict[u] += (-1) * closeness_c_u
     return score_dict
+
 
 @not_implemented_for("multigraph")
 def weakTie(G, threshold, k):
@@ -171,6 +173,7 @@ def weakTie(G, threshold, k):
     print("score dict:", score_dict)
     print("top-k nodes:", SHS_list)
     return SHS_list, score_dict
+
 
 @not_implemented_for("multigraph")
 def _updateScore(u, G, threshold):
@@ -243,7 +246,8 @@ def _commonUpdate(G, node_u, node_v, threshold, score_dict):
             for c in _strongly_connected_components(G_w, threshold):
                 if node_u in c:
                     length = len(c)
-                    closeness_c_w = _computeCloseness(G, c, node_w, threshold, length)
+                    closeness_c_w = _computeCloseness(G, c, node_w, threshold,
+                                                      length)
                     if closeness_c_w < 0:
                         score_w -= closeness_c_w
         score_dict[node_w] = score_w
@@ -303,6 +307,7 @@ def weakTieLocal(G, edges_plus, edges_delete, threshold, score_dict, k):
     print("updated score:", score_dict)
     print("top-k nodes:", SHS_list)
     return SHS_list
+
 
 if __name__ == '__main__':
     G = eg.DiGraph()

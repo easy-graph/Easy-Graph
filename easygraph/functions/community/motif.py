@@ -2,12 +2,11 @@ import easygraph as eg
 import random
 from easygraph.utils import *
 
-__all__ = [
-    "enumerate_subgraph"
-]
+__all__ = ["enumerate_subgraph"]
+
 
 @not_implemented_for("multigraph")
-def enumerate_subgraph(G, k:int):
+def enumerate_subgraph(G, k: int):
     """
     Returns the motifs.
     Motifs are small weakly connected induced subgraphs of a given structure in a graph.
@@ -36,7 +35,9 @@ def enumerate_subgraph(G, k:int):
         extend_subgraph(G, set([v]), Vextension, v, k, k_subgraphs)
     return k_subgraphs
 
-def extend_subgraph(G, Vsubgraph:set, Vextension:set, v:int, k:int, k_subgraphs:list):
+
+def extend_subgraph(G, Vsubgraph: set, Vextension: set, v: int, k: int,
+                    k_subgraphs: list):
     if len(Vsubgraph) == k:
         k_subgraphs.append(Vsubgraph)
         return
@@ -45,9 +46,11 @@ def extend_subgraph(G, Vsubgraph:set, Vextension:set, v:int, k:int, k_subgraphs:
         Vextension.remove(w)
         NexclwVsubgraph = exclusive_neighborhood(G, w, Vsubgraph)
         VpExtension = Vextension | set([u for u in NexclwVsubgraph if u > v])
-        extend_subgraph(G, Vsubgraph | set([w]), VpExtension, v, k, k_subgraphs)
+        extend_subgraph(G, Vsubgraph | set([w]), VpExtension, v, k,
+                        k_subgraphs)
 
-def exclusive_neighborhood(G, v:int, vp:set):
+
+def exclusive_neighborhood(G, v: int, vp: set):
     Nv = set(G.adj[v])
     NVp = set([u for n in vp for u in G.adj[n]]) | vp
     return Nv - NVp

@@ -6,12 +6,15 @@ import random
 from tqdm import tqdm
 from easygraph.utils import *
 
-__all__ = [
-    "deepwalk"
-]
+__all__ = ["deepwalk"]
+
 
 @not_implemented_for("multigraph")
-def deepwalk(G, dimensions=128, walk_length=80, num_walks=10, **skip_gram_params):
+def deepwalk(G,
+             dimensions=128,
+             walk_length=80,
+             num_walks=10,
+             **skip_gram_params):
     """Graph embedding via DeepWalk.
 
     Parameters
@@ -59,15 +62,19 @@ def deepwalk(G, dimensions=128, walk_length=80, num_walks=10, **skip_gram_params
     """
     G_index, index_of_node, node_of_index = G.to_index_node_graph()
 
-    walks = simulate_walks(
-        G_index, walk_length=walk_length, num_walks=num_walks)
-    model = learn_embeddings(
-        walks=walks, dimensions=dimensions, **skip_gram_params)
+    walks = simulate_walks(G_index,
+                           walk_length=walk_length,
+                           num_walks=num_walks)
+    model = learn_embeddings(walks=walks,
+                             dimensions=dimensions,
+                             **skip_gram_params)
 
     embedding_vector, most_similar_nodes_of_node = _get_embedding_result_from_gensim_skipgram_model(
-        G=G, index_of_node=index_of_node, node_of_index=node_of_index, model=model
-    )
-    
+        G=G,
+        index_of_node=index_of_node,
+        node_of_index=node_of_index,
+        model=model)
+
     del G_index
     return embedding_vector, most_similar_nodes_of_node
 
@@ -79,11 +86,11 @@ def simulate_walks(G, walk_length, num_walks):
     for walk_iter in tqdm(range(num_walks)):
         random.shuffle(nodes)
         for node in nodes:
-            walks.append(_deepwalk_walk(G,
-                                        walk_length=walk_length,
-                                        start_node=node))
+            walks.append(
+                _deepwalk_walk(G, walk_length=walk_length, start_node=node))
 
     return walks
+
 
 def _deepwalk_walk(G, walk_length, start_node):
     '''
