@@ -2,6 +2,7 @@
 from copy import deepcopy
 
 import easygraph as eg
+from typing import Dict, List
 from easygraph.classes.graph import Graph
 import easygraph.convert as convert
 from easygraph.utils.exception import EasyGraphError

@@ -216,8 +216,8 @@ class TestPajek:
         eg.write_pajek(G, fh)
         fh.seek(0)
         H = eg.read_pajek(fh)
-        assert nodes_equal(list(G), list(H))
-        assert edges_equal(list(G.edges), list(H.edges))
+        assert nodes_equal(G.nodes, list(H))
+        assert edges_equal(G.edges, list(H.edges))
         # Graph name is left out for now, therefore it is not tested.
         # assert_equal(G.graph, H.graph)
 

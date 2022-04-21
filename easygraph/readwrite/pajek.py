@@ -118,9 +118,9 @@ def generate_pajek(G):
         yield "*arcs"
     else:
         yield "*edges"
-    for u, v, edgedata in G.edges(data=True):
-        d = edgedata.copy()
-        value = d.pop("weight", 1.0)  # use 1 as default edge value
+    # for u, v, edgedata in G.edges:
+    #     d = edgedata.copy()
+    for u, v, in G.edges:
         s = " ".join(map(make_qstr, (nodenumber[u], nodenumber[v], value)))
         for k, v in d.items():
             if isinstance(v, str) and v.strip() != "":

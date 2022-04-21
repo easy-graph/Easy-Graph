@@ -1,5 +1,6 @@
 from copy import deepcopy
 import easygraph as eg
+from typing import Dict, List
 from easygraph.classes.directed_graph import DiGraph
 from easygraph.classes.multigraph import MultiGraph
 import easygraph.convert as convert

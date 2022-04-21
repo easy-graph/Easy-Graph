@@ -1,4 +1,5 @@
 from copy import deepcopy
+from typing import Dict, List
 from easygraph.classes.graph import Graph
 from easygraph.utils.exception import EasyGraphError
 import easygraph.convert as convert
@@ -384,7 +385,7 @@ class DiGraph(Graph):
         """
         self._add_one_node(node_for_adding, node_attr)
 
-    def add_nodes(self, nodes_for_adding: list, nodes_attr: [dict] = []):
+    def add_nodes(self, nodes_for_adding: list, nodes_attr: List[Dict] = []):
         """Add nodes with a list of nodes.
 
         Parameters
@@ -549,7 +550,7 @@ class DiGraph(Graph):
     def add_weighted_edge(self, u_of_edge, v_of_edge, weight):
         self._add_one_edge(u_of_edge, v_of_edge, edge_attr={"weight": weight})
 
-    def add_edges(self, edges_for_adding, edges_attr: [dict] = []):
+    def add_edges(self, edges_for_adding, edges_attr: List[Dict] = []):
         """Add a list of edges.
 
         Parameters
