@@ -166,7 +166,7 @@ def write_pajek(G, path, encoding="UTF-8"):
 
 
 # open_file(0, mode="rb")
-def read_pajek(path, encoding="UTF-8"):
+def read_pajek(path):
     """Read graph in Pajek format from path.
 
     Parameters
@@ -194,7 +194,9 @@ def read_pajek(path, encoding="UTF-8"):
     See http://vlado.fmf.uni-lj.si/pub/networks/pajek/doc/draweps.htm
     for format information.
     """
-    lines = (line.decode(encoding) for line in path)
+    # lines = (line for line in path)
+    with open(path) as f:
+        lines = f.readlines()
     return parse_pajek(lines)
 
 
@@ -242,10 +244,7 @@ def parse_pajek(lines):
             for i in range(int(nnodes)):
                 l = next(lines)
                 try:
-                    splitline = [
-                        x.decode("utf-8")
-                        for x in shlex.split(str(l).encode("utf-8"))
-                    ]
+                    splitline = [x for x in shlex.split(str(l))]
                 except AttributeError:
                     splitline = shlex.split(str(l))
                 id, label = splitline[0:2]
@@ -270,13 +269,11 @@ def parse_pajek(lines):
                 G = eg.MultiGraph(G)
             if l.lower().startswith("*arcs"):
                 # switch to directed with multiple arcs for each existing edge
-                G = G.to_directed()
+                # G = G.to_directed()
+                pass
             for l in lines:
                 try:
-                    splitline = [
-                        x.decode("utf-8")
-                        for x in shlex.split(str(l).encode("utf-8"))
-                    ]
+                    splitline = [x for x in shlex.split(str(l))]
                 except AttributeError:
                     splitline = shlex.split(str(l))
 

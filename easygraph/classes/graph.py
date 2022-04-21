@@ -163,6 +163,27 @@ class Graph:
 
         return degree
 
+    def order(self):
+        """Returns the number of nodes in the graph.
+
+        Returns
+        -------
+        nnodes : int
+            The number of nodes in the graph.
+
+        See Also
+        --------
+        number_of_nodes: identical method
+        __len__: identical method
+
+        Examples
+        --------
+        >>> G = eg.path_graph(3)  # or DiGraph, MultiGraph, MultiDiGraph, etc
+        >>> G.order()
+        3
+        """
+        return len(self._node)
+
     def size(self, weight=None):
         """Returns the number of edges or total of all edge weights.
 
