@@ -3,7 +3,7 @@ name: Test the package with pytest
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  build:
+  pytest:
     runs-on: ubuntu-latest
     strategy:
       matrix:
