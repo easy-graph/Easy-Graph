@@ -55,9 +55,10 @@ for format information.
 
 import warnings
 import easygraph as eg
+from easygraph import MultiGraph, MultiDiGraph
 
 # import networkx as nx
-# from networkx.utils import open_file
+from easygraph.utils import open_file
 
 __all__ = ["read_pajek", "parse_pajek", "generate_pajek", "write_pajek"]
 
@@ -118,9 +119,17 @@ def generate_pajek(G):
         yield "*arcs"
     else:
         yield "*edges"
-    # for u, v, edgedata in G.edges:
-    #     d = edgedata.copy()
-    for u, v, in G.edges:
+    # from icecream import ic
+    # ic(G.edges)
+    # if isinstance(G, MultiGraph)
+    for u, v, *edgedata in G.edges:
+        # if len(edgedata) > 1:
+        #     edgedata = edgedata[1]
+        # else:
+        #     edgedata = edgedata[0]
+        edgedata = edgedata[-1]
+        d = edgedata.copy()
+        value = d.pop("weight", 1.0)  # use 1 as default edge value
         s = " ".join(map(make_qstr, (nodenumber[u], nodenumber[v], value)))
         for k, v in d.items():
             if isinstance(v, str) and v.strip() != "":
@@ -132,7 +141,7 @@ def generate_pajek(G):
         yield s
 
 
-# open_file(1, mode="wb")
+@open_file(1, mode="wb")
 def write_pajek(G, path, encoding="UTF-8"):
     """Write graph in Pajek format to path.
 
@@ -165,7 +174,7 @@ def write_pajek(G, path, encoding="UTF-8"):
         path.write(line.encode(encoding))
 
 
-# open_file(0, mode="rb")
+@open_file(0, mode="rb")
 def read_pajek(path):
     """Read graph in Pajek format from path.
 
@@ -194,9 +203,9 @@ def read_pajek(path):
     See http://vlado.fmf.uni-lj.si/pub/networks/pajek/doc/draweps.htm
     for format information.
     """
-    # lines = (line for line in path)
-    with open(path) as f:
-        lines = f.readlines()
+    lines = (line.decode() for line in path)
+    # with open(path) as f:
+    #     lines = f.readlines()
     return parse_pajek(lines)
 
 
@@ -222,6 +231,10 @@ def parse_pajek(lines):
     # multigraph=False
     if isinstance(lines, str):
         lines = iter(lines.split("\n"))
+    # from itertools import tee
+    # lines, lines2 = tee(lines)
+    # from icecream import ic
+    # ic(next(lines2))
     lines = iter([line.rstrip("\n") for line in lines])
     G = eg.MultiDiGraph()  # are multiedges allowed in Pajek? assume yes
     labels = []  # in the order of the file, needed for matrix

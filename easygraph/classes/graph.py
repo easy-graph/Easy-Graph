@@ -1,8 +1,9 @@
 from copy import deepcopy
 from typing import Dict, List
+
 import easygraph as eg
-from easygraph.utils.exception import EasyGraphError
 import easygraph.convert as convert
+from easygraph.utils.exception import EasyGraphError
 
 
 class Graph:
