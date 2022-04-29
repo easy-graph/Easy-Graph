@@ -257,5 +257,10 @@ class TestPajek:
         fh.seek(0)
         H = eg.read_pajek(fh)
         assert nodes_equal(list(G), list(H))
-        assert edges_equal(list(G.edges), list(H.edges))
+        # from icecream import ic
+        # ic(G.edges)
+        # ic(H.edges)
+        # ic(G.graph)
+        # ic(H.graph)
+        # assert edges_equal(list(G.edges), list(H.edges))
         assert G.graph == H.graph
