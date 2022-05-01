@@ -50,7 +50,7 @@ def nodes_equal(nodes1, nodes2):
     return d1 == d2
 
 
-def edges_equal(edges1, edges2):
+def edges_equal(edges1, edges2, need_data=True):
     """Check if edges are equal.
 
     Equality here means equal as Python objects.
@@ -76,17 +76,21 @@ def edges_equal(edges1, edges2):
     c1 = 0
     for c1, e in enumerate(edges1):
         u, v = e[0], e[1]
-        data = [e[2:]]
-        if v in d1[u]:
-            data = d1[u][v] + data
+        data = []
+        if need_data == True:
+            data = [e[2:]]
+            if v in d1[u]:
+                data = d1[u][v] + data
         d1[u][v] = data
         d1[v][u] = data
     c2 = 0
     for c2, e in enumerate(edges2):
         u, v = e[0], e[1]
-        data = [e[2:]]
-        if v in d2[u]:
-            data = d2[u][v] + data
+        data = []
+        if need_data == True:
+            data = [e[2:]]
+            if v in d2[u]:
+                data = d2[u][v] + data
         d2[u][v] = data
         d2[v][u] = data
     if c1 != c2:

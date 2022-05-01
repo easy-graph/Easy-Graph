@@ -55,8 +55,8 @@ def from_agraph(A, create_using=None):
     N.graph.update(A.graph_attr)
 
     # add nodes, attributes to N.node_attr
-    for n, attr in A.nodes():
-        str_attr = {str(k): v for k, v in attr.items()}
+    for n in A.nodes():
+        str_attr = {str(k): v for k, v in n.attr.items()}
         N.add_node(str(n), **str_attr)
 
     # add edges, assign edge data as dictionary of attributes
@@ -117,7 +117,7 @@ def to_agraph(N):
                         if k not in ("graph", "node", "edge"))
 
     # add nodes
-    for n, nodedata in N.nodes:
+    for n, nodedata in N.nodes.items():
         A.add_node(n)
         # Add node data
         a = A.get_node(n)
