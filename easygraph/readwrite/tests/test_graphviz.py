@@ -18,8 +18,8 @@ class TestAGraph:
         return G
 
     def assert_equal(self, G1, G2):
-        assert nodes_equal(G1.nodes(), G2.nodes())
-        assert edges_equal(G1.edges(), G2.edges())
+        assert nodes_equal(G1.nodes, G2.nodes)
+        assert edges_equal(G1.edges, G2.edges)
         assert G1.graph["metal"] == G2.graph["metal"]
 
     def agraph_checks(self, G):
@@ -50,3 +50,6 @@ class TestAGraph:
         A = eg.to_agraph(G)
         H = eg.from_agraph(A)
         assert G.name == "test"
+
+    def test_undirected(self):
+        self.agraph_checks(eg.Graph())

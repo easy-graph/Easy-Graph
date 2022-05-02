@@ -2,9 +2,12 @@ import easygraph as eg
 import itertools
 
 __all__ = [
-    "from_numpy_array",
     "to_numpy_matrix",
+    "from_numpy_array",
     "to_numpy_array",
+    "from_pandas_adjacency",
+    "from_pandas_edgelist",
+    "from_scipy_sparse_matrix",
 ]
 
 
@@ -378,3 +381,394 @@ def to_numpy_array(
     A[np.isnan(A)] = nonedge
     A = np.asarray(A, dtype=dtype)
     return A
+
+def from_pandas_adjacency(df, create_using=None):
+    r"""Returns a graph from Pandas DataFrame.
+
+    The Pandas DataFrame is interpreted as an adjacency matrix for the graph.
+
+    Parameters
+    ----------
+    df : Pandas DataFrame
+      An adjacency matrix representation of a graph
+
+    create_using : EasyGraph graph constructor, optional (default=eg.Graph)
+       Graph type to create. If graph instance, then cleared before populated.
+
+    Notes
+    -----
+    For directed graphs, explicitly mention create_using=eg.DiGraph,
+    and entry i,j of df corresponds to an edge from i to j.
+
+    If `df` has a single data type for each entry it will be converted to an
+    appropriate Python data type.
+
+    If `df` has a user-specified compound data type the names
+    of the data fields will be used as attribute keys in the resulting
+    EasyGraph graph.
+
+    See Also
+    --------
+    to_pandas_adjacency
+
+    Examples
+    --------
+    Simple integer weights on edges:
+
+    >>> import pandas as pd
+    >>> pd.options.display.max_columns = 20
+    >>> df = pd.DataFrame([[1, 1], [2, 1]])
+    >>> df
+       0  1
+    0  1  1
+    1  2  1
+    >>> G = eg.from_pandas_adjacency(df)
+    >>> G.name = "Graph from pandas adjacency matrix"
+    """
+
+    try:
+        df = df[df.index]
+    except Exception as err:
+        missing = list(set(df.index).difference(set(df.columns)))
+        msg = f"{missing} not in columns"
+        raise eg.EasyGraphError("Columns must match Indices.", msg) from err
+
+    A = df.values
+    G = from_numpy_array(A, create_using=create_using)
+
+    G = eg.relabel_nodes(G, dict(enumerate(df.columns)))
+    return G
+
+def from_pandas_edgelist(
+    df,
+    source="source",
+    target="target",
+    edge_attr=None,
+    create_using=None,
+    edge_key=None,
+):
+    """Returns a graph from Pandas DataFrame containing an edge list.
+
+    The Pandas DataFrame should contain at least two columns of node names and
+    zero or more columns of edge attributes. Each row will be processed as one
+    edge instance.
+
+    Note: This function iterates over DataFrame.values, which is not
+    guaranteed to retain the data type across columns in the row. This is only
+    a problem if your row is entirely numeric and a mix of ints and floats. In
+    that case, all values will be returned as floats. See the
+    DataFrame.iterrows documentation for an example.
+
+    Parameters
+    ----------
+    df : Pandas DataFrame
+        An edge list representation of a graph
+
+    source : str or int
+        A valid column name (string or integer) for the source nodes (for the
+        directed case).
+
+    target : str or int
+        A valid column name (string or integer) for the target nodes (for the
+        directed case).
+
+    edge_attr : str or int, iterable, True, or None
+        A valid column name (str or int) or iterable of column names that are
+        used to retrieve items and add them to the graph as edge attributes.
+        If `True`, all of the remaining columns will be added.
+        If `None`, no edge attributes are added to the graph.
+
+    create_using : EasyGraph graph constructor, optional (default=eg.Graph)
+        Graph type to create. If graph instance, then cleared before populated.
+
+    edge_key : str or None, optional (default=None)
+        A valid column name for the edge keys (for a MultiGraph). The values in
+        this column are used for the edge keys when adding edges if create_using
+        is a multigraph.
+
+    See Also
+    --------
+    to_pandas_edgelist
+
+    Examples
+    --------
+    Simple integer weights on edges:
+
+    >>> import pandas as pd
+    >>> pd.options.display.max_columns = 20
+    >>> import numpy as np
+    >>> rng = np.random.RandomState(seed=5)
+    >>> ints = rng.randint(1, 11, size=(3, 2))
+    >>> a = ["A", "B", "C"]
+    >>> b = ["D", "A", "E"]
+    >>> df = pd.DataFrame(ints, columns=["weight", "cost"])
+    >>> df[0] = a
+    >>> df["b"] = b
+    >>> df[["weight", "cost", 0, "b"]]
+       weight  cost  0  b
+    0       4     7  A  D
+    1       7     1  B  A
+    2      10     9  C  E
+    >>> G = eg.from_pandas_edgelist(df, 0, "b", ["weight", "cost"])
+    >>> G["E"]["C"]["weight"]
+    10
+    >>> G["E"]["C"]["cost"]
+    9
+    >>> edges = pd.DataFrame(
+    ...     {
+    ...         "source": [0, 1, 2],
+    ...         "target": [2, 2, 3],
+    ...         "weight": [3, 4, 5],
+    ...         "color": ["red", "blue", "blue"],
+    ...     }
+    ... )
+    >>> G = eg.from_pandas_edgelist(edges, edge_attr=True)
+    >>> G[0][2]["color"]
+    'red'
+
+    Build multigraph with custom keys:
+
+    >>> edges = pd.DataFrame(
+    ...     {
+    ...         "source": [0, 1, 2, 0],
+    ...         "target": [2, 2, 3, 2],
+    ...         "my_edge_key": ["A", "B", "C", "D"],
+    ...         "weight": [3, 4, 5, 6],
+    ...         "color": ["red", "blue", "blue", "blue"],
+    ...     }
+    ... )
+    >>> G = eg.from_pandas_edgelist(
+    ...     edges,
+    ...     edge_key="my_edge_key",
+    ...     edge_attr=["weight", "color"],
+    ...     create_using=eg.MultiGraph(),
+    ... )
+    >>> G[0][2]
+    AtlasView({'A': {'weight': 3, 'color': 'red'}, 'D': {'weight': 6, 'color': 'blue'}})
+
+
+    """
+    g = eg.empty_graph(0, create_using)
+
+    if edge_attr is None:
+        g.add_edges_from(zip(df[source], df[target]))
+        return g
+
+    reserved_columns = [source, target]
+
+    # Additional columns requested
+    attr_col_headings = []
+    attribute_data = []
+    if edge_attr is True:
+        attr_col_headings = [c for c in df.columns if c not in reserved_columns]
+    elif isinstance(edge_attr, (list, tuple)):
+        attr_col_headings = edge_attr
+    else:
+        attr_col_headings = [edge_attr]
+    if len(attr_col_headings) == 0:
+        raise eg.EasyGraphError(
+            f"Invalid edge_attr argument: No columns found with name: {attr_col_headings}"
+        )
+
+    try:
+        attribute_data = zip(*[df[col] for col in attr_col_headings])
+    except (KeyError, TypeError) as err:
+        msg = f"Invalid edge_attr argument: {edge_attr}"
+        raise eg.EasyGraphError(msg) from err
+
+    if g.is_multigraph():
+        # => append the edge keys from the df to the bundled data
+        if edge_key is not None:
+            try:
+                multigraph_edge_keys = df[edge_key]
+                attribute_data = zip(attribute_data, multigraph_edge_keys)
+            except (KeyError, TypeError) as err:
+                msg = f"Invalid edge_key argument: {edge_key}"
+                raise eg.EasyGraphError(msg) from err
+
+        for s, t, attrs in zip(df[source], df[target], attribute_data):
+            if edge_key is not None:
+                attrs, multigraph_edge_key = attrs
+                key = g.add_edge(s, t, key=multigraph_edge_key)
+            else:
+                key = g.add_edge(s, t)
+
+            g[s][t][key].update(zip(attr_col_headings, attrs))
+    else:
+        for s, t, attrs in zip(df[source], df[target], attribute_data):
+            g.add_edge(s, t)
+            g[s][t].update(zip(attr_col_headings, attrs))
+
+    return g
+
+def from_scipy_sparse_matrix(
+    A, parallel_edges=False, create_using=None, edge_attribute="weight"
+):
+    """Creates a new graph from an adjacency matrix given as a SciPy sparse
+    matrix.
+
+    Parameters
+    ----------
+    A: scipy sparse matrix
+      An adjacency matrix representation of a graph
+
+    parallel_edges : Boolean
+      If this is True, `create_using` is a multigraph, and `A` is an
+      integer matrix, then entry *(i, j)* in the matrix is interpreted as the
+      number of parallel edges joining vertices *i* and *j* in the graph.
+      If it is False, then the entries in the matrix are interpreted as
+      the weight of a single edge joining the vertices.
+
+    create_using : EasyGraph graph constructor, optional (default=eg.Graph)
+       Graph type to create. If graph instance, then cleared before populated.
+
+    edge_attribute: string
+       Name of edge attribute to store matrix numeric value. The data will
+       have the same type as the matrix entry (int, float, (real,imag)).
+
+    Notes
+    -----
+    For directed graphs, explicitly mention create_using=eg.DiGraph,
+    and entry i,j of A corresponds to an edge from i to j.
+
+    If `create_using` is :class:`easygraph.MultiGraph` or
+    :class:`easygraph.MultiDiGraph`, `parallel_edges` is True, and the
+    entries of `A` are of type :class:`int`, then this function returns a
+    multigraph (constructed from `create_using`) with parallel edges.
+    In this case, `edge_attribute` will be ignored.
+
+    If `create_using` indicates an undirected multigraph, then only the edges
+    indicated by the upper triangle of the matrix `A` will be added to the
+    graph.
+
+    Examples
+    --------
+    >>> import scipy as sp
+    >>> import scipy.sparse  # call as sp.sparse
+    >>> A = sp.sparse.eye(2, 2, 1)
+    >>> G = eg.from_scipy_sparse_matrix(A)
+
+    If `create_using` indicates a multigraph and the matrix has only integer
+    entries and `parallel_edges` is Falnxse, then the entries will be treated
+    as weights for edges joining the nodes (without creating parallel edges):
+
+    >>> A = sp.sparse.csr_matrix([[1, 1], [1, 2]])
+    >>> G = eg.from_scipy_sparse_matrix(A, create_using=eg.MultiGraph)
+    >>> G[1][1]
+    AtlasView({0: {'weight': 2}})
+
+    If `create_using` indicates a multigraph and the matrix has only integer
+    entries and `parallel_edges` is True, then the entries will be treated
+    as the number of parallel edges joining those two vertices:
+
+    >>> A = sp.sparse.csr_matrix([[1, 1], [1, 2]])
+    >>> G = eg.from_scipy_sparse_matrix(
+    ...     A, parallel_edges=True, create_using=eg.MultiGraph
+    ... )
+    >>> G[1][1]
+    AtlasView({0: {'weight': 1}, 1: {'weight': 1}})
+
+    """
+    
+    return from_scipy_sparse_array(
+        A,
+        parallel_edges=parallel_edges,
+        create_using=create_using,
+        edge_attribute=edge_attribute,
+    )
+
+def from_scipy_sparse_array(
+    A, parallel_edges=False, create_using=None, edge_attribute="weight"
+):
+    G = eg.empty_graph(0, create_using)
+    n, m = A.shape
+    if n != m:
+        raise eg.EasyGraphError(f"Adjacency matrix not square: nx,ny={A.shape}")
+    # Make sure we get even the isolated nodes of the graph.
+    G.add_nodes_from(range(n))
+    # Create an iterable over (u, v, w) triples and for each triple, add an
+    # edge from u to v with weight w.
+    triples = _generate_weighted_edges(A)
+    # If the entries in the adjacency matrix are integers, the graph is a
+    # multigraph, and parallel_edges is True, then create parallel edges, each
+    # with weight 1, for each entry in the adjacency matrix. Otherwise, create
+    # one edge for each positive entry in the adjacency matrix and set the
+    # weight of that edge to be the entry in the matrix.
+    if A.dtype.kind in ("i", "u") and G.is_multigraph() and parallel_edges:
+        chain = itertools.chain.from_iterable
+        # The following line is equivalent to:
+        #
+        #     for (u, v) in edges:
+        #         for d in range(A[u, v]):
+        #             G.add_edge(u, v, weight=1)
+        #
+        triples = chain(((u, v, 1) for d in range(w)) for (u, v, w) in triples)
+    # If we are creating an undirected multigraph, only add the edges from the
+    # upper triangle of the matrix. Otherwise, add all the edges. This relies
+    # on the fact that the vertices created in the
+    # `_generated_weighted_edges()` function are actually the row/column
+    # indices for the matrix `A`.
+    #
+    # Without this check, we run into a problem where each edge is added twice
+    # when `G.add_weighted_edges_from()` is invoked below.
+    if G.is_multigraph() and not G.is_directed():
+        triples = ((u, v, d) for u, v, d in triples if u <= v)
+    G.add_edges_from(((u, v, {"weight": d}) for u, v, d in triples))
+    return G
+
+def _generate_weighted_edges(A):
+    """Returns an iterable over (u, v, w) triples, where u and v are adjacent
+    vertices and w is the weight of the edge joining u and v.
+
+    `A` is a SciPy sparse matrix (in any format).
+
+    """
+    if A.format == "csr":
+        return _csr_gen_triples(A)
+    if A.format == "csc":
+        return _csc_gen_triples(A)
+    if A.format == "dok":
+        return _dok_gen_triples(A)
+    # If A is in any other format (including COO), convert it to COO format.
+    return _coo_gen_triples(A.tocoo())
+
+def _csr_gen_triples(A):
+    """Converts a SciPy sparse matrix in **Compressed Sparse Row** format to
+    an iterable of weighted edge triples.
+
+    """
+    nrows = A.shape[0]
+    data, indices, indptr = A.data, A.indices, A.indptr
+    for i in range(nrows):
+        for j in range(indptr[i], indptr[i + 1]):
+            yield i, indices[j], data[j]
+
+
+def _csc_gen_triples(A):
+    """Converts a SciPy sparse matrix in **Compressed Sparse Column** format to
+    an iterable of weighted edge triples.
+
+    """
+    ncols = A.shape[1]
+    data, indices, indptr = A.data, A.indices, A.indptr
+    for i in range(ncols):
+        for j in range(indptr[i], indptr[i + 1]):
+            yield indices[j], i, data[j]
+
+
+def _coo_gen_triples(A):
+    """Converts a SciPy sparse matrix in **Coordinate** format to an iterable
+    of weighted edge triples.
+
+    """
+    row, col, data = A.row, A.col, A.data
+    return zip(row, col, data)
+
+
+def _dok_gen_triples(A):
+    """Converts a SciPy sparse matrix in **Dictionary of Keys** format to an
+    iterable of weighted edge triples.
+
+    """
+    for (r, c), v in A.items():
+        yield r, c, v
