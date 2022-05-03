@@ -34,7 +34,7 @@ def pagerank(G, alpha=0.85):
 
 def google_matrix(G, alpha):
     import numpy as np
-    M = eg.utils.to_numpy_matrix(G)
+    M = eg.utils.to_numpy_array(G)
     N = len(G)
     if N == 0:
         return M
@@ -45,6 +45,6 @@ def google_matrix(G, alpha):
     for node in dangling_nodes:
         M[node] = dangling_weights
 
-    M /= M.sum(axis=1)
+    M /= M.sum(axis=1)[:, np.newaxis]
 
     return alpha * M + (1 - alpha) * np.repeat(1.0 / N, N)
