@@ -5,3 +5,4 @@ from easygraph.readwrite.ucinet import *
 from easygraph.readwrite.edgelist import *
 from easygraph.readwrite.graphviz import *
 from easygraph.readwrite.pajek import *
+from easygraph.readwrite.pickle import *
