@@ -24,7 +24,7 @@ jobs:
           pip install pytest
           pip install Pillow
           pip install kiwisolver
-          pip install tensorflow
+          pip install gensim
           python setup.py install
           # python setup.py egg_info
           # pip install -r *.egg-info/requires.txt

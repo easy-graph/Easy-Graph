@@ -80,10 +80,10 @@ def closeness_centrality(G, weight=None, n_workers=None):
         # use np-parallel version for small graph
         for node in nodes:
             x = path_length(G, node)
-        dist = sum(x.values())
-        cnt = len(x)
-        if dist == 0:
-            closeness[node] = 0
-        else:
-            closeness[node] = (cnt - 1) * (cnt - 1) / (dist * (length - 1))
+            dist = sum(x.values())
+            cnt = len(x)
+            if dist == 0:
+                closeness[node] = 0
+            else:
+                closeness[node] = (cnt - 1) * (cnt - 1) / (dist * (length - 1))
     return closeness
