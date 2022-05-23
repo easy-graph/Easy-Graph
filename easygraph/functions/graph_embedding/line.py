@@ -8,7 +8,11 @@ import numpy as np
 
 
 def line_loss(y_true, y_pred):
-    import tensorflow as tf
+    try:
+        import tensorflow as tf
+    except ImportWarning:
+        print("tensorflow not found, please install")
+        pass
     from tensorflow.python.keras import backend as K
 
     y = K.sigmoid(y_true * y_pred)
@@ -17,7 +21,11 @@ def line_loss(y_true, y_pred):
 
 
 def create_model(numNodes, embedding_size, order='second'):
-    import tensorflow as tf
+    try:
+        import tensorflow as tf
+    except ImportWarning:
+        print("tensorflow not found, please install")
+        pass
     from tensorflow.python.keras.layers import Embedding, Input, Lambda
     from tensorflow.python.keras.models import Model
 
