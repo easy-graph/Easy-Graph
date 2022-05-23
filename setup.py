@@ -23,7 +23,7 @@ if uname[0] == "Darwin" or uname[0] == "Linux":
 CYTHON_STR = 'Cython'
 
 setuptools.setup(name="Python-EasyGraph",
-                 version="0.2a40",
+                 version="0.2a38",
                  author="Fudan MSN Group",
                  author_email="easygraph@163.com",
                  description="Easy Graph",
@@ -44,8 +44,6 @@ setuptools.setup(name="Python-EasyGraph",
                      "numpy>=1.18.5, <=1.19.5; python_version=='3.6'",
                      "numpy>=1.18.5; python_version>='3.7'",
                      "tqdm>=4.49.0",
-                     "tensorflow>=2.4.0, <=2.6.2; python_version=='3.6'",
-                     "tensorflow>=2.4.0; python_version>='3.7'",
                      "joblib>=0.16.0",
                      "six>=1.15.0, <1.16.0",
                      "gensim<=4.1.2; python_version=='3.6'",

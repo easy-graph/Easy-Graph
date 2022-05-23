@@ -89,8 +89,9 @@ def betweenness_centrality(G,
                                  accumulate=accumulate)
         with Pool(n_workers) as p:
             ret = p.imap(local_function, nodes)
-            for key in betweenness:
-                betweenness[key] = sum(res[key] for res in ret)
+            for res in ret:
+                for key in res:
+                    betweenness[key] += res[key]
     else:
         # use np-parallel version for small graph
         for node in nodes:

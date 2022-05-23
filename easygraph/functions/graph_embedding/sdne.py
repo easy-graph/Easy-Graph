@@ -20,6 +20,11 @@ def get_relation_of_index_and_node(graph):
 
 
 def l_2nd(beta):
+    try:
+        import tensorflow
+    except ImportWarning:
+        print("tensorflow not found, please install")
+        pass
     from tensorflow.python.keras import backend as K
 
     def loss_2nd(y_true, y_pred):
@@ -37,7 +42,11 @@ def l_2nd(beta):
 
 
 def l_1st(alpha):
-    import tensorflow as tf
+    try:
+        import tensorflow as tf
+    except ImportWarning:
+        print("tensorflow not found, please install")
+        pass
     from tensorflow.python.keras import backend as K
 
     def loss_1st(y_true, y_pred):
@@ -51,6 +60,11 @@ def l_1st(alpha):
 
 
 def create_model(node_size, hidden_size=[256, 128], l1=1e-5, l2=1e-4):
+    try:
+        import tensorflow
+    except ImportWarning:
+        print("tensorflow not found, please install")
+        pass
     from tensorflow.python.keras.layers import Dense, Input
     from tensorflow.python.keras.models import Model
     from tensorflow.python.keras.regularizers import l1_l2
@@ -170,6 +184,11 @@ class SDNE(object):
         verbose : int, optional (default : 1)
 
         """
+        try:
+            import tensorflow 
+        except ImportWarning:
+            print("tensorflow not found, please install")
+            pass
         from tensorflow.python.keras.callbacks import History
 
         if batch_size >= self.node_size:
@@ -265,3 +284,4 @@ class SDNE(object):
         D = sp.diags(A_.sum(axis=1).flatten().tolist()[0])
         L = D - A_
         return A, L
+
