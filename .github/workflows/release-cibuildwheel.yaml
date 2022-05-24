@@ -80,7 +80,7 @@ jobs:
           pip install --index-url https://test.pypi.org/simple/ --no-deps python-easygraph
 
       - name: Check if the installation works
-        run: python "${{ github.workspace }}/scripts/check_installation.py
+        run: python "${{ github.workspace }}/scripts/check_installation.py"
 
   upload_test_pypi:
     name: Upload to Test PyPI
