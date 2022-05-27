@@ -11,16 +11,16 @@ name: Build and upload to PyPI
 #       - published
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Test the package with pytest"]
-    branches: [master]
-    types:
-      - completed
+  # workflow_run:
+  #   workflows: ["Test the package with pytest"]
+  #   branches: [master]
+  #   types:
+  #     - completed
 
 jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -38,7 +38,7 @@ jobs:
 
   build_sdist:
     name: Build source distribution
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -54,7 +54,7 @@ jobs:
     name: Test if the latest release on Test PyPI installs and works
     needs: [build_wheels, build_sdist, upload_test_pypi]
     # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
-    if: startsWith(github.event.ref, 'refs/tags/v')
+    # if: startsWith(github.event.ref, 'refs/tags/v')
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     # upload to PyPI on every tag starting with 'v'
     # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
-    if: startsWith(github.event.ref, 'refs/tags/v')
+    # if: startsWith(github.event.ref, 'refs/tags/v')
     # alternatively, to publish when a GitHub Release is created, use the following rule:
     # if: github.event_name == 'release' && github.event.action == 'published'
     steps:
@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     # upload to PyPI on every tag starting with 'v'
     # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
-    if: startsWith(github.event.ref, 'refs/tags/v')
+    # if: startsWith(github.event.ref, 'refs/tags/v')
     # alternatively, to publish when a GitHub Release is created, use the following rule:
     # if: github.event_name == 'release' && github.event.action == 'published'
     steps:
