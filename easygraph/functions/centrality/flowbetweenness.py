@@ -15,11 +15,19 @@ def flowbetweenness_centrality(G):
 
        c_B(v) =\sum_{s,t \in V} \frac{\sigma(s, t|v)}{\sigma(s, t)}
 
-    where $V$ is the set of nodes, $\sigma(s, t)$ is the number of
-    independent $(s, t)$-paths,  and $\sigma(s, t|v)$ is the maximum 
-    number possible of those paths  passing through some  node $v$ 
-    other than $s, t$. If $s = t$, $\sigma(s, t) = 1$, and if $v \in {s, t}$,
-    $\sigma(s, t|v) = 0$ [2]_.
+    where V is the set of nodes, 
+    
+    .. math::
+
+        \sigma(s, t)\ is\ the\ number\ of\ independent\ (s, t)-paths,
+    
+    .. math::
+        
+        \sigma(s, t|v)\ is\ the\ maximum\ number\ possible\ of\ those\ paths\ passing\ through\ some\ node\ v\ other\ than\ s, t.\
+    
+    .. math::
+
+        If\ s\ =\ t,\ \sigma(s, t)\ =\ 1,\ and\ if\ v \in \{s, t\},\ \sigma(s, t|v)\ =\ 0\ [2]_.
 
     Parameters
     ----------
