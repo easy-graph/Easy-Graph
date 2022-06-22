@@ -23,17 +23,21 @@ def LPA(G):
     available, choose a label randomly. Finally, nodes having the same labels are grouped together as 
     communities. In case two or more disconnected groups of nodes have the same label, we run a simple 
     breadth-first search to separate the disconnected communities
+
     Parameters
     ----------
     G : graph
       A easygraph graph
+
     Returns
     ----------
     communities : dictionary
       key: serial number of community , value: nodes in the community.
+
     Examples
     ----------
     >>> LPA(G)
+
     References
     ----------
     .. [1] Usha Nandini Raghavan, Réka Albert, and Soundar Kumara: 
@@ -79,6 +83,7 @@ def LPA(G):
 def SLPA(G, T, r):
     '''Detect Overlapping Communities by Speaker-listener Label Propagation Algorithm
     Return the detected Overlapping communities. But the result is random.
+
     Parameters
     ----------
     G : graph
@@ -87,16 +92,19 @@ def SLPA(G, T, r):
       The number of iterations, In general, T is set greater than 20, which produces relatively stable outputs.
     r : int
       a threshold between 0 and 1.
+
     Returns
     -------
     communities : dictionary
       key: serial number of community , value: nodes in the community.
+
     Examples
     ----------
     >>> SLPA(G,
     ...     T = 20, 
     ...     r = 0.05
     ...     )     
+    
     References
     ----------
     .. [1] Jierui Xie, Boleslaw K. Szymanski, Xiaoming Liu:

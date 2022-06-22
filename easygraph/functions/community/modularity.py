@@ -6,7 +6,7 @@ __all__ = ["modularity"]
 
 @not_implemented_for("multigraph")
 def modularity(G, communities, weight='weight'):
-    """
+    r"""
     Returns the modularity of the given partition of the graph.
     Modularity is defined in [1]_ as
 
@@ -15,9 +15,12 @@ def modularity(G, communities, weight='weight'):
         Q = \frac{1}{2m} \sum_{ij} \left( A_{ij} - \frac{k_ik_j}{2m}\right)
             \delta(c_i,c_j)
 
-    where $m$ is the number of edges, $A$ is the adjacency matrix of
-    `G`, $k_i$ is the degree of $i$ and $\delta(c_i, c_j)$
-    is 1 if $i$ and $j$ are in the same community and 0 otherwise.
+    where m is the number of edges, A is the adjacency matrix of
+    `G`, 
+    
+    .. math::
+
+        k_i\ is\ the\ degree\ of\ i\ and\ \delta(c_i, c_j)\ is\ 1\ if\ i\ and\ j\ are\ in\ the\ same\ community\ and\ 0\ otherwise.
 
     Parameters
     ----------
