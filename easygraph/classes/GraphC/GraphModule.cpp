@@ -7,7 +7,7 @@ PyMethodDef ModuleMethods[] = {  //method list
     {NULL}
 };
 
-//module对象定义
+//module瀵硅薄瀹氫箟
 PyModuleDef Graphmodule = {
     PyModuleDef_HEAD_INIT,
     "cpp_easygraph", //module name

@@ -9,7 +9,7 @@ PyMethodDef GraphMapMethods[] = {
     {NULL}
 };
 
-//×÷ÎªmappingµÄ·½·¨
+//ä½œä¸ºmappingçš„æ–¹æ³•
 Py_ssize_t GraphMap_len(GraphMap* self) {
     Py_ssize_t ret = 0;
     switch (self->type) {
@@ -43,7 +43,7 @@ PyMappingMethods GraphMap_mapping_methods = {
     nullptr,                               /* mp_ass_subscript */
 };
 
-//×÷ÎªsequenceµÄ·½·¨
+//ä½œä¸ºsequenceçš„æ–¹æ³•
 int GraphMap_contains(GraphMap* self, PyObject* args) {
     int ret = 0;
     switch (self->type) {
@@ -96,7 +96,7 @@ PySequenceMethods GraphMap_sequence_methods = {
     nullptr                                /* sq_inplace_repeat */
 };
 
-//ÄÚÖÃ·½·¨
+//å†…ç½®æ–¹æ³•
 PyObject* GraphMap_new(PyTypeObject* type, PyObject* args, PyObject* kwds) {
     GraphMap* self = (GraphMap*)type->tp_alloc(type, 0);
     return (PyObject*)self;
@@ -226,7 +226,7 @@ PyTypeObject GraphMapType = {
 #endif
 };
 
-//ÏÂÃæÊÇ²¿·ÖÐèÒª¶îÍâ·ÅÖÃµÄº¯ÊýÌå
+//ä¸‹é¢æ˜¯éƒ¨åˆ†éœ€è¦é¢å¤–æ”¾ç½®çš„å‡½æ•°ä½“
 PyObject* _GraphMap_getitem(GraphMap* self, PyObject* pykey, PyObject* default_val = Py_None) {
     PyObject* ret = Py_None;
     switch (self->type) {

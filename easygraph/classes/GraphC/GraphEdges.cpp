@@ -1,6 +1,6 @@
 #include "GraphEdges.h"
 
-//×÷ÎªsequenceµÄ·½·¨
+//ä½œä¸ºsequenceçš„æ–¹æ³•
 Py_ssize_t GraphEdges_len(GraphEdges* self) {
     return self->edges.size();
 }
@@ -32,7 +32,7 @@ PySequenceMethods GraphEdges_sequence_methods = {
     nullptr                                /* sq_inplace_repeat */
 };
 
-//ÄÚÖÃ·½·¨
+//å†…ç½®æ–¹æ³•
 PyObject* GraphEdges_repr(GraphEdges* self) {
     PyObject* ret = PyUnicode_FromString("[");
     auto iter = self->edges.begin(), end = self->edges.end();

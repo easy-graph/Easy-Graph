@@ -1,6 +1,6 @@
 #include "Graph.h"
 
-//ÒÔÏÂÊÇÀàµÄÊôÐÔ·½·¨
+//ä»¥ä¸‹æ˜¯ç±»çš„å±žæ€§æ–¹æ³•
 PyObject* Graph_get_graph(Graph* self, void*) {
     return self->graph;
 }
@@ -62,7 +62,7 @@ PyGetSetDef Graph_get_set[] = {
     {NULL}  /* Sentinel */
 };
 
-//ÒÔÏÂÊÇÀàµÄ·½·¨
+//ä»¥ä¸‹æ˜¯ç±»çš„æ–¹æ³•
 void _add_one_node(Graph* self, PyObject* one_node_for_adding, PyObject* node_attr, std::map<std::string, float>* c_node_attr) {
     int id;
     if (PyDict_Contains(self->node_to_id, one_node_for_adding)) {
@@ -510,7 +510,7 @@ PyMethodDef GraphMethods[] = {
     {NULL}
 };
 
-//ÒÔÏÂÊÇ×÷ÎªsequenceµÄ·½·¨
+//ä»¥ä¸‹æ˜¯ä½œä¸ºsequenceçš„æ–¹æ³•
 Py_ssize_t Graph_len(Graph* self) {
     return self->node.size();
 }
@@ -532,7 +532,7 @@ PySequenceMethods Graph_sequence_methods = {
     nullptr                                /* sq_inplace_repeat */
 };
 
-//ÒÔÏÂÊÇ×÷ÎªmappingµÄ·½·¨
+//ä»¥ä¸‹æ˜¯ä½œä¸ºmappingçš„æ–¹æ³•
 PyObject* Graph_getitem(Graph* self, PyObject* pykey) {
     PyObject* pkey = PyTuple_GetItem(pykey, 0);
     if (PyDict_Contains(self->node_to_id, pkey)) {
@@ -556,7 +556,7 @@ PyMappingMethods Graph_mapping_methods = {
     nullptr,                               /* mp_ass_subscript */
 };
 
-//ÒÔÏÂÊÇÀàµÄÄÚÖÃ·½·¨
+//ä»¥ä¸‹æ˜¯ç±»çš„å†…ç½®æ–¹æ³•
 PyObject* Graph_new(PyTypeObject* type, PyObject* args, PyObject* kwds) {
     Graph* self;
     self = (Graph*)type->tp_alloc(type, 0);
@@ -589,7 +589,7 @@ PyObject* Graph_iter(Graph* self) {
     return (PyObject*)temp_iter;
 }
 
-//Type¶ÔÏó¶¨Òå
+//Typeå¯¹è±¡å®šä¹‰
 PyTypeObject GraphType = {
     PyVarObject_HEAD_INIT(nullptr, 0)
     "cpp_easygraph.Graph",                             /* tp_name */

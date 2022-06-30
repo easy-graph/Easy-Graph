@@ -27,7 +27,7 @@ PyObject* Graph_get_adj(Graph* self, void*);
 
 PyObject* Graph_get_edges(Graph* self, void*);
 
-//ÒÔÏÂÊÇÀàµÄ·½·¨
+//ä»¥ä¸‹æ˜¯ç±»çš„æ–¹æ³•
 void _add_one_node(Graph* self, PyObject* one_node_for_adding, PyObject* node_attr, std::map<std::string, float>* c_node_attr = nullptr);
 
 PyObject* Graph_add_node(Graph* self, PyObject* arg, PyObject* kwarg);
@@ -80,15 +80,15 @@ PyObject* Graph_ego_subgraph(Graph* self, PyObject* args, PyObject* kwargs);
 
 PyObject* Graph_to_index_node_graph(Graph* self, PyObject* args, PyObject* kwargs);
 
-//ÒÔÏÂÊÇ×÷ÎªsequenceµÄ·½·¨
+//ä»¥ä¸‹æ˜¯ä½œä¸ºsequenceçš„æ–¹æ³•
 Py_ssize_t Graph_len(Graph* self);
 
 int Graph_contains(Graph* self, PyObject* node);
 
-//ÒÔÏÂÊÇ×÷ÎªmappingµÄ·½·¨
+//ä»¥ä¸‹æ˜¯ä½œä¸ºmappingçš„æ–¹æ³•
 PyObject* Graph_getitem(Graph* self, PyObject* pykey);
 
-//ÒÔÏÂÊÇÀàµÄÄÚÖÃ·½·¨
+//ä»¥ä¸‹æ˜¯ç±»çš„å†…ç½®æ–¹æ³•
 PyObject* Graph_new(PyTypeObject* type, PyObject* args, PyObject* kwds);
 
 void* Graph_dealloc(PyObject* obj);

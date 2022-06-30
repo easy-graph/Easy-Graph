@@ -12,10 +12,10 @@ struct GraphEdge {
     PyObject* node_to_id, * id_to_node;
 };
 
-//×÷ÎªsequenceµÄ·½·¨
+//ä½œä¸ºsequenceçš„æ–¹æ³•
 PyObject* GraphEdge_GetItem(GraphEdge* self, Py_ssize_t index);
 
-//ÄÚÖÃ·½·¨
+//å†…ç½®æ–¹æ³•
 PyObject* GraphEdge_repr(GraphEdge* self);
 
 PyObject* GraphEdge_new(PyTypeObject* type, PyObject* args, PyObject* kwds);

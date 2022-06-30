@@ -1,7 +1,7 @@
 #include "GraphMap.h"
 #include "GraphEdge.h"
 
-//×÷ÎªsequenceµÄ·½·¨
+//ä½œä¸ºsequenceçš„æ–¹æ³•
 PyObject* GraphEdge_GetItem(GraphEdge* self, Py_ssize_t index) {
     PyObject* ret = nullptr;
     switch (index) {
@@ -37,7 +37,7 @@ PySequenceMethods GraphEdge_sequence_methods = {
     nullptr                                /* sq_inplace_repeat */
 };
 
-//ÄÚÖÃ·½·¨
+//å†…ç½®æ–¹æ³•
 PyObject* GraphEdge_repr(GraphEdge* self) {
     GraphMap* temp_map = (GraphMap*)PyObject_CallFunctionObjArgs((PyObject*)&GraphMapType, nullptr);
     temp_map->type = Msf;

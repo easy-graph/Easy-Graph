@@ -1,7 +1,7 @@
 #pragma once
 #include "Common.h"
 
-//¸Ã´úÂëÖ÷ÒªÓÃÓÚmapÀàµÄ·â×°£¬¾ßÌåÏë·¨¾ÍÊÇÓĞÒ»¸öenumÃ¶¾Ù³ÉÔ±ÀàĞÍ£¬È»ºó¸ù¾İenumÀàĞÍ¶¨ÒåÈçºÎ·µ»ØÖµ
+//è¯¥ä»£ç ä¸»è¦ç”¨äºmapç±»çš„å°è£…ï¼Œå…·ä½“æƒ³æ³•å°±æ˜¯æœ‰ä¸€ä¸ªenumæšä¸¾æˆå‘˜ç±»å‹ï¼Œç„¶åæ ¹æ®enumç±»å‹å®šä¹‰å¦‚ä½•è¿”å›å€¼
 enum MapType { Msf = 0, Mif, Mii, MiMsf, MiMiMsf };
 
 struct GraphMapIter {
@@ -49,15 +49,15 @@ PyObject* GraphMap_values(GraphMap* self);
 
 PyObject* GraphMap_items(GraphMap* self);
 
-//×÷ÎªmappingµÄ·½·¨
+//ä½œä¸ºmappingçš„æ–¹æ³•
 PyObject* GraphMap_getitem(GraphMap* self, PyObject* pykey);
 
 Py_ssize_t GraphMap_len(GraphMap* self);
 
-//×÷ÎªsequenceµÄ·½·¨
+//ä½œä¸ºsequenceçš„æ–¹æ³•
 int GraphMap_contains(GraphMap* self, PyObject* args);
 
-//ÄÚÖÃ·½·¨
+//å†…ç½®æ–¹æ³•
 PyObject* GraphMap_new(PyTypeObject* type, PyObject* args, PyObject* kwds);
 
 void* GraphMap_dealloc(PyObject* obj);

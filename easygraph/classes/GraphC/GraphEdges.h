@@ -25,12 +25,12 @@ struct GraphEdges {
     PyObject* node_to_id, * id_to_node;
 };
 
-//×÷ÎªsequenceµÄ·½·¨
+//ä½œä¸ºsequenceçš„æ–¹æ³•
 Py_ssize_t GraphEdges_len(GraphEdges* self);
 
 PyObject* GraphEdges_GetItem(GraphEdges* self, Py_ssize_t index);
 
-//ÄÚÖÃ·½·¨
+//å†…ç½®æ–¹æ³•
 PyObject* GraphEdges_repr(GraphEdges* self);
 
 PyObject* GraphEdges_iter(GraphEdges* self);
