@@ -25,6 +25,7 @@ jobs:
           pip install Pillow
           pip install kiwisolver
           pip install gensim
+          pip install lxml
           python setup.py install
           # python setup.py egg_info
           # pip install -r *.egg-info/requires.txt
