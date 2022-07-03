@@ -1,0 +1,3447 @@
+[
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 60,
+        "func_name": "DiGraph.__init__",
+        "type_comments": [
+            "(List[Tuple[str, str]]) -> None",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph) -> None",
+            "(None) -> None"
+        ],
+        "samples": 131
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 69,
+        "func_name": "DiGraph.__iter__",
+        "type_comments": [
+            "() -> dict_keyiterator"
+        ],
+        "samples": 31
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 72,
+        "func_name": "DiGraph.__len__",
+        "type_comments": [
+            "() -> int"
+        ],
+        "samples": 8
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 75,
+        "func_name": "DiGraph.__contains__",
+        "type_comments": [
+            "(int) -> bool"
+        ],
+        "samples": 27
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 81,
+        "func_name": "DiGraph.__getitem__",
+        "type_comments": [
+            "(str) -> Dict[str, Dict[str, Union[Dict, Dict[str, float]]]]",
+            "(str) -> Dict[str, Dict[int, Dict]]",
+            "(int) -> Dict[int, Dict[int, Dict]]",
+            "(str) -> Dict[str, Dict]",
+            "(str) -> Dict[str, Dict[str, Dict]]",
+            "(str) -> Dict[str, Dict[str, str]]",
+            "(int) -> Dict[int, Dict[int, Union[Dict, Dict[str, float]]]]",
+            "(str) -> Dict[str, Dict[int, Union[Dict, Dict[str, float]]]]"
+        ],
+        "samples": 96
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 85,
+        "func_name": "adj",
+        "type_comments": [
+            "() -> Dict[str, Union[Dict, Dict[str, Dict[str, Union[Dict, Dict[str, float]]]]]]",
+            "() -> Dict[str, Union[Dict, Dict[str, Dict[str, Dict[str, str]]]]]",
+            "() -> Dict[str, Dict[str, Union[Dict[int, Dict], Dict[str, Dict]]]]",
+            "() -> Dict[str, Union[Dict, Dict[str, Dict[str, Dict]]]]",
+            "() -> Dict[str, Dict]",
+            "() -> Dict[str, Dict[str, Dict[int, Union[Dict, Dict[str, str]]]]]",
+            "() -> Dict[str, Dict[str, Dict[int, Dict[str, float]]]]",
+            "() -> Dict[str, Union[Dict, Dict[str, Dict[int, Dict[str, str]]]]]"
+        ],
+        "samples": 60
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 89,
+        "func_name": "nodes",
+        "type_comments": [
+            "() -> Dict[int, Dict]",
+            "() -> Dict[str, Dict[str, Union[bool, int, str]]]",
+            "() -> Dict[str, Dict[str, str]]",
+            "() -> Dict[str, Dict]",
+            "() -> Dict[int, Dict[str, Union[Dict[str, int], str]]]",
+            "() -> Dict[int, Dict[str, Dict[str, int]]]",
+            "() -> Dict[str, Dict[str, Dict[str, int]]]",
+            "() -> Dict[str, Dict[str, int]]"
+        ],
+        "samples": 169
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 94,
+        "func_name": "edges",
+        "type_comments": [
+            "() -> List[Union[Tuple[int, int, Dict[str, Union[Dict[str, Union[int, str]], str]]], Tuple[int, int, Dict[str, str]]]]",
+            "() -> List[Tuple[str, str, Dict[str, str]]]",
+            "() -> List[Tuple[int, int, Dict]]",
+            "() -> List[Union[Tuple[str, str, Dict[str, Union[Dict[str, Union[int, str]], str]]], Tuple[str, str, Dict[str, str]]]]",
+            "() -> List[Tuple[str, str, Dict]]",
+            "() -> List[Union[Tuple[str, str, Dict[str, str]], Tuple[str, str, Dict]]]",
+            "() -> List[Union[Tuple[str, str, Dict[str, Union[float, str]]], Tuple[str, str, Dict[str, str]]]]",
+            "() -> List[Union[Tuple[str, str, Dict[str, float]], Tuple[str, str, Dict[str, int]]]]"
+        ],
+        "samples": 59
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 102,
+        "func_name": "name",
+        "type_comments": [
+            "() -> str"
+        ],
+        "samples": 2
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 355,
+        "func_name": "DiGraph.add_node",
+        "type_comments": [
+            "(int) -> None",
+            "(str) -> None"
+        ],
+        "samples": 130
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 441,
+        "func_name": "DiGraph.add_nodes_from",
+        "type_comments": [
+            "(Dict[str, Dict[str, Union[Dict[int, Dict], Dict[str, Dict]]]]) -> None",
+            "(Dict[str, Dict]) -> None",
+            "(generator) -> None",
+            "(Dict[str, Union[Dict, Dict[str, Dict[str, Dict[str, str]]]]]) -> None",
+            "(List) -> None",
+            "(Dict[str, Union[Dict, Dict[str, Dict[str, Union[Dict, Dict[str, float]]]]]]) -> None",
+            "(Dict[str, Union[Dict, Dict[str, Dict[str, Dict]]]]) -> None",
+            "(Dict[str, Dict[str, Dict[int, Union[Dict, Dict[str, str]]]]]) -> None"
+        ],
+        "samples": 101
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 502,
+        "func_name": "DiGraph._add_one_node",
+        "type_comments": [
+            "(int, Dict) -> None",
+            "(int, Dict[str, Dict[str, int]]) -> None",
+            "(int, Dict[str, Union[Dict[str, int], str]]) -> None",
+            "(str, Dict[str, str]) -> None",
+            "(str, Dict[str, Union[bool, int, str]]) -> None",
+            "(str, Dict) -> None",
+            "(str, Dict[str, int]) -> None",
+            "(str, Dict[str, bool]) -> None"
+        ],
+        "samples": 130
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 513,
+        "func_name": "DiGraph.add_edge",
+        "type_comments": [
+            "(str, str) -> None",
+            "(int, int) -> None"
+        ],
+        "samples": 23
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 604,
+        "func_name": "DiGraph.add_edges_from",
+        "type_comments": [
+            "(itertools.permutations) -> None",
+            "(List[Tuple[str, str]]) -> None",
+            "(generator) -> None"
+        ],
+        "samples": 39
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 724,
+        "func_name": "DiGraph._add_one_edge",
+        "type_comments": [
+            "(str, str, Dict[str, str]) -> None",
+            "(str, str, Dict) -> None",
+            "(int, int, Dict) -> None",
+            "(int, int, Dict[str, str]) -> None",
+            "(int, int, Dict[str, Union[Dict[str, Union[int, str]], str]]) -> None"
+        ],
+        "samples": 23
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 887,
+        "func_name": "DiGraph.has_edge",
+        "type_comments": [
+            "(int, int) -> bool"
+        ],
+        "samples": 17
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 893,
+        "func_name": "DiGraph.number_of_nodes",
+        "type_comments": [
+            "() -> int"
+        ],
+        "samples": 2
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 913,
+        "func_name": "DiGraph.is_directed",
+        "type_comments": [
+            "() -> bool"
+        ],
+        "samples": 41
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 916,
+        "func_name": "DiGraph.is_multigraph",
+        "type_comments": [
+            "() -> bool"
+        ],
+        "samples": 72
+    },
+    {
+        "path": "easygraph/classes/directed_graph.py",
+        "line": 920,
+        "func_name": "DiGraph.copy",
+        "type_comments": [
+            "() -> easygraph.classes.directed_graph.DiGraph"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/classes/directed_multigraph.py",
+        "line": 15,
+        "func_name": "MultiDiGraph.__init__",
+        "type_comments": [
+            "(None, None) -> None"
+        ],
+        "samples": 87
+    },
+    {
+        "path": "easygraph/classes/directed_multigraph.py",
+        "line": 83,
+        "func_name": "MultiDiGraph.add_edge",
+        "type_comments": [
+            "(str, str, None) -> int",
+            "(int, int, None) -> int",
+            "(int, int, int) -> int",
+            "(str, str, int) -> int",
+            "(str, str, str) -> str"
+        ],
+        "samples": 128
+    },
+    {
+        "path": "easygraph/classes/directed_multigraph.py",
+        "line": 237,
+        "func_name": "edges",
+        "type_comments": [
+            "() -> List[Tuple[str, str, int, Dict[str, float]]]",
+            "() -> List[Tuple[int, int, int, Dict]]",
+            "() -> List[Tuple[str, str, int, Dict]]",
+            "() -> List[Tuple[str, str, int, Dict[str, Union[float, str]]]]",
+            "() -> List[Tuple[int, int, int, Dict[str, float]]]"
+        ],
+        "samples": 46
+    },
+    {
+        "path": "easygraph/classes/directed_multigraph.py",
+        "line": 310,
+        "func_name": "MultiDiGraph.is_multigraph",
+        "type_comments": [
+            "() -> bool"
+        ],
+        "samples": 60
+    },
+    {
+        "path": "easygraph/classes/directed_multigraph.py",
+        "line": 314,
+        "func_name": "MultiDiGraph.is_directed",
+        "type_comments": [
+            "() -> bool"
+        ],
+        "samples": 111
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 61,
+        "func_name": "Graph.__init__",
+        "type_comments": [
+            "(List[Tuple[int, int, Dict[str, numpy.float32]]]) -> None",
+            "(List[Tuple[str, str, Dict[str, int]]]) -> None",
+            "(List[Tuple[int, int, Dict[str, numpy.float64]]]) -> None",
+            "(easygraph.classes.multigraph.MultiGraph) -> None",
+            "(None) -> None",
+            "(Dict[int, List[int]]) -> None",
+            "(Dict[str, Dict[str, Dict[int, Dict[str, Union[int, str]]]]]) -> None",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph) -> None"
+        ],
+        "samples": 150
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 70,
+        "func_name": "Graph.__iter__",
+        "type_comments": [
+            "() -> dict_keyiterator"
+        ],
+        "samples": 36
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 73,
+        "func_name": "Graph.__len__",
+        "type_comments": [
+            "() -> int"
+        ],
+        "samples": 32
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 76,
+        "func_name": "Graph.__contains__",
+        "type_comments": [
+            "(int) -> bool",
+            "(str) -> bool"
+        ],
+        "samples": 23
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 82,
+        "func_name": "Graph.__getitem__",
+        "type_comments": [
+            "(int) -> Dict[int, Dict[int, Union[Dict, Dict[str, str]]]]",
+            "(int) -> Dict[int, Dict]",
+            "(str) -> Dict[str, Dict[int, Dict]]",
+            "(str) -> Dict[str, Dict[str, Dict]]",
+            "(int) -> Dict[int, Dict[int, Dict]]",
+            "(str) -> Dict[str, Dict]",
+            "(str) -> Dict[str, Union[Dict[int, Dict], Dict[str, Dict]]]",
+            "(str) -> Dict[str, Dict[int, Union[Dict, Dict[str, bool]]]]"
+        ],
+        "samples": 81
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 86,
+        "func_name": "adj",
+        "type_comments": [
+            "() -> Dict",
+            "() -> Dict[int, Dict]",
+            "() -> Dict[int, Dict[int, Dict[str, Dict[str, Union[int, str]]]]]",
+            "() -> Dict[str, Union[Dict, Dict[str, Dict]]]",
+            "() -> Dict[str, Dict[str, Dict[str, Dict[str, str]]]]",
+            "() -> Dict[str, Dict[str, Dict[str, Dict]]]",
+            "() -> Dict[str, Dict]",
+            "() -> Dict[str, Dict[str, Union[Dict[int, Dict], Dict[str, Dict]]]]"
+        ],
+        "samples": 70
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 90,
+        "func_name": "nodes",
+        "type_comments": [
+            "() -> Dict[int, Dict[str, str]]",
+            "() -> Dict[int, Dict[str, Union[List[int], str]]]",
+            "() -> Dict[int, Dict[str, Union[List[str], str]]]",
+            "() -> Dict[int, Dict[str, Union[List[Tuple[int, int]], str]]]",
+            "() -> Dict[int, Union[Dict, Dict[str, str]]]",
+            "() -> Dict[int, Dict[str, int]]",
+            "() -> Dict[int, Dict[str, Union[float, str]]]",
+            "() -> Dict[str, Dict[str, str]]"
+        ],
+        "samples": 183
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 95,
+        "func_name": "edges",
+        "type_comments": [
+            "() -> List[Union[Tuple[int, int, Dict[str, numpy.float64]], Tuple[int, int, Dict]]]",
+            "() -> List",
+            "() -> List[Union[Tuple[int, int, Dict[str, int]], Tuple[int, int, Dict]]]",
+            "() -> List[Tuple[str, str, Dict]]",
+            "() -> List[Tuple[str, str, Dict[str, str]]]",
+            "() -> List[Tuple[int, int, Dict[str, Union[Dict[str, Union[Dict, float, int, str]], int, str]]]]",
+            "() -> List[Tuple[int, int, Dict]]",
+            "() -> List[Tuple[int, int, Dict[str, Union[List[Union[bool, float, int]], float]]]]"
+        ],
+        "samples": 103
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 108,
+        "func_name": "name",
+        "type_comments": [
+            "() -> List[Union[float, int]]",
+            "() -> str"
+        ],
+        "samples": 11
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 118,
+        "func_name": "name",
+        "type_comments": [
+            "(List[Union[bool, float, int]]) -> None",
+            "(str) -> None"
+        ],
+        "samples": 3
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 168,
+        "func_name": "Graph.order",
+        "type_comments": [
+            "() -> int"
+        ],
+        "samples": 3
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 246,
+        "func_name": "Graph.add_node",
+        "type_comments": [
+            "(float) -> None",
+            "(int) -> None",
+            "(str) -> None"
+        ],
+        "samples": 137
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 332,
+        "func_name": "Graph.add_nodes_from",
+        "type_comments": [
+            "(Dict[str, Dict[str, Dict[str, Dict[str, str]]]]) -> None",
+            "(Tuple[int, int, int, int]) -> None",
+            "(Dict[int, Dict[int, Dict[str, Dict[str, Union[int, str]]]]]) -> None",
+            "(Dict[int, Dict]) -> None",
+            "(List) -> None",
+            "(generator) -> None",
+            "(Tuple[int]) -> None",
+            "(Dict[str, Dict[str, Dict[str, Dict]]]) -> None"
+        ],
+        "samples": 101
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 392,
+        "func_name": "Graph._add_one_node",
+        "type_comments": [
+            "(int, Dict[str, str]) -> None",
+            "(int, Dict) -> None",
+            "(int, Dict[str, Union[List[str], str]]) -> None",
+            "(int, Dict[str, Union[List[int], str]]) -> None",
+            "(str, Dict[str, str]) -> None",
+            "(int, Dict[str, Union[List[Tuple[int, int]], str]]) -> None",
+            "(int, Dict[str, Union[List[Tuple[str, str]], str]]) -> None",
+            "(int, Dict[str, int]) -> None"
+        ],
+        "samples": 147
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 401,
+        "func_name": "Graph.add_edge",
+        "type_comments": [
+            "(str, str) -> None",
+            "(int, int) -> None"
+        ],
+        "samples": 26
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 492,
+        "func_name": "Graph.add_edges_from",
+        "type_comments": [
+            "(List[Tuple[str, str]]) -> None",
+            "(List[Tuple[int, int, Dict[str, numpy.float64]]]) -> None",
+            "(List[Union[Tuple[int, int, Dict[str, int]], Tuple[int, int]]]) -> None",
+            "(generator) -> None",
+            "(zip) -> None",
+            "(List[Tuple[int, int, Dict[str, numpy.float32]]]) -> None",
+            "(List[Tuple[str, str, Dict[str, int]]]) -> None",
+            "(itertools.combinations) -> None"
+        ],
+        "samples": 57
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 610,
+        "func_name": "Graph._add_one_edge",
+        "type_comments": [
+            "(int, int, Dict) -> None",
+            "(int, int, Dict[str, Union[List[Union[bool, float, int]], float]]) -> None",
+            "(int, int, Dict[str, Union[Dict[str, Union[Dict, float, int, str]], int, str]]) -> None",
+            "(str, str, Dict) -> None",
+            "(int, int, Dict[str, int]) -> None",
+            "(int, int, Dict[str, Union[List[Union[float, int]], float]]) -> None",
+            "(str, str, Dict[str, str]) -> None",
+            "(int, int, Dict[str, str]) -> None"
+        ],
+        "samples": 26
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 623,
+        "func_name": "Graph.remove_node",
+        "type_comments": [
+            "(int) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(int) -> None"
+        ],
+        "samples": 2
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 676,
+        "func_name": "Graph.remove_edge",
+        "type_comments": [
+            "(int, int) -> None"
+        ],
+        "samples": 3
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 735,
+        "func_name": "Graph.has_edge",
+        "type_comments": [
+            "(int, int) -> bool",
+            "(str, str) -> bool"
+        ],
+        "samples": 11
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 761,
+        "func_name": "Graph.is_directed",
+        "type_comments": [
+            "() -> bool"
+        ],
+        "samples": 75
+    },
+    {
+        "path": "easygraph/classes/graph.py",
+        "line": 764,
+        "func_name": "Graph.is_multigraph",
+        "type_comments": [
+            "() -> bool"
+        ],
+        "samples": 115
+    },
+    {
+        "path": "easygraph/classes/multigraph.py",
+        "line": 16,
+        "func_name": "MultiGraph.__init__",
+        "type_comments": [
+            "(Dict[str, Dict[str, Dict[int, Dict[str, Union[int, str]]]]], bool) -> None",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, None) -> None",
+            "(Dict[str, Dict[str, Dict[int, Dict[str, Union[int, str]]]]], None) -> None",
+            "(Dict[int, List[int]], None) -> None",
+            "(None, None) -> None"
+        ],
+        "samples": 69
+    },
+    {
+        "path": "easygraph/classes/multigraph.py",
+        "line": 83,
+        "func_name": "MultiGraph.new_edge_key",
+        "type_comments": [
+            "(int, int) -> int",
+            "(str, str) -> int"
+        ],
+        "samples": 137
+    },
+    {
+        "path": "easygraph/classes/multigraph.py",
+        "line": 112,
+        "func_name": "MultiGraph.add_edge",
+        "type_comments": [
+            "(int, int, str) -> str",
+            "(int, int, int) -> int",
+            "(str, str, int) -> int",
+            "(int, int, None) -> int",
+            "(str, str, None) -> int",
+            "(str, str, str) -> str"
+        ],
+        "samples": 89
+    },
+    {
+        "path": "easygraph/classes/multigraph.py",
+        "line": 207,
+        "func_name": "MultiGraph.add_edges_from",
+        "type_comments": [
+            "(List[Tuple[int, int, int, Dict[str, str]]]) -> List[int]",
+            "(List[Tuple[str, str, int, Dict]]) -> List[int]",
+            "(List[Tuple[int, int, int, Dict]]) -> List[int]",
+            "(List[Tuple[str, str, str, Dict]]) -> List[str]",
+            "(List[Union[Tuple[int, int, Dict[str, str]], Tuple[int, int]]]) -> List[int]",
+            "(List[Tuple[str, str, None, Dict]]) -> List[int]",
+            "(List[Tuple[str, str, str, Dict[str, float]]]) -> List[str]",
+            "(List[Tuple[str, str, int, Dict[str, bool]]]) -> List[int]"
+        ],
+        "samples": 136
+    },
+    {
+        "path": "easygraph/classes/multigraph.py",
+        "line": 386,
+        "func_name": "MultiGraph.has_edge",
+        "type_comments": [
+            "(str, str, str) -> bool",
+            "(str, str, None) -> bool",
+            "(int, int, int) -> bool",
+            "(int, int, None) -> bool"
+        ],
+        "samples": 121
+    },
+    {
+        "path": "easygraph/classes/multigraph.py",
+        "line": 442,
+        "func_name": "edges",
+        "type_comments": [
+            "() -> List[Union[Tuple[str, str, int, Dict[str, bool]], Tuple[str, str, int, Dict[str, int]]]]",
+            "() -> List[Tuple[int, int, int, Dict]]",
+            "() -> List[Tuple[str, str, int, Dict]]",
+            "() -> List[Tuple[str, str, int, Dict[str, str]]]",
+            "() -> List[Union[Tuple[int, int, int, Dict[str, str]], Tuple[int, int, int, Dict]]]",
+            "() -> List[Tuple[str, str, str, Dict[str, str]]]",
+            "() -> List[Union[Tuple[str, str, int, Dict[str, int]], Tuple[str, str, int, Dict[str, str]]]]",
+            "() -> List[Union[Tuple[str, str, int, Dict], Tuple[str, str, str, Dict]]]"
+        ],
+        "samples": 38
+    },
+    {
+        "path": "easygraph/classes/multigraph.py",
+        "line": 455,
+        "func_name": "MultiGraph.get_edge_data",
+        "type_comments": [
+            "(int, int, None, None) -> Dict[int, Dict]",
+            "(int, int, int, None) -> Dict",
+            "(int, int, None, None) -> None"
+        ],
+        "samples": 3
+    },
+    {
+        "path": "easygraph/classes/multigraph.py",
+        "line": 537,
+        "func_name": "MultiGraph.is_multigraph",
+        "type_comments": [
+            "() -> bool"
+        ],
+        "samples": 64
+    },
+    {
+        "path": "easygraph/classes/multigraph.py",
+        "line": 541,
+        "func_name": "MultiGraph.is_directed",
+        "type_comments": [
+            "() -> bool"
+        ],
+        "samples": 120
+    },
+    {
+        "path": "easygraph/classes/operation.py",
+        "line": 15,
+        "func_name": "set_edge_attributes",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, Dict, str) -> None",
+            "(easygraph.classes.multigraph.MultiGraph, Dict[Tuple[str, str, int], str], str) -> None",
+            "(easygraph.classes.graph.Graph, Dict[Tuple[str, str], str], str) -> None",
+            "(easygraph.classes.directed_graph.DiGraph, Dict, str) -> None",
+            "(easygraph.classes.directed_graph.DiGraph, Dict[Tuple[str, str], str], str) -> None"
+        ],
+        "samples": 43
+    },
+    {
+        "path": "easygraph/classes/operation.py",
+        "line": 124,
+        "func_name": "add_path",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, List[int]) -> None"
+        ],
+        "samples": 2
+    },
+    {
+        "path": "easygraph/classes/operation.py",
+        "line": 156,
+        "func_name": "set_node_attributes",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, Dict[numpy.int64, numpy.int64], str) -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/classes/operation.py",
+        "line": 289,
+        "func_name": "number_of_selfloops",
+        "type_comments": [
+            "(easygraph.classes.directed_graph.DiGraph) -> int",
+            "(easygraph.classes.graph.Graph) -> int",
+            "(easygraph.classes.multigraph.MultiGraph) -> int",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph) -> int"
+        ],
+        "samples": 8
+    },
+    {
+        "path": "easygraph/classes/operation.py",
+        "line": 314,
+        "func_name": "selfloop_edges",
+        "type_comments": [
+            "(easygraph.classes.multigraph.MultiGraph, bool, bool, None) -> generator",
+            "(easygraph.classes.directed_graph.DiGraph, bool, bool, None) -> generator",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, bool, bool, None) -> generator",
+            "(easygraph.classes.graph.Graph, bool, bool, None) -> generator"
+        ],
+        "samples": 16
+    },
+    {
+        "path": "easygraph/classes/tests/test_multigraph.py",
+        "line": 36,
+        "func_name": "TestMultiGraph.test_data_input",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/classes/tests/test_multigraph.py",
+        "line": 42,
+        "func_name": "TestMultiGraph.test_has_edge",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/classes/tests/test_multigraph.py",
+        "line": 49,
+        "func_name": "TestMultiGraph.test_get_edge_data",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/classes/tests/test_multigraph.py",
+        "line": 57,
+        "func_name": "TestMultiGraph.test_data_multigraph_input",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/classes/tests/test_multigraph.py",
+        "line": 72,
+        "func_name": "TestMultiGraph.test_remove_node",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/classes/tests/test_operation.py",
+        "line": 6,
+        "func_name": "test_selfloops",
+        "type_comments": [
+            "(type) -> None"
+        ],
+        "samples": 4
+    },
+    {
+        "path": "easygraph/convert.py",
+        "line": 11,
+        "func_name": "to_easygraph_graph",
+        "type_comments": [
+            "(List[Tuple[int, int, Dict[str, numpy.float64]]], easygraph.classes.graph.Graph, bool) -> easygraph.classes.graph.Graph",
+            "(easygraph.classes.multigraph.MultiGraph, easygraph.classes.graph.Graph, bool) -> easygraph.classes.graph.Graph",
+            "(List[Tuple[str, str]], easygraph.classes.directed_graph.DiGraph, bool) -> easygraph.classes.directed_graph.DiGraph",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, easygraph.classes.directed_graph.DiGraph, bool) -> easygraph.classes.directed_graph.DiGraph",
+            "(List[Tuple[int, int, Dict[str, numpy.float32]]], easygraph.classes.graph.Graph, bool) -> easygraph.classes.graph.Graph",
+            "(List[Tuple[str, str, Dict[str, int]]], easygraph.classes.graph.Graph, bool) -> easygraph.classes.graph.Graph",
+            "(numpy.ndarray, easygraph.classes.graph.Graph, bool) -> easygraph.classes.graph.Graph",
+            "(Dict[int, List[int]], easygraph.classes.multigraph.MultiGraph, bool) -> easygraph.classes.multigraph.MultiGraph"
+        ],
+        "samples": 64
+    },
+    {
+        "path": "easygraph/convert.py",
+        "line": 159,
+        "func_name": "from_dict_of_lists",
+        "type_comments": [
+            "(Dict[int, List[int]], easygraph.classes.multigraph.MultiGraph) -> easygraph.classes.multigraph.MultiGraph"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/convert.py",
+        "line": 178,
+        "func_name": "from_dict_of_dicts",
+        "type_comments": [
+            "(Dict[int, Dict[int, Dict[str, Dict[str, Union[int, str]]]]], easygraph.classes.graph.Graph, bool) -> easygraph.classes.graph.Graph",
+            "(Dict[int, Dict], easygraph.classes.graph.Graph, bool) -> easygraph.classes.graph.Graph",
+            "(Dict[str, Dict[str, Union[Dict[int, Dict], Dict[str, Dict]]]], easygraph.classes.directed_graph.DiGraph, bool) -> easygraph.classes.directed_graph.DiGraph",
+            "(Dict[str, Union[Dict, Dict[str, Dict[str, Dict[str, str]]]]], easygraph.classes.directed_graph.DiGraph, bool) -> easygraph.classes.directed_graph.DiGraph",
+            "(Dict[str, Dict[str, Dict[str, Dict[str, str]]]], easygraph.classes.graph.Graph, bool) -> easygraph.classes.graph.Graph",
+            "(Dict[str, Dict], easygraph.classes.directed_graph.DiGraph, bool) -> easygraph.classes.directed_graph.DiGraph",
+            "(Dict[str, Dict[str, Dict[str, Dict]]], easygraph.classes.graph.Graph, bool) -> easygraph.classes.graph.Graph",
+            "(Dict[str, Union[Dict, Dict[str, Dict[str, Union[Dict, Dict[str, float]]]]]], easygraph.classes.directed_graph.DiGraph, bool) -> easygraph.classes.directed_graph.DiGraph"
+        ],
+        "samples": 60
+    },
+    {
+        "path": "easygraph/convert.py",
+        "line": 228,
+        "func_name": "from_edgelist",
+        "type_comments": [
+            "(List[Tuple[int, int, Dict[str, numpy.float32]]], easygraph.classes.graph.Graph) -> easygraph.classes.graph.Graph",
+            "(List[Tuple[int, int, Dict[str, numpy.float64]]], easygraph.classes.graph.Graph) -> easygraph.classes.graph.Graph",
+            "(List[Tuple[str, str]], easygraph.classes.directed_graph.DiGraph) -> easygraph.classes.directed_graph.DiGraph",
+            "(List[Tuple[str, str, Dict[str, int]]], easygraph.classes.graph.Graph) -> easygraph.classes.graph.Graph"
+        ],
+        "samples": 5
+    },
+    {
+        "path": "easygraph/functions/community/motif.py",
+        "line": 12,
+        "func_name": "enumerate_subgraph",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, int) -> List[Set[int]]"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/functions/community/motif.py",
+        "line": 43,
+        "func_name": "extend_subgraph",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, Set[int], Set, int, int, List[Set[int]]) -> None",
+            "(easygraph.classes.graph.Graph, Set[int], Set[int], int, int, List) -> pyannotate_runtime.collect_types.UnknownType",
+            "(easygraph.classes.graph.Graph, Set[int], Set[int], int, int, List[Set[int]]) -> None",
+            "(easygraph.classes.graph.Graph, Set[int], Set[int], int, int, List) -> None"
+        ],
+        "samples": 5
+    },
+    {
+        "path": "easygraph/functions/community/motif.py",
+        "line": 57,
+        "func_name": "exclusive_neighborhood",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, int, Set[int]) -> Set[int]",
+            "(easygraph.classes.graph.Graph, int, Set[int]) -> Set"
+        ],
+        "samples": 5
+    },
+    {
+        "path": "easygraph/functions/community/tests/test_motif.py",
+        "line": 13,
+        "func_name": "TestMotif.test_esu",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/functions/graph_generator/classic.py",
+        "line": 8,
+        "func_name": "empty_graph",
+        "type_comments": [
+            "(Tuple[List[int], Tuple[int, int, int, int]], None, type) -> easygraph.classes.graph.Graph",
+            "(Tuple[List[int], Tuple[int]], None, type) -> easygraph.classes.graph.Graph",
+            "(Tuple[int, List], easygraph.classes.graph.Graph, type) -> easygraph.classes.graph.Graph",
+            "(Tuple[int, List], easygraph.classes.directed_graph.DiGraph, type) -> easygraph.classes.directed_graph.DiGraph",
+            "(Tuple[int, List], type, type) -> easygraph.classes.graph.Graph",
+            "(Tuple[int, List], None, type) -> easygraph.classes.graph.Graph",
+            "(Tuple[int, List], easygraph.classes.multigraph.MultiGraph, type) -> easygraph.classes.multigraph.MultiGraph",
+            "(Tuple[int, List], easygraph.classes.directed_multigraph.MultiDiGraph, type) -> easygraph.classes.directed_multigraph.MultiDiGraph"
+        ],
+        "samples": 96
+    },
+    {
+        "path": "easygraph/functions/graph_generator/classic.py",
+        "line": 24,
+        "func_name": "path_graph",
+        "type_comments": [
+            "(Tuple[int, List[int]], None) -> easygraph.classes.graph.Graph"
+        ],
+        "samples": 2
+    },
+    {
+        "path": "easygraph/functions/graph_generator/classic.py",
+        "line": 32,
+        "func_name": "complete_graph",
+        "type_comments": [
+            "(Tuple[int, List[int]], type) -> easygraph.classes.graph.Graph",
+            "(Tuple[int, List[int]], type) -> easygraph.classes.directed_graph.DiGraph",
+            "(Tuple[int, List[int]], type) -> easygraph.classes.directed_multigraph.MultiDiGraph",
+            "(Tuple[int, List[int]], type) -> easygraph.classes.multigraph.MultiGraph"
+        ],
+        "samples": 4
+    },
+    {
+        "path": "easygraph/functions/not_sorted/pagerank.py",
+        "line": 7,
+        "func_name": "pagerank",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, float) -> Dict[int, float]"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/functions/not_sorted/pagerank.py",
+        "line": 35,
+        "func_name": "google_matrix",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, float) -> numpy.ndarray"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/functions/not_sorted/tests/test_pagerank.py",
+        "line": 13,
+        "func_name": "TestPageRank.test_pagerank",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/edgelist.py",
+        "line": 8,
+        "func_name": "parse_edgelist",
+        "type_comments": [
+            "(List[str], str, None, easygraph.classes.directed_multigraph.MultiDiGraph, type, bool) -> easygraph.classes.directed_multigraph.MultiDiGraph"
+        ],
+        "samples": 6
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 17,
+        "func_name": "write_gexf",
+        "type_comments": [
+            "(easygraph.classes.directed_graph.DiGraph, _io.BytesIO, str, bool, str) -> None",
+            "(easygraph.classes.graph.Graph, _io.BytesIO, str, bool, str) -> None"
+        ],
+        "samples": 10
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 58,
+        "func_name": "generate_gexf",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, str, bool, str) -> pyannotate_runtime.collect_types.NoReturnType"
+        ],
+        "samples": 10
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 105,
+        "func_name": "read_gexf",
+        "type_comments": [
+            "(_io.BytesIO, None, bool, str) -> easygraph.classes.graph.Graph",
+            "(_io.BytesIO, None, bool, str) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(_io.BytesIO, type, bool, str) -> easygraph.classes.graph.Graph",
+            "(_io.BytesIO, None, bool, str) -> easygraph.classes.directed_graph.DiGraph"
+        ],
+        "samples": 17
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 184,
+        "func_name": "GEXF.construct_types",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 29
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 239,
+        "func_name": "GEXF.set_version",
+        "type_comments": [
+            "(str) -> None"
+        ],
+        "samples": 30
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 254,
+        "func_name": "GEXFWriter.__init__",
+        "type_comments": [
+            "(None, str, bool, str) -> None"
+        ],
+        "samples": 12
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 299,
+        "func_name": "GEXFWriter.__str__",
+        "type_comments": [
+            "() -> str"
+        ],
+        "samples": 2
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 305,
+        "func_name": "GEXFWriter.add_graph",
+        "type_comments": [
+            "(easygraph.classes.directed_graph.DiGraph) -> None",
+            "(easygraph.classes.graph.Graph) -> None"
+        ],
+        "samples": 12
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 331,
+        "func_name": "GEXFWriter.add_nodes",
+        "type_comments": [
+            "(easygraph.classes.directed_graph.DiGraph, xml.etree.ElementTree.Element) -> None",
+            "(easygraph.classes.graph.Graph, xml.etree.ElementTree.Element) -> None"
+        ],
+        "samples": 12
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 371,
+        "func_name": "GEXFWriter.get_attr_id",
+        "type_comments": [
+            "(str, str, str, Dict[str, str], str) -> str",
+            "(str, str, str, Dict[str, int], str) -> str",
+            "(str, str, str, Dict, str) -> str"
+        ],
+        "samples": 18
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 403,
+        "func_name": "GEXFWriter.add_edges",
+        "type_comments": [
+            "(easygraph.classes.directed_graph.DiGraph, xml.etree.ElementTree.Element) -> None",
+            "(easygraph.classes.graph.Graph, xml.etree.ElementTree.Element) -> None"
+        ],
+        "samples": 12
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 405,
+        "func_name": "edge_key_data",
+        "type_comments": [
+            "(easygraph.classes.directed_graph.DiGraph) -> Iterator[Tuple[str, str, str, Dict]]",
+            "(easygraph.classes.graph.Graph) -> Iterator",
+            "(easygraph.classes.graph.Graph) -> Iterator[Tuple[int, int, int, Dict]]",
+            "(easygraph.classes.directed_graph.DiGraph) -> Iterator",
+            "(easygraph.classes.graph.Graph) -> Iterator[Tuple[int, int, int, Dict[str, int]]]",
+            "(easygraph.classes.graph.Graph) -> Iterator[Tuple[int, int, int, Dict[str, numpy.float64]]]"
+        ],
+        "samples": 22
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 475,
+        "func_name": "GEXFWriter.add_attributes",
+        "type_comments": [
+            "(str, xml.etree.ElementTree.Element, Dict, Dict[str, int]) -> Dict",
+            "(str, xml.etree.ElementTree.Element, Dict[str, str], Dict) -> Dict[str, str]",
+            "(str, xml.etree.ElementTree.Element, Dict[str, str], Dict[str, str]) -> Dict[str, str]",
+            "(str, xml.etree.ElementTree.Element, Dict, Dict) -> Dict",
+            "(str, xml.etree.ElementTree.Element, Dict, Dict[str, str]) -> Dict",
+            "(str, xml.etree.ElementTree.Element, Dict[str, Union[float, str]], Dict) -> Dict[str, Union[float, str]]",
+            "(str, xml.etree.ElementTree.Element, Dict[str, numpy.int64], Dict) -> Dict[str, numpy.int64]",
+            "(str, xml.etree.ElementTree.Element, Dict[str, numpy.float64], Dict) -> Dict[str, numpy.float64]"
+        ],
+        "samples": 28
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 540,
+        "func_name": "GEXFWriter.add_viz",
+        "type_comments": [
+            "(xml.etree.ElementTree.Element, Dict[str, numpy.int64]) -> Dict[str, numpy.int64]",
+            "(xml.etree.ElementTree.Element, Dict[str, str]) -> Dict[str, str]",
+            "(xml.etree.ElementTree.Element, Dict) -> Dict",
+            "(xml.etree.ElementTree.Element, Dict[str, numpy.float64]) -> Dict[str, numpy.float64]",
+            "(xml.etree.ElementTree.Element, Dict[str, Union[float, str]]) -> Dict[str, Union[float, str]]",
+            "(xml.etree.ElementTree.Element, Dict[str, bool]) -> Dict[str, bool]",
+            "(xml.etree.ElementTree.Element, Dict[str, List[Tuple[int, int, int]]]) -> Dict[str, List[Tuple[int, int, int]]]"
+        ],
+        "samples": 28
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 594,
+        "func_name": "GEXFWriter.add_parents",
+        "type_comments": [
+            "(xml.etree.ElementTree.Element, Dict[str, Union[List[Tuple[int, int]], str]]) -> Dict[str, Union[List[Tuple[int, int]], str]]",
+            "(xml.etree.ElementTree.Element, Dict[str, Union[List[int], str]]) -> Dict[str, str]",
+            "(xml.etree.ElementTree.Element, Dict[str, str]) -> Dict[str, str]",
+            "(xml.etree.ElementTree.Element, Dict[str, Union[float, str]]) -> Dict[str, Union[float, str]]",
+            "(xml.etree.ElementTree.Element, Dict) -> Dict",
+            "(xml.etree.ElementTree.Element, Dict[str, numpy.int64]) -> Dict[str, numpy.int64]",
+            "(xml.etree.ElementTree.Element, Dict[str, bool]) -> Dict[str, bool]",
+            "(xml.etree.ElementTree.Element, Dict[str, List[Tuple[int, int, int]]]) -> Dict[str, List[Tuple[int, int, int]]]"
+        ],
+        "samples": 24
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 605,
+        "func_name": "GEXFWriter.add_slices",
+        "type_comments": [
+            "(xml.etree.ElementTree.Element, Dict[str, Union[List[Tuple[int, int]], str]]) -> Dict[str, str]"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 615,
+        "func_name": "GEXFWriter.add_spells",
+        "type_comments": [
+            "(xml.etree.ElementTree.Element, Dict[str, Union[float, str]]) -> Dict[str, Union[float, str]]",
+            "(xml.etree.ElementTree.Element, Dict[str, str]) -> Dict[str, str]",
+            "(xml.etree.ElementTree.Element, Dict) -> Dict",
+            "(xml.etree.ElementTree.Element, Dict[str, numpy.int64]) -> Dict[str, numpy.int64]",
+            "(xml.etree.ElementTree.Element, Dict[str, Union[List[Tuple[int, int]], str]]) -> Dict[str, str]",
+            "(xml.etree.ElementTree.Element, Dict[str, numpy.float64]) -> Dict[str, numpy.float64]",
+            "(xml.etree.ElementTree.Element, Dict[str, bool]) -> Dict[str, bool]",
+            "(xml.etree.ElementTree.Element, Dict[str, List[Tuple[int, int, int]]]) -> Dict[str, List[Tuple[int, int, int]]]"
+        ],
+        "samples": 27
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 631,
+        "func_name": "GEXFWriter.alter_graph_mode_timeformat",
+        "type_comments": [
+            "(int) -> None"
+        ],
+        "samples": 4
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 646,
+        "func_name": "GEXFWriter.write",
+        "type_comments": [
+            "(_io.BytesIO) -> None"
+        ],
+        "samples": 10
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 652,
+        "func_name": "GEXFWriter.indent",
+        "type_comments": [
+            "(xml.etree.ElementTree.Element, int) -> pyannotate_runtime.collect_types.UnknownType",
+            "(xml.etree.ElementTree.Element, int) -> None"
+        ],
+        "samples": 54
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 673,
+        "func_name": "GEXFReader.__init__",
+        "type_comments": [
+            "(type, str) -> None",
+            "(None, str) -> None"
+        ],
+        "samples": 17
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 680,
+        "func_name": "GEXFReader.__call__",
+        "type_comments": [
+            "(_io.BytesIO) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(_io.BytesIO) -> easygraph.classes.graph.Graph",
+            "(_io.BytesIO) -> easygraph.classes.directed_graph.DiGraph"
+        ],
+        "samples": 17
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 693,
+        "func_name": "GEXFReader.make_graph",
+        "type_comments": [
+            "(xml.etree.ElementTree.Element) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(xml.etree.ElementTree.Element) -> easygraph.classes.graph.Graph",
+            "(xml.etree.ElementTree.Element) -> easygraph.classes.directed_graph.DiGraph"
+        ],
+        "samples": 17
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 778,
+        "func_name": "GEXFReader.add_node",
+        "type_comments": [
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, xml.etree.ElementTree.Element, Dict, None) -> None",
+            "(easygraph.classes.multigraph.MultiGraph, xml.etree.ElementTree.Element, Dict[str, Dict[str, str]], None) -> None",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, xml.etree.ElementTree.Element, Dict[str, Dict[str, Optional[str]]], None) -> None",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, xml.etree.ElementTree.Element, Dict, None) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(easygraph.classes.multigraph.MultiGraph, xml.etree.ElementTree.Element, Dict, None) -> None"
+        ],
+        "samples": 31
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 813,
+        "func_name": "GEXFReader.add_start_end",
+        "type_comments": [
+            "(Dict[str, str], xml.etree.ElementTree.Element) -> Dict[str, str]",
+            "(Dict, xml.etree.ElementTree.Element) -> Dict",
+            "(Dict[str, Union[bool, int, str]], xml.etree.ElementTree.Element) -> Dict[str, Union[bool, int, str]]",
+            "(Dict[str, Union[List[Tuple[int, int]], str]], xml.etree.ElementTree.Element) -> Dict[str, Union[List[Tuple[int, int]], str]]",
+            "(Dict[str, Union[List[str], str]], xml.etree.ElementTree.Element) -> Dict[str, Union[List[str], str]]",
+            "(Dict[str, Union[List[Tuple[str, str]], str]], xml.etree.ElementTree.Element) -> Dict[str, Union[List[Tuple[str, str]], str]]",
+            "(Dict[str, Union[float, str]], xml.etree.ElementTree.Element) -> Dict[str, Union[float, str]]",
+            "(Dict[str, bool], xml.etree.ElementTree.Element) -> Dict[str, bool]"
+        ],
+        "samples": 36
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 824,
+        "func_name": "GEXFReader.add_viz",
+        "type_comments": [
+            "(Dict[str, str], xml.etree.ElementTree.Element) -> Dict[str, str]",
+            "(Dict, xml.etree.ElementTree.Element) -> Dict",
+            "(Dict[str, Union[bool, int, str]], xml.etree.ElementTree.Element) -> Dict[str, Union[bool, int, str]]",
+            "(Dict[str, Union[List[Tuple[int, int]], str]], xml.etree.ElementTree.Element) -> Dict[str, Union[List[Tuple[int, int]], str]]",
+            "(Dict[str, Union[List[str], str]], xml.etree.ElementTree.Element) -> Dict[str, Union[List[str], str]]",
+            "(Dict[str, Union[List[Tuple[str, str]], str]], xml.etree.ElementTree.Element) -> Dict[str, Union[List[Tuple[str, str]], str]]",
+            "(Dict[str, Union[float, str]], xml.etree.ElementTree.Element) -> Dict[str, Union[float, str]]",
+            "(Dict[str, bool], xml.etree.ElementTree.Element) -> Dict[str, bool]"
+        ],
+        "samples": 30
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 869,
+        "func_name": "GEXFReader.add_parents",
+        "type_comments": [
+            "(Dict[str, str], xml.etree.ElementTree.Element) -> Dict[str, str]",
+            "(Dict, xml.etree.ElementTree.Element) -> Dict",
+            "(Dict[str, Union[bool, int, str]], xml.etree.ElementTree.Element) -> Dict[str, Union[bool, int, str]]",
+            "(Dict[str, Union[float, str]], xml.etree.ElementTree.Element) -> Dict[str, Union[float, str]]",
+            "(Dict[str, str], xml.etree.ElementTree.Element) -> Dict[str, Union[List[str], str]]",
+            "(Dict[str, bool], xml.etree.ElementTree.Element) -> Dict[str, bool]",
+            "(Dict[str, List[Tuple[int, int, int]]], xml.etree.ElementTree.Element) -> Dict[str, List[Tuple[int, int, int]]]"
+        ],
+        "samples": 30
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 878,
+        "func_name": "GEXFReader.add_slices",
+        "type_comments": [
+            "(Dict[str, str], xml.etree.ElementTree.Element) -> Dict[str, Union[List[Tuple[str, str]], str]]"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 888,
+        "func_name": "GEXFReader.add_spells",
+        "type_comments": [
+            "(Dict[str, str], xml.etree.ElementTree.Element) -> Dict[str, str]",
+            "(Dict, xml.etree.ElementTree.Element) -> Dict",
+            "(Dict[str, Union[bool, int, str]], xml.etree.ElementTree.Element) -> Dict[str, Union[bool, int, str]]",
+            "(Dict[str, str], xml.etree.ElementTree.Element) -> Dict[str, Union[List[Tuple[int, int]], str]]",
+            "(Dict[str, Union[List[str], str]], xml.etree.ElementTree.Element) -> Dict[str, Union[List[str], str]]",
+            "(Dict[str, Union[float, str]], xml.etree.ElementTree.Element) -> Dict[str, Union[float, str]]",
+            "(Dict[str, bool], xml.etree.ElementTree.Element) -> Dict[str, bool]",
+            "(Dict[str, List[Tuple[int, int, int]]], xml.etree.ElementTree.Element) -> Dict[str, List[Tuple[int, int, int]]]"
+        ],
+        "samples": 35
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 899,
+        "func_name": "GEXFReader.add_edge",
+        "type_comments": [
+            "(easygraph.classes.multigraph.MultiGraph, xml.etree.ElementTree.Element, Dict[str, Dict[str, str]]) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, xml.etree.ElementTree.Element, Dict[str, Dict[str, str]]) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(easygraph.classes.multigraph.MultiGraph, xml.etree.ElementTree.Element, Dict[str, Dict[str, str]]) -> None",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, xml.etree.ElementTree.Element, Dict[str, Dict[str, str]]) -> None"
+        ],
+        "samples": 14
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 951,
+        "func_name": "GEXFReader.decode_attr_elements",
+        "type_comments": [
+            "(Dict[str, Dict[str, str]], xml.etree.ElementTree.Element) -> Dict[str, str]",
+            "(Dict, xml.etree.ElementTree.Element) -> Dict",
+            "(Dict[str, Dict[str, Optional[str]]], xml.etree.ElementTree.Element) -> Dict[str, Union[bool, int, str]]",
+            "(Dict[str, Dict[str, str]], xml.etree.ElementTree.Element) -> Dict",
+            "(Dict[str, Dict[str, str]], xml.etree.ElementTree.Element) -> Dict[str, Union[float, str]]",
+            "(Dict[str, Dict[str, str]], xml.etree.ElementTree.Element) -> Dict[str, bool]",
+            "(Dict[str, Dict[str, str]], xml.etree.ElementTree.Element) -> Dict[str, List[Tuple[int, int, int]]]",
+            "(Dict, xml.etree.ElementTree.Element) -> pyannotate_runtime.collect_types.NoReturnType"
+        ],
+        "samples": 37
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 986,
+        "func_name": "GEXFReader.find_gexf_attributes",
+        "type_comments": [
+            "(xml.etree.ElementTree.Element) -> Tuple[Dict[str, Dict[str, str]], Dict[str, str]]",
+            "(xml.etree.ElementTree.Element) -> Tuple[Dict[str, Dict[str, Optional[str]]], Dict[str, bool]]",
+            "(xml.etree.ElementTree.Element) -> Tuple[Dict[str, Dict[str, str]], Dict]",
+            "(xml.etree.ElementTree.Element) -> Tuple[Dict[str, Dict[str, str]], Dict[str, int]]"
+        ],
+        "samples": 10
+    },
+    {
+        "path": "easygraph/readwrite/gexf.py",
+        "line": 1007,
+        "func_name": "relabel_gexf_graph",
+        "type_comments": [
+            "(easygraph.classes.directed_graph.DiGraph) -> easygraph.classes.directed_graph.DiGraph"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 52,
+        "func_name": "escape",
+        "type_comments": [
+            "(str) -> str"
+        ],
+        "samples": 19
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 59,
+        "func_name": "fixup",
+        "type_comments": [
+            "(re.Match) -> str"
+        ],
+        "samples": 14
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 67,
+        "func_name": "unescape",
+        "type_comments": [
+            "(str) -> str"
+        ],
+        "samples": 50
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 70,
+        "func_name": "fixup",
+        "type_comments": [
+            "(re.Match) -> str"
+        ],
+        "samples": 10
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 92,
+        "func_name": "literal_destringizer",
+        "type_comments": [
+            "(str) -> List[Union[Dict[Union[Tuple[bytes], str], Union[Tuple[int, int], str]], Tuple[int, str]]]",
+            "(str) -> int",
+            "(str) -> str",
+            "(str) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(function) -> pyannotate_runtime.collect_types.NoReturnType"
+        ],
+        "samples": 8
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 142,
+        "func_name": "parse_gml",
+        "type_comments": [
+            "(str, str, None) -> easygraph.classes.graph.Graph",
+            "(str, str, function) -> easygraph.classes.graph.Graph",
+            "(str, None, None) -> easygraph.classes.directed_graph.DiGraph",
+            "(str, str, None) -> easygraph.classes.directed_graph.DiGraph",
+            "(generator, str, function) -> easygraph.classes.graph.Graph",
+            "(str, str, None) -> easygraph.classes.multigraph.MultiGraph",
+            "(List[str], str, None) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(str, str, None) -> pyannotate_runtime.collect_types.NoReturnType"
+        ],
+        "samples": 20
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 191,
+        "func_name": "decode_line",
+        "type_comments": [
+            "(str) -> str"
+        ],
+        "samples": 22
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 201,
+        "func_name": "filter_lines",
+        "type_comments": [
+            "(str) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(List[str]) -> Iterator",
+            "(List[str]) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(str) -> Iterator"
+        ],
+        "samples": 47
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 219,
+        "func_name": "parse_gml_lines",
+        "type_comments": [
+            "(generator, str, None) -> easygraph.classes.graph.Graph",
+            "(generator, str, function) -> easygraph.classes.graph.Graph",
+            "(generator, None, None) -> easygraph.classes.directed_graph.DiGraph",
+            "(generator, str, None) -> easygraph.classes.directed_graph.DiGraph",
+            "(generator, str, None) -> easygraph.classes.multigraph.MultiGraph",
+            "(generator, str, None) -> pyannotate_runtime.collect_types.NoReturnType"
+        ],
+        "samples": 25
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 222,
+        "func_name": "tokenize",
+        "type_comments": [
+            "() -> pyannotate_runtime.collect_types.NoReturnType",
+            "() -> Iterator[easygraph.readwrite.gml.Token]"
+        ],
+        "samples": 88
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 261,
+        "func_name": "unexpected",
+        "type_comments": [
+            "(easygraph.readwrite.gml.Token, str) -> pyannotate_runtime.collect_types.NoReturnType"
+        ],
+        "samples": 5
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 267,
+        "func_name": "consume",
+        "type_comments": [
+            "(easygraph.readwrite.gml.Token, easygraph.readwrite.gml.Pattern, str) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(easygraph.readwrite.gml.Token, easygraph.readwrite.gml.Pattern, str) -> easygraph.readwrite.gml.Token"
+        ],
+        "samples": 62
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 272,
+        "func_name": "parse_dict",
+        "type_comments": [
+            "(easygraph.readwrite.gml.Token) -> pyannotate_runtime.collect_types.UnknownType",
+            "(easygraph.readwrite.gml.Token) -> Tuple[easygraph.readwrite.gml.Token, Dict[str, Union[float, str]]]",
+            "(easygraph.readwrite.gml.Token) -> Tuple[easygraph.readwrite.gml.Token, Dict[str, Union[List[str], int, str]]]",
+            "(easygraph.readwrite.gml.Token) -> Tuple[easygraph.readwrite.gml.Token, Dict[str, Union[List[Union[float, int, str]], int, str]]]",
+            "(easygraph.readwrite.gml.Token) -> Tuple[easygraph.readwrite.gml.Token, Dict[str, int]]",
+            "(easygraph.readwrite.gml.Token) -> Tuple[easygraph.readwrite.gml.Token, Dict[str, Union[int, str]]]",
+            "(easygraph.readwrite.gml.Token) -> Tuple[easygraph.readwrite.gml.Token, Dict[str, str]]",
+            "(easygraph.readwrite.gml.Token) -> pyannotate_runtime.collect_types.NoReturnType"
+        ],
+        "samples": 50
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 281,
+        "func_name": "parse_kv",
+        "type_comments": [
+            "(easygraph.readwrite.gml.Token) -> pyannotate_runtime.collect_types.UnknownType",
+            "(easygraph.readwrite.gml.Token) -> Tuple[easygraph.readwrite.gml.Token, Dict[str, Union[float, str]]]",
+            "(easygraph.readwrite.gml.Token) -> Tuple[easygraph.readwrite.gml.Token, Dict[str, Union[List[str], int, str]]]",
+            "(easygraph.readwrite.gml.Token) -> Tuple[easygraph.readwrite.gml.Token, Dict[str, Union[List[Union[float, int, str]], int, str]]]",
+            "(easygraph.readwrite.gml.Token) -> Tuple[easygraph.readwrite.gml.Token, Dict[str, int]]",
+            "(easygraph.readwrite.gml.Token) -> Tuple[easygraph.readwrite.gml.Token, Dict[str, Union[int, str]]]",
+            "(easygraph.readwrite.gml.Token) -> Tuple[easygraph.readwrite.gml.Token, Dict[str, str]]",
+            "(easygraph.readwrite.gml.Token) -> Tuple[easygraph.readwrite.gml.Token, Dict]"
+        ],
+        "samples": 57
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 322,
+        "func_name": "clean_dict_value",
+        "type_comments": [
+            "(List[Dict[str, Dict[str, Union[List[str], int, str]]]]) -> Dict[str, Dict[str, Union[List[str], int, str]]]",
+            "(List[str]) -> List[str]",
+            "(List[Dict[str, Union[List[str], int, str]]]) -> Dict[str, Union[List[str], int, str]]",
+            "(List[Union[float, int, str]]) -> List[Union[float, int, str]]",
+            "(List[Dict[str, Union[List[Union[float, int, str]], int, str]]]) -> Dict[str, Union[List[Union[float, int, str]], int, str]]",
+            "(List[Dict[str, Dict[str, Union[List[Union[float, int, str]], int, str]]]]) -> Dict[str, Dict[str, Union[List[Union[float, int, str]], int, str]]]",
+            "(List[int]) -> int",
+            "(List[str]) -> str"
+        ],
+        "samples": 69
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 334,
+        "func_name": "parse_graph",
+        "type_comments": [
+            "() -> Dict[str, Union[Dict[str, int], List[Dict[str, Union[Dict[str, int], int, str]]], int, str]]",
+            "() -> Dict[str, Dict[str, Union[List[str], int, str]]]",
+            "() -> Dict[str, Dict[str, Union[List[Union[float, int, str]], int, str]]]",
+            "() -> Dict[str, Dict[str, Union[int, str]]]",
+            "() -> Dict[str, Union[List[Dict[str, Union[Dict[str, Union[Dict, float, int, str]], int, str]]], List[Dict[str, Union[Dict[str, Union[float, str]], int, str]]]]]",
+            "() -> Dict[str, str]",
+            "() -> Dict[str, Union[Dict[str, Union[int, str]], int]]",
+            "() -> Dict[str, Union[List[Dict[str, Union[int, str]]], int, str]]"
+        ],
+        "samples": 25
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 356,
+        "func_name": "pop_attr",
+        "type_comments": [
+            "(Dict[str, Union[List[str], str]], str, str, int) -> str",
+            "(Dict[str, Union[Dict[str, Union[float, str]], int, str]], str, str, int) -> str",
+            "(Dict[str, Union[List[str], int, str]], str, str, int) -> int",
+            "(Dict[str, Union[Dict[str, Union[float, str]], int, str]], str, str, int) -> int",
+            "(Dict[str, Union[List[Union[float, int, str]], int, str]], str, str, int) -> int",
+            "(Dict[str, Union[Dict[str, int], int, str]], str, str, int) -> int",
+            "(Dict[str, Union[Dict[str, Union[int, str]], int, str]], str, str, int) -> int",
+            "(Dict[str, Union[List[Union[float, int, str]], str]], str, str, int) -> str"
+        ],
+        "samples": 49
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 408,
+        "func_name": "generate_gml",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, None) -> Iterator[str]",
+            "(easygraph.classes.graph.Graph, None) -> Iterator",
+            "(easygraph.classes.graph.Graph, function) -> Iterator[str]",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, None) -> Iterator[str]",
+            "(easygraph.classes.graph.Graph, function) -> Iterator",
+            "(easygraph.classes.graph.Graph, None) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(easygraph.classes.graph.Graph, function) -> pyannotate_runtime.collect_types.NoReturnType"
+        ],
+        "samples": 57
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 470,
+        "func_name": "stringize",
+        "type_comments": [
+            "(str, str, Tuple[], str, bool) -> Iterator[str]",
+            "(str, str, Tuple[], str, bool) -> Iterator",
+            "(str, List[str], Set[str], str, bool) -> Iterator[str]",
+            "(str, List[str], Set[str], str, bool) -> pyannotate_runtime.collect_types.UnknownType",
+            "(str, List[Union[float, int, str]], Set[str], str, bool) -> pyannotate_runtime.collect_types.UnknownType",
+            "(str, str, Set[str], str, bool) -> Iterator[str]",
+            "(str, str, Set[str], str, bool) -> Iterator",
+            "(str, int, Tuple[], str, bool) -> Iterator[str]"
+        ],
+        "samples": 45
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 573,
+        "func_name": "read_gml",
+        "type_comments": [
+            "(_io.BufferedReader, str, None) -> easygraph.classes.graph.Graph",
+            "(_io.BytesIO, str, None) -> easygraph.classes.graph.Graph",
+            "(_io.BufferedReader, str, None) -> easygraph.classes.directed_graph.DiGraph",
+            "(_io.BytesIO, str, None) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(_io.BufferedRandom, str, None) -> pyannotate_runtime.collect_types.NoReturnType"
+        ],
+        "samples": 6
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 640,
+        "func_name": "filter_lines",
+        "type_comments": [
+            "(_io.BufferedRandom) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(_io.BytesIO) -> Iterator[str]",
+            "(_io.BufferedReader) -> Iterator[str]"
+        ],
+        "samples": 26
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 656,
+        "func_name": "write_gml",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, _io.BufferedWriter, None) -> None",
+            "(easygraph.classes.graph.Graph, tempfile._TemporaryFileWrapper, None) -> None",
+            "(easygraph.classes.graph.Graph, _io.BytesIO, None) -> None"
+        ],
+        "samples": 6
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 721,
+        "func_name": "literal_stringizer",
+        "type_comments": [
+            "(List[Union[Dict[Union[Tuple[bytes], str], Union[Tuple[int, int], str]], Tuple[int, str]]]) -> str",
+            "(str) -> str",
+            "(Set[Union[Tuple[], complex]]) -> str",
+            "(frozenset) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(function) -> pyannotate_runtime.collect_types.NoReturnType"
+        ],
+        "samples": 8
+    },
+    {
+        "path": "easygraph/readwrite/gml.py",
+        "line": 725,
+        "func_name": "stringize",
+        "type_comments": [
+            "(Dict[Union[Tuple[bytes], str], Union[Tuple[int, int], str]]) -> pyannotate_runtime.collect_types.UnknownType",
+            "(List[Union[Dict[Union[Tuple[bytes], str], Union[Tuple[int, int], str]], Tuple[int, str]]]) -> pyannotate_runtime.collect_types.UnknownType",
+            "(Tuple[bytes]) -> pyannotate_runtime.collect_types.UnknownType",
+            "(int) -> None",
+            "(str) -> None",
+            "(frozenset) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(function) -> pyannotate_runtime.collect_types.NoReturnType"
+        ],
+        "samples": 9
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 117,
+        "func_name": "write_graphml_lxml",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, _io.BufferedWriter, str, bool, bool, bool, None) -> None",
+            "(easygraph.classes.directed_graph.DiGraph, _io.BytesIO, str, bool, bool, bool, None) -> None",
+            "(easygraph.classes.graph.Graph, _io.BytesIO, str, bool, bool, bool, None) -> None",
+            "(easygraph.classes.multigraph.MultiGraph, _io.BufferedWriter, str, bool, bool, bool, str) -> None",
+            "(easygraph.classes.multigraph.MultiGraph, _io.BytesIO, str, bool, bool, bool, None) -> None",
+            "(easygraph.classes.directed_graph.DiGraph, _io.BufferedWriter, str, bool, bool, bool, None) -> None",
+            "(easygraph.classes.multigraph.MultiGraph, _io.BufferedWriter, str, bool, bool, bool, None) -> None",
+            "(easygraph.classes.graph.Graph, _io.BufferedWriter, str, bool, bool, bool, str) -> None"
+        ],
+        "samples": 22
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 189,
+        "func_name": "generate_graphml",
+        "type_comments": [
+            "(easygraph.classes.multigraph.MultiGraph, str, bool, bool, str) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(easygraph.classes.graph.Graph, str, bool, bool, str) -> pyannotate_runtime.collect_types.NoReturnType"
+        ],
+        "samples": 10
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 236,
+        "func_name": "read_graphml",
+        "type_comments": [
+            "(_io.BytesIO, type, type, bool) -> easygraph.classes.graph.Graph",
+            "(_io.BufferedReader, type, type, bool) -> easygraph.classes.graph.Graph",
+            "(_io.BytesIO, type, type, bool) -> easygraph.classes.directed_graph.DiGraph",
+            "(_io.BufferedReader, type, type, bool) -> easygraph.classes.directed_graph.DiGraph",
+            "(_io.BytesIO, type, type, bool) -> easygraph.classes.multigraph.MultiGraph",
+            "(_io.BufferedReader, type, type, bool) -> easygraph.classes.multigraph.MultiGraph",
+            "(_io.BytesIO, type, type, bool) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(_io.BytesIO, type, type, bool) -> easygraph.classes.directed_multigraph.MultiDiGraph"
+        ],
+        "samples": 46
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 312,
+        "func_name": "parse_graphml",
+        "type_comments": [
+            "(str, type, type, bool) -> easygraph.classes.graph.Graph",
+            "(str, type, type, bool) -> easygraph.classes.directed_graph.DiGraph",
+            "(str, type, type, bool) -> easygraph.classes.multigraph.MultiGraph",
+            "(bytes, type, type, bool) -> easygraph.classes.multigraph.MultiGraph",
+            "(str, type, type, bool) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(str, type, type, bool) -> easygraph.classes.directed_multigraph.MultiDiGraph"
+        ],
+        "samples": 21
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 396,
+        "func_name": "GraphML.construct_types",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 89
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 452,
+        "func_name": "GraphML.get_xml_type",
+        "type_comments": [
+            "(type) -> str"
+        ],
+        "samples": 71
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 466,
+        "func_name": "GraphMLWriter.__init__",
+        "type_comments": [
+            "(None, str, bool, bool, bool, str) -> None",
+            "(None, str, bool, bool, bool, None) -> None"
+        ],
+        "samples": 3
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 500,
+        "func_name": "GraphMLWriter.__str__",
+        "type_comments": [
+            "() -> str"
+        ],
+        "samples": 2
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 508,
+        "func_name": "GraphMLWriter.attr_type",
+        "type_comments": [
+            "(str, str, bool) -> type",
+            "(str, str, int) -> type",
+            "(str, str, float) -> type",
+            "(str, str, str) -> type",
+            "(str, str, numpy.float32) -> type",
+            "(str, str, numpy.int64) -> type",
+            "(str, str, numpy.float64) -> type"
+        ],
+        "samples": 71
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 533,
+        "func_name": "GraphMLWriter.get_key",
+        "type_comments": [
+            "(str, str, str, str) -> str",
+            "(str, str, str, int) -> str",
+            "(str, str, str, None) -> str"
+        ],
+        "samples": 71
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 559,
+        "func_name": "GraphMLWriter.add_data",
+        "type_comments": [
+            "(str, type, str, str, str) -> lxml.etree._Element",
+            "(str, type, str, str, None) -> lxml.etree._Element",
+            "(str, type, str, str, None) -> xml.etree.ElementTree.Element",
+            "(str, type, str, str, int) -> lxml.etree._Element"
+        ],
+        "samples": 56
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 574,
+        "func_name": "GraphMLWriter.add_attributes",
+        "type_comments": [
+            "(str, xml.etree.ElementTree.Element, Dict[str, str], Dict) -> None",
+            "(str, xml.etree.ElementTree.Element, Dict, Dict) -> None"
+        ],
+        "samples": 15
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 582,
+        "func_name": "GraphMLWriter.add_nodes",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, easygraph.readwrite.graphml.IncrementalElement) -> None",
+            "(easygraph.classes.directed_graph.DiGraph, easygraph.readwrite.graphml.IncrementalElement) -> None",
+            "(easygraph.classes.multigraph.MultiGraph, xml.etree.ElementTree.Element) -> None",
+            "(easygraph.classes.directed_graph.DiGraph, xml.etree.ElementTree.Element) -> None",
+            "(easygraph.classes.multigraph.MultiGraph, easygraph.readwrite.graphml.IncrementalElement) -> None",
+            "(easygraph.classes.graph.Graph, xml.etree.ElementTree.Element) -> None"
+        ],
+        "samples": 26
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 589,
+        "func_name": "GraphMLWriter.add_edges",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, easygraph.readwrite.graphml.IncrementalElement) -> None",
+            "(easygraph.classes.directed_graph.DiGraph, easygraph.readwrite.graphml.IncrementalElement) -> None",
+            "(easygraph.classes.multigraph.MultiGraph, xml.etree.ElementTree.Element) -> None",
+            "(easygraph.classes.directed_graph.DiGraph, xml.etree.ElementTree.Element) -> None",
+            "(easygraph.classes.multigraph.MultiGraph, easygraph.readwrite.graphml.IncrementalElement) -> None",
+            "(easygraph.classes.graph.Graph, xml.etree.ElementTree.Element) -> None"
+        ],
+        "samples": 26
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 622,
+        "func_name": "GraphMLWriter.add_graph_element",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph) -> None",
+            "(easygraph.classes.multigraph.MultiGraph) -> None",
+            "(easygraph.classes.directed_graph.DiGraph) -> None"
+        ],
+        "samples": 4
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 660,
+        "func_name": "GraphMLWriter.add_graphs",
+        "type_comments": [
+            "(List[easygraph.classes.directed_graph.DiGraph]) -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 673,
+        "func_name": "GraphMLWriter.indent",
+        "type_comments": [
+            "(xml.etree.ElementTree.Element, int) -> pyannotate_runtime.collect_types.UnknownType",
+            "(xml.etree.ElementTree.Element, int) -> None"
+        ],
+        "samples": 10
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 697,
+        "func_name": "IncrementalElement.__init__",
+        "type_comments": [
+            "(lxml.etree._IncrementalFileWriter, bool) -> None"
+        ],
+        "samples": 22
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 701,
+        "func_name": "IncrementalElement.append",
+        "type_comments": [
+            "(lxml.etree._Element) -> None"
+        ],
+        "samples": 77
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 707,
+        "func_name": "GraphMLWriterLxml.__init__",
+        "type_comments": [
+            "(_io.BufferedWriter, easygraph.classes.graph.Graph, str, bool, bool, bool, None) -> None",
+            "(_io.BytesIO, easygraph.classes.directed_graph.DiGraph, str, bool, bool, bool, None) -> None",
+            "(_io.BytesIO, easygraph.classes.graph.Graph, str, bool, bool, bool, None) -> None",
+            "(_io.BufferedWriter, easygraph.classes.multigraph.MultiGraph, str, bool, bool, bool, str) -> None",
+            "(_io.BytesIO, easygraph.classes.multigraph.MultiGraph, str, bool, bool, bool, None) -> None",
+            "(_io.BufferedWriter, easygraph.classes.directed_graph.DiGraph, str, bool, bool, bool, None) -> None",
+            "(_io.BufferedWriter, easygraph.classes.multigraph.MultiGraph, str, bool, bool, bool, None) -> None",
+            "(_io.BufferedWriter, easygraph.classes.graph.Graph, str, bool, bool, bool, str) -> None"
+        ],
+        "samples": 22
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 753,
+        "func_name": "GraphMLWriterLxml.add_graph_element",
+        "type_comments": [
+            "(easygraph.classes.directed_graph.DiGraph) -> None",
+            "(easygraph.classes.graph.Graph) -> None",
+            "(easygraph.classes.multigraph.MultiGraph) -> None"
+        ],
+        "samples": 22
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 824,
+        "func_name": "GraphMLWriterLxml.add_attributes",
+        "type_comments": [
+            "(str, lxml.etree._Element, Dict[str, bool], Dict) -> None",
+            "(str, lxml.etree._Element, Dict[str, int], Dict) -> None",
+            "(str, lxml.etree._Element, Dict[str, str], Dict) -> None",
+            "(str, lxml.etree._Element, Dict, Dict) -> None",
+            "(str, easygraph.readwrite.graphml.IncrementalElement, Dict, Dict) -> None",
+            "(str, easygraph.readwrite.graphml.IncrementalElement, Dict[str, str], Dict) -> None",
+            "(str, lxml.etree._Element, Dict[str, Union[int, str]], Dict[str, str]) -> None",
+            "(str, lxml.etree._Element, Dict, Dict[str, str]) -> None"
+        ],
+        "samples": 87
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 835,
+        "func_name": "GraphMLWriterLxml.dump",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 22
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 847,
+        "func_name": "GraphMLReader.__init__",
+        "type_comments": [
+            "(type, type, bool) -> None"
+        ],
+        "samples": 66
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 857,
+        "func_name": "GraphMLReader.__call__",
+        "type_comments": [
+            "(_io.BytesIO, None) -> Iterator[easygraph.classes.directed_graph.DiGraph]",
+            "(_io.BytesIO, None) -> Iterator[easygraph.classes.multigraph.MultiGraph]",
+            "(_io.BytesIO, None) -> Iterator",
+            "(None, str) -> Iterator[easygraph.classes.directed_graph.DiGraph]",
+            "(None, bytes) -> Iterator[easygraph.classes.multigraph.MultiGraph]",
+            "(None, str) -> Iterator",
+            "(_io.BytesIO, None) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(None, str) -> pyannotate_runtime.collect_types.NoReturnType"
+        ],
+        "samples": 110
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 870,
+        "func_name": "GraphMLReader.make_graph",
+        "type_comments": [
+            "(xml.etree.ElementTree.Element, Dict, Dict, None) -> easygraph.classes.graph.Graph",
+            "(xml.etree.ElementTree.Element, Dict[str, Dict[str, Union[str, type]]], Dict, None) -> easygraph.classes.directed_graph.DiGraph",
+            "(xml.etree.ElementTree.Element, Dict[str, Dict[str, Union[str, type]]], Dict[str, bool], None) -> easygraph.classes.directed_graph.DiGraph",
+            "(xml.etree.ElementTree.Element, Dict, Dict, None) -> easygraph.classes.directed_graph.DiGraph",
+            "(xml.etree.ElementTree.Element, Dict[str, Dict[str, Union[str, type]]], Dict[str, str], None) -> easygraph.classes.directed_graph.DiGraph",
+            "(xml.etree.ElementTree.Element, Dict[str, Dict[str, Union[str, type]]], Dict, None) -> easygraph.classes.multigraph.MultiGraph",
+            "(xml.etree.ElementTree.Element, Dict[str, Dict[str, Union[str, type]]], Dict[str, str], None) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(xml.etree.ElementTree.Element, Dict, Dict, None) -> pyannotate_runtime.collect_types.NoReturnType"
+        ],
+        "samples": 68
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 913,
+        "func_name": "GraphMLReader.add_node",
+        "type_comments": [
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, xml.etree.ElementTree.Element, Dict[str, Dict[str, Union[str, type]]], Dict[str, bool]) -> None",
+            "(easygraph.classes.multigraph.MultiGraph, xml.etree.ElementTree.Element, Dict, Dict) -> None",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, xml.etree.ElementTree.Element, Dict[str, Dict[str, Union[str, type]]], Dict) -> None",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, xml.etree.ElementTree.Element, Dict, Dict) -> None",
+            "(easygraph.classes.multigraph.MultiGraph, xml.etree.ElementTree.Element, Dict[str, Dict[str, Union[str, type]]], Dict) -> None",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, xml.etree.ElementTree.Element, Dict[str, Dict[str, Union[str, type]]], Dict[str, str]) -> None",
+            "(easygraph.classes.multigraph.MultiGraph, xml.etree.ElementTree.Element, Dict[str, Dict[str, Union[str, type]]], Dict[str, bool]) -> None",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, xml.etree.ElementTree.Element, Dict[str, Dict[str, Union[str, type]]], Dict[str, Union[bool, float, int]]) -> None"
+        ],
+        "samples": 131
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 929,
+        "func_name": "GraphMLReader.add_edge",
+        "type_comments": [
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, xml.etree.ElementTree.Element, Dict) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(easygraph.classes.multigraph.MultiGraph, xml.etree.ElementTree.Element, Dict) -> None",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, xml.etree.ElementTree.Element, Dict[str, Dict[str, Union[str, type]]]) -> None",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, xml.etree.ElementTree.Element, Dict) -> None",
+            "(easygraph.classes.multigraph.MultiGraph, xml.etree.ElementTree.Element, Dict) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(easygraph.classes.multigraph.MultiGraph, xml.etree.ElementTree.Element, Dict[str, Dict[str, Union[str, type]]]) -> None",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, xml.etree.ElementTree.Element, Dict[str, Dict[str, Union[str, type]]]) -> pyannotate_runtime.collect_types.NoReturnType"
+        ],
+        "samples": 105
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 970,
+        "func_name": "GraphMLReader.decode_data_elements",
+        "type_comments": [
+            "(Dict[str, Dict[str, Union[str, type]]], xml.etree.ElementTree.Element) -> Dict[str, int]",
+            "(Dict[str, Dict[str, Union[str, type]]], xml.etree.ElementTree.Element) -> Dict",
+            "(Dict[str, Dict[str, Union[str, type]]], xml.etree.ElementTree.Element) -> Dict[str, str]",
+            "(Dict[str, Dict[str, Union[str, type]]], xml.etree.ElementTree.Element) -> Dict[str, bool]",
+            "(Dict, xml.etree.ElementTree.Element) -> Dict",
+            "(Dict[str, Dict[str, Union[str, type]]], xml.etree.ElementTree.Element) -> Dict[str, Union[int, str]]",
+            "(Dict[str, Dict[str, Union[str, type]]], xml.etree.ElementTree.Element) -> Dict[str, float]",
+            "(Dict[str, Dict[str, Union[str, type]]], xml.etree.ElementTree.Element) -> pyannotate_runtime.collect_types.NoReturnType"
+        ],
+        "samples": 165
+    },
+    {
+        "path": "easygraph/readwrite/graphml.py",
+        "line": 1031,
+        "func_name": "GraphMLReader.find_graphml_keys",
+        "type_comments": [
+            "(xml.etree.ElementTree.Element) -> Tuple[Dict, Dict]",
+            "(xml.etree.ElementTree.ElementTree) -> Tuple[Dict[str, Dict[str, Union[str, type]]], Dict]",
+            "(xml.etree.ElementTree.Element) -> Tuple[Dict[str, Dict[str, Union[str, type]]], Dict]",
+            "(xml.etree.ElementTree.ElementTree) -> Tuple[Dict[str, Dict[str, Union[str, type]]], Dict[str, bool]]",
+            "(xml.etree.ElementTree.ElementTree) -> Tuple[Dict, Dict]",
+            "(xml.etree.ElementTree.Element) -> Tuple[Dict[str, Dict[str, Union[str, type]]], Dict[str, bool]]",
+            "(xml.etree.ElementTree.ElementTree) -> Tuple[Dict[str, Dict[str, Union[str, type]]], Dict[str, str]]",
+            "(xml.etree.ElementTree.Element) -> Tuple[Dict[str, Dict[str, Union[str, type]]], Dict[str, str]]"
+        ],
+        "samples": 66
+    },
+    {
+        "path": "easygraph/readwrite/graphviz.py",
+        "line": 6,
+        "func_name": "from_agraph",
+        "type_comments": [
+            "(pygraphviz.agraph.AGraph, None) -> easygraph.classes.graph.Graph"
+        ],
+        "samples": 4
+    },
+    {
+        "path": "easygraph/readwrite/graphviz.py",
+        "line": 82,
+        "func_name": "to_agraph",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph) -> pygraphviz.agraph.AGraph"
+        ],
+        "samples": 4
+    },
+    {
+        "path": "easygraph/readwrite/graphviz.py",
+        "line": 149,
+        "func_name": "write_dot",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, _io.TextIOWrapper) -> None",
+            "(easygraph.classes.graph.Graph, str) -> None"
+        ],
+        "samples": 2
+    },
+    {
+        "path": "easygraph/readwrite/graphviz.py",
+        "line": 165,
+        "func_name": "read_dot",
+        "type_comments": [
+            "(_io.TextIOWrapper) -> easygraph.classes.graph.Graph",
+            "(str) -> easygraph.classes.graph.Graph"
+        ],
+        "samples": 2
+    },
+    {
+        "path": "easygraph/readwrite/pajek.py",
+        "line": 66,
+        "func_name": "generate_pajek",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph) -> Iterator[str]",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph) -> Iterator[str]"
+        ],
+        "samples": 15
+    },
+    {
+        "path": "easygraph/readwrite/pajek.py",
+        "line": 144,
+        "func_name": "write_pajek",
+        "type_comments": [
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, _io.BytesIO, str) -> None",
+            "(easygraph.classes.graph.Graph, _io.BytesIO, str) -> None"
+        ],
+        "samples": 3
+    },
+    {
+        "path": "easygraph/readwrite/pajek.py",
+        "line": 177,
+        "func_name": "read_pajek",
+        "type_comments": [
+            "(_io.BytesIO) -> easygraph.classes.directed_multigraph.MultiDiGraph",
+            "(_io.BufferedReader) -> easygraph.classes.directed_multigraph.MultiDiGraph",
+            "(_io.BytesIO) -> easygraph.classes.multigraph.MultiGraph"
+        ],
+        "samples": 3
+    },
+    {
+        "path": "easygraph/readwrite/pajek.py",
+        "line": 212,
+        "func_name": "parse_pajek",
+        "type_comments": [
+            "(str) -> easygraph.classes.directed_graph.DiGraph",
+            "(str) -> easygraph.classes.multigraph.MultiGraph",
+            "(generator) -> easygraph.classes.multigraph.MultiGraph",
+            "(str) -> easygraph.classes.directed_multigraph.MultiDiGraph",
+            "(generator) -> easygraph.classes.directed_multigraph.MultiDiGraph"
+        ],
+        "samples": 10
+    },
+    {
+        "path": "easygraph/readwrite/pajek.py",
+        "line": 325,
+        "func_name": "make_qstr",
+        "type_comments": [
+            "(str) -> str",
+            "(float) -> str",
+            "(int) -> str"
+        ],
+        "samples": 18
+    },
+    {
+        "path": "easygraph/readwrite/pickle.py",
+        "line": 4,
+        "func_name": "read_pickle",
+        "type_comments": [
+            "(str) -> easygraph.classes.directed_multigraph.MultiDiGraph"
+        ],
+        "samples": 2
+    },
+    {
+        "path": "easygraph/readwrite/pickle.py",
+        "line": 10,
+        "func_name": "write_pickle",
+        "type_comments": [
+            "(str, easygraph.classes.directed_multigraph.MultiDiGraph) -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 142,
+        "func_name": "TestGEXF.test_read_simple_directed_graphml",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 149,
+        "func_name": "TestGEXF.test_write_read_simple_directed_graphml",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 159,
+        "func_name": "TestGEXF.test_read_simple_undirected_graphml",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 166,
+        "func_name": "TestGEXF.test_read_attribute_graphml",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 176,
+        "func_name": "TestGEXF.test_directed_edge_in_undirected",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 193,
+        "func_name": "TestGEXF.test_undirected_edge_in_directed",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 210,
+        "func_name": "TestGEXF.test_key_raises",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 231,
+        "func_name": "TestGEXF.test_relabel",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 249,
+        "func_name": "TestGEXF.test_default_attribute",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 267,
+        "func_name": "TestGEXF.test_serialize_ints_to_strings",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 277,
+        "func_name": "TestGEXF.test_edge_id_construct",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 307,
+        "func_name": "TestGEXF.test_numpy_type",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 364,
+        "func_name": "TestGEXF.test_bool",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 373,
+        "func_name": "TestGEXF.test_specials",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 405,
+        "func_name": "TestGEXF.test_simple_list",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 415,
+        "func_name": "TestGEXF.test_dynamic_mode",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 427,
+        "func_name": "TestGEXF.test_slice_and_spell",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gexf.py",
+        "line": 451,
+        "func_name": "TestGEXF.test_add_parent",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 60,
+        "func_name": "TestGraph.test_parse_gml_cytoscape_bug",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 145,
+        "func_name": "TestGraph.test_parse_gml",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 174,
+        "func_name": "TestGraph.test_read_gml",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 186,
+        "func_name": "TestGraph.test_labels_are_strings",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 199,
+        "func_name": "TestGraph.test_relabel_duplicate",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 221,
+        "func_name": "TestGraph.test_quotes",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 241,
+        "func_name": "TestGraph.test_unicode_node",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 258,
+        "func_name": "TestGraph.test_float_label",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 275,
+        "func_name": "TestGraph.test_name",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 282,
+        "func_name": "TestGraph.test_graph_types",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 314,
+        "func_name": "TestGraph.test_data_types",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 345,
+        "func_name": "TestGraph.test_escape_unescape",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 359,
+        "func_name": "TestGraph.test_exceptions",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 370,
+        "func_name": "assert_parse_error",
+        "type_comments": [
+            "(str) -> None",
+            "(List[str]) -> None"
+        ],
+        "samples": 5
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 432,
+        "func_name": "assert_generate_error",
+        "type_comments": [
+            "(*easygraph.classes.graph.Graph) -> None"
+        ],
+        "samples": 5
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 450,
+        "func_name": "TestGraph.test_label_kwarg",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 461,
+        "func_name": "TestGraph.test_outofrange_integers",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 493,
+        "func_name": "byte_file",
+        "type_comments": [
+            "() -> Iterator[_io.BytesIO]",
+            "() -> Iterator"
+        ],
+        "samples": 8
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 502,
+        "func_name": "TestPropertyLists.test_writing_graph_with_multi_element_property_list",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 524,
+        "func_name": "TestPropertyLists.test_writing_graph_with_one_element_property_list",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 542,
+        "func_name": "TestPropertyLists.test_reading_graph_with_list_property",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_gml.py",
+        "line": 561,
+        "func_name": "TestPropertyLists.test_reading_graph_with_single_element_list_property",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 323,
+        "func_name": "TestReadGraphML.test_read_simple_directed_graphml",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 336,
+        "func_name": "TestReadGraphML.test_read_simple_undirected_graphml",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 347,
+        "func_name": "TestReadGraphML.test_read_undirected_multigraph_graphml",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 358,
+        "func_name": "TestReadGraphML.test_read_undirected_multigraph_no_multiedge_graphml",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 369,
+        "func_name": "TestReadGraphML.test_read_undirected_multigraph_only_ids_for_multiedges_graphml",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 380,
+        "func_name": "TestReadGraphML.test_read_attribute_graphml",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 397,
+        "func_name": "TestReadGraphML.test_node_default_attribute_graphml",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 402,
+        "func_name": "TestReadGraphML.test_directed_edge_in_undirected",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 420,
+        "func_name": "TestReadGraphML.test_undirected_edge_in_directed",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 438,
+        "func_name": "TestReadGraphML.test_key_raise",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 466,
+        "func_name": "TestReadGraphML.test_hyperedge_raise",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 496,
+        "func_name": "TestReadGraphML.test_multigraph_keys",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 519,
+        "func_name": "TestReadGraphML.test_preserve_multi_edge_data",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 563,
+        "func_name": "TestReadGraphML.test_yfiles_extension",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 691,
+        "func_name": "TestReadGraphML.test_bool",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 734,
+        "func_name": "TestReadGraphML.test_graphml_header_line",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 785,
+        "func_name": "TestReadGraphML.test_read_attributes_with_groups",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1077,
+        "func_name": "TestReadGraphML.test_long_attribute_type",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1109,
+        "func_name": "TestWriteGraphML.test_write_interface",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1117,
+        "func_name": "TestWriteGraphML.test_write_read_simple_directed_graphml",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1129,
+        "func_name": "TestWriteGraphML.test_GraphMLWriter_add_graphs",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1135,
+        "func_name": "TestWriteGraphML.test_write_read_simple_no_prettyprint",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1148,
+        "func_name": "TestWriteGraphML.test_write_read_attribute_named_key_ids_graphml",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1193,
+        "func_name": "TestWriteGraphML.test_write_read_attribute_numeric_type_graphml",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1219,
+        "func_name": "TestWriteGraphML.test_more_multigraph_keys",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1236,
+        "func_name": "TestWriteGraphML.test_default_attribute",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1251,
+        "func_name": "TestWriteGraphML.test_mixed_type_attributes",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1264,
+        "func_name": "TestWriteGraphML.test_str_number_mixed_type_attributes",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1277,
+        "func_name": "TestWriteGraphML.test_mixed_int_type_number_attributes",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1291,
+        "func_name": "TestWriteGraphML.test_numpy_float",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1302,
+        "func_name": "TestWriteGraphML.test_multigraph_to_graph",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1326,
+        "func_name": "TestWriteGraphML.test_write_generate_edge_id_from_attribute",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1368,
+        "func_name": "TestWriteGraphML.test_multigraph_write_generate_edge_id_from_attribute",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1421,
+        "func_name": "TestWriteGraphML.test_numpy_float64",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1437,
+        "func_name": "TestWriteGraphML.test_numpy_float32",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1453,
+        "func_name": "TestWriteGraphML.test_numpy_float64_inference",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1463,
+        "func_name": "TestWriteGraphML.test_unicode_attributes",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphml.py",
+        "line": 1476,
+        "func_name": "TestWriteGraphML.test_unicode_escape",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphviz.py",
+        "line": 13,
+        "func_name": "TestAGraph.build_graph",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph) -> easygraph.classes.graph.Graph"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphviz.py",
+        "line": 20,
+        "func_name": "TestAGraph.assert_equal",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, easygraph.classes.graph.Graph) -> None"
+        ],
+        "samples": 3
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphviz.py",
+        "line": 25,
+        "func_name": "TestAGraph.agraph_checks",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph) -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphviz.py",
+        "line": 48,
+        "func_name": "TestAGraph.test_from_agraph_name",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_graphviz.py",
+        "line": 54,
+        "func_name": "TestAGraph.test_undirected",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_pajek.py",
+        "line": 171,
+        "func_name": "TestPajek.test_parse_pajek_simple",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_pajek.py",
+        "line": 178,
+        "func_name": "TestPajek.test_parse_pajek",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_pajek.py",
+        "line": 184,
+        "func_name": "TestPajek.test_parse_pajek_mat",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_pajek.py",
+        "line": 202,
+        "func_name": "TestPajek.test_read_pajek",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_pajek.py",
+        "line": 211,
+        "func_name": "TestPajek.test_write_pajek",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_pajek.py",
+        "line": 224,
+        "func_name": "TestPajek.test_ignored_attribute",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_pajek.py",
+        "line": 240,
+        "func_name": "TestPajek.test_noname",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_pajek.py",
+        "line": 248,
+        "func_name": "TestPajek.test_unicode",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_pickle.py",
+        "line": 39,
+        "func_name": "TestPickle.test_read_pickle",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_pickle.py",
+        "line": 44,
+        "func_name": "TestPickle.test_write_pickle",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_ucinet.py",
+        "line": 10,
+        "func_name": "filterEdges",
+        "type_comments": [
+            "(List[Tuple[int, int, int, Dict[str, float]]]) -> List[Tuple[int, int, int]]",
+            "(List[Tuple[int, int, int, Dict]]) -> List[Tuple[int, int, int]]"
+        ],
+        "samples": 6
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_ucinet.py",
+        "line": 28,
+        "func_name": "TestUcinet.test_generate_ucinet",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_ucinet.py",
+        "line": 49,
+        "func_name": "TestUcinet.test_parse_ucinet",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_ucinet.py",
+        "line": 69,
+        "func_name": "TestUcinet.test_parse_ucinet_labels",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_ucinet.py",
+        "line": 136,
+        "func_name": "TestUcinet.test_parse_ucinet_nodelist1",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_ucinet.py",
+        "line": 165,
+        "func_name": "TestUcinet.test_parse_ucinet_nodelist1_labels",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_ucinet.py",
+        "line": 199,
+        "func_name": "TestUcinet.test_read_ucinet",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_ucinet.py",
+        "line": 218,
+        "func_name": "TestUcinet.test_write_ucinet",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/tests/test_ucinet.py",
+        "line": 241,
+        "func_name": "TestUcinet.test_parse_ucinet_edgelist1",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/ucinet.py",
+        "line": 33,
+        "func_name": "generate_ucinet",
+        "type_comments": [
+            "(easygraph.classes.directed_multigraph.MultiDiGraph) -> Iterator[str]",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph) -> Iterator"
+        ],
+        "samples": 9
+    },
+    {
+        "path": "easygraph/readwrite/ucinet.py",
+        "line": 71,
+        "func_name": "read_ucinet",
+        "type_comments": [
+            "(_io.BytesIO, str) -> easygraph.classes.directed_multigraph.MultiDiGraph"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/ucinet.py",
+        "line": 101,
+        "func_name": "write_ucinet",
+        "type_comments": [
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, _io.BytesIO, str) -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/readwrite/ucinet.py",
+        "line": 125,
+        "func_name": "parse_ucinet",
+        "type_comments": [
+            "(str) -> easygraph.classes.directed_multigraph.MultiDiGraph",
+            "(generator) -> easygraph.classes.directed_multigraph.MultiDiGraph",
+            "(List[bytes]) -> easygraph.classes.directed_multigraph.MultiDiGraph"
+        ],
+        "samples": 15
+    },
+    {
+        "path": "easygraph/readwrite/ucinet.py",
+        "line": 298,
+        "func_name": "get_param",
+        "type_comments": [
+            "(str, str, shlex.shlex) -> str"
+        ],
+        "samples": 26
+    },
+    {
+        "path": "easygraph/tests/test_convert.py",
+        "line": 14,
+        "func_name": "TestConvertNumpyArray.assert_equal",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, easygraph.classes.graph.Graph) -> None"
+        ],
+        "samples": 2
+    },
+    {
+        "path": "easygraph/tests/test_convert.py",
+        "line": 18,
+        "func_name": "TestConvertNumpyArray.identity_conversion",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, numpy.ndarray, easygraph.classes.graph.Graph) -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/tests/test_convert.py",
+        "line": 25,
+        "func_name": "TestConvertNumpyArray.test_identity_graph_array",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/tests/test_convert.py",
+        "line": 44,
+        "func_name": "TestConvertPandas.assert_equal",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, easygraph.classes.graph.Graph) -> None",
+            "(easygraph.classes.directed_graph.DiGraph, easygraph.classes.directed_graph.DiGraph) -> None"
+        ],
+        "samples": 2
+    },
+    {
+        "path": "easygraph/tests/test_convert.py",
+        "line": 48,
+        "func_name": "TestConvertPandas.test_from_edgelist_multi_attr",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/tests/test_convert.py",
+        "line": 59,
+        "func_name": "TestConvertPandas.test_from_adjacency",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/tests/test_convert.py",
+        "line": 80,
+        "func_name": "TestConvertScipy.assert_equal",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, easygraph.classes.graph.Graph) -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/tests/test_convert.py",
+        "line": 84,
+        "func_name": "TestConvertScipy.test_from_scipy",
+        "type_comments": [
+            "() -> None"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/utils/convert_to_matrix.py",
+        "line": 40,
+        "func_name": "from_numpy_array",
+        "type_comments": [
+            "(numpy.ndarray, bool, easygraph.classes.graph.Graph) -> easygraph.classes.graph.Graph",
+            "(numpy.ndarray, bool, easygraph.classes.directed_graph.DiGraph) -> easygraph.classes.directed_graph.DiGraph",
+            "(numpy.ndarray, bool, easygraph.classes.directed_multigraph.MultiDiGraph) -> easygraph.classes.directed_multigraph.MultiDiGraph"
+        ],
+        "samples": 12
+    },
+    {
+        "path": "easygraph/utils/convert_to_matrix.py",
+        "line": 200,
+        "func_name": "to_numpy_array",
+        "type_comments": [
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, List[int], type, None, builtin_function_or_method, str, float) -> numpy.ndarray",
+            "(easygraph.classes.directed_multigraph.MultiDiGraph, List[str], type, None, builtin_function_or_method, str, float) -> numpy.ndarray",
+            "(easygraph.classes.graph.Graph, None, None, None, builtin_function_or_method, str, float) -> numpy.ndarray"
+        ],
+        "samples": 4
+    },
+    {
+        "path": "easygraph/utils/convert_to_matrix.py",
+        "line": 385,
+        "func_name": "from_pandas_adjacency",
+        "type_comments": [
+            "(pandas.core.frame.DataFrame, easygraph.classes.directed_graph.DiGraph) -> easygraph.classes.directed_graph.DiGraph"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/utils/convert_to_matrix.py",
+        "line": 442,
+        "func_name": "from_pandas_edgelist",
+        "type_comments": [
+            "(pandas.core.frame.DataFrame, int, str, List[str], None, None) -> easygraph.classes.graph.Graph"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/utils/convert_to_matrix.py",
+        "line": 604,
+        "func_name": "from_scipy_sparse_matrix",
+        "type_comments": [
+            "(scipy.sparse._csr.csr_matrix, bool, None, str) -> easygraph.classes.graph.Graph"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/utils/convert_to_matrix.py",
+        "line": 680,
+        "func_name": "from_scipy_sparse_array",
+        "type_comments": [
+            "(scipy.sparse._csr.csr_matrix, bool, None, str) -> easygraph.classes.graph.Graph"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/utils/convert_to_matrix.py",
+        "line": 719,
+        "func_name": "_generate_weighted_edges",
+        "type_comments": [
+            "(scipy.sparse._csr.csr_matrix) -> generator"
+        ],
+        "samples": 1
+    },
+    {
+        "path": "easygraph/utils/convert_to_matrix.py",
+        "line": 735,
+        "func_name": "_csr_gen_triples",
+        "type_comments": [
+            "(scipy.sparse._csr.csr_matrix) -> Iterator[Tuple[int, numpy.int32, numpy.int64]]"
+        ],
+        "samples": 5
+    },
+    {
+        "path": "easygraph/utils/decorators.py",
+        "line": 89,
+        "func_name": "_not_implemented_for",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph) -> easygraph.classes.graph.Graph"
+        ],
+        "samples": 2
+    },
+    {
+        "path": "easygraph/utils/decorators.py",
+        "line": 182,
+        "func_name": "_open_file",
+        "type_comments": [
+            "(str) -> Tuple[_io.BufferedWriter, function]",
+            "(str) -> Tuple[_io.BufferedReader, function]",
+            "(_io.BytesIO) -> Tuple[_io.BytesIO, function]",
+            "(_io.BufferedRandom) -> Tuple[_io.BufferedRandom, function]",
+            "(tempfile._TemporaryFileWrapper) -> Tuple[tempfile._TemporaryFileWrapper, function]"
+        ],
+        "samples": 103
+    },
+    {
+        "path": "easygraph/utils/decorators.py",
+        "line": 508,
+        "func_name": "_lazy_compile",
+        "type_comments": [
+            "(function) -> function"
+        ],
+        "samples": 13
+    },
+    {
+        "path": "easygraph/utils/decorators.py",
+        "line": 577,
+        "func_name": "func",
+        "type_comments": [
+            "(function, *_io.BytesIO) -> pyannotate_runtime.collect_types.NoReturnType",
+            "(function, *easygraph.classes.graph.Graph) -> Dict[int, float]",
+            "(function, *Union[easygraph.classes.directed_graph.DiGraph, int]) -> easygraph.classes.directed_graph.DiGraph",
+            "(function, *_io.BytesIO) -> easygraph.classes.graph.Graph",
+            "(function, *int) -> easygraph.classes.graph.Graph",
+            "(function, *Union[_io.BytesIO, easygraph.classes.multigraph.MultiGraph]) -> None",
+            "(function, *_io.BytesIO) -> easygraph.classes.multigraph.MultiGraph",
+            "(function, *Union[_io.BytesIO, easygraph.classes.graph.Graph]) -> None"
+        ],
+        "samples": 13
+    },
+    {
+        "path": "easygraph/utils/decorators.py",
+        "line": 612,
+        "func_name": "_count",
+        "type_comments": [
+            "() -> int"
+        ],
+        "samples": 51
+    },
+    {
+        "path": "easygraph/utils/decorators.py",
+        "line": 635,
+        "func_name": "_name",
+        "type_comments": [
+            "(str) -> str",
+            "(function) -> str"
+        ],
+        "samples": 42
+    },
+    {
+        "path": "easygraph/utils/decorators.py",
+        "line": 655,
+        "func_name": "argmap.compile",
+        "type_comments": [
+            "(function) -> function"
+        ],
+        "samples": 13
+    },
+    {
+        "path": "easygraph/utils/decorators.py",
+        "line": 702,
+        "func_name": "argmap.assemble",
+        "type_comments": [
+            "(function) -> Tuple[easygraph.utils.decorators.Signature, str, Dict[int, Tuple[str, function]], List[str], List, bool]",
+            "(function) -> Tuple[easygraph.utils.decorators.Signature, str, Dict[int, Tuple[str, function]], List[str], List[Union[List, str]], bool]"
+        ],
+        "samples": 13
+    },
+    {
+        "path": "easygraph/utils/decorators.py",
+        "line": 792,
+        "func_name": "get_name",
+        "type_comments": [
+            "(int, bool) -> str"
+        ],
+        "samples": 13
+    },
+    {
+        "path": "easygraph/utils/decorators.py",
+        "line": 843,
+        "func_name": "signature",
+        "type_comments": [
+            "(function) -> easygraph.utils.decorators.Signature"
+        ],
+        "samples": 13
+    },
+    {
+        "path": "easygraph/utils/decorators.py",
+        "line": 949,
+        "func_name": "_flatten",
+        "type_comments": [
+            "(Tuple[str, str, List[str], str, List[Union[List, str]]], Set) -> Iterator[str]",
+            "(Tuple[str, str, List[str], str, List], Set) -> Iterator[str]",
+            "(List[str], Set[int]) -> Iterator[str]",
+            "(Tuple[str, str, List[str], str, List[Union[List, str]]], Set[int]) -> pyannotate_runtime.collect_types.UnknownType",
+            "(Tuple[str, str, List[str], str, List[Union[List, str]]], Set) -> pyannotate_runtime.collect_types.UnknownType",
+            "(Tuple[str, str, List[str], str, List], Set) -> pyannotate_runtime.collect_types.UnknownType",
+            "(Tuple[str, str, List[str], str, List], Set[int]) -> pyannotate_runtime.collect_types.UnknownType"
+        ],
+        "samples": 54
+    },
+    {
+        "path": "easygraph/utils/decorators.py",
+        "line": 980,
+        "func_name": "_indent",
+        "type_comments": [
+            "(*Union[List[str], str]) -> Iterator",
+            "(*Union[List[str], str]) -> Iterator[str]"
+        ],
+        "samples": 55
+    },
+    {
+        "path": "easygraph/utils/decorators.py",
+        "line": 1067,
+        "func_name": "_nodes_or_number",
+        "type_comments": [
+            "(int) -> Tuple[int, List[int]]",
+            "(int) -> Tuple[int, List]",
+            "(List[int]) -> Tuple[List[int], Tuple[int]]",
+            "(List[int]) -> Tuple[List[int], Tuple[int, int, int, int]]"
+        ],
+        "samples": 102
+    },
+    {
+        "path": "easygraph/utils/misc.py",
+        "line": 26,
+        "func_name": "nodes_equal",
+        "type_comments": [
+            "(Dict[str, Dict[str, Union[float, int]]], Dict[str, Dict[str, float]]) -> bool",
+            "(Dict[str, Dict], Dict[str, Dict]) -> bool",
+            "(Dict[int, Union[Dict, Dict[str, Union[int, str]]]], Dict[int, Union[Dict, Dict[str, Union[int, str]]]]) -> bool",
+            "(List[str], List[str]) -> bool",
+            "(Dict[int, Dict], Dict[int, Dict]) -> bool",
+            "(Dict[str, Dict[str, Union[float, str]]], List[str]) -> bool",
+            "(Dict[str, Dict[str, str]], Dict[str, Dict[str, str]]) -> bool"
+        ],
+        "samples": 25
+    },
+    {
+        "path": "easygraph/utils/misc.py",
+        "line": 53,
+        "func_name": "edges_equal",
+        "type_comments": [
+            "(List[Union[Tuple[int, int, Dict[str, int]], Tuple[int, int, Dict]]], List[Union[Tuple[int, int, Dict[str, int]], Tuple[int, int, Dict]]], bool) -> bool",
+            "(List[Tuple[str, str, Dict]], List[Tuple[str, str, Dict]], bool) -> bool",
+            "(List[Union[Tuple[str, str, Dict[str, str]], Tuple[str, str, Dict]]], List[Union[Tuple[str, str, Dict[str, str]], Tuple[str, str, Dict]]], bool) -> bool",
+            "(List[Union[Tuple[int, int, int, Dict[str, str]], Tuple[int, int, int, Dict]]], List[Union[Tuple[int, int, int, Dict[str, str]], Tuple[int, int, int, Dict]]], bool) -> bool",
+            "(List[Tuple[str, str, Dict[str, str]]], List[Tuple[str, str, Dict[str, str]]], bool) -> bool",
+            "(List[Tuple[str, str, int, Dict]], List[Tuple[str, str, int, Dict]], bool) -> bool",
+            "(List[Tuple[int, int, Dict]], List[Tuple[int, numpy.int32, Dict[str, numpy.int64]]], bool) -> bool",
+            "(List[Union[Tuple[str, str, Dict[str, float]], Tuple[str, str, Dict[str, int]]]], List[Tuple[str, str, Dict[str, float]]], bool) -> bool"
+        ],
+        "samples": 33
+    },
+    {
+        "path": "easygraph/utils/misc.py",
+        "line": 113,
+        "func_name": "pairwise",
+        "type_comments": [
+            "(itertools.chain, bool) -> zip",
+            "(List[int], bool) -> zip"
+        ],
+        "samples": 4
+    },
+    {
+        "path": "easygraph/utils/relabel.py",
+        "line": 6,
+        "func_name": "relabel_nodes",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, Dict) -> easygraph.classes.graph.Graph",
+            "(easygraph.classes.graph.Graph, Dict[int, str]) -> easygraph.classes.graph.Graph",
+            "(easygraph.classes.directed_graph.DiGraph, Dict[int, str]) -> easygraph.classes.directed_graph.DiGraph",
+            "(easygraph.classes.directed_graph.DiGraph, Dict[str, str]) -> easygraph.classes.directed_graph.DiGraph",
+            "(easygraph.classes.graph.Graph, Dict[int, int]) -> easygraph.classes.graph.Graph",
+            "(easygraph.classes.directed_graph.DiGraph, Dict[int, int]) -> easygraph.classes.directed_graph.DiGraph",
+            "(easygraph.classes.multigraph.MultiGraph, Dict[int, str]) -> easygraph.classes.multigraph.MultiGraph",
+            "(easygraph.classes.multigraph.MultiGraph, Dict[int, int]) -> easygraph.classes.multigraph.MultiGraph"
+        ],
+        "samples": 37
+    },
+    {
+        "path": "easygraph/utils/relabel.py",
+        "line": 14,
+        "func_name": "_relabel_copy",
+        "type_comments": [
+            "(easygraph.classes.graph.Graph, Dict) -> easygraph.classes.graph.Graph",
+            "(easygraph.classes.graph.Graph, Dict[int, str]) -> easygraph.classes.graph.Graph",
+            "(easygraph.classes.directed_graph.DiGraph, Dict[int, str]) -> easygraph.classes.directed_graph.DiGraph",
+            "(easygraph.classes.directed_graph.DiGraph, Dict[str, str]) -> easygraph.classes.directed_graph.DiGraph",
+            "(easygraph.classes.graph.Graph, Dict[int, int]) -> easygraph.classes.graph.Graph",
+            "(easygraph.classes.directed_graph.DiGraph, Dict[int, int]) -> easygraph.classes.directed_graph.DiGraph",
+            "(easygraph.classes.multigraph.MultiGraph, Dict[int, str]) -> easygraph.classes.multigraph.MultiGraph",
+            "(easygraph.classes.multigraph.MultiGraph, Dict[int, int]) -> easygraph.classes.multigraph.MultiGraph"
+        ],
+        "samples": 37
+    }
+]
