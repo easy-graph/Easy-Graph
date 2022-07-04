@@ -8,3 +8,4 @@ from easygraph.utils.convert_class import *
 from easygraph.utils.relabel import *
 from easygraph.utils.exception import *
 from easygraph.utils.type_change import *
+
