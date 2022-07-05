@@ -4,6 +4,8 @@ PyMethodDef ModuleMethods[] = {  //method list
     {"cpp_effective_size", (PyCFunction)effective_size, METH_VARARGS | METH_KEYWORDS, "" },
     {"cpp_constraint", (PyCFunction)constraint, METH_VARARGS | METH_KEYWORDS, "" },
     {"cpp_hierarchy", (PyCFunction)hierarchy, METH_VARARGS | METH_KEYWORDS, "" },
+    {"cpp_dijkstra_multisource", (PyCFunction)_dijkstra_multisource, METH_VARARGS | METH_KEYWORDS, "" },
+    {"cpp_biconnected_dfs_record_edges", (PyCFunction)_biconnected_dfs_record_edges, METH_VARARGS | METH_KEYWORDS, "" },
     {NULL}
 };
 

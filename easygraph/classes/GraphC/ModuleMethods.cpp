@@ -156,7 +156,7 @@ std::pair<int, double> compute_constraint_of_v(mimimsf_t& G, int v, std::string 
 
 PyObject* constraint(PyObject* easygraph, PyObject* args, PyObject* kwargs) {
 	Graph* graph;
-	PyObject* nodes = Py_None, *weight = Py_None, * n_workers = Py_None;
+	PyObject* nodes = Py_None, * weight = Py_None, * n_workers = Py_None;
 	static char* kwlist[] = { (char*)"G", (char*)"nodes", (char*)"weight", (char*)"n_workers", NULL };
 	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OOO", kwlist, &graph, &nodes, &weight, &n_workers))
 		return nullptr;
@@ -190,7 +190,7 @@ PyObject* hierarchy(PyObject* easygraph, PyObject* args, PyObject* kwargs) {
 	PyObject* nodes = Py_None, * weight = Py_None;
 	PyObject* hierarchy = PyDict_New();
 	static char* kwlist[] = { (char*)"G", (char*)"nodes", (char*)"weight", NULL };
-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO", kwlist, & graph, &nodes, &weight))
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO", kwlist, &graph, &nodes, &weight))
 		return nullptr;
 	mimimsf_t& G = graph->adj;
 	PyObject* con = PyObject_CallMethod(easygraph, "cpp_constraint", "(O)", graph);
@@ -236,4 +236,186 @@ PyObject* hierarchy(PyObject* easygraph, PyObject* args, PyObject* kwargs) {
 		}
 	}
 	return hierarchy;
+}
+
+struct dijkstra_node {
+	float dist;
+	int node;
+};
+bool operator < (const dijkstra_node& u, const dijkstra_node& v) {
+	return u.dist == v.dist ? u < v : u.dist < v.dist;
+}
+
+PyObject* _dijkstra_multisource(PyObject* easygraph, PyObject* args, PyObject* kwargs) {
+	Graph* G;
+	PyObject* sources;
+	PyObject* pweight = PyUnicode_FromString("weight"), * target = Py_None;
+	static char* kwlist[] = { (char*)"G", (char*)"sources", (char*)"weight", (char*)"target", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|OO", kwlist, &G, &sources, &pweight, &target))
+		return nullptr;
+	int targetid = -1;
+	if (PyDict_Contains(G->node_to_id, target))
+		targetid = PyLong_AsLong(PyDict_GetItem(G->node_to_id, target));
+	std::string weight(PyUnicode_AsUTF8(pweight));
+	std::priority_queue<dijkstra_node> qu;
+	std::map<int, float> dist, seen;
+	PyObject* iterator = PyObject_GetIter(sources);
+	if (iterator == nullptr) {
+		// ...
+		return nullptr;
+	}
+	PyObject* source;
+	while ((source = PyIter_Next(iterator))) {
+		int sourceid = -1;
+		if (PyDict_Contains(G->node_to_id, source) == 1) {
+			sourceid = PyLong_AsLong(PyDict_GetItem(G->node_to_id, source));
+			seen[sourceid] = 0;
+			qu.push({ 0, sourceid });
+		}
+		else {
+			//...
+			return nullptr;
+		}
+		Py_DecRef(source);
+	}
+	Py_DecRef(iterator);
+	while (!qu.empty()) {
+		dijkstra_node n = qu.top();
+		int v = n.node;
+		qu.pop();
+		if (dist.find(v) != dist.end())
+			continue;
+		dist[v] = n.dist;
+		if (n.node == targetid) {
+			break;
+		}
+		for (auto& p : G->adj[v]) {
+			int u = p.first;
+			auto& weights = G->adj[v][u];
+			float cost = weights.find(weight) != weights.end() ? weights[weight] : 1;
+			float vu_dist = dist[v] + cost;
+			if (dist.find(u) != dist.end()) {
+				if (vu_dist < dist[u]) {
+					PyErr_Format(PyExc_ValueError, "Contradictory paths found: negative weights?");
+					return nullptr;
+				}
+			}
+			else if (seen.find(u) == seen.end() || vu_dist < seen[u]) {
+				seen[u] = vu_dist;
+				dijkstra_node dn = { vu_dist, u };
+				qu.push(dn);
+			}
+			else
+				continue;
+		}
+	}
+	PyObject* pdist = PyDict_New();
+	for (auto& p : dist)
+		PyDict_SetItem(pdist, PyDict_GetItem(G->id_to_node, PyLong_FromLong(p.first)), PyFloat_FromDouble(p.second));
+	return pdist;
+}
+
+
+PyObject* _biconnected_dfs_record_edges(PyObject* easygraph, PyObject* args, PyObject* kwargs) {
+	Graph* G;
+	PyObject* need_components = Py_True;
+	static char* kwlist[] = { (char*)"G", (char*)"need_components", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O", kwlist, &G, &need_components))
+		return nullptr;
+	std::set<int> visited;
+	PyObject* ret = PyList_New(0);
+	struct edge {
+		int u, v;
+	};
+
+	struct stack_node {
+		int parent, child;
+		mimsf_it iter, end;
+	};
+
+	for (auto& p : G->node) {
+		int start = p.first;
+		if (visited.find(start) != visited.end())
+			continue;
+		std::map<int, int> discovery, low;
+		discovery.insert(std::make_pair(start, 0));
+		low.insert(std::make_pair(start, 0));
+		int root_children = 0;
+		visited.insert(start);
+		std::vector<edge> edge_stack;
+		std::vector<stack_node> stack;
+		stack.push_back({ start, start,G->adj[start].begin(),G->adj[start].end()});
+		while (!stack.empty()) {
+			stack_node &node = stack.back();
+			int grandparent = node.parent, parent = node.child;
+			if (node.iter != node.end) {
+				int child = node.iter->first;
+				if (grandparent == child) {
+					node.iter++;
+					continue;
+				}
+				if (visited.find(child) != visited.end()) {
+					if (discovery[child] <= discovery[parent]) {
+						low[parent] = std::min(low[parent], discovery[child]);
+						if (PyObject_IsTrue(need_components)) {
+							edge_stack.push_back({ parent, child });
+						}
+					}
+				}
+				else {
+					low[child] = discovery[child] = discovery.size();
+					visited.insert(child);
+					stack.push_back({ parent, child, G->adj[child].begin(),G->adj[child].end() });
+					if (PyObject_IsTrue(need_components)) {
+						edge_stack.push_back({ parent, child });
+					}
+				}
+				node.iter++;
+			}
+			else { //迭代终止
+				stack.pop_back();
+				if (stack.size() > 1) {
+					if (low[parent] >= discovery[grandparent]) {
+						if (PyObject_IsTrue(need_components)) {
+							edge e;
+							PyObject* temp_ret = PyList_New(0);
+							do {
+								e = edge_stack.back();
+								edge_stack.pop_back();
+								PyList_Append(temp_ret, Py_BuildValue("(OO)",
+									PyDict_GetItem(G->id_to_node, PyLong_FromLong(e.u)),
+									PyDict_GetItem(G->id_to_node, PyLong_FromLong(e.v))));
+							} while (e.u != grandparent || e.v != parent);
+							PyList_Append(ret, temp_ret);
+						}
+						else {
+							PyList_Append(ret, PyDict_GetItem(G->id_to_node, PyLong_FromLong(grandparent)));
+						}
+					}
+				}
+				else if (stack.size()) {
+					root_children += 1;
+					if (PyObject_IsTrue(need_components)) {
+						edge e;
+						PyObject* temp_ret = PyList_New(0);
+						auto iter = edge_stack.rbegin();
+						do {
+							e = *iter;
+							PyList_Append(temp_ret, Py_BuildValue("(OO)",
+								PyDict_GetItem(G->id_to_node, PyLong_FromLong(e.u)),
+								PyDict_GetItem(G->id_to_node, PyLong_FromLong(e.v))));
+							iter++;
+						} while (e.u != grandparent || e.v != parent);
+						PyList_Append(ret, temp_ret);
+					}
+				}
+			}
+		}
+		if (!PyObject_IsTrue(need_components)) {
+			if (root_children > 1) {
+				PyList_Append(ret, PyDict_GetItem(G->id_to_node, PyLong_FromLong(start)));
+			}
+		}
+	}
+	return ret;
 }

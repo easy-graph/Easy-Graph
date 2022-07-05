@@ -65,7 +65,7 @@ PyGetSetDef Graph_get_set[] = {
 //以下是类的方法
 void _add_one_node(Graph* self, PyObject* one_node_for_adding, PyObject* node_attr, std::map<std::string, float>* c_node_attr) {
     int id;
-    if (PyDict_Contains(self->node_to_id, one_node_for_adding)) {
+    if (PyDict_Contains(self->node_to_id, one_node_for_adding) == 1) {
         id = PyLong_AsLong(PyDict_GetItem(self->node_to_id, one_node_for_adding));
     }
     else {
@@ -93,7 +93,7 @@ void _add_one_node(Graph* self, PyObject* one_node_for_adding, PyObject* node_at
 }
 
 PyObject* Graph_add_node(Graph* self, PyObject* args, PyObject* kwargs) {
-    if(PyTuple_Size(args) != 1) {
+    if (PyTuple_Size(args) != 1) {
         PyErr_Format(PyExc_TypeError, "add_node() takes only 1 positional argument.");
         return nullptr;
     }
@@ -103,7 +103,6 @@ PyObject* Graph_add_node(Graph* self, PyObject* args, PyObject* kwargs) {
 }
 
 PyObject* Graph_add_nodes(Graph* self, PyObject* args, PyObject* kwargs) {
-    
     PyObject* nodes_for_adding = nullptr, * nodes_attr = nullptr;
     static char* kwlist[] = { (char*)"nodes_for_adding", (char*)"nodes_attr", NULL };
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O", kwlist, &nodes_for_adding, &nodes_attr))
@@ -124,7 +123,7 @@ PyObject* Graph_add_nodes(Graph* self, PyObject* args, PyObject* kwargs) {
 
 void _add_one_edge(Graph* self, PyObject* pu, PyObject* pv, PyObject* edge_attr, std::map<std::string, float>* c_edge_attr) {
     int u, v;
-    if (!PyDict_Contains(self->node_to_id, pu)) {
+    if (!PyDict_Contains(self->node_to_id, pu) == 1) {
         _add_one_node(self, pu, nullptr);
         u = self->id;
     }
@@ -163,7 +162,7 @@ void _add_one_edge(Graph* self, PyObject* pu, PyObject* pv, PyObject* edge_attr,
 
 PyObject* Graph_add_edge(Graph* self, PyObject* args, PyObject* kwargs) {
     PyObject* u = nullptr, * v = nullptr;
-    if(PyTuple_Size(args) != 2) {
+    if (PyTuple_Size(args) != 2) {
         PyErr_Format(PyExc_TypeError, "add_edge() takes only 2 positional arguments.");
         return nullptr;
     }
@@ -196,7 +195,7 @@ PyObject* Graph_add_weighted_edge(Graph* self, PyObject* args, PyObject* kwargs)
     return Py_BuildValue("");
 }
 
-PyObject * Graph_add_edges(Graph * self, PyObject* args, PyObject* kwargs) {
+PyObject* Graph_add_edges(Graph* self, PyObject* args, PyObject* kwargs) {
     PyObject* edges_for_adding, * edges_attr = nullptr;
     static char* kwlist[] = { (char*)"edges_for_adding", (char*)"edges_attr", NULL };
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O", kwlist, &edges_for_adding, &edges_attr))
@@ -231,7 +230,11 @@ PyObject* Graph_add_edges_from_file(Graph* self, PyObject* args, PyObject* kwarg
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s|O", kwlist, &file_path, &weighted))
         return nullptr;
     std::ifstream in;
-    in.open(file_path, std::ios::in);
+    in.open(file_path);
+    if (!in.is_open()) {
+        PyErr_Format(PyExc_FileNotFoundError, "Please check the file and make sure the path only contains English");
+        return nullptr;
+    }
     in.imbue(std::locale(std::locale(), new commactype));
     std::string data, key("weight");
     std::string su, sv;
@@ -306,8 +309,8 @@ PyObject* Graph_size(Graph* self, PyObject* args, PyObject* kwargs) {
         result += each.second;
     }
     Py_DecRef((PyObject*)temp_degree);
-    return weight == Py_None? Py_BuildValue("i", int(result) / 2): Py_BuildValue("f", result / 2);
-        
+    return weight == Py_None ? Py_BuildValue("i", int(result) / 2) : Py_BuildValue("f", result / 2);
+
 }
 
 PyObject* Graph_neighbors(Graph* self, PyObject* args, PyObject* kwargs) {
@@ -318,7 +321,7 @@ PyObject* Graph_neighbors(Graph* self, PyObject* args, PyObject* kwargs) {
     PyObject* temp_adj = PyObject_GetAttr((PyObject*)self, PyUnicode_FromString("adj"));
     PyObject* obj = PyObject_GetItem(temp_adj, node);
     auto& adj = self->adj;
-    if (PyDict_Contains(self->node_to_id, node)) {
+    if (PyDict_Contains(self->node_to_id, node) == 1) {
         int id = PyLong_AsLong(PyDict_GetItem(self->node_to_id, node));
         GraphMap* temp_map = (GraphMap*)PyObject_CallFunctionObjArgs((PyObject*)&GraphMapType, nullptr);
         temp_map->node_to_id = self->node_to_id;
@@ -326,7 +329,8 @@ PyObject* Graph_neighbors(Graph* self, PyObject* args, PyObject* kwargs) {
         temp_map->type = MiMsf;
         temp_map->pointer = &adj[id];
         return GraphMap_iter(temp_map);
-    }else {
+    }
+    else {
         PyErr_Format(PyExc_KeyError, "No node %R", node);
         return nullptr;
     }
@@ -354,7 +358,7 @@ PyObject* Graph_remove_node(Graph* self, PyObject* args, PyObject* kwargs) {
     }
     _remove_one_node(self, node_to_remove);
     return Py_BuildValue("");
-} 
+}
 
 PyObject* Graph_remove_nodes(Graph* self, PyObject* args, PyObject* kwargs) {
     PyObject* nodes_to_remove;
@@ -386,12 +390,12 @@ void _remove_one_edge(Graph* self, int u, int v) {
 }
 
 PyObject* Graph_remove_edge(Graph* self, PyObject* args, PyObject* kwargs) {
-    PyObject* pu , * pv;
+    PyObject* pu, * pv;
     static char* kwlist[] = { (char*)"u", (char*)"v", NULL };
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO", kwlist, &pu, &pv))
         return nullptr;
     int u = -1, v = -1;
-    if (PyDict_Contains(self->node_to_id, pu) && PyDict_Contains(self->node_to_id, pv)) {
+    if (PyDict_Contains(self->node_to_id, pu) == 1 && PyDict_Contains(self->node_to_id, pv) == 1) {
         u = PyLong_AsLong(PyDict_GetItem(self->node_to_id, pu));
         v = PyLong_AsLong(PyDict_GetItem(self->node_to_id, pv));
         if (self->adj.count(u) && self->adj[u].count(v)) {
@@ -425,7 +429,7 @@ PyObject* Graph_remove_edges(Graph* self, PyObject* args, PyObject* kwargs) {
         PyObject* pu = nullptr, * pv = nullptr;
         PyArg_ParseTuple(edge_to_remove, "OO", &pu, &pv);
         int u = -1, v = -1;
-        if (PyDict_Contains(self->node_to_id, pu) && PyDict_Contains(self->node_to_id, pv)) {
+        if (PyDict_Contains(self->node_to_id, pu) == 1 && PyDict_Contains(self->node_to_id, pv) == 1) {
             u = PyLong_AsLong(PyDict_GetItem(self->node_to_id, pu));
             v = PyLong_AsLong(PyDict_GetItem(self->node_to_id, pv));
             if (!(self->adj.count(u) && self->adj[u].count(v))) {
@@ -441,7 +445,7 @@ PyObject* Graph_remove_edges(Graph* self, PyObject* args, PyObject* kwargs) {
             return nullptr;
         }
     }
-    for (auto& each:edges) {
+    for (auto& each : edges) {
         _remove_one_edge(self, each.u, each.v);
     }
     return Py_BuildValue("");
@@ -452,7 +456,7 @@ PyObject* Graph_has_node(Graph* self, PyObject* args, PyObject* kwargs) {
     static char* kwlist[] = { (char*)"node", NULL };
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", kwlist, &node))
         return nullptr;
-    return PyDict_Contains(self->node_to_id, node) ? Py_True : Py_False;
+    return Py_BuildValue("O", PyDict_Contains(self->node_to_id, node) == 1 ? Py_True : Py_False);
 }
 
 PyObject* Graph_has_edge(Graph* self, PyObject* args, PyObject* kwargs) {
@@ -461,14 +465,14 @@ PyObject* Graph_has_edge(Graph* self, PyObject* args, PyObject* kwargs) {
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO", kwlist, &pu, &pv))
         return nullptr;
     int u = -1, v = -1;
-    if (PyDict_Contains(self->node_to_id, pu) && PyDict_Contains(self->node_to_id, pv)) {
+    if (PyDict_Contains(self->node_to_id, pu) == 1 && PyDict_Contains(self->node_to_id, pv) == 1) {
         u = PyLong_AsLong(PyDict_GetItem(self->node_to_id, pu));
         v = PyLong_AsLong(PyDict_GetItem(self->node_to_id, pv));
         if (self->adj.count(u) && self->adj[u].count(v)) {
-            return Py_True;
+            return Py_BuildValue("O", Py_True);
         }
     }
-    return Py_False;
+    return Py_BuildValue("O", Py_False);
 }
 
 PyObject* Graph_number_of_nodes(Graph* self, PyObject* args, PyObject* kwargs) {
@@ -480,7 +484,11 @@ PyObject* Graph_number_of_edges(Graph* self, PyObject* args, PyObject* kwargs) {
 }
 
 PyObject* Graph_is_directed(Graph* self, PyObject* args, PyObject* kwargs) {
-    return Py_False;
+    return Py_BuildValue("O", Py_False);
+}
+
+PyObject* Graph_is_multigraph(Graph* self, PyObject* args, PyObject* kwargs) {
+    return Py_BuildValue("O", Py_False);
 }
 
 PyMethodDef GraphMethods[] = {
@@ -503,6 +511,7 @@ PyMethodDef GraphMethods[] = {
     {"number_of_nodes", (PyCFunction)Graph_number_of_nodes, METH_VARARGS | METH_KEYWORDS, ""},
     {"number_of_edges", (PyCFunction)Graph_number_of_edges, METH_VARARGS | METH_KEYWORDS, ""},
     {"is_directed", (PyCFunction)Graph_is_directed, METH_VARARGS | METH_KEYWORDS, ""},
+    {"is_multigraph", (PyCFunction)Graph_is_multigraph, METH_VARARGS | METH_KEYWORDS, ""},
     {"copy", (PyCFunction)Graph_copy, METH_VARARGS | METH_KEYWORDS, ""},
     {"nodes_subgraph", (PyCFunction)Graph_nodes_subgraph, METH_VARARGS | METH_KEYWORDS, ""},
     {"ego_subgraph", (PyCFunction)Graph_ego_subgraph, METH_VARARGS | METH_KEYWORDS, ""},
@@ -516,7 +525,7 @@ Py_ssize_t Graph_len(Graph* self) {
 }
 
 int Graph_contains(Graph* self, PyObject* node) {
-    return PyDict_Contains(self->node_to_id, node);
+    return PyDict_Contains(self->node_to_id, node) == 1;
 }
 
 PySequenceMethods Graph_sequence_methods = {
@@ -535,7 +544,7 @@ PySequenceMethods Graph_sequence_methods = {
 //以下是作为mapping的方法
 PyObject* Graph_getitem(Graph* self, PyObject* pykey) {
     PyObject* pkey = PyTuple_GetItem(pykey, 0);
-    if (PyDict_Contains(self->node_to_id, pkey)) {
+    if (PyDict_Contains(self->node_to_id, pkey) == 1) {
         int key = PyLong_AsLong(PyDict_GetItem(self->node_to_id, pkey));
         GraphMap* temp_map = (GraphMap*)PyObject_CallFunctionObjArgs((PyObject*)&GraphMapType, nullptr);
         temp_map->pointer = &(self->adj[key]);
