@@ -23,7 +23,7 @@ if uname[0] == "Darwin" or uname[0] == "Linux":
 CYTHON_STR = 'Cython'
 
 setuptools.setup(name="Python-EasyGraph",
-                 version="0.2a38",
+                 version="0.2a39",
                  author="Fudan MSN Group",
                  author_email="easygraph@163.com",
                  description="Easy Graph",
