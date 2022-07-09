@@ -55,4 +55,14 @@ using the `HIS <https://keg.cs.tsinghua.edu.cn/jietang/publications/WWW13-Lou&Ta
   }
 
 
+Develop
+-------
+
+.. code:: bash
+
+    git clone https://github.com/easy-graph/Easy-Graph.git
+    cd Easy-Graph
+    # optionally but recommended, activate your virtual environment
+    python3 -m pip install -e .
+
 
