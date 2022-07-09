@@ -39,7 +39,7 @@ setuptools.setup(name="Python-EasyGraph",
                      "License :: OSI Approved :: BSD License",
                      "Operating System :: OS Independent",
                  ],
-                 python_requires=">=3.6, <3.10",
+                 python_requires=">=3.6, <3.11",
                  install_requires=[
                      "numpy>=1.18.5, <=1.19.5; python_version=='3.6'",
                      "numpy>=1.18.5; python_version>='3.7'",
