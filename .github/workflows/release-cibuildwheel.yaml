@@ -108,7 +108,8 @@ jobs:
   #         # print_hash: true
 
   upload_pypi:
-    name: Upload to PyPI if the latest release on Test PyPI passes the checks
+    # name: Upload to PyPI if the latest release on Test PyPI passes the checks
+    name: Upload to PyPI
     # needs: [build_wheels, build_sdist, upload_test_pypi, verify_installation]
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
