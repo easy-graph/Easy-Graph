@@ -24,7 +24,7 @@ float normalized_mutual_weight(mimimsf_t& G, int u, int v, std::string weight = 
 	else {
 		float scale = 0;
 		for (auto& w : G[u]) {
-			scale += mutual_weight(G, u, w.first, weight);
+			scale = norm ? scale + mutual_weight(G, u, w.first, weight) : std::max(scale, mutual_weight(G, u, w.first, weight));
 		}
 		float nmw;
 		nmw = scale ? mutual_weight(G, u, v, weight) / scale : 0;
