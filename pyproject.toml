@@ -1,0 +1,4 @@
+[tool.coverage.run]
+branch = true
+source = [ "easygraph/"]
+relative_files = true
