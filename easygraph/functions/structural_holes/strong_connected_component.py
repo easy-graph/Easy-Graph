@@ -1,5 +1,9 @@
+from __future__ import annotations
+
 import easygraph as eg
+
 from easygraph.utils.decorators import *
+
 
 __all__ = [
     "number_strongly_connected_components",
@@ -73,8 +77,7 @@ def strongly_connected_components(G):
                     queue.pop()
                     if lowlink[v] == preorder[v]:
                         scc = {v}
-                        while scc_queue and preorder[
-                                scc_queue[-1]] > preorder[v]:
+                        while scc_queue and preorder[scc_queue[-1]] > preorder[v]:
                             k = scc_queue.pop()
                             scc.add(k)
                         scc_found.update(scc)

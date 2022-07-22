@@ -183,5 +183,3 @@ PyObject* GraphMapIter_iter(GraphMapIter* self) {
     *temp_map_iter = *self;
     return (PyObject*)temp_map_iter;
 }
-
-

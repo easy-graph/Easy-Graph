@@ -21,13 +21,18 @@ References
     for full format information. Short version on http://www.analytictech.com/networks/dataentry.htm
 """
 
+from __future__ import annotations
+
 import re
 import shlex
+
 import easygraph as eg
 import numpy as np
+
 from easygraph.utils import open_file
 
-__all__ = ['generate_ucinet', 'read_ucinet', 'parse_ucinet', 'write_ucinet']
+
+__all__ = ["generate_ucinet", "read_ucinet", "parse_ucinet", "write_ucinet"]
 
 
 def generate_ucinet(G):
@@ -41,7 +46,7 @@ def generate_ucinet(G):
     Notes
     -----
     The default format 'fullmatrix' is used (for UCINET DL format).
-    
+
     References
     ----------
     See UCINET User Guide or http://www.analytictech.com/ucinet/help/hs5000.htm
@@ -50,26 +55,26 @@ def generate_ucinet(G):
 
     n = G.number_of_nodes()
     nodes = sorted(list(G.nodes))
-    yield 'dl n=%i format=fullmatrix' % n
+    yield "dl n=%i format=fullmatrix" % n
 
     # Labels
     try:
         int(nodes[0])
     except ValueError:
-        s = 'labels:\n'
+        s = "labels:\n"
         for label in nodes:
-            s += label + ' '
+            s += label + " "
         yield s
 
-    yield 'data:'
+    yield "data:"
 
-    yield str(np.asmatrix(eg.to_numpy_array(
-        G, nodelist=nodes,
-        dtype=int))).replace('[', ' ').replace(']', ' ').lstrip().rstrip()
+    yield str(np.asmatrix(eg.to_numpy_array(G, nodelist=nodes, dtype=int))).replace(
+        "[", " "
+    ).replace("]", " ").lstrip().rstrip()
 
 
-@open_file(0, mode='rb')
-def read_ucinet(path, encoding='UTF-8'):
+@open_file(0, mode="rb")
+def read_ucinet(path, encoding="UTF-8"):
     """Read graph in UCINET format from path.
     Parameters
     ----------
@@ -98,8 +103,8 @@ def read_ucinet(path, encoding='UTF-8'):
     return parse_ucinet(lines)
 
 
-@open_file(1, mode='wb')
-def write_ucinet(G, path, encoding='UTF-8'):
+@open_file(1, mode="wb")
+def write_ucinet(G, path, encoding="UTF-8"):
     """Write graph in UCINET format to path.
     Parameters
     ----------
@@ -118,7 +123,7 @@ def write_ucinet(G, path, encoding='UTF-8'):
     for full format information. Short version on http://www.analytictech.com/networks/dataentry.htm
     """
     for line in generate_ucinet(G):
-        line += '\n'
+        line += "\n"
         path.write(line.encode(encoding))
 
 
@@ -140,32 +145,35 @@ def parse_ucinet(lines):
     See UCINET User Guide or http://www.analytictech.com/ucinet/help/hs5000.htm
     for full format information. Short version on http://www.analytictech.com/networks/dataentry.htm
     """
-    from numpy import genfromtxt, reshape, insert, isnan
+    from numpy import genfromtxt
+    from numpy import isnan
+    from numpy import reshape
+
     G = eg.MultiDiGraph()
 
     if not isinstance(lines, str):
-        s = ''
+        s = ""
         for line in lines:
             if type(line) == bytes:
-                s += line.decode('utf-8')
+                s += line.decode("utf-8")
             else:
                 s += line
         lines = s
     lexer = shlex.shlex(lines.lower())
-    lexer.whitespace += ',='
+    lexer.whitespace += ",="
     lexer.whitespace_split = True
 
     number_of_nodes = 0
     number_of_matrices = 0
     nr = 0  # number of rows (rectangular matrix)
     nc = 0  # number of columns (rectangular matrix)
-    ucinet_format = 'fullmatrix'  # Format by default
+    ucinet_format = "fullmatrix"  # Format by default
     labels = {}  # Contains labels of nodes
     row_labels_embedded = False  # Whether labels are embedded in data or not
     cols_labels_embedded = False
     diagonal = True  # whether the main diagonal is present or absent
 
-    KEYWORDS = ('format', 'data:', 'labels:')  # TODO remove ':' in keywords
+    KEYWORDS = ("format", "data:", "labels:")  # TODO remove ':' in keywords
 
     while lexer:
         try:
@@ -173,17 +181,17 @@ def parse_ucinet(lines):
         except StopIteration:
             break
         # print "Token : %s" % token
-        if token.startswith('n'):
-            if token.startswith('nr'):
-                nr = int(get_param("\d+", token, lexer))
+        if token.startswith("n"):
+            if token.startswith("nr"):
+                nr = int(get_param(r"\d+", token, lexer))
                 number_of_nodes = max(nr, nc)
-            elif token.startswith('nc'):
-                nc = int(get_param("\d+", token, lexer))
+            elif token.startswith("nc"):
+                nc = int(get_param(r"\d+", token, lexer))
                 number_of_nodes = max(nr, nc)
-            elif token.startswith('nm'):
-                number_of_matrices = int(get_param("\d+", token, lexer))
+            elif token.startswith("nm"):
+                number_of_matrices = int(get_param(r"\d+", token, lexer))
             else:
-                number_of_nodes = int(get_param("\d+", token, lexer))
+                number_of_nodes = int(get_param(r"\d+", token, lexer))
                 nr = number_of_nodes
                 nc = number_of_nodes
 
@@ -193,7 +201,10 @@ def parse_ucinet(lines):
         elif token.startswith("format"):
             ucinet_format = get_param(
                 """^(fullmatrix|upperhalf|lowerhalf|nodelist1|nodelist2|nodelist1b|\
-edgelist1|edgelist2|blockmatrix|partition)$""", token, lexer)
+edgelist1|edgelist2|blockmatrix|partition)$""",
+                token,
+                lexer,
+            )
 
         # TODO : row and columns labels
         elif token.startswith("row"):  # Row labels
@@ -205,19 +216,20 @@ edgelist1|edgelist2|blockmatrix|partition)$""", token, lexer)
             token = next(lexer)
             i = 0
             while token not in KEYWORDS:
-                if token.startswith('embedded'):
+                if token.startswith("embedded"):
                     row_labels_embedded = True
                     cols_labels_embedded = True
                     break
                 else:
                     labels[i] = token.replace(
-                        '"', '')  # for labels with embedded spaces
+                        '"', ""
+                    )  # for labels with embedded spaces
                     i += 1
                     try:
                         token = next(lexer)
                     except StopIteration:
                         break
-        elif token.startswith('data'):
+        elif token.startswith("data"):
             break
 
     data_lines = lines.lower().split("data:", 1)[1]
@@ -232,10 +244,10 @@ edgelist1|edgelist2|blockmatrix|partition)$""", token, lexer)
         # params['usecols'] = range(1, nc + 1)
         pass
 
-    if ucinet_format == 'fullmatrix':
+    if ucinet_format == "fullmatrix":
         # In Python3 genfromtxt requires bytes string
         try:
-            data_lines = bytes(data_lines, 'utf-8')
+            data_lines = bytes(data_lines, "utf-8")
         except TypeError:
             pass
         # Do not use splitlines() because it is not necessarily written as a square matrix
@@ -247,47 +259,49 @@ edgelist1|edgelist2|blockmatrix|partition)$""", token, lexer)
         G = eg.from_numpy_array(mat, create_using=eg.MultiDiGraph())
 
     elif ucinet_format in (
-            'nodelist1',
-            'nodelist1b'):  # Since genfromtxt only accepts square matrix...
-        s = ''
+        "nodelist1",
+        "nodelist1b",
+    ):  # Since genfromtxt only accepts square matrix...
+        s = ""
         for i, line in enumerate(data_lines.splitlines()):
             row = line.split()
             if row:
-                if ucinet_format == 'nodelist1b' and row[0] == '0':
+                if ucinet_format == "nodelist1b" and row[0] == "0":
                     pass
                 else:
                     for neighbor in row[1:]:
-                        if ucinet_format == 'nodelist1':
+                        if ucinet_format == "nodelist1":
                             source = row[0]
                         else:
                             source = str(i)
-                        s += source + ' ' + neighbor + '\n'
+                        s += source + " " + neighbor + "\n"
 
-        G = eg.parse_edgelist(s.splitlines(),
-                              nodetype=str if row_labels_embedded
-                              and cols_labels_embedded else int,
-                              create_using=eg.MultiDiGraph())
-
-        if not row_labels_embedded or not cols_labels_embedded:
-            G = eg.relabel_nodes(
-                G, dict(zip(list(G.nodes), [i - 1 for i in G.nodes])))
-
-    elif ucinet_format == 'edgelist1':
-        G = eg.parse_edgelist(data_lines.splitlines(),
-                              nodetype=str if row_labels_embedded
-                              and cols_labels_embedded else int,
-                              create_using=eg.MultiDiGraph())
+        G = eg.parse_edgelist(
+            s.splitlines(),
+            nodetype=str if row_labels_embedded and cols_labels_embedded else int,
+            create_using=eg.MultiDiGraph(),
+        )
 
         if not row_labels_embedded or not cols_labels_embedded:
-            G = eg.relabel_nodes(
-                G, dict(zip(list(G.nodes), [i - 1 for i in G.nodes])))
+            G = eg.relabel_nodes(G, dict(zip(list(G.nodes), [i - 1 for i in G.nodes])))
+
+    elif ucinet_format == "edgelist1":
+        G = eg.parse_edgelist(
+            data_lines.splitlines(),
+            nodetype=str if row_labels_embedded and cols_labels_embedded else int,
+            create_using=eg.MultiDiGraph(),
+        )
+
+        if not row_labels_embedded or not cols_labels_embedded:
+            G = eg.relabel_nodes(G, dict(zip(list(G.nodes), [i - 1 for i in G.nodes])))
 
     # Relabel nodes
     if labels:
         try:
             if len(list(G.nodes)) < number_of_nodes:
                 G.add_nodes_from(
-                    labels.values() if labels else range(0, number_of_nodes))
+                    labels.values() if labels else range(0, number_of_nodes)
+                )
             G = eg.relabel_nodes(G, labels)
         except KeyError:
             pass  # Nodes already labelled

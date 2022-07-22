@@ -1,16 +1,21 @@
+from __future__ import annotations
+
 import pytest
+
 
 np = pytest.importorskip("numpy")
 pd = pytest.importorskip("pandas")
 sp = pytest.importorskip("scipy")
 
 import easygraph as eg
+
 from easygraph.utils.misc import *
+
 
 class TestConvertNumpyArray:
     def setup_method(self):
         self.G1 = eg.complete_graph(5)
-    
+
     def assert_equal(self, G1, G2):
         assert nodes_equal(G1.nodes, G2.nodes)
         assert edges_equal(G1.edges, G2.edges, need_data=False)
@@ -26,6 +31,7 @@ class TestConvertNumpyArray:
         "Conversion from graph to array to graph."
         A = eg.to_numpy_array(self.G1)
         self.identity_conversion(self.G1, A, eg.Graph())
+
 
 class TestConvertPandas:
     def setup_method(self):
@@ -72,7 +78,8 @@ class TestConvertPandas:
         df = dftrue[["A", "C", "B"]]
         G = eg.from_pandas_adjacency(df, create_using=eg.DiGraph())
         self.assert_equal(G, Gtrue)
-    
+
+
 class TestConvertScipy:
     def setup_method(self):
         self.G1 = eg.complete_graph(3)
@@ -82,8 +89,6 @@ class TestConvertScipy:
         assert edges_equal(G1.edges, G2.edges, need_data=False)
 
     def test_from_scipy(self):
-        data = sp.sparse.csr_matrix([[0,1,1],[1,0,1],[1,1,0]])
+        data = sp.sparse.csr_matrix([[0, 1, 1], [1, 0, 1], [1, 1, 0]])
         G = eg.from_scipy_sparse_matrix(data)
         self.assert_equal(self.G1, G)
-    
-       

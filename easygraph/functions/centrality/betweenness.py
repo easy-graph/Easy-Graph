@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from easygraph.utils import *
 from easygraph.utils.decorators import *
+
 
 __all__ = [
     "betweenness_centrality",
@@ -15,30 +18,28 @@ def betweenness_centrality_parallel(nodes, G, path_length, accumulate):
 
 
 @not_implemented_for("multigraph")
-def betweenness_centrality(G,
-                           weight=None,
-                           normalized=True,
-                           endpoints=False,
-                           n_workers=None):
-    r'''Compute the shortest-path betweenness centrality for nodes.
+def betweenness_centrality(
+    G, weight=None, normalized=True, endpoints=False, n_workers=None
+):
+    r"""Compute the shortest-path betweenness centrality for nodes.
 
     .. math::
 
         c_B(v)  = \sum_{s,t \in V} \frac{\sigma(s, t|v)}{\sigma(s, t)}
 
-    where V is the set of nodes, 
-    
+    where V is the set of nodes,
+
     .. math::
-        \sigma(s, t) 
-    
-    is the number of shortest (s, t)-paths, and 
-    
+        \sigma(s, t)
+
+    is the number of shortest (s, t)-paths, and
+
     .. math::
 
-        \sigma(s, t|v) 
-    
+        \sigma(s, t|v)
+
     is the number of those paths  passing through some node v other than s, t.
-    
+
     .. math::
 
         If\ s\ =\ t,\ \sigma(s, t) = 1, and\ if\ v \in {s, t}, \sigma(s, t|v) = 0 [2]_.
@@ -64,12 +65,12 @@ def betweenness_centrality(G,
     -------
     nodes : dictionary
        Dictionary of nodes with betweenness centrality as the value.
-    '''
+    """
 
     import functools
+
     if weight is not None:
-        path_length = functools.partial(_single_source_dijkstra_path,
-                                        weight=weight)
+        path_length = functools.partial(_single_source_dijkstra_path, weight=weight)
     else:
         path_length = functools.partial(_single_source_bfs_path)
 
@@ -83,9 +84,10 @@ def betweenness_centrality(G,
 
     if n_workers is not None:
         #  use the parallel version for large graph
-        from multiprocessing import Pool
-        from functools import partial
         import random
+
+        from functools import partial
+        from multiprocessing import Pool
 
         nodes = list(nodes)
         random.shuffle(nodes)
@@ -94,10 +96,12 @@ def betweenness_centrality(G,
             nodes = split_len(nodes, step=30000)
         else:
             nodes = split(nodes, n_workers)
-        local_function = partial(betweenness_centrality_parallel,
-                                 G=G,
-                                 path_length=path_length,
-                                 accumulate=accumulate)
+        local_function = partial(
+            betweenness_centrality_parallel,
+            G=G,
+            path_length=path_length,
+            accumulate=accumulate,
+        )
         with Pool(n_workers) as p:
             ret = p.imap(local_function, nodes)
             for res in ret:
@@ -109,11 +113,13 @@ def betweenness_centrality(G,
             S, P, sigma = path_length(G, source=node)
             betweenness = accumulate(betweenness, S, P, sigma, node)
 
-    betweenness = _rescale(betweenness,
-                           len(G),
-                           normalized=normalized,
-                           directed=G.is_directed(),
-                           endpoints=endpoints)
+    betweenness = _rescale(
+        betweenness,
+        len(G),
+        normalized=normalized,
+        directed=G.is_directed(),
+        endpoints=endpoints,
+    )
     return betweenness
 
 
@@ -165,7 +171,9 @@ def _single_source_bfs_path(G, source):
 
 
 def _single_source_dijkstra_path(G, source, weight="weight"):
-    from heapq import heappush, heappop
+    from heapq import heappop
+    from heapq import heappush
+
     push = heappush
     pop = heappop
     S = []
@@ -176,6 +184,7 @@ def _single_source_dijkstra_path(G, source, weight="weight"):
     seen = {source: 0}
     Q = []
     from itertools import count
+
     c = count()
     adj = G.adj
     push(Q, (0, next(c), source, source))

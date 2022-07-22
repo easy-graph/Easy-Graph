@@ -1,7 +1,7 @@
 REM @echo off
 REM requirements:
 REM     conda
-REM 
+REM
 REM create envs:
     REM conda create -n py36 python=3.6.8
     REM conda create -n py37 python=3.7.9

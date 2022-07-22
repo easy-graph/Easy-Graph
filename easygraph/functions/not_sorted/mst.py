@@ -1,11 +1,13 @@
-import easygraph as eg
+from __future__ import annotations
 
-from heapq import heappop, heappush
-from operator import itemgetter
+from heapq import heappop
+from heapq import heappush
 from itertools import count
 from math import isnan
+from operator import itemgetter
 
 from easygraph.utils.decorators import *
+
 
 __all__ = [
     "minimum_spanning_edges",
@@ -15,11 +17,7 @@ __all__ = [
 ]
 
 
-def boruvka_mst_edges(G,
-                      minimum=True,
-                      weight="weight",
-                      data=True,
-                      ignore_nan=False):
+def boruvka_mst_edges(G, minimum=True, weight="weight", data=True, ignore_nan=False):
     """Iterate over edges of a Borůvka's algorithm min/max spanning tree.
 
     Parameters
@@ -108,11 +106,7 @@ def boruvka_mst_edges(G,
                 forest.union(u, v)
 
 
-def kruskal_mst_edges(G,
-                      minimum,
-                      weight="weight",
-                      data=True,
-                      ignore_nan=False):
+def kruskal_mst_edges(G, minimum, weight="weight", data=True, ignore_nan=False):
     """Iterate over edges of a Kruskal's algorithm min/max spanning tree.
 
     Parameters
@@ -234,11 +228,9 @@ ALGORITHMS = {
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
-def minimum_spanning_edges(G,
-                           algorithm="kruskal",
-                           weight="weight",
-                           data=True,
-                           ignore_nan=False):
+def minimum_spanning_edges(
+    G, algorithm="kruskal", weight="weight", data=True, ignore_nan=False
+):
     """Generate edges in a minimum spanning forest of an undirected
     weighted graph.
 
@@ -311,20 +303,14 @@ def minimum_spanning_edges(G,
         msg = f"{algorithm} is not a valid choice for an algorithm."
         raise ValueError(msg) from e
 
-    return algo(G,
-                minimum=True,
-                weight=weight,
-                data=data,
-                ignore_nan=ignore_nan)
+    return algo(G, minimum=True, weight=weight, data=data, ignore_nan=ignore_nan)
 
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
-def maximum_spanning_edges(G,
-                           algorithm="kruskal",
-                           weight="weight",
-                           data=True,
-                           ignore_nan=False):
+def maximum_spanning_edges(
+    G, algorithm="kruskal", weight="weight", data=True, ignore_nan=False
+):
     """Generate edges in a maximum spanning forest of an undirected
     weighted graph.
 
@@ -396,18 +382,11 @@ def maximum_spanning_edges(G,
         msg = f"{algorithm} is not a valid choice for an algorithm."
         raise ValueError(msg) from e
 
-    return algo(G,
-                minimum=False,
-                weight=weight,
-                data=data,
-                ignore_nan=ignore_nan)
+    return algo(G, minimum=False, weight=weight, data=data, ignore_nan=ignore_nan)
 
 
 @not_implemented_for("multigraph")
-def minimum_spanning_tree(G,
-                          weight="weight",
-                          algorithm="kruskal",
-                          ignore_nan=False):
+def minimum_spanning_tree(G, weight="weight", algorithm="kruskal", ignore_nan=False):
     """Returns a minimum spanning tree or forest on an undirected graph `G`.
 
     Parameters
@@ -453,11 +432,8 @@ def minimum_spanning_tree(G,
 
     """
     edges = list(
-        minimum_spanning_edges(G,
-                               algorithm,
-                               weight,
-                               data=True,
-                               ignore_nan=ignore_nan))
+        minimum_spanning_edges(G, algorithm, weight, data=True, ignore_nan=ignore_nan)
+    )
     T = G.__class__()  # Same graph class as G
     for i in G.nodes:
         T.add_node(i)
@@ -468,10 +444,7 @@ def minimum_spanning_tree(G,
 
 
 @not_implemented_for("multigraph")
-def maximum_spanning_tree(G,
-                          weight="weight",
-                          algorithm="kruskal",
-                          ignore_nan=False):
+def maximum_spanning_tree(G, weight="weight", algorithm="kruskal", ignore_nan=False):
     """Returns a maximum spanning tree or forest on an undirected graph `G`.
 
     Parameters
@@ -522,11 +495,8 @@ def maximum_spanning_tree(G,
 
     """
     edges = list(
-        maximum_spanning_edges(G,
-                               algorithm,
-                               weight,
-                               data=True,
-                               ignore_nan=ignore_nan))
+        maximum_spanning_edges(G, algorithm, weight, data=True, ignore_nan=ignore_nan)
+    )
     T = G.__class__()  # Same graph class as G
     for i in G.nodes:
         T.add_node(i)
@@ -598,8 +568,11 @@ def edge_boundary(G, nbunch1, nbunch2=None, data=False, default=None):
     if nbunch2 is None:
         return (e for e in edges if (e[0] in nset1) ^ (e[1] in nset1))
     nset2 = set(nbunch2)
-    return (e for e in edges if (e[0] in nset1 and e[1] in nset2) or (
-        e[1] in nset1 and e[0] in nset2))
+    return (
+        e
+        for e in edges
+        if (e[0] in nset1 and e[1] in nset2) or (e[1] in nset1 and e[0] in nset2)
+    )
 
 
 """
@@ -667,9 +640,7 @@ class UnionFind:
         return root
 
     def __iter__(self):
-        """Iterate through all items ever found or unioned by this structure.
-
-        """
+        """Iterate through all items ever found or unioned by this structure."""
         return iter(self.parents)
 
     def to_sets(self):
@@ -694,9 +665,7 @@ class UnionFind:
     def union(self, *objects):
         """Find the sets containing the objects and merge them all."""
         # Find the heaviest root according to its weight.
-        roots = iter(
-            sorted({self[x]
-                    for x in objects}, key=lambda r: self.weights[r]))
+        roots = iter(sorted({self[x] for x in objects}, key=lambda r: self.weights[r]))
         try:
             root = next(roots)
         except StopIteration:

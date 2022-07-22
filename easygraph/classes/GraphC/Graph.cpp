@@ -103,7 +103,7 @@ PyObject* Graph_add_node(Graph* self, PyObject* args, PyObject* kwargs) {
 }
 
 PyObject* Graph_add_nodes(Graph* self, PyObject* args, PyObject* kwargs) {
-    
+
     PyObject* nodes_for_adding = nullptr, * nodes_attr = nullptr;
     static char* kwlist[] = { (char*)"nodes_for_adding", (char*)"nodes_attr", NULL };
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O", kwlist, &nodes_for_adding, &nodes_attr))
@@ -307,7 +307,7 @@ PyObject* Graph_size(Graph* self, PyObject* args, PyObject* kwargs) {
     }
     Py_DecRef((PyObject*)temp_degree);
     return weight == Py_None? Py_BuildValue("i", int(result) / 2): Py_BuildValue("f", result / 2);
-        
+
 }
 
 PyObject* Graph_neighbors(Graph* self, PyObject* args, PyObject* kwargs) {
@@ -354,7 +354,7 @@ PyObject* Graph_remove_node(Graph* self, PyObject* args, PyObject* kwargs) {
     }
     _remove_one_node(self, node_to_remove);
     return Py_BuildValue("");
-} 
+}
 
 PyObject* Graph_remove_nodes(Graph* self, PyObject* args, PyObject* kwargs) {
     PyObject* nodes_to_remove;

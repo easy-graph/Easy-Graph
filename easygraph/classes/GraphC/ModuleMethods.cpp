@@ -47,7 +47,7 @@ PyObject* effective_size(PyObject* easygraph, PyObject* args, PyObject* kwargs) 
 	static char* kwlist[] = { (char*)"G", (char*)"nodes", (char*)"weight", NULL };
 	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO", kwlist, &graph, &nodes, &weight))
 		return nullptr;
-	
+
 	sum_nmw_rec.clear();
 	max_nmw_rec.clear();
 	PyObject* ret = PyDict_New();

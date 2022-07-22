@@ -1,15 +1,21 @@
+from __future__ import annotations
+
 import easygraph as eg
 import numpy as np
 
+
 __all__ = [
-    "random_position", "circular_position", "shell_position",
-    "rescale_position", "kamada_kawai_layout"
+    "random_position",
+    "circular_position",
+    "shell_position",
+    "rescale_position",
+    "kamada_kawai_layout",
 ]
 
 
 def random_position(G, center=None, dim=2, random_seed=None):
     """
-    Returns random position for each node in graph G. 
+    Returns random position for each node in graph G.
 
     Parameters
     ----------
@@ -135,8 +141,7 @@ def shell_position(G, nlist=None, scale=1, center=None):
         theta = theta.astype(np.float32)
         pos = np.column_stack([np.cos(theta), np.sin(theta)])
         if len(pos) > 1:
-            pos = rescale_position(pos,
-                                   scale=scale * radius / len(nlist)) + center
+            pos = rescale_position(pos, scale=scale * radius / len(nlist)) + center
         else:
             pos = np.array([(scale * radius + center[0], center[1])])
         npos.update(zip(nodes, pos))
@@ -154,7 +159,7 @@ def _get_center(center, dim):
         center = np.asarray(center)
 
     if dim < 2:
-        raise ValueError('cannot handle dimensions < 2')
+        raise ValueError("cannot handle dimensions < 2")
 
     if len(center) != dim:
         msg = "length of center coordinates must match dimension of layout"
@@ -192,13 +197,9 @@ def rescale_position(pos, scale=1):
     return pos
 
 
-def kamada_kawai_layout(G,
-                        dist=None,
-                        pos=None,
-                        weight="weight",
-                        scale=1,
-                        center=None,
-                        dim=2):
+def kamada_kawai_layout(
+    G, dist=None, pos=None, weight="weight", scale=1, center=None, dim=2
+):
     """Position nodes using Kamada-Kawai path-length cost-function.
 
     Parameters
@@ -286,11 +287,11 @@ def _kamada_kawai_solve(dist_mtx, pos_arr, dim):
     # and starting locations.
 
     import numpy as np
+
     from scipy.optimize import minimize
 
     meanwt = 1e-3
-    costargs = (np, 1 / (dist_mtx + np.eye(dist_mtx.shape[0]) * 1e-3), meanwt,
-                dim)
+    costargs = (np, 1 / (dist_mtx + np.eye(dist_mtx.shape[0]) * 1e-3), meanwt, dim)
 
     optresult = minimize(
         _kamada_kawai_costfn,
@@ -310,15 +311,15 @@ def _kamada_kawai_costfn(pos_vec, np, invdist, meanweight, dim):
 
     delta = pos_arr[:, np.newaxis, :] - pos_arr[np.newaxis, :, :]
     nodesep = np.linalg.norm(delta, axis=-1)
-    direction = np.einsum("ijk,ij->ijk", delta,
-                          1 / (nodesep + np.eye(nNodes) * 1e-3))
+    direction = np.einsum("ijk,ij->ijk", delta, 1 / (nodesep + np.eye(nNodes) * 1e-3))
 
     offset = nodesep * invdist - 1.0
     offset[np.diag_indices(nNodes)] = 0
 
     cost = 0.5 * np.sum(offset**2)
     grad = np.einsum("ij,ij,ijk->ik", invdist, offset, direction) - np.einsum(
-        "ij,ij,ijk->jk", invdist, offset, direction)
+        "ij,ij,ijk->jk", invdist, offset, direction
+    )
 
     # Additional parabolic term to encourage mean position to be near origin:
     sumpos = np.sum(pos_arr, axis=0)

@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from easygraph.utils.decorators import *
+
 
 __all__ = [
     "Dijkstra",
@@ -16,7 +19,7 @@ def Dijkstra(G, node):
     """Returns the length of paths from the certain node to remaining nodes
 
     Parameters
-    ---------- 
+    ----------
     G : graph
         weighted graph
     node : int
@@ -42,10 +45,10 @@ def Floyd(G):
     """Returns the length of paths from all nodes to remaining nodes
 
     Parameters
-    ---------- 
+    ----------
     G : graph
         weighted graph
-    
+
     Returns
     -------
     result_dict : dict
@@ -86,10 +89,10 @@ def Prim(G):
     """Returns the edges that make up the minimum spanning tree
 
     Parameters
-    ---------- 
+    ----------
     G : graph
         weighted graph
-    
+
     Returns
     -------
     result_dict : dict
@@ -119,8 +122,7 @@ def Prim(G):
         min_weight = float("inf")
         for i in selected:
             for j in candidate:
-                if i in G and j in G[i] and adj[i][j].get("weight",
-                                                          1) < min_weight:
+                if i in G and j in G[i] and adj[i][j].get("weight", 1) < min_weight:
                     start = i
                     end = j
                     min_weight = adj[i][j].get("weight", 1)
@@ -139,10 +141,10 @@ def Kruskal(G):
     """Returns the edges that make up the minimum spanning tree
 
     Parameters
-    ---------- 
+    ----------
     G : graph
         weighted graph
-    
+
     Returns
     -------
     result_dict : dict
@@ -215,13 +217,16 @@ def multi_source_dijkstra(G, sources, weight="weight", target=None):
 
 
 def _dijkstra_multisource(G, sources, weight="weight", target=None):
-    from heapq import heappush, heappop
+    from heapq import heappop
+    from heapq import heappush
+
     push = heappush
     pop = heappop
     adj = G.adj
     dist = {}
     seen = {}
     from itertools import count
+
     c = count()
     Q = []
     for source in sources:
@@ -239,8 +244,7 @@ def _dijkstra_multisource(G, sources, weight="weight", target=None):
             vu_dist = dist[v] + cost
             if u in dist:
                 if vu_dist < dist[u]:
-                    raise ValueError('Contradictory paths found:',
-                                     'negative weights?')
+                    raise ValueError("Contradictory paths found:", "negative weights?")
             elif u not in seen or vu_dist < seen[u]:
                 seen[u] = vu_dist
                 push(Q, (vu_dist, next(c), u))

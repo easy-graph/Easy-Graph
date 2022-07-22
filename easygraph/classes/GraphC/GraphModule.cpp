@@ -19,7 +19,7 @@ PyObject* initModule(void) {
     PyObject* m;
     if (PyType_Ready(&GraphType) < 0)
         return NULL;
-  
+
     if (PyType_Ready(&GraphMapIterType) < 0)
         return NULL;
 

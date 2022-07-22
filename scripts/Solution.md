@@ -7,7 +7,7 @@ This doc aims to record the problem encountered during packaging.
 ### Windows
 
 
-### Mac 
+### Mac
 
 * Q: ERROR: Package 'python-easygraph' requires a different Python: 3.9.10 not in '<=3.9,>=3.6'
 
@@ -23,7 +23,7 @@ This doc aims to record the problem encountered during packaging.
 
   A: https://stackoverflow.com/questions/62215850/warning-conda-gateways-diskunlink-or-rename-to-trash140
 
-### Mac 
+### Mac
 
 
 ### Linux

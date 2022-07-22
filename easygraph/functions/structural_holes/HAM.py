@@ -1,21 +1,26 @@
+from __future__ import annotations
+
 import scipy.stats as stat
 
+
 __all__ = ["get_structural_holes_HAM"]
-import numpy as np
-import json
-import os
-import scipy.sparse as sps
-import scipy.linalg as spl
-from sklearn import metrics
-from scipy.cluster.vq import kmeans, vq, kmeans2
 from collections import Counter
+
+import numpy as np
+import scipy.linalg as spl
+import scipy.sparse as sps
+
 from easygraph.utils import *
+from scipy.cluster.vq import kmeans
+from scipy.cluster.vq import vq
+from sklearn import metrics
+
 
 eps = 2.220446049250313e-16
 
 
 def sym(w):
-    '''
+    """
     Initialize a random orthogonal matrix F = w * (wT * w)^ (-1/2)
     Parameters
     ----------
@@ -24,12 +29,12 @@ def sym(w):
     Returns
     -------
     F : a random orthogonal matrix.
-    '''
+    """
     return w.dot(spl.inv(spl.sqrtm(w.T.dot(w))))
 
 
 def avg_entropy(predicted_labels, actual_labels):
-    '''
+    """
     Calculate the average entropy between predicted_labels and actual_labels.
 
     Parameters
@@ -40,7 +45,7 @@ def avg_entropy(predicted_labels, actual_labels):
     Returns
     -------
     A float of average entropy.
-    '''
+    """
     actual_labels_dict = {}
     predicted_labels_dict = {}
     for label in np.unique(actual_labels):
@@ -63,7 +68,7 @@ def avg_entropy(predicted_labels, actual_labels):
 
 
 def load_adj_matrix(G):
-    '''
+    """
     Transfer the graph into sparse matrix.
     Parameters
     ----------
@@ -73,7 +78,7 @@ def load_adj_matrix(G):
     Returns
     -------
     A : A sparse matrix A
-    '''
+    """
     listE = []
     for edge in G.edges:
         listE.append(edge[0] - 1)
@@ -82,14 +87,15 @@ def load_adj_matrix(G):
     n = len(np.unique(adj_tuples))
     vals = np.array([1] * len(G.edges))
     max_id = max(max(adj_tuples[:, 0]), max(adj_tuples[:, 1])) + 1
-    A = sps.csr_matrix((vals, (adj_tuples[:, 0], adj_tuples[:, 1])),
-                       shape=(max_id, max_id))
+    A = sps.csr_matrix(
+        (vals, (adj_tuples[:, 0], adj_tuples[:, 1])), shape=(max_id, max_id)
+    )
     A = A + A.T
     return sps.csr_matrix(A)
 
 
 def majority_voting(votes):
-    '''
+    """
     majority voting.
 
     Parameters
@@ -99,7 +105,7 @@ def majority_voting(votes):
     Returns
     -------
     the most common label.
-    '''
+    """
     C = Counter(votes)
     pairs = C.most_common(2)
     if len(pairs) == 0:
@@ -113,7 +119,7 @@ def majority_voting(votes):
 
 
 def label_by_neighbors(AdjMat, labels):
-    '''
+    """
     classifify SHS using majority voting.
 
     Parameters
@@ -124,9 +130,9 @@ def label_by_neighbors(AdjMat, labels):
     Returns
     -------
     labels : a Ndarray of labeled communities of the nodes.
-    '''
-    assert (AdjMat.shape[0] == len(labels)), "dimensions are not equal"
-    unlabeled_idx = (labels == 0)
+    """
+    assert AdjMat.shape[0] == len(labels), "dimensions are not equal"
+    unlabeled_idx = labels == 0
     num_unlabeled = sum(unlabeled_idx)
     count = 0
     while num_unlabeled > 0:
@@ -140,14 +146,14 @@ def label_by_neighbors(AdjMat, labels):
                 neighbor_labels = labels[neighbors]
                 next_labels[idx] = majority_voting(neighbor_labels)
         labels[idxs] = next_labels[idxs]
-        unlabeled_idx = (labels == 0)
+        unlabeled_idx = labels == 0
         num_unlabeled = sum(unlabeled_idx)
     return labels
 
 
 @not_implemented_for("multigraph")
 def get_structural_holes_HAM(G, k, c, ground_truth_labels):
-    '''Structural hole spanners detection via HAM method.
+    """Structural hole spanners detection via HAM method.
 
     Using HAM [1]_ to jointly detect SHS and communities.
 
@@ -168,7 +174,7 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
     Returns
     -------
     top_k_nodes : list
-        The top-k structural hole spanners. 
+        The top-k structural hole spanners.
 
     SH_score : dict
         The structural hole spanners score for each node, given by HAM.
@@ -190,7 +196,7 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
     ----------
     .. [1] https://dl.acm.org/doi/10.1145/2939672.2939807
 
-    '''
+    """
 
     G_index, _, node_of_index = G.to_index_node_graph(begin_index=1)
 
@@ -205,7 +211,7 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
     topk = k
 
     # Inv of degree matrix D^-1
-    invD = sps.diags((np.array(A.sum(axis=0))[0, :] + eps)**(-1.0), 0)
+    invD = sps.diags((np.array(A.sum(axis=0))[0, :] + eps) ** (-1.0), 0)
     # Laplacian matrix L = I - D^-1 * A
     L = (sps.identity(n) - invD.dot(A)).tocsr()
     # Initialize a random orthogonal matrix F
@@ -225,7 +231,7 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
         F = V[:, Wsort[0:c]]  # select the smallest eigenvectors
 
     # find SH spanner
-    SH = np.zeros((n, ))
+    SH = np.zeros((n,))
     for i in range(n):
         SH[i] = np.linalg.norm(F[i, :])
     SHrank = np.argsort(SH)  # index of SH
@@ -243,27 +249,34 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
     HAM_labels, dist = vq(cluster_matrix[to_keep_index, :], labelbook)
 
     print("AMI")
-    print('HAM: ' + str(
-        metrics.adjusted_mutual_info_score(HAM_labels, HAM_labels_keep.T[0])))
+    print(
+        "HAM: "
+        + str(metrics.adjusted_mutual_info_score(HAM_labels, HAM_labels_keep.T[0]))
+    )
 
     # classifify SHS using majority voting
     predLabels = np.zeros(len(ground_truth_labels))
     predLabels[to_keep_index] = HAM_labels + 1
 
     HAM_predLabels = label_by_neighbors(A, predLabels)
-    print('HAM_all: ' + str(
-        metrics.adjusted_mutual_info_score(HAM_predLabels, allLabels.T[0])))
+    print(
+        "HAM_all: "
+        + str(metrics.adjusted_mutual_info_score(HAM_predLabels, allLabels.T[0]))
+    )
 
     print("NMI")
-    print('HAM: ' + str(
-        metrics.normalized_mutual_info_score(HAM_labels, HAM_labels_keep.T[0]))
-          )
-    print('HAM_all: ' + str(
-        metrics.normalized_mutual_info_score(HAM_predLabels, allLabels.T[0])))
+    print(
+        "HAM: "
+        + str(metrics.normalized_mutual_info_score(HAM_labels, HAM_labels_keep.T[0]))
+    )
+    print(
+        "HAM_all: "
+        + str(metrics.normalized_mutual_info_score(HAM_predLabels, allLabels.T[0]))
+    )
 
     print("Entropy")
-    print('HAM: ' + str(avg_entropy(HAM_labels, HAM_labels_keep.T[0])))
-    print('HAM_all: ' + str(avg_entropy(HAM_predLabels, allLabels.T[0])))
+    print("HAM: " + str(avg_entropy(HAM_labels, HAM_labels_keep.T[0])))
+    print("HAM_all: " + str(avg_entropy(HAM_predLabels, allLabels.T[0])))
 
     # METRICS END
 

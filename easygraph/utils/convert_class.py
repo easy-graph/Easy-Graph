@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 __all__ = [
     "convert_graph_class",
 ]

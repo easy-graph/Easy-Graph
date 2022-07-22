@@ -1,4 +1,5 @@
-import easygraph as eg
+from __future__ import annotations
+
 
 __all__ = ["relabel_nodes"]
 
@@ -16,8 +17,10 @@ def _relabel_copy(G, mapping):
     H.add_nodes_from(mapping.get(n, n) for n in G)
     H._node.update((mapping.get(n, n), d.copy()) for n, d in G.nodes.items())
     if G.is_multigraph():
-        new_edges = [(mapping.get(n1, n1), mapping.get(n2, n2), k, d.copy())
-                     for (n1, n2, k, d) in G.edges]
+        new_edges = [
+            (mapping.get(n1, n1), mapping.get(n2, n2), k, d.copy())
+            for (n1, n2, k, d) in G.edges
+        ]
 
         # check for conflicting edge-keys
         undirected = not G.is_directed()
@@ -34,7 +37,9 @@ def _relabel_copy(G, mapping):
 
         H.add_edges_from(new_edges)
     else:
-        H.add_edges_from((mapping.get(n1, n1), mapping.get(n2, n2), d.copy())
-                         for (n1, n2, d) in G.edges)
+        H.add_edges_from(
+            (mapping.get(n1, n1), mapping.get(n2, n2), d.copy())
+            for (n1, n2, d) in G.edges
+        )
     H.graph.update(G.graph)
     return H

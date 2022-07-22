@@ -2,8 +2,10 @@
 
 # NetworkX is distributed with the 3-clause BSD license.
 
-# ::
+from __future__ import annotations
 
+
+# ::
 #    Copyright (C) 2004-2022, NetworkX Developers
 #    Aric Hagberg <hagberg@lanl.gov>
 #    Dan Schult <dschult@colgate.edu>
@@ -42,122 +44,165 @@ Pajek tests
 """
 import easygraph as eg
 
+
 print(eg)
 import os
 import tempfile
-from easygraph.utils import nodes_equal, edges_equal
+
+from easygraph.utils import edges_equal
+from easygraph.utils import nodes_equal
+
+
 # from rich import print
 
-test_parse_pajek_edges = [('A1', 'A1', 0, {
-    'weight': 1.0,
-    'h2': '0',
-    'w': '3',
-    'c': 'Blue',
-    's': '3',
-    'a1': '-130',
-    'k1': '0.6',
-    'a2': '-130',
-    'k2': '0.6',
-    'ap': '0.5',
-    'l': 'Bezier loop',
-    'lc': 'BlueViolet',
-    'fos': '20',
-    'lr': '58',
-    'lp': '0.3',
-    'la': '360'
-}),
-                          ('A1', 'Bb', 0, {
-                              'weight': 1.0,
-                              'h2': '0',
-                              'a1': '40',
-                              'k1': '2.8',
-                              'a2': '30',
-                              'k2': '0.8',
-                              'ap': '25',
-                              'l': 'Bezier arc',
-                              'lphi': '90',
-                              'la': '0',
-                              'lp': '0.65'
-                          }),
-                          ('A1', 'C', 0, {
-                              'weight': 1.0,
-                              'p': 'Dashed',
-                              'h2': '0',
-                              'w': '5',
-                              'k1': '-1',
-                              'k2': '-20',
-                              'ap': '25',
-                              'l': 'Oval arc',
-                              'c': 'Brown',
-                              'lc': 'Black'
-                          }),
-                          ('Bb', 'A1', 0, {
-                              'weight': 1.0,
-                              'h2': '0',
-                              'a1': '120',
-                              'k1': '1.3',
-                              'a2': '-120',
-                              'k2': '0.3',
-                              'ap': '25',
-                              'l': 'Bezier arc',
-                              'lphi': '270',
-                              'la': '180',
-                              'lr': '19',
-                              'lp': '0.5'
-                          }),
-                          ('C', 'D2', 0, {
-                              'weight': 1.0,
-                              'p': 'Dashed',
-                              'h2': '0',
-                              'w': '2',
-                              'c': 'OliveGreen',
-                              'ap': '25',
-                              'l': 'Straight arc',
-                              'lc': 'PineGreen'
-                          }),
-                          ('C', 'C', 0, {
-                              'weight': -1.0,
-                              'h1': '6',
-                              'w': '1',
-                              'h2': '12',
-                              'k1': '-2',
-                              'k2': '-15',
-                              'ap': '0.5',
-                              'l': 'Circular loop',
-                              'c': 'Red',
-                              'lc': 'OrangeRed',
-                              'lphi': '270',
-                              'la': '180'
-                          }),
-                          ('D2', 'Bb', 0, {
-                              'weight': -1.0,
-                              'h2': '0',
-                              'w': '1',
-                              'k1': '-2',
-                              'k2': '250',
-                              'ap': '25',
-                              'l': 'Circular arc',
-                              'c': 'Red',
-                              'lc': 'OrangeRed'
-                          })]
+test_parse_pajek_edges = [
+    (
+        "A1",
+        "A1",
+        0,
+        {
+            "weight": 1.0,
+            "h2": "0",
+            "w": "3",
+            "c": "Blue",
+            "s": "3",
+            "a1": "-130",
+            "k1": "0.6",
+            "a2": "-130",
+            "k2": "0.6",
+            "ap": "0.5",
+            "l": "Bezier loop",
+            "lc": "BlueViolet",
+            "fos": "20",
+            "lr": "58",
+            "lp": "0.3",
+            "la": "360",
+        },
+    ),
+    (
+        "A1",
+        "Bb",
+        0,
+        {
+            "weight": 1.0,
+            "h2": "0",
+            "a1": "40",
+            "k1": "2.8",
+            "a2": "30",
+            "k2": "0.8",
+            "ap": "25",
+            "l": "Bezier arc",
+            "lphi": "90",
+            "la": "0",
+            "lp": "0.65",
+        },
+    ),
+    (
+        "A1",
+        "C",
+        0,
+        {
+            "weight": 1.0,
+            "p": "Dashed",
+            "h2": "0",
+            "w": "5",
+            "k1": "-1",
+            "k2": "-20",
+            "ap": "25",
+            "l": "Oval arc",
+            "c": "Brown",
+            "lc": "Black",
+        },
+    ),
+    (
+        "Bb",
+        "A1",
+        0,
+        {
+            "weight": 1.0,
+            "h2": "0",
+            "a1": "120",
+            "k1": "1.3",
+            "a2": "-120",
+            "k2": "0.3",
+            "ap": "25",
+            "l": "Bezier arc",
+            "lphi": "270",
+            "la": "180",
+            "lr": "19",
+            "lp": "0.5",
+        },
+    ),
+    (
+        "C",
+        "D2",
+        0,
+        {
+            "weight": 1.0,
+            "p": "Dashed",
+            "h2": "0",
+            "w": "2",
+            "c": "OliveGreen",
+            "ap": "25",
+            "l": "Straight arc",
+            "lc": "PineGreen",
+        },
+    ),
+    (
+        "C",
+        "C",
+        0,
+        {
+            "weight": -1.0,
+            "h1": "6",
+            "w": "1",
+            "h2": "12",
+            "k1": "-2",
+            "k2": "-15",
+            "ap": "0.5",
+            "l": "Circular loop",
+            "c": "Red",
+            "lc": "OrangeRed",
+            "lphi": "270",
+            "la": "180",
+        },
+    ),
+    (
+        "D2",
+        "Bb",
+        0,
+        {
+            "weight": -1.0,
+            "h2": "0",
+            "w": "1",
+            "k1": "-2",
+            "k2": "250",
+            "ap": "25",
+            "l": "Circular arc",
+            "c": "Red",
+            "lc": "OrangeRed",
+        },
+    ),
+]
 
 
 class TestPajek:
-
     @classmethod
     def setup_class(cls):
         cls.data = """*network Tralala\n*vertices 4\n   1 "A1"         0.0938 0.0896   ellipse x_fact 1 y_fact 1\n   2 "Bb"         0.8188 0.2458   ellipse x_fact 1 y_fact 1\n   3 "C"          0.3688 0.7792   ellipse x_fact 1\n   4 "D2"         0.9583 0.8563   ellipse x_fact 1\n*arcs\n1 1 1  h2 0 w 3 c Blue s 3 a1 -130 k1 0.6 a2 -130 k2 0.6 ap 0.5 l "Bezier loop" lc BlueViolet fos 20 lr 58 lp 0.3 la 360\n2 1 1  h2 0 a1 120 k1 1.3 a2 -120 k2 0.3 ap 25 l "Bezier arc" lphi 270 la 180 lr 19 lp 0.5\n1 2 1  h2 0 a1 40 k1 2.8 a2 30 k2 0.8 ap 25 l "Bezier arc" lphi 90 la 0 lp 0.65\n4 2 -1  h2 0 w 1 k1 -2 k2 250 ap 25 l "Circular arc" c Red lc OrangeRed\n3 4 1  p Dashed h2 0 w 2 c OliveGreen ap 25 l "Straight arc" lc PineGreen\n1 3 1  p Dashed h2 0 w 5 k1 -1 k2 -20 ap 25 l "Oval arc" c Brown lc Black\n3 3 -1  h1 6 w 1 h2 12 k1 -2 k2 -15 ap 0.5 l "Circular loop" c Red lc OrangeRed lphi 270 la 180"""
         cls.G = eg.MultiDiGraph()
         cls.G.add_nodes_from(["A1", "Bb", "C", "D2"])
-        cls.G.add_edges_from([
-            ("A1", "A1"),
-            ("A1", "Bb"),
-            ("A1", "C"),
-            ("Bb", "A1"),
-            ("C", "C"),
-            ("C", "D2"),
-            ("D2", "Bb"),
-        ])
+        cls.G.add_edges_from(
+            [
+                ("A1", "A1"),
+                ("A1", "Bb"),
+                ("A1", "C"),
+                ("Bb", "A1"),
+                ("C", "C"),
+                ("C", "D2"),
+                ("D2", "Bb"),
+            ]
+        )
 
         cls.G.graph["name"] = "Tralala"
         (fd, cls.fname) = tempfile.mkstemp()
@@ -173,7 +218,7 @@ class TestPajek:
         data = """*Vertices 2\n1 "1"\n2 "2"\n*Edges\n1 2\n2 1"""
         G = eg.parse_pajek(data)
         assert sorted(G.nodes) == ["1", "2"]
-        assert edges_equal(G.edges, [('1', '2', 0, {}), ('1', '2', 1, {})])
+        assert edges_equal(G.edges, [("1", "2", 0, {}), ("1", "2", 1, {})])
 
     def test_parse_pajek(self):
         G = eg.parse_pajek(self.data)
@@ -189,15 +234,13 @@ class TestPajek:
         assert edges_equal(
             # set(G.edges),
             G.edges,
-            [('one', 'one', {
-                'weight': 1
-            }), ('one', 'two', {
-                'weight': 1
-            }), ('two', 'two', {
-                'weight': 1
-            }), ('three', 'two', {
-                'weight': 1
-            })])
+            [
+                ("one", "one", {"weight": 1}),
+                ("one", "two", {"weight": 1}),
+                ("two", "two", {"weight": 1}),
+                ("three", "two", {"weight": 1}),
+            ],
+        )
 
     def test_read_pajek(self):
         G = eg.parse_pajek(self.data)

@@ -1,12 +1,13 @@
-from copy import deepcopy
-from typing import Dict, List
+from __future__ import annotations
+
+import easygraph.convert as convert
+
 from easygraph.classes.graph import Graph
 from easygraph.utils.exception import EasyGraphError
-import easygraph.convert as convert
 
 
 class DiGraph(Graph):
-    """ 
+    """
     Base class for directed graphs.
 
         Nodes are allowed for any hashable Python objects, including int, string, dict, etc.
@@ -50,6 +51,7 @@ class DiGraph(Graph):
     >>> G.edges
 
     """
+
     graph_attr_dict_factory = dict
     node_dict_factory = dict
     node_attr_dict_factory = dict
@@ -113,7 +115,7 @@ class DiGraph(Graph):
     def name(self, s):
         self.graph["name"] = s
 
-    def out_degree(self, weight='weight'):
+    def out_degree(self, weight="weight"):
         """Returns the weighted out degree of each node.
 
         Parameters
@@ -155,7 +157,7 @@ class DiGraph(Graph):
 
         return degree
 
-    def in_degree(self, weight='weight'):
+    def in_degree(self, weight="weight"):
         """Returns the weighted in degree of each node.
 
         Parameters
@@ -197,7 +199,7 @@ class DiGraph(Graph):
 
         return degree
 
-    def degree(self, weight='weight'):
+    def degree(self, weight="weight"):
         """Returns the weighted degree of each node, i.e. sum of out/in degree.
 
         Parameters
@@ -292,7 +294,7 @@ class DiGraph(Graph):
         try:
             return iter(self._adj[node])
         except KeyError:
-            print("No node {}".format(node))
+            print(f"No node {node}")
 
     successors = neighbors
 
@@ -321,7 +323,7 @@ class DiGraph(Graph):
         try:
             return iter(self._pred[node])
         except KeyError:
-            print("No node {}".format(node))
+            print(f"No node {node}")
 
     def all_neighbors(self, node):
         """Returns an iterator of a node's neighbors, including both successors and predecessors.
@@ -350,12 +352,12 @@ class DiGraph(Graph):
             neighbors.extend(self._pred[node])
             return iter(neighbors)
         except KeyError:
-            print("No node {}".format(node))
+            print(f"No node {node}")
 
     def add_node(self, node_for_adding, **node_attr):
         """Add one node
 
-        Add one node, type of which is any hashable Python object, such as int, string, dict, or even Graph itself. 
+        Add one node, type of which is any hashable Python object, such as int, string, dict, or even Graph itself.
         You can add with node attributes using Python dict type.
 
         Parameters
@@ -365,7 +367,7 @@ class DiGraph(Graph):
 
         node_attr : keywords arguments, optional
             The node attributes.
-            You can customize them with different key-value pairs. 
+            You can customize them with different key-value pairs.
 
         See Also
         --------
@@ -385,7 +387,7 @@ class DiGraph(Graph):
         """
         self._add_one_node(node_for_adding, node_attr)
 
-    def add_nodes(self, nodes_for_adding: list, nodes_attr: List[Dict] = []):
+    def add_nodes(self, nodes_for_adding: list, nodes_attr: list[dict] = []):
         """Add nodes with a list of nodes.
 
         Parameters
@@ -401,8 +403,8 @@ class DiGraph(Graph):
 
         Examples
         --------
-        Add nodes with a list of nodes. 
-        You can add with node attributes using a list of Python dict type, 
+        Add nodes with a list of nodes.
+        You can add with node attributes using a list of Python dict type,
         each of which is the attribute of each node, respectively.
 
         >>> G.add_nodes([1, 2, 'a', 'b'])
@@ -436,7 +438,6 @@ class DiGraph(Graph):
                 self._add_one_node(nodes_for_adding[i], nodes_attr[i])
             except Exception as err:
                 print(err)
-                pass
 
     def add_nodes_from(self, nodes_for_adding, **attr):
         """Add multiple nodes.
@@ -536,7 +537,7 @@ class DiGraph(Graph):
         --------
 
         >>> G.add_edge(1,2)
-        >>> G.add_edge('Jack', 'Tom', weight=10)  
+        >>> G.add_edge('Jack', 'Tom', weight=10)
 
         Add edge with attributes, edge weight, for example,
 
@@ -550,7 +551,7 @@ class DiGraph(Graph):
     def add_weighted_edge(self, u_of_edge, v_of_edge, weight):
         self._add_one_edge(u_of_edge, v_of_edge, edge_attr={"weight": weight})
 
-    def add_edges(self, edges_for_adding, edges_attr: List[Dict] = []):
+    def add_edges(self, edges_for_adding, edges_attr: list[dict] = []):
         """Add a list of edges.
 
         Parameters
@@ -560,7 +561,7 @@ class DiGraph(Graph):
             start end and destination end, respectively.
 
         edges_attr : list of dict, optional
-            The corresponding attributes for each edge in *edges_for_adding*. 
+            The corresponding attributes for each edge in *edges_for_adding*.
 
         Examples
         --------
@@ -572,7 +573,7 @@ class DiGraph(Graph):
         ...     ('Jack', 'Tom')
         ... ])
 
-        Add edge with attributes, for example, edge weight, 
+        Add edge with attributes, for example, edge weight,
 
         >>> G.add_edges([(1,2), (2, 3)], edges_attr=[
         ...     {
@@ -595,8 +596,7 @@ class DiGraph(Graph):
             try:
                 edge = edges_for_adding[i]
                 attr = edges_attr[i]
-                assert len(edge) == 2, "Edge tuple {} must be 2-tuple.".format(
-                    edge)
+                assert len(edge) == 2, f"Edge tuple {edge} must be 2-tuple."
                 self._add_one_edge(edge[0], edge[1], attr)
             except Exception as err:
                 print(err)
@@ -647,8 +647,7 @@ class DiGraph(Graph):
                 u, v = e
                 dd = {}
             else:
-                raise EasyGraphError(
-                    f"Edge tuple {e} must be a 2-tuple or 3-tuple.")
+                raise EasyGraphError(f"Edge tuple {e} must be a 2-tuple or 3-tuple.")
             if u not in self._adj:
                 if u is None:
                     raise ValueError("None cannot be a node")
@@ -702,11 +701,12 @@ class DiGraph(Graph):
 
         """
         import re
-        with open(file, 'r') as fp:
+
+        with open(file) as fp:
             edges = fp.readlines()
         if weighted:
             for edge in edges:
-                edge = re.sub(',', ' ', edge)
+                edge = re.sub(",", " ", edge)
                 edge = edge.split()
                 try:
                     self.add_edge(edge[0], edge[1], weight=float(edge[2]))
@@ -714,7 +714,7 @@ class DiGraph(Graph):
                     pass
         else:
             for edge in edges:
-                edge = re.sub(',', ' ', edge)
+                edge = re.sub(",", " ", edge)
                 edge = edge.split()
                 try:
                     self.add_edge(edge[0], edge[1])
@@ -758,7 +758,7 @@ class DiGraph(Graph):
             preds = list(self._pred[node_to_remove])
             del self._node[node_to_remove]
         except KeyError:  # Node not exists in self
-            raise KeyError("No node {} in graph.".format(node_to_remove))
+            raise KeyError(f"No node {node_to_remove} in graph.")
         for succ in succs:  # Remove edges start with node_to_remove
             del self._pred[succ][node_to_remove]
         for pred in preds:  # Remove edges end with node_to_remove
@@ -787,9 +787,12 @@ class DiGraph(Graph):
         >>> G.remove_nodes([1, 2, 'a', 'b'])
 
         """
-        for node in nodes_to_remove:  # If not all nodes included in graph, give up removing other nodes
-            assert (node in self._node
-                    ), "Remove Error: No node {} in graph".format(node)
+        for (
+            node
+        ) in (
+            nodes_to_remove
+        ):  # If not all nodes included in graph, give up removing other nodes
+            assert node in self._node, f"Remove Error: No node {node} in graph"
         for node in nodes_to_remove:
             self.remove_node(node)
 
@@ -819,7 +822,7 @@ class DiGraph(Graph):
             del self._adj[u][v]
             del self._pred[v][u]
         except KeyError:
-            raise KeyError("No edge {}-{} in graph.".format(u, v))
+            raise KeyError(f"No edge {u}-{v} in graph.")
 
     def remove_edges(self, edges_to_remove: [tuple]):
         """Remove a list of edges from your graph.
@@ -1009,7 +1012,7 @@ class DiGraph(Graph):
     def to_index_node_graph(self, begin_index=0):
         """Returns a deep copy of graph, with each node switched to its index.
 
-        Considering that the nodes of your graph may be any possible hashable Python object, 
+        Considering that the nodes of your graph may be any possible hashable Python object,
         you can get an isomorphic graph of the original one, with each node switched to its index.
 
         Parameters
@@ -1030,7 +1033,7 @@ class DiGraph(Graph):
 
         Examples
         --------
-        The following method returns this isomorphic graph and index-to-node dictionary 
+        The following method returns this isomorphic graph and index-to-node dictionary
         as well as node-to-index dictionary.
 
         >>> G = eg.Graph()

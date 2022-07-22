@@ -1,17 +1,21 @@
+from __future__ import annotations
+
+import math
+import random
+
 import easygraph as eg
 
-import random
-import math
-from easygraph.utils.decorators import *
-from easygraph.functions.components.connected import connected_components
 from easygraph.functions.components.biconnected import generator_articulation_points
+from easygraph.functions.components.connected import connected_components
+from easygraph.utils.decorators import *
+
 
 __all__ = ["common_greedy", "AP_Greedy"]
 
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
-def common_greedy(G, k, c=1.0, weight='weight'):
+def common_greedy(G, k, c=1.0, weight="weight"):
     """Common greedy method for structural hole spanners detection.
 
     Returns top k nodes as structural hole spanners,
@@ -38,7 +42,7 @@ def common_greedy(G, k, c=1.0, weight='weight'):
     -------
     common_greedy : list
         The list of each top-k structural hole spanners.
-    
+
     See Also
     --------
     AP_Greedy
@@ -55,7 +59,7 @@ def common_greedy(G, k, c=1.0, weight='weight'):
     References
     ----------
     .. [1] https://dl.acm.org/profile/81484650642
-    
+
     """
     v_sns = []
     G_i = G.copy()
@@ -86,11 +90,11 @@ def common_greedy(G, k, c=1.0, weight='weight'):
     return v_sns
 
 
-def sort_nodes_by_degree(G, weight='weight'):
+def sort_nodes_by_degree(G, weight="weight"):
     sorted_nodes = []
-    for node, degree in sorted(G.degree(weight=weight).items(),
-                               key=lambda x: x[1],
-                               reverse=True):
+    for node, degree in sorted(
+        G.degree(weight=weight).items(), key=lambda x: x[1], reverse=True
+    ):
         sorted_nodes.append(node)
     return sorted_nodes
 
@@ -114,9 +118,9 @@ def procedure1(G, c=1.0):
         component_subgraph = G.nodes_subgraph(from_nodes=list(component))
         spanning_tree = _get_spanning_tree_of_component(component_subgraph)
 
-        random_root = list(spanning_tree.nodes)[random.randint(
-            0,
-            len(spanning_tree) - 1)]
+        random_root = list(spanning_tree.nodes)[
+            random.randint(0, len(spanning_tree) - 1)
+        ]
         num_subtree_nodes = _get_num_subtree_nodes(spanning_tree, random_root)
 
         N_tree = num_subtree_nodes[random_root]
@@ -194,7 +198,7 @@ def procedure2(G, c=1.0):
         component_subgraph = G.nodes_subgraph(from_nodes=list(component))
         C_l = _get_sum_all_shortest_paths_of_component(component_subgraph)
         N_c = len(component)
-        C += (C_l + N_c * (N_G - N_c) * zeta)
+        C += C_l + N_c * (N_G - N_c) * zeta
 
         del component_subgraph
 
@@ -205,7 +209,7 @@ def _get_sum_all_shortest_paths_of_component(G):
     # TODO: Using randomized algorithm in http://de.arxiv.org/pdf/1503.08528
     #       instead of bfs method.
     def _plain_bfs(G, source):
-        seen = set([source])
+        seen = {source}
         nextlevel = {source}
         level = 1
         sum_paths_of_G = 0
@@ -231,7 +235,7 @@ def _get_sum_all_shortest_paths_of_component(G):
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
-def AP_Greedy(G, k, c=1.0, weight='weight'):
+def AP_Greedy(G, k, c=1.0, weight="weight"):
     """AP greedy method for structural hole spanners detection.
 
     Returns top k nodes as structural hole spanners,
@@ -250,7 +254,7 @@ def AP_Greedy(G, k, c=1.0, weight='weight'):
         value assigned as the shortest distance of two unreachable
         vertices.
         Default is 1.
-        
+
     weight : String or None, optional (default : 'weight')
         Key for edge weight. None if not concerning about edge weight.
 
@@ -278,9 +282,7 @@ def AP_Greedy(G, k, c=1.0, weight='weight'):
     for i in range(k):
         v_ap, lower_bound = _get_lower_bound_of_ap_nodes(G_i, c)
         upper_bound = _get_upper_bound_of_non_ap_nodes(G_i, v_ap, c)
-        lower_bound = sorted(lower_bound.items(),
-                             key=lambda x: x[1],
-                             reverse=True)
+        lower_bound = sorted(lower_bound.items(), key=lambda x: x[1], reverse=True)
 
         # print(upper_bound)
         # print(lower_bound)
@@ -336,22 +338,21 @@ def _get_lower_bound_of_ap_nodes(G, c=1.0):
     components = connected_components(G)
     for component in components:
         component_subgraph = G.nodes_subgraph(from_nodes=list(component))
-        articulation_points = list(
-            generator_articulation_points(component_subgraph))
+        articulation_points = list(generator_articulation_points(component_subgraph))
         N_component = len(component_subgraph)
         for articulation in articulation_points:
             component_subgraph_after_remove = component_subgraph.copy()
             component_subgraph_after_remove.remove_node(articulation)
 
             lower_bound_value = 0
-            lower_bound_value += sum([(len(temp) * (N_G - len(temp)))
-                                      for temp in components])
-            lower_bound_value += sum([
+            lower_bound_value += sum(
+                (len(temp) * (N_G - len(temp))) for temp in components
+            )
+            lower_bound_value += sum(
                 (len(temp) * (N_component - 1 - len(temp)))
-                for temp in connected_components(
-                    component_subgraph_after_remove)
-            ])
-            lower_bound_value += (2 * N_component - 2 * N_G)
+                for temp in connected_components(component_subgraph_after_remove)
+            )
+            lower_bound_value += 2 * N_component - 2 * N_G
             lower_bound_value *= zeta
 
             v_ap.append(articulation)
@@ -376,7 +377,7 @@ def _get_upper_bound_of_non_ap_nodes(G, ap: list, c=1.0):
 
     ap : list
         Articulation points of G.
-        
+
     c : float
         To define zeta: zeta = c * (n*n*n), and zeta is the large
         value assigned as the shortest distance of two unreachable
@@ -393,8 +394,9 @@ def _get_upper_bound_of_non_ap_nodes(G, ap: list, c=1.0):
         for node in non_articulation_points:
             upper_bound_value = 0
             upper_bound_value += sum(
-                (len(temp) * (N_G - len(temp))) for temp in components)
-            upper_bound_value += (2 * len(component) + 1 - 2 * N_G)
+                (len(temp) * (N_G - len(temp))) for temp in components
+            )
+            upper_bound_value += 2 * len(component) + 1 - 2 * N_G
             upper_bound_value *= zeta
 
             upper_bound.append(upper_bound_value)

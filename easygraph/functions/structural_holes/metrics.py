@@ -1,8 +1,13 @@
-import easygraph as eg
+from __future__ import annotations
+
 import math
 import random
+
+import easygraph as eg
 import numpy as np
+
 from easygraph.utils import *
+
 
 __all__ = [
     "sum_of_shortest_paths",
@@ -13,7 +18,7 @@ __all__ = [
 
 @not_implemented_for("multigraph")
 def sum_of_shortest_paths(G, S):
-    """Returns the difference between the sum of lengths of all pairs shortest paths in G and the one in G\S.
+    r"""Returns the difference between the sum of lengths of all pairs shortest paths in G and the one in G\S.
     The experiment metrics in [1]_
 
     Parameters
@@ -43,7 +48,7 @@ def sum_of_shortest_paths(G, S):
     """
     mat_G = eg.Floyd(G)
     sum_G = 0
-    inf_const_G = math.ceil((G.number_of_nodes()**3) / 3)
+    inf_const_G = math.ceil((G.number_of_nodes() ** 3) / 3)
     for i in mat_G.values():
         for j in i.values():
             if math.isinf(j):
@@ -53,7 +58,7 @@ def sum_of_shortest_paths(G, S):
     G_S.remove_nodes(S)
     mat_G_S = eg.Floyd(G_S)
     sum_G_S = 0
-    inf_const_G_S = math.ceil((G_S.number_of_nodes()**3) / 3)
+    inf_const_G_S = math.ceil((G_S.number_of_nodes() ** 3) / 3)
     for i in mat_G_S.values():
         for j in i.values():
             if math.isinf(j):
@@ -64,7 +69,7 @@ def sum_of_shortest_paths(G, S):
 
 @not_implemented_for("multigraph")
 def nodes_of_max_cc_without_shs(G, S):
-    """Returns the number of nodes in the maximum connected component in graph G\S.
+    r"""Returns the number of nodes in the maximum connected component in graph G\S.
     The experiment metrics in [1]_
 
     Parameters
@@ -102,7 +107,6 @@ def nodes_of_max_cc_without_shs(G, S):
 
 
 class NodeParams:
-
     def __init__(self, active, inWeight, threshold):
         self.active = active
         self.inWeight = inWeight
@@ -110,15 +114,17 @@ class NodeParams:
 
 
 @not_implemented_for("multigraph")
-def structural_hole_influence_index(G_original,
-                                    S,
-                                    C,
-                                    model,
-                                    variant=False,
-                                    seedRatio=0.05,
-                                    randSeedIter=10,
-                                    countIterations=100,
-                                    Directed=True):
+def structural_hole_influence_index(
+    G_original,
+    S,
+    C,
+    model,
+    variant=False,
+    seedRatio=0.05,
+    randSeedIter=10,
+    countIterations=100,
+    Directed=True,
+):
     """Returns the SHII metric of each seed.
 
     Parameters
@@ -211,8 +217,10 @@ def structural_hole_influence_index(G_original,
                         seedNeighborSet.append(neighbor)
                     count_neighbor = count_neighbor + 1
                 if count_neighbor > 0:
-                    if len(queue) == 1 and len(oneSeedSet) + len(
-                            seedNeighborSet) < seedSetSize:
+                    if (
+                        len(queue) == 1
+                        and len(oneSeedSet) + len(seedNeighborSet) < seedSetSize
+                    ):
                         for node in seedNeighborSet:
                             if node not in oneSeedSet:
                                 oneSeedSet.append(node)
@@ -232,21 +240,28 @@ def structural_hole_influence_index(G_original,
                 seedNeighbors = []
                 for node in seedNeighborSet:
                     seedNeighbors.append(node)
-                while len(seedNeighbors) > 0 and len(
-                        randSeedSet) < seedSetSize:
+                while len(seedNeighbors) > 0 and len(randSeedSet) < seedSetSize:
                     r = random.randint(0, len(seedNeighbors) - 1)
                     if seedNeighbors[r] not in randSeedSet:
                         randSeedSet.append(seedNeighbors[r])
                     seedNeighbors.pop(r)
 
-                if model == 'IC':
+                if model == "IC":
                     censor_score_1, censor_score_2 = _independent_cascade(
-                        G, randSeedSet, community_label, countIterations,
-                        node_label_pair)
-                elif model == 'LT':
+                        G,
+                        randSeedSet,
+                        community_label,
+                        countIterations,
+                        node_label_pair,
+                    )
+                elif model == "LT":
                     censor_score_1, censor_score_2 = _linear_threshold(
-                        G, randSeedSet, community_label, countIterations,
-                        node_label_pair)
+                        G,
+                        randSeedSet,
+                        community_label,
+                        countIterations,
+                        node_label_pair,
+                    )
                 avg_censor_score_1 += censor_score_1 / randSeedIter
                 avg_censor_score_2 += censor_score_2 / randSeedIter
                 # print("seed ", seed, " avg_censor_score in ", randIter, "is ", censor_score_1 / randSeedIter)
@@ -257,8 +272,7 @@ def structural_hole_influence_index(G_original,
     return seed_shii_pair
 
 
-def _independent_cascade(G, S, community_label, countIterations,
-                         node_label_pair):
+def _independent_cascade(G, S, community_label, countIterations, node_label_pair):
     avg_result_1 = 0
     avg_result_2 = 0
     N = G.number_of_nodes()
@@ -368,19 +382,15 @@ def _linear_threshold(G, S, community_label, countIterations, node_label_pair):
     return avg_result_1, avg_result_2
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     G = eg.datasets.get_graph_karateclub()
     Com = []
     t1 = [1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 17, 18, 20, 22]
     Com.append(t1)
-    t2 = [
-        9, 10, 15, 16, 19, 21, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34
-    ]
+    t2 = [9, 10, 15, 16, 19, 21, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34]
     Com.append(t2)
     print("community_label:", Com)
-    result = structural_hole_influence_index(G, [3, 20, 9],
-                                             Com,
-                                             'IC',
-                                             seedRatio=0.1,
-                                             Directed=False)
+    result = structural_hole_influence_index(
+        G, [3, 20, 9], Com, "IC", seedRatio=0.1, Directed=False
+    )
     print(result)

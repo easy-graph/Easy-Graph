@@ -1,8 +1,10 @@
-import numpy as np
+from __future__ import annotations
+
 import easygraph as eg
-import scipy as sp
-from scipy.sparse.linalg import eigs
+import numpy as np
+
 from easygraph.utils import *
+
 
 __all__ = ["NOBE_SH", "NOBE_GA_SH"]
 
@@ -27,7 +29,7 @@ def NOBE_SH(G, K, topk):
     Returns
     -------
     SHS : list
-        The top-k structural hole spanners. 
+        The top-k structural hole spanners.
 
     Examples
     --------
@@ -36,7 +38,7 @@ def NOBE_SH(G, K, topk):
     References
     ----------
     .. [1] https://www.researchgate.net/publication/325004496_On_Spectral_Graph_Embedding_A_Non-Backtracking_Perspective_and_Graph_Approximation
-    
+
     """
     Y = eg.NOBE(G, K)
     dict = {}
@@ -44,7 +46,7 @@ def NOBE_SH(G, K, topk):
     for i in G.nodes:
         dict[i] = a
         a += 1
-    if (isinstance(Y[0, 0], complex)):
+    if isinstance(Y[0, 0], complex):
         Y = abs(Y)
     kmeans = KMeans(n_clusters=K, random_state=0).fit(Y)
     com = {}
@@ -90,7 +92,7 @@ def NOBE_GA_SH(G, K, topk):
     Returns
     -------
     SHS : list
-        The top-k structural hole spanners. 
+        The top-k structural hole spanners.
 
     Examples
     --------
@@ -99,10 +101,10 @@ def NOBE_GA_SH(G, K, topk):
     References
     ----------
     .. [1] https://www.researchgate.net/publication/325004496_On_Spectral_Graph_Embedding_A_Non-Backtracking_Perspective_and_Graph_Approximation
-    
+
     """
     Y = eg.NOBE_GA(G, K)
-    if (isinstance(Y[0, 0], complex)):
+    if isinstance(Y[0, 0], complex):
         Y = abs(Y)
     kmeans = KMeans(n_clusters=K, random_state=0).fit(Y)
     com = {}
@@ -159,7 +161,7 @@ def RDS(com, cluster, vector, K):
     return rds
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     G = eg.datasets.get_graph_karateclub()
     print(NOBE_SH(G, K=2, topk=3))
     print(NOBE_GA_SH(G, K=2, topk=3))

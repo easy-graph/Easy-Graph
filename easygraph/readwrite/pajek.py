@@ -2,8 +2,10 @@
 
 # NetworkX is distributed with the 3-clause BSD license.
 
-# ::
+from __future__ import annotations
 
+
+# ::
 #    Copyright (C) 2004-2022, NetworkX Developers
 #    Aric Hagberg <hagberg@lanl.gov>
 #    Dan Schult <dschult@colgate.edu>
@@ -54,11 +56,12 @@ for format information.
 """
 
 import warnings
+
 import easygraph as eg
-from easygraph import MultiGraph, MultiDiGraph
 
 # import networkx as nx
 from easygraph.utils import open_file
+
 
 __all__ = ["read_pajek", "parse_pajek", "generate_pajek", "write_pajek"]
 
@@ -98,8 +101,10 @@ def generate_pajek(G):
         try:
             id = int(na.pop("id", nodenumber[n]))
         except ValueError as err:
-            err.args += (("Pajek format requires 'id' to be an int()."
-                          " Refer to the 'Relabeling nodes' section."), )
+            err.args += (
+                "Pajek format requires 'id' to be an int()."
+                " Refer to the 'Relabeling nodes' section.",
+            )
             raise
         nodenumber[n] = id
         shape = na.pop("shape", "ellipse")
@@ -110,7 +115,8 @@ def generate_pajek(G):
                 s += f" {make_qstr(k)} {make_qstr(v)}"
             else:
                 warnings.warn(
-                    f"Node attribute {k} is not processed. {('Empty attribute' if isinstance(v, str) else 'Non-string attribute')}."
+                    f"Node attribute {k} is not processed."
+                    f" {('Empty attribute' if isinstance(v, str) else 'Non-string attribute')}."
                 )
         yield s
 
@@ -136,7 +142,8 @@ def generate_pajek(G):
                 s += f" {make_qstr(k)} {make_qstr(v)}"
             else:
                 warnings.warn(
-                    f"Edge attribute {k} is not processed. {('Empty attribute' if isinstance(v, str) else 'Non-string attribute')}."
+                    f"Edge attribute {k} is not processed."
+                    f" {('Empty attribute' if isinstance(v, str) else 'Non-string attribute')}."
                 )
         yield s
 
@@ -267,11 +274,9 @@ def parse_pajek(lines):
                 G.nodes[label]["id"] = id
                 try:
                     x, y, shape = splitline[2:5]
-                    G.nodes[label].update({
-                        "x": float(x),
-                        "y": float(y),
-                        "shape": shape
-                    })
+                    G.nodes[label].update(
+                        {"x": float(x), "y": float(y), "shape": shape}
+                    )
                 except:
                     pass
                 extra_attr = zip(splitline[5::2], splitline[6::2])
@@ -312,11 +317,12 @@ def parse_pajek(lines):
                 G.add_edge(u, v, **edge_data)
         elif l.lower().startswith("*matrix"):
             G = eg.DiGraph(G)
-            adj_list = ((labels[row], labels[col], {
-                "weight": int(data)
-            }) for (row, line) in enumerate(lines)
-                        for (col, data) in enumerate(line.split())
-                        if int(data) != 0)
+            adj_list = (
+                (labels[row], labels[col], {"weight": int(data)})
+                for (row, line) in enumerate(lines)
+                for (col, data) in enumerate(line.split())
+                if int(data) != 0
+            )
             G.add_edges_from(adj_list)
 
     return G

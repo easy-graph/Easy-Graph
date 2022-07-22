@@ -1,7 +1,9 @@
-from .graph import Graph
-from .graph import GraphC
+from __future__ import annotations
+
 from .directed_graph import DiGraph
 from .directed_multigraph import MultiDiGraph
-from .multigraph import MultiGraph
+from .graph import Graph
+from .graph import GraphC
 from .graphviews import *
+from .multigraph import MultiGraph
 from .operation import *

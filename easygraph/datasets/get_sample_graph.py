@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 import easygraph as eg
 import progressbar
 
+
 __all__ = [
-    'get_graph_karateclub', 'get_graph_blogcatalog', 'get_graph_youtube',
-    'get_graph_flickr'
+    "get_graph_karateclub",
+    "get_graph_blogcatalog",
+    "get_graph_youtube",
+    "get_graph_flickr",
 ]
 
 
@@ -65,7 +70,7 @@ def get_graph_karateclub():
 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 1 0 0 1 0 1 0 1 1 0 0 0 0 0 1 1 1 0 1
 0 0 0 0 0 0 0 0 1 1 0 0 0 1 1 1 0 0 1 1 1 0 1 1 0 0 1 1 1 1 1 1 1 0"""
 
-    for row, line in enumerate(zacharydat.split('\n')):
+    for row, line in enumerate(zacharydat.split("\n")):
         thisrow = [int(b) for b in line.split()]
         for col, entry in enumerate(thisrow):
             if entry == 1:
@@ -73,7 +78,7 @@ def get_graph_karateclub():
 
     # Add the name of each member's club as a node attribute.
     for v in G:
-        G.nodes[v]['club'] = 'Mr. Hi' if v in club1 else 'Officer'
+        G.nodes[v]["club"] = "Mr. Hi" if v in club1 else "Officer"
     return G
 
 
@@ -95,16 +100,15 @@ def get_graph_blogcatalog():
 
     def sparse2graph(x):
         from collections import defaultdict
-        from six import iteritems
 
         G = defaultdict(lambda: set())
         cx = x.tocoo()
         for i, j, v in zip(cx.row, cx.col, cx.data):
             G[i].add(j)
-        return {str(k): [str(x) for x in v] for k, v in iteritems(G)}
+        return {str(k): [str(x) for x in v] for k, v in G.items()}
 
-    mat = loadmat('./samples/blogcatalog.mat')
-    A = mat['network']
+    mat = loadmat("./samples/blogcatalog.mat")
+    A = mat["network"]
     data = sparse2graph(A)
 
     G = eg.Graph()
@@ -129,11 +133,13 @@ def get_graph_youtube():
     .. [1] http://socialnetworks.mpi-sws.mpg.de/data/youtube-links.txt.gz
 
     """
-    from urllib import request
     import gzip
-    url = 'http://socialnetworks.mpi-sws.mpg.de/data/youtube-links.txt.gz'
-    zipped_data_path = './samples/youtube-links.txt.gz'
-    unzipped_data_path = './samples/youtube-links.txt'
+
+    from urllib import request
+
+    url = "http://socialnetworks.mpi-sws.mpg.de/data/youtube-links.txt.gz"
+    zipped_data_path = "./samples/youtube-links.txt.gz"
+    unzipped_data_path = "./samples/youtube-links.txt"
 
     # Download .gz file
     print("Downloading Youtube dataset...")
@@ -141,7 +147,7 @@ def get_graph_youtube():
 
     # Unzip
     unzipped_data = gzip.GzipFile(zipped_data_path)
-    open(unzipped_data_path, 'wb+').write(unzipped_data.read())
+    open(unzipped_data_path, "wb+").write(unzipped_data.read())
     unzipped_data.close()
 
     # Returns graph
@@ -164,11 +170,13 @@ def get_graph_flickr():
     .. [1] http://socialnetworks.mpi-sws.mpg.de/data/flickr-links.txt.gz
 
     """
-    from urllib import request
     import gzip
-    url = 'http://socialnetworks.mpi-sws.mpg.de/data/flickr-links.txt.gz'
-    zipped_data_path = './samples/flickr-links.txt.gz'
-    unzipped_data_path = './samples/flickr-links.txt'
+
+    from urllib import request
+
+    url = "http://socialnetworks.mpi-sws.mpg.de/data/flickr-links.txt.gz"
+    zipped_data_path = "./samples/flickr-links.txt.gz"
+    unzipped_data_path = "./samples/flickr-links.txt"
 
     # Download .gz file
     print("Downloading Flickr dataset...")
@@ -176,7 +184,7 @@ def get_graph_flickr():
 
     # Unzip
     unzipped_data = gzip.GzipFile(zipped_data_path)
-    open(unzipped_data_path, 'wb+').write(unzipped_data.read())
+    open(unzipped_data_path, "wb+").write(unzipped_data.read())
     unzipped_data.close()
 
     # Returns graph

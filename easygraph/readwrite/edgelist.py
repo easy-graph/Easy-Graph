@@ -1,16 +1,16 @@
+from __future__ import annotations
+
 import easygraph as eg
+
 
 __all__ = [
     "parse_edgelist",
 ]
 
 
-def parse_edgelist(lines,
-                   comments="#",
-                   delimiter=None,
-                   create_using=None,
-                   nodetype=None,
-                   data=True):
+def parse_edgelist(
+    lines, comments="#", delimiter=None, create_using=None, nodetype=None, data=True
+):
     """Parse lines of an edge list representation of a graph.
 
     Parameters
@@ -124,7 +124,8 @@ def parse_edgelist(lines,
                 except Exception as err:
                     raise TypeError(
                         f"Failed to convert {edge_key} data {edge_value} "
-                        f"to type {edge_type}.") from err
+                        f"to type {edge_type}."
+                    ) from err
                 edgedata.update({edge_key: edge_value})
         G.add_edge(u, v, **edgedata)
     return G

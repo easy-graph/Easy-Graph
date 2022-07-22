@@ -1,5 +1,7 @@
-from .node2vec import *
-from .line import LINE
+from __future__ import annotations
+
 from .deepwalk import *
-from .sdne import SDNE
+from .line import LINE
 from .NOBE import *
+from .node2vec import *
+from .sdne import SDNE

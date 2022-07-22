@@ -1,12 +1,15 @@
-import easygraph as eg
-import matplotlib.pyplot as plt
-import numpy as np
-import random
-import math
-import sys
-from easygraph.utils import *
+from __future__ import annotations
 
-from strong_connected_component import number_strongly_connected_components, strongly_connected_components, condensation
+import math
+import random
+import sys
+
+import easygraph as eg
+
+from easygraph.utils import *
+from strong_connected_component import condensation
+from strong_connected_component import number_strongly_connected_components
+
 
 __all__ = [
     "maxBlock",
@@ -18,7 +21,6 @@ sys.setrecursionlimit(9000000)
 
 
 class dom_g:
-
     def __init__(self, N, M):
         self.tot = 0
         self.h = []
@@ -236,7 +238,7 @@ def _find_topk_shs_under_l(G, f_set, k, L):
         # Generate a graph G & = (V, E & ) from G under the live-edge graph model
         G_live = G.copy()
         for edge in G_live.edges:
-            wij = G_live[edge[0]][edge[1]]['weight']
+            wij = G_live[edge[0]][edge[1]]["weight"]
             toss = random.random() + 0.1
             if toss >= wij:
                 G_live.remove_edge(edge[0], edge[1])
@@ -304,8 +306,7 @@ def _get_estimated_opt(G, f_set, k, c, delta):
     opt_ub = opt_ub * k * (n - 1)
     T = math.log((opt_ub / (delta / 2)), 2)
     T = math.ceil(T)
-    lamda = 4 * (c * math.log(n, 2) + math.log(k * T, 2)) * (2 * k +
-                                                             1) * k * n * n
+    lamda = 4 * (c * math.log(n, 2) + math.log(k * T, 2)) * (2 * k + 1) * k * n * n
     for t in range(T):
         opt_g = opt_ub / math.pow(2, t + 1)
         L_t = math.ceil(lamda / opt_g)
@@ -338,8 +339,7 @@ def _find_separation_nodes(G):
     for cut_node in cut_nodes:
         if cut_node in sep_nodes:
             if out_degree[cut_node] >= 1 and in_degree[cut_node] >= 1:
-                CC_u = eg.connected_component_of_node(G_s_undirected,
-                                                      node=cut_node)
+                CC_u = eg.connected_component_of_node(G_s_undirected, node=cut_node)
                 G_CC = G_s_undirected.nodes_subgraph(list(CC_u))
                 G_CC.remove_node(cut_node)
                 successors = G_s.neighbors(node=cut_node)
@@ -432,7 +432,7 @@ def maxBlock(G, k, f_set=None, delta=1, eps=0.5, c=1, flag_weight=False):
             f_set[node] = random.random()
     if not flag_weight:
         for edge in G.edges:
-            G[edge[0]][edge[1]]['weight'] = random.random()
+            G[edge[0]][edge[1]]["weight"] = random.random()
     n = G.number_of_nodes()
     approximate_opt = _get_estimated_opt(G, f_set, k, c, delta)
     print("approximate_opt:", approximate_opt)
@@ -494,14 +494,14 @@ def maxBlockFast(G, k, f_set=None, L=None, flag_weight=False):
         h_set[node] = 0
     if not flag_weight:
         for edge in G.edges:
-            G[edge[0]][edge[1]]['weight'] = random.random()
+            G[edge[0]][edge[1]]["weight"] = random.random()
     for l in range(L):
         if l % 10000 == 0:
             print(l, "/", L, "...")
         # Generate a graph G & = (V, E & ) from G under the live-edge graph model
         G_live = G.copy()
         for edge in G_live.edges:
-            wij = G_live[edge[0]][edge[1]]['weight']
+            wij = G_live[edge[0]][edge[1]]["weight"]
             toss = random.random() + 0.1
             if toss >= wij:
                 G_live.remove_edge(edge[0], edge[1])
@@ -515,8 +515,7 @@ def maxBlockFast(G, k, f_set=None, L=None, flag_weight=False):
             non_considered_nodes.add(node)
         G_p_1 = G0.copy()
         for i in range(ns):
-            separation_nodes, SCC_mapping, incoming_info = _find_separation_nodes(
-                G_p_1)
+            separation_nodes, SCC_mapping, incoming_info = _find_separation_nodes(G_p_1)
             # print("separation_nodes:", separation_nodes)
             if len(separation_nodes) > 0:
                 chosen_node = -1
@@ -544,8 +543,14 @@ def maxBlockFast(G, k, f_set=None, L=None, flag_weight=False):
                     D_u = 0
                     for desc in desc_set[node_u]:
                         if desc not in d_dict.keys():
-                            print("Error: desc:", desc, "node_u", node_u,
-                                  "d_dict:", d_dict)
+                            print(
+                                "Error: desc:",
+                                desc,
+                                "node_u",
+                                node_u,
+                                "d_dict:",
+                                d_dict,
+                            )
                             print(desc_set[node_u])
                         D_u += d_dict[desc]
                     if node_u != chosen_node:
@@ -565,7 +570,8 @@ def maxBlockFast(G, k, f_set=None, L=None, flag_weight=False):
                 for key in SCC_mapping.keys():
                     for node in SCC_mapping[key]:
                         if (node in non_considered_nodes) and (
-                                node not in incoming_info.keys()):
+                            node not in incoming_info.keys()
+                        ):
                             V_set.add(node)
                     if len(V_set) > 0:
                         break
@@ -579,8 +585,14 @@ def maxBlockFast(G, k, f_set=None, L=None, flag_weight=False):
                         D_u = 0
                         for desc in desc_set[node_u]:
                             if desc not in d_dict.keys():
-                                print("Error: desc:", desc, "node_u", node_u,
-                                      "d_dict:", d_dict)
+                                print(
+                                    "Error: desc:",
+                                    desc,
+                                    "node_u",
+                                    node_u,
+                                    "d_dict:",
+                                    d_dict,
+                                )
                                 print(desc_set[node_u])
                             D_u += d_dict[desc]
                         h_set[node_u] += f_set[node_v] * D_u

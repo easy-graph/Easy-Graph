@@ -1,12 +1,14 @@
+from __future__ import annotations
+
 from collections import Counter
 from itertools import chain
-import easygraph as eg
-__all__=[
-    "average_clustering",
-    "clustering"
-]
+
+
+__all__ = ["average_clustering", "clustering"]
 
 from easygraph import not_implemented_for
+
+
 @not_implemented_for("multigraph")
 def _weighted_triangles_and_degree_iter(G, nodes=None, weight="weight"):
     """Return an iterator of (node, degree, weighted_triangles).
@@ -170,6 +172,7 @@ def average_clustering(G, nodes=None, weight=None, count_zeros=True):
         c = [v for v in c if abs(v) > 0]
     return sum(c) / len(c)
 
+
 @not_implemented_for("multigraph")
 def _directed_triangles_and_degree_iter(G, nodes=None):
     """Return an iterator of
@@ -202,6 +205,8 @@ def _directed_triangles_and_degree_iter(G, nodes=None):
         dtotal = len(ipreds) + len(isuccs)
         dbidirectional = len(ipreds & isuccs)
         yield (i, dtotal, dbidirectional, directed_triangles)
+
+
 @not_implemented_for("multigraph")
 def _triangles_and_degree_iter(G, nodes=None):
     """Return an iterator of (node, degree, triangles, generalized degree).
@@ -222,92 +227,93 @@ def _triangles_and_degree_iter(G, nodes=None):
         ntriangles = sum(k * val for k, val in gen_degree.items())
         yield (v, len(vs), ntriangles, gen_degree)
 
-def clustering(G,nodes=None,weight=None):
+
+def clustering(G, nodes=None, weight=None):
     r"""Compute the clustering coefficient for nodes.
 
-        For unweighted graphs, the clustering of a node :math:`u`
-        is the fraction of possible triangles through that node that exist,
+    For unweighted graphs, the clustering of a node :math:`u`
+    is the fraction of possible triangles through that node that exist,
 
-        .. math::
+    .. math::
 
-          c_u = \frac{2 T(u)}{deg(u)(deg(u)-1)},
+      c_u = \frac{2 T(u)}{deg(u)(deg(u)-1)},
 
-        where :math:`T(u)` is the number of triangles through node :math:`u` and
-        :math:`deg(u)` is the degree of :math:`u`.
+    where :math:`T(u)` is the number of triangles through node :math:`u` and
+    :math:`deg(u)` is the degree of :math:`u`.
 
-        For weighted graphs, there are several ways to define clustering [1]_.
-        the one used here is defined
-        as the geometric average of the subgraph edge weights [2]_,
+    For weighted graphs, there are several ways to define clustering [1]_.
+    the one used here is defined
+    as the geometric average of the subgraph edge weights [2]_,
 
-        .. math::
+    .. math::
 
-           c_u = \frac{1}{deg(u)(deg(u)-1))}
-                 \sum_{vw} (\hat{w}_{uv} \hat{w}_{uw} \hat{w}_{vw})^{1/3}.
+       c_u = \frac{1}{deg(u)(deg(u)-1))}
+             \sum_{vw} (\hat{w}_{uv} \hat{w}_{uw} \hat{w}_{vw})^{1/3}.
 
-        The edge weights :math:`\hat{w}_{uv}` are normalized by the maximum weight
-        in the network :math:`\hat{w}_{uv} = w_{uv}/\max(w)`.
+    The edge weights :math:`\hat{w}_{uv}` are normalized by the maximum weight
+    in the network :math:`\hat{w}_{uv} = w_{uv}/\max(w)`.
 
-        The value of :math:`c_u` is assigned to 0 if :math:`deg(u) < 2`.
+    The value of :math:`c_u` is assigned to 0 if :math:`deg(u) < 2`.
 
-        Additionally, this weighted definition has been generalized to support negative edge weights [3]_.
+    Additionally, this weighted definition has been generalized to support negative edge weights [3]_.
 
-        For directed graphs, the clustering is similarly defined as the fraction
-        of all possible directed triangles or geometric average of the subgraph
-        edge weights for unweighted and weighted directed graph respectively [4]_.
+    For directed graphs, the clustering is similarly defined as the fraction
+    of all possible directed triangles or geometric average of the subgraph
+    edge weights for unweighted and weighted directed graph respectively [4]_.
 
-        .. math::
+    .. math::
 
-           c_u = \frac{2}{deg^{tot}(u)(deg^{tot}(u)-1) - 2deg^{\leftrightarrow}(u)}
-                 T(u),
+       c_u = \frac{2}{deg^{tot}(u)(deg^{tot}(u)-1) - 2deg^{\leftrightarrow}(u)}
+             T(u),
 
-        where :math:`T(u)` is the number of directed triangles through node
-        :math:`u`, :math:`deg^{tot}(u)` is the sum of in degree and out degree of
-        :math:`u` and :math:`deg^{\leftrightarrow}(u)` is the reciprocal degree of
-        :math:`u`.
+    where :math:`T(u)` is the number of directed triangles through node
+    :math:`u`, :math:`deg^{tot}(u)` is the sum of in degree and out degree of
+    :math:`u` and :math:`deg^{\leftrightarrow}(u)` is the reciprocal degree of
+    :math:`u`.
 
 
-        Parameters
-        ----------
-        G : graph
+    Parameters
+    ----------
+    G : graph
 
-        nodes : container of nodes, optional (default=all nodes in G)
-           Compute clustering for nodes in this container.
+    nodes : container of nodes, optional (default=all nodes in G)
+       Compute clustering for nodes in this container.
 
-        weight : string or None, optional (default=None)
-           The edge attribute that holds the numerical value used as a weight.
-           If None, then each edge has weight 1.
+    weight : string or None, optional (default=None)
+       The edge attribute that holds the numerical value used as a weight.
+       If None, then each edge has weight 1.
 
-        Returns
-        -------
-        out : float, or dictionary
-           Clustering coefficient at specified nodes
+    Returns
+    -------
+    out : float, or dictionary
+       Clustering coefficient at specified nodes
 
-        Examples
-        --------
-        >>> G = eg.complete_graph(5)
-        >>> print(eg.clustering(G, 0))
-        1.0
-        >>> print(eg.clustering(G))
-        {0: 1.0, 1: 1.0, 2: 1.0, 3: 1.0, 4: 1.0}
+    Examples
+    --------
+    >>> G = eg.complete_graph(5)
+    >>> print(eg.clustering(G, 0))
+    1.0
+    >>> print(eg.clustering(G))
+    {0: 1.0, 1: 1.0, 2: 1.0, 3: 1.0, 4: 1.0}
 
-        Notes
-        -----
-        Self loops are ignored.
+    Notes
+    -----
+    Self loops are ignored.
 
-        References
-        ----------
-        .. [1] Generalizations of the clustering coefficient to weighted
-           complex networks by J. Saramäki, M. Kivelä, J.-P. Onnela,
-           K. Kaski, and J. Kertész, Physical Review E, 75 027105 (2007).
-           http://jponnela.com/web_documents/a9.pdf
-        .. [2] Intensity and coherence of motifs in weighted complex
-           networks by J. P. Onnela, J. Saramäki, J. Kertész, and K. Kaski,
-           Physical Review E, 71(6), 065103 (2005).
-        .. [3] Generalization of Clustering Coefficients to Signed Correlation Networks
-           by G. Costantini and M. Perugini, PloS one, 9(2), e88669 (2014).
-        .. [4] Clustering in complex directed networks by G. Fagiolo,
-           Physical Review E, 76(2), 026107 (2007).
-        """
+    References
+    ----------
+    .. [1] Generalizations of the clustering coefficient to weighted
+       complex networks by J. Saramäki, M. Kivelä, J.-P. Onnela,
+       K. Kaski, and J. Kertész, Physical Review E, 75 027105 (2007).
+       http://jponnela.com/web_documents/a9.pdf
+    .. [2] Intensity and coherence of motifs in weighted complex
+       networks by J. P. Onnela, J. Saramäki, J. Kertész, and K. Kaski,
+       Physical Review E, 71(6), 065103 (2005).
+    .. [3] Generalization of Clustering Coefficients to Signed Correlation Networks
+       by G. Costantini and M. Perugini, PloS one, 9(2), e88669 (2014).
+    .. [4] Clustering in complex directed networks by G. Fagiolo,
+       Physical Review E, 76(2), 026107 (2007).
+    """
     if G.is_directed():
         if weight is not None:
             td_iter = _directed_weighted_triangles_and_degree_iter(G, nodes, weight)

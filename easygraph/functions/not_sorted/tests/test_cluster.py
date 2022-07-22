@@ -1,5 +1,8 @@
-import pytest
+from __future__ import annotations
+
 import easygraph as eg
+import pytest
+
 
 class TestClustering:
     @classmethod
@@ -38,7 +41,6 @@ class TestClustering:
             9: 0,
         }
 
-
     def test_k5(self):
         G = eg.complete_graph(5)
         assert list(eg.clustering(G).values()) == [1, 1, 1, 1, 1]
@@ -68,8 +70,6 @@ class TestClustering:
         ]
 
 
-
-        
 class TestAverageClustering:
     @classmethod
     def setup_class(cls):

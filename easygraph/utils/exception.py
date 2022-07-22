@@ -6,6 +6,9 @@ Exceptions
 Base exceptions and errors for EasyGraph.
 """
 
+from __future__ import annotations
+
+
 __all__ = ["EasyGraphException", "EasyGraphError", "EasyGraphNotImplemented"]
 
 
