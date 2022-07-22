@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from easygraph.functions.path import *
 from easygraph.utils import *
 

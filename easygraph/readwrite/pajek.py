@@ -2,8 +2,6 @@
 
 # NetworkX is distributed with the 3-clause BSD license.
 
-from __future__ import annotations
-
 
 # ::
 #    Copyright (C) 2004-2022, NetworkX Developers

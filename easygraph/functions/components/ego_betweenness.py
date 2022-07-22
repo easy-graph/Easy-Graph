@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-
 __all__ = ["ego_betweenness"]
 import numpy as np
 

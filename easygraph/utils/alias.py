@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-
 __all__ = ["create_alias_table", "alias_sample"]
 
 

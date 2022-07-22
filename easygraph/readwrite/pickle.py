@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 
 
-from __future__ import annotations
-
-
 def read_pickle(file_name):
     import pickle
 

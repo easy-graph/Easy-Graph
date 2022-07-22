@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import easygraph.convert as convert
 
 from easygraph.classes.graph import Graph

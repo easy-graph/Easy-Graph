@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import random
 
 from easygraph.functions.graph_embedding.node2vec import (

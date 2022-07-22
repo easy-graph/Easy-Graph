@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from easygraph.readwrite.edgelist import *
 from easygraph.readwrite.gexf import *
 from easygraph.readwrite.gml import *

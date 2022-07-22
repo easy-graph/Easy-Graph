@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-
 __all__ = ["get_relation_of_index_and_node"]
 
 

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from .directed_graph import DiGraph
 from .directed_multigraph import MultiDiGraph
 from .graph import Graph

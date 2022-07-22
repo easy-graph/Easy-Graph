@@ -40,7 +40,6 @@ http://graphml.graphdrawing.org/specification.html for the specification and
 http://graphml.graphdrawing.org/primer/graphml-primer.html
 for examples.
 """
-from __future__ import annotations
 
 import warnings
 

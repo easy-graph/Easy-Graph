@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from easygraph.functions.community.modularity import modularity
 from easygraph.utils import *
 from easygraph.utils.mapped_queue import MappedQueue

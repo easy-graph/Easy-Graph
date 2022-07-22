@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from easygraph.utils import *
 from easygraph.utils.decorators import *
 

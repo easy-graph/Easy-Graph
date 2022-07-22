@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from .AP_Greedy import *
 from .evaluation import *
 from .HAM import *

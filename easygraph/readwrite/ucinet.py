@@ -21,7 +21,6 @@ References
     for full format information. Short version on http://www.analytictech.com/networks/dataentry.htm
 """
 
-from __future__ import annotations
 
 import re
 import shlex

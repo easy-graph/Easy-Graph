@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from easygraph import convert
 from easygraph.convert import *
 from easygraph.functions.centrality import *

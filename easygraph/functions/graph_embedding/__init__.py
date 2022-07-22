@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from .deepwalk import *
 from .line import LINE
 from .NOBE import *

@@ -3,7 +3,6 @@ Priority queue class with updatable priorities.
 Codes from NetworkX - http://networkx.github.io/
 """
 
-from __future__ import annotations
 
 import heapq
 

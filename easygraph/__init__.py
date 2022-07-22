@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import easygraph.classes
 import easygraph.datasets
 import easygraph.functions

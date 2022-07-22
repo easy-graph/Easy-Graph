@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from easygraph.utils.alias import *
 from easygraph.utils.convert_class import *
 from easygraph.utils.convert_to_matrix import *

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from heapq import heappop
 from heapq import heappush
 from itertools import count

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import easygraph as eg
 import pytest
 
