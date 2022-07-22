@@ -23,28 +23,28 @@ The following is a set of guidelines for contributing to easygraph on GitHub. Th
 This section guides you through submitting a bug report for easygraph.
 Following these guidelines helps maintainers and the community understand your report, reproduce the behavior, and find related reports.
 
-Before creating bug reports, please check [this list](#before-submitting-a-bug-report) to be sure that you need to create one. When you are creating a bug report, please include as many details as possible. Fill out the [required template](https://github.com/python-easygraph/easygraph/blob/master/.github/ISSUE_TEMPLATE/---bug-report.md), the information it asks helps the maintainers resolve the issue faster.
+Before creating bug reports, please check [this list](#before-submitting-a-bug-report) to be sure that you need to create one. When you are creating a bug report, please include as many details as possible. Fill out the [required template](https://github.com/easy-graph/Easy-Graph/blob/master/.github/ISSUE_TEMPLATE/---bug-report.md), the information it asks helps the maintainers resolve the issue faster.
 
 > **Note:** If you find a **Closed** issue that seems like it is the same thing that you're experiencing, open a new issue and include a link to the original issue in the body of your new one.
 
 #### Before submitting a bug report
 
-* **Check the [FAQs on the official website](https://python-easygraph.org/docs/faq)** for a list of common questions and problems.
-* **Check that your issue does not already exist in the [issue tracker](https://github.com/python-easygraph/easygraph/issues)**.
+<!-- * **Check the [FAQs on the official website](https://python-easygraph.org/docs/faq)** for a list of common questions and problems. -->
+* **Check that your issue does not already exist in the [issue tracker](https://github.com/easy-graph/Easy-Graph/issues)**.
 
 #### How do I submit a bug report?
 
-Bugs are tracked on the [official issue tracker](https://github.com/python-easygraph/easygraph/issues) where you can create a new one and provide the following information by filling in [the template](https://github.com/python-easygraph/easygraph/blob/master/.github/ISSUE_TEMPLATE/---bug-report.md).
+Bugs are tracked on the [official issue tracker](https://github.com/easy-graph/Easy-Graph/issues) where you can create a new one and provide the following information by filling in [the template](https://github.com/easy-graph/Easy-Graph/blob/master/.github/ISSUE_TEMPLATE/---bug-report.md).
 
 Explain the problem and include additional details to help maintainers reproduce the problem:
 
 * **Use a clear and descriptive title** for the issue to identify the problem.
 * **Describe the exact steps which reproduce the problem** in as many details as possible.
-* **Provide your pyproject.toml file** in a [Gist](https://gist.github.com) after removing potential private information (like private package repositories).
+<!-- * **Provide your pyproject.toml file** in a [Gist](https://gist.github.com) after removing potential private information (like private package repositories). -->
 * **Provide specific examples to demonstrate the steps to reproduce the issue**. Include links to files or GitHub projects, or copy-paste-able snippets, which you use in those examples.
 * **Describe the behavior you observed after following the steps** and point out what exactly is the problem with that behavior.
 * **Explain which behavior you expected to see instead and why.**
-* **If the problem is an unexpected error being raised**, execute the corresponding command in **debug** mode (the `-vvv` option).
+<!-- * **If the problem is an unexpected error being raised**, execute the corresponding command in **debug** mode (the `-vvv` option). -->
 
 Provide more context by answering these questions:
 
@@ -54,8 +54,8 @@ Provide more context by answering these questions:
 
 Include details about your configuration and environment:
 
-* **Which version of easygraph are you using?** You can get the exact version by running `easygraph -V` in your terminal.
-* **Which Python version easygraph has been installed for?** Execute the `easygraph debug info` to get the information.
+* **Which version of easygraph are you using?** 
+* **Which Python version easygraph has been installed for?**
 * **What's the name and version of the OS you're using**?
 
 
@@ -63,16 +63,16 @@ Include details about your configuration and environment:
 
 This section guides you through submitting an enhancement suggestion for easygraph, including completely new features and minor improvements to existing functionality. Following these guidelines helps maintainers and the community understand your suggestion and find related suggestions.
 
-Before creating enhancement suggestions, please check [this list](#before-submitting-an-enhancement-suggestion) as you might find out that you don't need to create one. When you are creating an enhancement suggestion, please [include as many details as possible](#how-do-i-submit-an-enhancement-suggestion). Fill in [the template](https://github.com/python-easygraph/easygraph/blob/master/.github/ISSUE_TEMPLATE/---feature-request.md), including the steps that you imagine you would take if the feature you're requesting existed.
+Before creating enhancement suggestions, please check [this list](#before-submitting-an-enhancement-suggestion) as you might find out that you don't need to create one. When you are creating an enhancement suggestion, please [include as many details as possible](#how-do-i-submit-an-enhancement-suggestion). Fill in [the template](https://github.com/easy-graph/Easy-Graph/blob/master/.github/ISSUE_TEMPLATE/---feature-request.md), including the steps that you imagine you would take if the feature you're requesting existed.
 
 #### Before submitting an enhancement suggestion
 
-* **Check the [FAQs on the official website](https://python-easygraph.org/docs/faq)** for a list of common questions and problems.
-* **Check that your issue does not already exist in the [issue tracker](https://github.com/python-easygraph/easygraph/issues)**.
+<!-- * **Check the [FAQs on the official website](https://python-easygraph.org/docs/faq)** for a list of common questions and problems. -->
+* **Check that your issue does not already exist in the [issue tracker](https://github.com/easy-graph/Easy-Graph/issues)**.
 
 #### How do I submit an Enhancement suggestion?
 
-Enhancement suggestions are tracked on the [official issue tracker](https://github.com/python-easygraph/easygraph/issues) where you can create a new one and provide the following information:
+Enhancement suggestions are tracked on the [official issue tracker](https://github.com/easy-graph/Easy-Graph/issues) where you can create a new one and provide the following information:
 
 * **Use a clear and descriptive title** for the issue to identify the suggestion.
 * **Provide a step-by-step description of the suggested enhancement** in as many details as possible.
@@ -85,24 +85,24 @@ One of the simplest ways to get started contributing to a project is through imp
 adding missing sections, editing the existing content so it is more accessible or creating new content (tutorials, FAQs, etc).
 
 > **Note:** A great way to understand easygraph's design and how it all fits together, is to add FAQ entries for commonly
-> asked questions. easygraph members usually mark issues with [candidate/faq](https://github.com/python-easygraph/easygraph/issues?q=is%3Aissue+label%3Acandidate%2Ffaq+) to indicate that the issue either contains a response
+> asked questions. easygraph members usually mark issues with [candidate/faq](https://github.com/easy-graph/Easy-Graph/issues?q=is%3Aissue+label%3Acandidate%2Ffaq+) to indicate that the issue either contains a response
 > that explains how something works or might benefit from an entry in the FAQ.
 
-Issues pertaining to the documentation are usually marked with the [Documentation](https://github.com/python-easygraph/easygraph/labels/Documentation) label.
+Issues pertaining to the documentation are usually marked with the [Documentation](https://github.com/easy-graph/Easy-Graph/labels/Documentation) label.
 
 ### Contributing to code
 
 #### Picking an issue
 
-> **Note:** If you are a first time contributor, and are looking for an issue to take on, you might want to look for [Good First Issue](https://github.com/python-easygraph/easygraph/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22)
+> **Note:** If you are a first time contributor, and are looking for an issue to take on, you might want to look for [Good First Issue](https://github.com/easy-graph/Easy-Graph/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22)
 > labelled issues. We do our best to label such issues, however we might fall behind at times. So, ask us.
 
-If you would like to take on an issue, feel free to comment on the issue tagging `@python-easygraph/triage`. We are more than happy to discuss solutions on the issue. If you would like help with navigating
-the code base, join us on our [Discord Server](https://discordapp.com/invite/awxPgve).
+<!-- If you would like to take on an issue, feel free to comment on the issue tagging `@python-easygraph/triage`. We are more than happy to discuss solutions on the issue. If you would like help with navigating -->
+the code base, join us on our [Discord Server](https://discord.gg/JV6N8Whe).
 
 #### Local development
 
-You will need easygraph to start contributing on the easygraph codebase. Refer to the [documentation](https://python-easygraph.org/docs/#introduction) to start using easygraph.
+You will need easygraph to start contributing on the easygraph codebase. Refer to the [documentation](https://easy-graph.github.io/) to start using easygraph.
 
 > **Note:** Local development of easygraph requires Python 3.8 or newer.
 
@@ -120,16 +120,15 @@ Now, you will need to install the required dependency for easygraph and be sure 
 tests are passing on your machine:
 
 ```bash
-easygraph install
-easygraph run pytest tests/
+pytest
 ```
 
-easygraph uses [mypy](https://github.com/python/mypy) for typechecking, and the CI
+<!-- easygraph uses [mypy](https://github.com/python/mypy) for typechecking, and the CI
 will fail if it finds any errors.  To run mypy locally:
 
 ```bash
 easygraph run mypy
-```
+``` -->
 
 easygraph uses the [black](https://github.com/psf/black) coding style and you must ensure that your
 code follows it. If not, the CI will fail and your Pull Request will not be merged.
@@ -141,13 +140,13 @@ To make sure that you don't accidentally commit code that does not follow the co
 install a pre-commit hook that will check that everything is in order:
 
 ```bash
-easygraph run pre-commit install
+pre-commit install
 ```
 
 You can also run it anytime using:
 
 ```bash
-easygraph run pre-commit run --all-files
+pre-commit run --all-files
 ```
 
 Your code must always be accompanied by corresponding tests, if tests are not present your code
@@ -155,7 +154,7 @@ will not be merged.
 
 #### Pull requests
 
-* Fill in [the required template](https://github.com/python-easygraph/easygraph/blob/master/.github/PULL_REQUEST_TEMPLATE.md)
+* Fill in [the required template](https://github.com/easy-graph/Easy-Graph/blob/master/.github/PULL_REQUEST_TEMPLATE.md)
 * Be sure that your pull request contains tests that cover the changed or added code.
 * If your changes warrant a documentation change, the pull request must also update the documentation.
 
@@ -166,26 +165,26 @@ All pull requests, unless otherwise instructed, need to be first accepted into t
 
 ### Issue triage
 
-> **Note:** If you have an issue that hasn't had any attention, you can ping us `@python-easygraph/triage` on the issue. Please, give us reasonable time to get to your issue first, spamming us with messages
-> does not help anyone.
+<!-- > **Note:** If you have an issue that hasn't had any attention, you can ping us `@python-easygraph/triage` on the issue. Please, give us reasonable time to get to your issue first, spamming us with messages
+> does not help anyone. -->
 
 If you are helping with the triage of reported issues, this section provides some useful information to assist you in your contribution.
 
 #### Triage steps
 
-1. If `pyproject.toml` is missing or `-vvv` debug logs (with stack trace) is not provided and required, request that the issue author provides it.
+<!-- 1. If `pyproject.toml` is missing or `-vvv` debug logs (with stack trace) is not provided and required, request that the issue author provides it. -->
 1. Attempt to reproduce the issue with the reported easygraph version or request further clarification from the issue author.
 1. Ensure the issue is not already resolved. You can attempt to reproduce using the latest preview release and/or easygraph from the main branch.
 1. If the issue cannot be reproduced,
    1. clarify with the issue's author,
-   1. close the issue or notify `@python-easygraph/triage`.
+   <!-- 1. close the issue or notify `@python-easygraph/triage`. -->
 1. If the issue can be reproduced,
    1. comment on the issue confirming so
-   1. notify `@python-easygraph/triage`.
+   <!-- 1. notify `@python-easygraph/triage`. -->
    1. if possible, identify the root cause of the issue.
    1. if interested, attempt to fix it via a pull request.
 
-#### Multiple versions
+<!-- #### Multiple versions
 
 Often times you would want to attempt to reproduce issues with multiple versions of `easygraph` at the same time. For these use cases, the [pipx project](https://pypa.github.io/pipx/) is useful.
 
@@ -194,7 +193,7 @@ You can set your environment up like so.
 ```sh
 pipx install --suffix @1.0.10 'easygraph==1.0.10'
 pipx install --suffix @1.1.0rc1 'easygraph==1.1.0rc1'
-pipx install --suffix @master 'easygraph @ git+https://github.com/python-easygraph/easygraph'
+pipx install --suffix @master 'easygraph @ git+https://github.com/easy-graph/Easy-Graph'
 ```
 
 > **Hint:** Do not forget to update your `easygraph@master` installation in sync with upstream.
@@ -207,7 +206,7 @@ cd /path/to/python-easygraph/easygraph
 ln -sf $(easygraph run which easygraph) ~/.local/bin/easygraph@local
 ```
 
-> **Hint:** This mechanism can also be used to test pull requests.
+> **Hint:** This mechanism can also be used to test pull requests. -->
 
 ### Git Workflow
 
@@ -220,11 +219,11 @@ When a release is ready, the following are required before a release is tagged.
 
 1. A release branch with the prefix `release-`, eg: `release-1.1.0rc1`.
 1. A pull request from the release branch to the main branch (`master`) if it's a minor or major release. Otherwise, to the bug fix branch (eg: `1.0`).
-   1. The pull request description MUST include the change log corresponding to the release (eg: [#2971](https://github.com/python-easygraph/easygraph/pull/2971)).
-   1. The pull request must contain a commit that updates [CHANGELOG.md](CHANGELOG.md) and bumps the project version (eg: [#2971](https://github.com/python-easygraph/easygraph/pull/2971/commits/824e7b79defca435cf1d765bb633030b71b9a780)).
+   1. The pull request description MUST include the change log corresponding to the release (eg: [#2971](https://github.com/easy-graph/Easy-Graph/pull/2971)).
+   1. The pull request must contain a commit that updates [CHANGELOG.md](CHANGELOG.md) and bumps the project version (eg: [#2971](https://github.com/easy-graph/Easy-Graph/pull/2971/commits/824e7b79defca435cf1d765bb633030b71b9a780)).
    1. The pull request must have the `Release` label specified.
 
-Once the branch pull-request is ready and approved, a member of `@python-easygraph/core` will,
+<!-- Once the branch pull-request is ready and approved, a member of `@python-easygraph/core` will, -->
 
 1. Tag the branch with the version identifier (eg: `1.1.0rc1`).
 2. Merge the pull request once the release is created and assets are uploaded by the CI.
