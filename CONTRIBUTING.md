@@ -137,7 +137,7 @@ Similarly, the import statements are sorted with [isort](https://github.com/timo
 and special care must be taken to respect it. If you don't, the CI will fail as well.
 
 To make sure that you don't accidentally commit code that does not follow the coding style, you can
-install a pre-commit hook that will check that everything is in order:
+install a [pre-commit](https://pre-commit.com/) hook that will check that everything is in order:
 
 ```bash
 pre-commit install
