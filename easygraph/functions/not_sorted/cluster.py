@@ -6,7 +6,7 @@ from itertools import chain
 
 __all__ = ["average_clustering", "clustering"]
 
-from easygraph import not_implemented_for
+from easygraph.utils.decorators import not_implemented_for
 
 
 @not_implemented_for("multigraph")
