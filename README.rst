@@ -16,7 +16,7 @@ Copyright (C) <2020-2022> by Mobile Systems and Networking Group, Fudan Universi
 - **Source Code:** https://github.com/easy-graph/Easy-Graph
 - **Issue Tracker:** https://github.com/easy-graph/Easy-Graph/issues
 - **PyPI Homepage:** https://pypi.org/project/Python-EasyGraph/
-- **PyPI Homepage:** https://www.youtube.com/channel/UCZGhOPPx8aeL30uEdpk23Aw
+- **Youtube channel:** https://www.youtube.com/channel/UCZGhOPPx8aeL30uEdpk23Aw
 
 Introduction
 ------------
@@ -36,6 +36,17 @@ or ``conda``
 
 Simple Example
 --------------
+
+
+This example shows the general usage of methods in EasyGraph.
+
+.. code:: python
+
+  >>> import easygraph as eg
+  >>> G = eg.Graph()
+  >>> G.add_edges([(1,2), (2,3), (1,3), (3,4), (4,5), (3,5), (5,6)])
+  >>> eg.pagerank(G)
+  {1: 0.14272233049003707, 2: 0.14272233049003694, 3: 0.2685427766200994, 4: 0.14336430577918527, 5: 0.21634929087322705, 6: 0.0862989657474143}
 
 This is a simple example for the detection of `structural hole spanners <https://en.wikipedia.org/wiki/Structural_holes>`_
 using the `HIS <https://keg.cs.tsinghua.edu.cn/jietang/publications/WWW13-Lou&Tang-Structural-Hole-Information-Diffusion.pdf>`_ algorithm.
