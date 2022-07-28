@@ -6,6 +6,11 @@ __all__=[
     "clustering"
 ]
 
+try:
+    from cpp_easygraph import cpp_clustering
+except ImportError:
+    pass
+
 from easygraph import not_implemented_for
 @not_implemented_for("multigraph")
 def _weighted_triangles_and_degree_iter(G, nodes=None, weight="weight"):
@@ -308,6 +313,8 @@ def clustering(G,nodes=None,weight=None):
         .. [4] Clustering in complex directed networks by G. Fagiolo,
            Physical Review E, 76(2), 026107 (2007).
         """
+    if G.cflag == 1:
+        return cpp_clustering(G, nodes, weight)
     if G.is_directed():
         if weight is not None:
             td_iter = _directed_weighted_triangles_and_degree_iter(G, nodes, weight)

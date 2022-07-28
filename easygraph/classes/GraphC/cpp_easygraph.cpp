@@ -47,10 +47,10 @@ BOOST_PYTHON_MODULE(cpp_easygraph)
         .add_property("adj", &Graph::get_adj)
         .add_property("edges", &Graph::get_edges);
     
-    py::def("constraint", &constraint, (py::arg("G"), py::arg("nodes") = py::object(), py::arg("weight") = py::object(), py::arg("n_workers") = py::object()));
-    py::def("effective_size", &effective_size, (py::arg("G"), py::arg("nodes") = py::object(), py::arg("weight") = py::object(), py::arg("n_workers") = py::object()));
-    py::def("hierarchy", &hierarchy, (py::arg("G"), py::arg("nodes") = py::object(), py::arg("weight") = py::object(), py::arg("n_workers") = py::object()));
-    py::def("_dijkstra_multisource", &_dijkstra_multisource, (py::arg("G"), py::arg("sources"), py::arg("weight") = "weight", py::arg("target") = py::object()));
-    py::def("clustering", &clustering, (py::arg("G"), py::arg("nodes") = py::object(), py::arg("weight") = py::object()));
-    py::def("Floyd",&Floyd,(py::arg("G")));
+    py::def("cpp_constraint", &constraint, (py::arg("G"), py::arg("nodes") = py::object(), py::arg("weight") = py::object(), py::arg("n_workers") = py::object()));
+    py::def("cpp_effective_size", &effective_size, (py::arg("G"), py::arg("nodes") = py::object(), py::arg("weight") = py::object(), py::arg("n_workers") = py::object()));
+    py::def("cpp_hierarchy", &hierarchy, (py::arg("G"), py::arg("nodes") = py::object(), py::arg("weight") = py::object(), py::arg("n_workers") = py::object()));
+    py::def("cpp_dijkstra_multisource", &_dijkstra_multisource, (py::arg("G"), py::arg("sources"), py::arg("weight") = "weight", py::arg("target") = py::object()));
+    py::def("cpp_clustering", &clustering, (py::arg("G"), py::arg("nodes") = py::object(), py::arg("weight") = py::object()));
+    py::def("cpp_Floyd", &Floyd, (py::arg("G")));
 }
