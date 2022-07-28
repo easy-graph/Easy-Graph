@@ -9,8 +9,11 @@ py::object attr_to_dict(const Graph::node_attr_dict_factory& attr) {
 }
 
 std::string weight_to_string(py::object weight) {
+	py::object warn = py::import("warnings").attr("warn");
 	if (weight.attr("__class__") != py::str().attr("__class__")) {
-		warn(py::str(weight) + py::str(" would be transformed into an instance of str."));
+		if (weight != py::object()) {
+			warn(py::str(weight) + py::str(" would be transformed into an instance of str."));
+		}
 		weight = py::str(weight);
 	}
 	std::string weight_key = py::extract<std::string>(weight);

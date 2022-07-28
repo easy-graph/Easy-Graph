@@ -177,3 +177,84 @@ chmod 777 文件绝对路径
 
 若出现其他不可预见的问题，可以在csdn/stackoverflow上查找答案。
 
+Linux
+
+#### 安装
+
+部分可参考[稀土掘金]([Linux安装Boost Python - 掘金 (juejin.cn)](https://juejin.cn/post/6870325642362093582))
+
+1. 确保系统已安装
+  
+  - **gcc**
+    
+  - **g++**
+    
+  - **python3-dev**
+    
+  
+  以ubuntu为例，可以运行如下命令安装：
+  
+  ```shell
+     sudo apt-get install ...
+  ```
+  
+  **注意**：
+  
+  - python3-dev用于获取必要的python头文件和静态库，对于较新版本的python(3.9+)，可能需要从[**其他发布平台**](https://pkgs.org/download/python3.9-dev)获取安装对应版本python3-dev
+2. 下载boost源码并解压
+  
+3. 进入boost目录，执行boostrap.sh，生成b2
+  
+  ```shell
+  ./bootstrap.sh --with-python=/usr/bin/python3
+  ```
+  
+  编译完成后将生成b2可执行文件
+  
+4. 编译安装boost python
+  
+  ```shell
+  sudo ./b2  cxxflags="-fPIC" install --with-python
+  ```
+  
+  **注意**：
+  
+  - 安装过程涉及对高权限目录的更改，因此需要sudo
+    
+  - cxxflags用于编译boost python静态库
+    
+5. 进入/usr/local/lib确认生成libboost_pythonxx.a, libboost_pythonxx.so
+  
+  将libboost_pythonxx.a软链接到libboost_python.a
+  
+  ```shell
+  sudo ln -s libboost_python38.a libboost_python.a
+  ```
+  
+  **注意**：
+  
+  - 软链接的目的是为了给静态库换名，gcc在链接时会优先选择同名的动态库，换名后**没有**libboost_python.so，因此链接boost_python时只会选择已有的libboost_python.a
+    
+6. 编译生成项目文件
+  
+  ```shell
+  rm *.o
+  rm *.so
+  g++ -fPIC -shared -I/usr/include/python3.8 -Wl,-soname,cpp_easygraph.so -o cpp_easygraph.so  Graph.cpp Utils.cpp Evaluation.cpp Path.cpp cpp_easygraph.cpp -lpython3.8 -lboost_python
+  # 可以添加-o..等编译优化标志
+  ```
+  
+  **注意**：
+  
+  - -I后面是python的头文件目录，已知有时gcc无法从环境变量中搜索到相关文件，因此这里手动指定
+    
+  - -fPIC表明生成的是位置无关的动态链接库
+    
+  - -lpython3.8 和 -lboost_python的**顺序**不能颠倒(gcc从右向左链接)，否则有符号问题
+    
+  - 如上文所述，这里-lboost_python实际找到的是libboost_python.a(静态boost python库)，若链接到的是.so，则导入时会提示找不到相关so文件
+    
+
+#### 使用
+
+在linux中使用C++全局py::object变量(无论多文件共享或单个文件独有)导入模块时会有segmentation fault的风险，因此不建议使用。

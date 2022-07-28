@@ -2,6 +2,7 @@
 #include "Utils.h"
 
 Graph::Graph() {
+	py::object MappingProxyType = py::import("types").attr("MappingProxyType");
 	this->id = 0;
 	this->dirty_nodes = true;
 	this->dirty_adj = true;
@@ -13,6 +14,7 @@ Graph::Graph() {
 }
 
 py::object __init__(py::tuple args, py::dict kwargs) {
+	py::object MappingProxyType = py::import("types").attr("MappingProxyType");
 	py::object self = args[0];
 	self.attr("__init__")();
 	Graph& self_ = py::extract<Graph&>(self);
@@ -34,7 +36,20 @@ py::object __len__(py::object self) {
 
 py::object __contains__(py::object self, py::object node) {
 	Graph& self_ = py::extract<Graph&>(self);
-	return self_.node_to_id.contains(node);
+	try {
+		return self_.node_to_id.contains(node);
+	}
+	catch (const py::error_already_set&) {
+		PyObject* type, * value, * traceback;
+		PyErr_Fetch(&type, &value, &traceback);
+		if (PyErr_GivenExceptionMatches(PyExc_TypeError, type)) {
+			return py::object(false);
+		}
+		else {
+			PyErr_Restore(type, value, traceback);
+			return py::object();
+		}
+	}
 }
 
 py::object __getitem__(py::object self, py::object node) {
@@ -190,6 +205,29 @@ py::object number_of_nodes(Graph& self) {
 
 py::object has_node(Graph& self, py::object node) {
 	return self.node_to_id.contains(node);
+}
+
+py::object nbunch_iter(py::object self, py::object nbunch) {
+	py::object bunch = py::object();
+	if (nbunch == py::object()) {
+		bunch = self.attr("adj").attr("__iter__")();
+	}
+	else if (self.contains(nbunch)) {
+		py::list nbunch_wrapper = py::list();
+		nbunch_wrapper.append(nbunch);
+		bunch = nbunch_wrapper.attr("__iter__")();
+	}
+	else {
+		py::list nbunch_list = py::list(nbunch), nodes_list = py::list();
+		for (int i = 0;i < py::len(nbunch_list);i++) {
+			py::object n = nbunch_list[i];
+			if (self.contains(n)) {
+				nodes_list.append(n);
+			}
+		}
+		bunch = nbunch_list.attr("__iter__")();
+	}
+	return bunch;
 }
 
 void _add_one_edge(Graph& self, py::object u_of_edge, py::object v_of_edge, py::object edge_attr) {
@@ -414,8 +452,14 @@ py::object remove_edges(py::object self, py::list edges_to_remove) {
 	return py::object();
 }
 
-py::object number_of_edges(py::object self) {
-	return self.attr("size")();
+py::object number_of_edges(py::object self, py::object u, py::object v) {
+	if (u == py::object()) {
+		return self.attr("size")();
+	}
+	Graph& self_ = py::extract<Graph&>(self);
+	Graph::node_t u_id = py::extract<Graph::node_t>(self_.node_to_id.get(u, -1));
+	Graph::node_t v_id = py::extract<Graph::node_t>(self_.node_to_id.get(v, -1));
+	return py::object(int(self_.adj.count(u_id) && self_.adj[u_id].count(v_id)));
 }
 
 py::object has_edge(Graph& self, py::object u, py::object v) {
@@ -532,6 +576,7 @@ py::object is_multigraph(py::object self) {
 }
 
 py::object Graph::get_nodes() {
+	py::object MappingProxyType = py::import("types").attr("MappingProxyType");
 	if (this->dirty_nodes) {
 		py::dict nodes = py::dict();
 		for (const auto& node_info : node) {
@@ -554,6 +599,7 @@ py::object Graph::get_graph() {
 }
 
 py::object Graph::get_adj() {
+	py::object MappingProxyType = py::import("types").attr("MappingProxyType");
 	if (this->dirty_adj) {
 		py::dict adj = py::dict();
 		for (const auto& ego_edges : this->adj) {

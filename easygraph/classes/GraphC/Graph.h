@@ -3,8 +3,6 @@
 
 #include "Common.h"
 
-extern py::object MappingProxyType;
-
 struct Graph
 {
 	typedef int node_t;
@@ -42,6 +40,7 @@ py::object remove_node(Graph& self, py::object node_to_remove);
 py::object remove_nodes(py::object self, py::list nodes_to_remove);
 py::object number_of_nodes(Graph& self);
 py::object has_node(Graph& self, py::object node);
+py::object nbunch_iter(py::object self, py::object nbunch);
 py::object add_edge(py::tuple args, py::dict kwargs);
 py::object add_edges(Graph& self, py::list edges_for_adding, py::list edges_attr);
 py::object add_edges_from(py::tuple args, py::dict attr);
@@ -49,7 +48,7 @@ py::object add_edges_from_file(Graph& self, py::str file, py::object weighted);
 py::object add_weighted_edge(Graph& self, py::object u_of_edge, py::object v_of_edge, Graph::weight_t weight);
 py::object remove_edge(Graph& self, py::object u, py::object v);
 py::object remove_edges(py::object self, py::list edges_to_remove);
-py::object number_of_edges(py::object self);
+py::object number_of_edges(py::object self, py::object u, py::object v);
 py::object has_edge(Graph& self, py::object u, py::object v);
 py::object copy(py::object self);
 py::object degree(py::object self, py::object weight);
