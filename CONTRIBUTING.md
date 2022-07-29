@@ -98,7 +98,7 @@ Issues pertaining to the documentation are usually marked with the [Documentatio
 > labelled issues. We do our best to label such issues, however we might fall behind at times. So, ask us.
 
 <!-- If you would like to take on an issue, feel free to comment on the issue tagging `@python-easygraph/triage`. We are more than happy to discuss solutions on the issue. If you would like help with navigating -->
-the code base, join us on our [Discord Server](https://discord.gg/JV6N8Whe).
+the code base, join us on our [Discord Server](https://discord.gg/ppgcw2wUPg).
 
 #### Local development
 
