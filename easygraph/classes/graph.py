@@ -1,3 +1,8 @@
+from copy import deepcopy
+from typing import Dict
+from typing import List
+
+import easygraph as eg
 import easygraph.convert as convert
 
 from easygraph.utils.exception import EasyGraphError
@@ -237,7 +242,7 @@ class Graph:
         try:
             return iter(self._adj[node])
         except KeyError:
-            print(f"No node {node}")
+            print("No node {}".format(node))
 
     all_neighbors = neighbors
 
@@ -274,7 +279,7 @@ class Graph:
         """
         self._add_one_node(node_for_adding, node_attr)
 
-    def add_nodes(self, nodes_for_adding: list, nodes_attr: list[dict] = []):
+    def add_nodes(self, nodes_for_adding: list, nodes_attr: List[Dict] = []):
         """Add nodes with a list of nodes.
 
         Parameters
@@ -325,6 +330,7 @@ class Graph:
                 self._add_one_node(nodes_for_adding[i], nodes_attr[i])
             except Exception as err:
                 print(err)
+                pass
 
     def add_nodes_from(self, nodes_for_adding, **attr):
         """Add multiple nodes.
@@ -435,7 +441,7 @@ class Graph:
     def add_weighted_edge(self, u_of_edge, v_of_edge, weight):
         self._add_one_edge(u_of_edge, v_of_edge, edge_attr={"weight": weight})
 
-    def add_edges(self, edges_for_adding, edges_attr: list[dict] = []):
+    def add_edges(self, edges_for_adding, edges_attr: List[Dict] = []):
         """Add a list of edges.
 
         Parameters
@@ -480,7 +486,7 @@ class Graph:
             try:
                 edge = edges_for_adding[i]
                 attr = edges_attr[i]
-                assert len(edge) == 2, f"Edge tuple {edge} must be 2-tuple."
+                assert len(edge) == 2, "Edge tuple {} must be 2-tuple.".format(edge)
                 self._add_one_edge(edge[0], edge[1], attr)
             except Exception as err:
                 print(err)
@@ -584,7 +590,7 @@ class Graph:
         """
         import re
 
-        with open(file) as fp:
+        with open(file, "r") as fp:
             edges = fp.readlines()
         if weighted:
             for edge in edges:
@@ -639,7 +645,7 @@ class Graph:
             neighbors = list(self._adj[node_to_remove])
             del self._node[node_to_remove]
         except KeyError:  # Node not exists in self
-            raise EasyGraphError(f"No node {node_to_remove} in graph.")
+            raise EasyGraphError("No node {} in graph.".format(node_to_remove))
         for neighbor in neighbors:  # Remove edges with other nodes
             del self._adj[neighbor][node_to_remove]
         del self._adj[node_to_remove]  # Remove this node
@@ -668,7 +674,7 @@ class Graph:
         ) in (
             nodes_to_remove
         ):  # If not all nodes included in graph, give up removing other nodes
-            assert node in self._node, f"Remove Error: No node {node} in graph"
+            assert node in self._node, "Remove Error: No node {} in graph".format(node)
         for node in nodes_to_remove:
             self.remove_node(node)
 
@@ -699,7 +705,7 @@ class Graph:
             if u != v:  # self-loop needs only one entry removed
                 del self._adj[v][u]
         except KeyError:
-            raise KeyError(f"No edge {u}-{v} in graph.")
+            raise KeyError("No edge {}-{} in graph.".format(u, v))
 
     def remove_edges(self, edges_to_remove: [tuple]):
         """Remove a list of edges from your graph.
