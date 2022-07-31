@@ -6,3 +6,5 @@ from .ICC import *
 from .MaxD import *
 from .metrics import *
 from .NOBE import *
+from .strong_connected_component import *
+from .weakTie import *
