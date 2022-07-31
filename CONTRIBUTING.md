@@ -152,6 +152,13 @@ pre-commit run --all-files
 Your code must always be accompanied by corresponding tests, if tests are not present your code
 will not be merged.
 
+#### Run the Tests Locally
+
+- Install [tox](https://tox.readthedocs.io/) and [pyenv](https://github.com/pyenv/pyenv)
+- Use pyenv to install python 3.6 to 3.10, and make sure that `python3.6`, `python3.7`, ..., `python3.10` is in your `$PATH`.
+- Run `tox` to run the tests across python 3.6 to 3.10.
+- To only run tox on python3.9 and 3.10, run `tox -e py39,py310`.
+
 #### Pull requests
 
 * Fill in [the required template](https://github.com/easy-graph/Easy-Graph/blob/master/.github/PULL_REQUEST_TEMPLATE.md)
