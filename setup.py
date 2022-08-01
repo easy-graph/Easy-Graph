@@ -1,4 +1,3 @@
-
 import platform
 
 import setuptools
@@ -26,7 +25,7 @@ CYTHON_STR = "Cython"
 
 setuptools.setup(
     name="Python-EasyGraph",
-    version="0.2a39",
+    version="0.2a40",
     author="Fudan MSN Group",
     author_email="easygraph@163.com",
     description="Easy Graph",
