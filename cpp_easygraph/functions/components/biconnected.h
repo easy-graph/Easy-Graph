@@ -1,18 +1,17 @@
 #pragma once
 #define BOOST_PYTHON_STATIC_LIB
 
-#include "Common.h"
-#include "Graph.h"
+#include "../../common/common.h"
 
 class NeighborIterator {
 public:
     NeighborIterator() {
     }
-    NeighborIterator(Graph::adj_attr_dict_factory& neighbor_map) {
+    NeighborIterator(adj_attr_dict_factory& neighbor_map) {
         now = neighbor_map.begin();;
         end = neighbor_map.end();
     }
-    Graph::node_t next() throw(...) {
+    node_t next() throw(...) {
         if (now == end) {
             throw - 1;
         }
@@ -21,12 +20,12 @@ public:
         }
     }
 private:
-    Graph::adj_attr_dict_factory::iterator now, end;
+    adj_attr_dict_factory::iterator now, end;
 };
 typedef struct stackNode {
-    Graph::node_t grandparent, parent;
+    node_t grandparent, parent;
     NeighborIterator neighbors_iter;
-    stackNode(Graph::node_t grandparent, Graph::node_t parent, NeighborIterator neighbors_iter) {
+    stackNode(node_t grandparent, node_t parent, NeighborIterator neighbors_iter) {
         this->grandparent = grandparent;
         this->parent = parent;
         this->neighbors_iter = neighbors_iter;

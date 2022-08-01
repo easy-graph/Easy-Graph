@@ -1,5 +1,5 @@
-#include "Graph.h"
-#include "Utils.h"
+#include "graph.h"
+#include "../common/utils.h"
 
 Graph::Graph() {
 	py::object MappingProxyType = py::import("types").attr("MappingProxyType");
@@ -56,10 +56,10 @@ py::object __getitem__(py::object self, py::object node) {
 	return self.attr("adj")[node];
 }
 
-Graph::node_t _add_one_node(Graph& self, py::object one_node_for_adding, py::object node_attr = py::dict()) {
-	Graph::node_t id;
+node_t _add_one_node(Graph& self, py::object one_node_for_adding, py::object node_attr = py::dict()) {
+	node_t id;
 	if (self.node_to_id.contains(one_node_for_adding)) {
-		id = py::extract<Graph::node_t>(self.node_to_id[one_node_for_adding]);
+		id = py::extract<node_t>(self.node_to_id[one_node_for_adding]);
 	}
 	else {
 		id = ++(self.id);
@@ -67,13 +67,13 @@ Graph::node_t _add_one_node(Graph& self, py::object one_node_for_adding, py::obj
 		self.node_to_id[one_node_for_adding] = id;
 	}
 	py::list items = py::list(node_attr.attr("items")());
-	self.node[id] = Graph::node_attr_dict_factory();
-	self.adj[id] = Graph::adj_attr_dict_factory();
+	self.node[id] = node_attr_dict_factory();
+	self.adj[id] = adj_attr_dict_factory();
 	for (int i = 0; i < len(items);i++) {
 		py::tuple kv = py::extract<py::tuple>(items[i]);
 		py::object pkey = kv[0];
 		std::string weight_key = weight_to_string(pkey);
-		Graph::weight_t value = py::extract<Graph::weight_t>(kv[1]);
+		weight_t value = py::extract<weight_t>(kv[1]);
 		self.node[id].insert(std::make_pair(weight_key, value));
 	}
 	return id;
@@ -149,13 +149,13 @@ py::object add_nodes_from(py::tuple args, py::dict kwargs) {
 			}
 			_add_one_node(self, n);
 		}
-		Graph::node_t id = py::extract<Graph::node_t>(self.node_to_id[n]);
+		node_t id = py::extract<node_t>(self.node_to_id[n]);
 		py::list items = py::list(newdict.items());
 		for (int i = 0; i < len(items);i++) {
 			py::tuple kv = py::extract<py::tuple>(items[i]);
 			py::object pkey = kv[0];
 			std::string weight_key = weight_to_string(pkey);
-			Graph::weight_t value = py::extract<Graph::weight_t>(kv[1]);
+			weight_t value = py::extract<weight_t>(kv[1]);
 			self.node[id].insert(std::make_pair(weight_key, value));
 		}
 	}
@@ -169,9 +169,9 @@ py::object remove_node(Graph& self, py::object node_to_remove) {
 		PyErr_Format(PyExc_KeyError, "No node %R in graph.", node_to_remove.ptr());
 		return py::object();
 	}
-	Graph::node_t node_id = py::extract<Graph::node_t>(self.node_to_id[node_to_remove]);
+	node_t node_id = py::extract<node_t>(self.node_to_id[node_to_remove]);
 	for (const auto& neighbor_info : self.adj[node_id]) {
-		Graph::node_t neighbor_id = neighbor_info.first;
+		node_t neighbor_id = neighbor_info.first;
 		self.adj[neighbor_id].erase(node_id);
 	}
 	self.adj.erase(node_id);
@@ -231,27 +231,27 @@ py::object nbunch_iter(py::object self, py::object nbunch) {
 }
 
 void _add_one_edge(Graph& self, py::object u_of_edge, py::object v_of_edge, py::object edge_attr) {
-	Graph::node_t u, v;
+	node_t u, v;
 	if (!self.node_to_id.contains(u_of_edge)) {
 		u = _add_one_node(self, u_of_edge);
 	}
 	else {
-		u = py::extract<Graph::node_t>(self.node_to_id[u_of_edge]);
+		u = py::extract<node_t>(self.node_to_id[u_of_edge]);
 	}
 	if (!self.node_to_id.contains(v_of_edge)) {
 		v = _add_one_node(self, v_of_edge);
 	}
 	else {
-		v = py::extract<Graph::node_t>(self.node_to_id[v_of_edge]);
+		v = py::extract<node_t>(self.node_to_id[v_of_edge]);
 	}
 	py::list items = py::list(edge_attr.attr("items")());
-	self.adj[u][v] = Graph::node_attr_dict_factory();
-	self.adj[v][u] = Graph::node_attr_dict_factory();
+	self.adj[u][v] = node_attr_dict_factory();
+	self.adj[v][u] = node_attr_dict_factory();
 	for (int i = 0; i < len(items);i++) {
 		py::tuple kv = py::extract<py::tuple>(items[i]);
 		py::object pkey = kv[0];
 		std::string weight_key = weight_to_string(pkey);
-		Graph::weight_t value = py::extract<Graph::weight_t>(kv[1]);
+		weight_t value = py::extract<weight_t>(kv[1]);
 		self.adj[u][v].insert(std::make_pair(weight_key, value));
 		self.adj[v][u].insert(std::make_pair(weight_key, value));
 	}
@@ -316,7 +316,7 @@ py::object add_edges_from(py::tuple args, py::dict attr) {
 			return py::object();
 		}
 		}
-		Graph::node_t u_id, v_id;
+		node_t u_id, v_id;
 		if (!self.node_to_id.contains(u)) {
 			if (u == py::object()) {
 				PyErr_Format(PyExc_ValueError, "None cannot be a node");
@@ -331,14 +331,14 @@ py::object add_edges_from(py::tuple args, py::dict attr) {
 			}
 			v_id = _add_one_node(self, v);
 		}
-		auto datadict = self.adj[u_id].count(v_id) ? self.adj[u_id][v_id] : Graph::node_attr_dict_factory();
+		auto datadict = self.adj[u_id].count(v_id) ? self.adj[u_id][v_id] : node_attr_dict_factory();
 		py::list items = py::list(attr);
 		items.extend(py::list(dd));
 		for (int i = 0;i < py::len(items);i++) {
 			py::tuple kv = py::extract<py::tuple>(items[i]);
 			py::object pkey = kv[0];
 			std::string weight_key = weight_to_string(pkey);
-			Graph::weight_t value = py::extract<Graph::weight_t>(kv[1]);
+			weight_t value = py::extract<weight_t>(kv[1]);
 			datadict.insert(std::make_pair(weight_key, value));
 		}
 		//Warning: in Graph.py the edge attr is directed assigned by the dict extended from the original attr 
@@ -379,21 +379,21 @@ py::object add_edges_from_file(Graph& self, py::str file, py::object weighted) {
 	in.imbue(std::locale(std::locale(), new commactype));
 	std::string data, key("weight");
 	std::string su, sv;
-	Graph::weight_t weight;
+	weight_t weight;
 	while (in >> su >> sv) {
 		py::object pu(su), pv(sv);
-		Graph::node_t u, v;
+		node_t u, v;
 		if (!self.node_to_id.contains(pu)) {
 			u = _add_one_node(self, pu);
 		}
 		else {
-			u = py::extract<Graph::node_t>(self.node_to_id[pu]);
+			u = py::extract<node_t>(self.node_to_id[pu]);
 		}
 		if (!self.node_to_id.contains(pv)) {
 			v = _add_one_node(self, pv);
 		}
 		else {
-			v = py::extract<Graph::node_t>(self.node_to_id[pv]);
+			v = py::extract<node_t>(self.node_to_id[pv]);
 		}
 		if (weighted) {
 			in >> weight;
@@ -401,10 +401,10 @@ py::object add_edges_from_file(Graph& self, py::str file, py::object weighted) {
 		}
 		else {
 			if (!self.adj[u].count(v)) {
-				self.adj[u][v] = Graph::node_attr_dict_factory();
+				self.adj[u][v] = node_attr_dict_factory();
 			}
 			if (!self.adj[v].count(u)) {
-				self.adj[v][u] = Graph::node_attr_dict_factory();
+				self.adj[v][u] = node_attr_dict_factory();
 			}
 		}
 	}
@@ -412,7 +412,7 @@ py::object add_edges_from_file(Graph& self, py::str file, py::object weighted) {
 	return py::object();
 }
 
-py::object add_weighted_edge(Graph& self, py::object u_of_edge, py::object v_of_edge, Graph::weight_t weight) {
+py::object add_weighted_edge(Graph& self, py::object u_of_edge, py::object v_of_edge, weight_t weight) {
 	self.dirty_nodes = true;
 	self.dirty_adj = true;
 	py::dict edge_attr;
@@ -425,8 +425,8 @@ py::object remove_edge(Graph& self, py::object u, py::object v) {
 	self.dirty_nodes = true;
 	self.dirty_adj = true;
 	if (self.node_to_id.contains(u) && self.node_to_id.contains(v)) {
-		Graph::node_t u_id = py::extract<Graph::node_t>(self.node_to_id[u]);
-		Graph::node_t v_id = py::extract<Graph::node_t>(self.node_to_id[v]);
+		node_t u_id = py::extract<node_t>(self.node_to_id[u]);
+		node_t v_id = py::extract<node_t>(self.node_to_id[v]);
 		auto& v_neighbors_info = self.adj[u_id];
 		if (v_neighbors_info.find(v_id) != v_neighbors_info.end()) {
 			v_neighbors_info.erase(v_id);
@@ -457,15 +457,15 @@ py::object number_of_edges(py::object self, py::object u, py::object v) {
 		return self.attr("size")();
 	}
 	Graph& self_ = py::extract<Graph&>(self);
-	Graph::node_t u_id = py::extract<Graph::node_t>(self_.node_to_id.get(u, -1));
-	Graph::node_t v_id = py::extract<Graph::node_t>(self_.node_to_id.get(v, -1));
+	node_t u_id = py::extract<node_t>(self_.node_to_id.get(u, -1));
+	node_t v_id = py::extract<node_t>(self_.node_to_id.get(v, -1));
 	return py::object(int(self_.adj.count(u_id) && self_.adj[u_id].count(v_id)));
 }
 
 py::object has_edge(Graph& self, py::object u, py::object v) {
 	if (self.node_to_id.contains(u) && self.node_to_id.contains(v)) {
-		Graph::node_t u_id = py::extract<Graph::node_t>(self.node_to_id[u]);
-		Graph::node_t v_id = py::extract<Graph::node_t>(self.node_to_id[v]);
+		node_t u_id = py::extract<node_t>(self.node_to_id[u]);
+		node_t v_id = py::extract<node_t>(self.node_to_id[v]);
 		auto& v_neighbors_info = self.adj[u_id];
 		if (v_neighbors_info.find(v_id) != v_neighbors_info.end()) {
 			return py::object(true);
@@ -560,9 +560,9 @@ py::object ego_subgraph(py::object self, py::object center) {
 py::object size(py::object self, py::object weight) {
 	py::dict degree = py::extract<py::dict>(self.attr("degree")(weight));
 	py::list items = degree.items();
-	Graph::weight_t s = 0;
+	weight_t s = 0;
 	for (int i = 0;i < py::len(items);i++) {
-		s += py::extract<Graph::weight_t>(items[i][1]);
+		s += py::extract<weight_t>(items[i][1]);
 	}
 	return (weight == py::object()) ? py::object(int(s) / 2) : py::object(s / 2);
 }

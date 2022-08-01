@@ -1,5 +1,6 @@
-#include "Evaluation.h"
-#include "Utils.h"
+#include "evaluation.h"
+#include "../../classes/graph.h"
+#include "../../common/utils.h"
 
 struct pair_hash
 {
@@ -12,63 +13,63 @@ struct pair_hash
 	}
 };
 
-std::unordered_map<std::pair<Graph::node_t, Graph::node_t>, Graph::weight_t, pair_hash> sum_nmw_rec, max_nmw_rec, local_constraint_rec;
+std::unordered_map<std::pair<node_t, node_t>, weight_t, pair_hash> sum_nmw_rec, max_nmw_rec, local_constraint_rec;
 
 enum norm_t {
 	sum, max
 };
 
 
-Graph::weight_t mutual_weight(Graph::adj_dict_factory& G, Graph::node_t u, Graph::node_t v, std::string weight) {
-	Graph::weight_t a_uv = 0, a_vu = 0;
+weight_t mutual_weight(adj_dict_factory& G, node_t u, node_t v, std::string weight) {
+	weight_t a_uv = 0, a_vu = 0;
 	if (G.count(u) && G[u].count(v)) {
-		Graph::edge_attr_dict_factory& guv = G[u][v];
+		edge_attr_dict_factory& guv = G[u][v];
 		a_uv = guv.count(weight) ? guv[weight] : 1;
 	}
 	if (G.count(v) && G[v].count(u)) {
-		Graph::edge_attr_dict_factory& gvu = G[v][u];
+		edge_attr_dict_factory& gvu = G[v][u];
 		a_uv = gvu.count(weight) ? gvu[weight] : 1;
 	}
 	return a_uv + a_vu;
 }
 
-Graph::weight_t  normalized_mutual_weight(Graph::adj_dict_factory& G, Graph::node_t u, Graph::node_t v, std::string weight, norm_t norm = sum) {
-	std::pair<Graph::node_t, Graph::node_t> edge = std::make_pair(u, v);
+weight_t  normalized_mutual_weight(adj_dict_factory& G, node_t u, node_t v, std::string weight, norm_t norm = sum) {
+	std::pair<node_t, node_t> edge = std::make_pair(u, v);
 	auto& nmw_rec = (norm == sum) ? sum_nmw_rec : max_nmw_rec;
 	if (nmw_rec.count(edge)) {
 		return nmw_rec[edge];
 	}
 	else {
-		Graph::weight_t scale = 0;
+		weight_t scale = 0;
 		for (auto& w : G[u]) {
-			Graph::weight_t temp_weight = mutual_weight(G, u, w.first, weight);
+			weight_t temp_weight = mutual_weight(G, u, w.first, weight);
 			scale = (norm == sum) ? (scale + temp_weight) : std::max(scale, temp_weight);
 		}
-		Graph::weight_t nmw = scale ? (mutual_weight(G, u, v, weight) / scale) : 0;
+		weight_t nmw = scale ? (mutual_weight(G, u, v, weight) / scale) : 0;
 		nmw_rec[edge] = nmw;
 		return nmw;
 	}
 }
 
-Graph::weight_t local_constraint(Graph::adj_dict_factory& G, Graph::node_t u, Graph::node_t v, std::string weight = "None") {
-	std::pair<Graph::node_t, Graph::node_t> edge = std::make_pair(u, v);
+weight_t local_constraint(adj_dict_factory& G, node_t u, node_t v, std::string weight = "None") {
+	std::pair<node_t, node_t> edge = std::make_pair(u, v);
 	if (local_constraint_rec.count(edge)) {
 		return local_constraint_rec[edge];
 	}
 	else {
-		Graph::weight_t direct = normalized_mutual_weight(G, u, v, weight);
-		Graph::weight_t indirect = 0;
+		weight_t direct = normalized_mutual_weight(G, u, v, weight);
+		weight_t indirect = 0;
 		for (auto& w : G[u]) {
 			indirect += normalized_mutual_weight(G, u, w.first, weight) * normalized_mutual_weight(G, w.first, v, weight);
 		}
-		Graph::weight_t result = pow((direct + indirect), 2);
+		weight_t result = pow((direct + indirect), 2);
 		local_constraint_rec[edge] = result;
 		return result;
 	}
 }
 
-std::pair<Graph::node_t, Graph::weight_t> compute_constraint_of_v(Graph::adj_dict_factory& G, Graph::node_t v, std::string weight) {
-	Graph::weight_t constraint_of_v = 0;
+std::pair<node_t, weight_t> compute_constraint_of_v(adj_dict_factory& G, node_t v, std::string weight) {
+	weight_t constraint_of_v = 0;
 	if (G[v].size() == 0) {
 		constraint_of_v = Py_NAN;
 	}
@@ -93,8 +94,8 @@ py::object constraint(py::object G, py::object nodes, py::object weight, py::obj
 	Graph& G_ = py::extract<Graph&>(G);
 	for (int i = 0;i < py::len(nodes_list);i++) {
 		py::object v = nodes_list[i];
-		Graph::node_t v_id = py::extract<Graph::node_t>(G_.node_to_id[v]);
-		std::pair<Graph::node_t, Graph::weight_t> constraint_pair = compute_constraint_of_v(G_.adj, v_id, weight_key);
+		node_t v_id = py::extract<node_t>(G_.node_to_id[v]);
+		std::pair<node_t, weight_t> constraint_pair = compute_constraint_of_v(G_.adj, v_id, weight_key);
 		py::tuple constraint_of_v = py::make_tuple(G_.id_to_node[constraint_pair.first], constraint_pair.second);
 		constraint_results.append(constraint_of_v);
 	}
@@ -102,10 +103,10 @@ py::object constraint(py::object G, py::object nodes, py::object weight, py::obj
 	return constraint;
 }
 
-Graph::weight_t redundancy(Graph::adj_dict_factory& G, Graph::node_t u, Graph::node_t v, std::string weight = "None") {
-	Graph::weight_t r = 0;
+weight_t redundancy(adj_dict_factory& G, node_t u, node_t v, std::string weight = "None") {
+	weight_t r = 0;
 	for (const auto& neighbor_info : G[u]) {
-		Graph::node_t w = neighbor_info.first;
+		node_t w = neighbor_info.first;
 		r += normalized_mutual_weight(G, u, w, weight) * normalized_mutual_weight(G, v, w, weight, max);
 	}
 	return 1 - r;
@@ -129,7 +130,7 @@ py::object effective_size(py::object G, py::object nodes, py::object weight, py:
 			}
 			py::object E = G.attr("ego_subgraph")(v);
 			if (py::len(E) > 1) {
-				Graph::weight_t size = py::extract<Graph::weight_t>(E.attr("size")());
+				weight_t size = py::extract<weight_t>(E.attr("size")());
 				effective_size[v] = py::len(E) - 1 - (2.0 * size) / (py::len(E) - 1);
 			}
 			else {
@@ -145,10 +146,10 @@ py::object effective_size(py::object G, py::object nodes, py::object weight, py:
 				effective_size[v] = py::object(Py_NAN);
 				continue;
 			}
-			Graph::weight_t redundancy_sum = 0;
-			Graph::node_t v_id = py::extract<Graph::node_t>(G_.node_to_id[v]);
+			weight_t redundancy_sum = 0;
+			node_t v_id = py::extract<node_t>(G_.node_to_id[v]);
 			for (const auto& neighbor_info : G_.adj[v_id]) {
-				Graph::node_t u_id = neighbor_info.first;
+				node_t u_id = neighbor_info.first;
 				redundancy_sum += redundancy(G_.adj, v_id, u_id, weight_key);
 			}
 			effective_size[v] = redundancy_sum;
@@ -176,22 +177,22 @@ py::object hierarchy(py::object G, py::object nodes, py::object weight, py::obje
 
 		int n = py::len(E) - 1;
 
-		Graph::weight_t C = 0;
-		std::map<Graph::node_t, Graph::weight_t> c;
+		weight_t C = 0;
+		std::map<node_t, weight_t> c;
 		py::list neighbors_of_v = py::list(G.attr("neighbors")(v));
 
 		for (int j = 0;j < py::len(neighbors_of_v);j++) {
 			py::object w = neighbors_of_v[j];
-			Graph::node_t v_id = py::extract<Graph::node_t>(G_.node_to_id[v]);
-			Graph::node_t w_id = py::extract<Graph::node_t>(G_.node_to_id[w]);
+			node_t v_id = py::extract<node_t>(G_.node_to_id[v]);
+			node_t w_id = py::extract<node_t>(G_.node_to_id[w]);
 			C += local_constraint(G_.adj, v_id, w_id, weight_key);
 			c[w_id] = local_constraint(G_.adj, v_id, w_id, weight_key);
 		}
 		if (n > 1) {
-			Graph::weight_t hierarchy_sum = 0;
+			weight_t hierarchy_sum = 0;
 			for (int k = 0;k < py::len(neighbors_of_v);k++) {
 				py::object w = neighbors_of_v[k];
-				Graph::node_t w_id = py::extract<Graph::node_t>(G_.node_to_id[w]);
+				node_t w_id = py::extract<node_t>(G_.node_to_id[w]);
 				hierarchy_sum += c[w_id] / C * n * log(c[w_id] / C * n) / (n * log(n));
 			}
 			hierarchy[v] = hierarchy_sum;

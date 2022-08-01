@@ -1,9 +1,8 @@
-#include "Graph.h"
-#include "Utils.h"
-#include "Structural_holes.h"
-#include "Path.h"
-#include "Components.h"
-#include "Not_sorted.h"
+#include "./classes/graph.h"
+#include "./functions/components.h"
+#include "./functions/not_sorted.h"
+#include "./functions/path.h"
+#include "./functions/structural_holes.h"
 
 BOOST_PYTHON_MODULE(cpp_easygraph)
 {
