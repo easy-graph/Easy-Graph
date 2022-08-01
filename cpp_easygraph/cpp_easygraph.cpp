@@ -1,8 +1,5 @@
-#include "./classes/graph.h"
-#include "./functions/components.h"
-#include "./functions/not_sorted.h"
-#include "./functions/path.h"
-#include "./functions/structural_holes.h"
+#include "classes/__init__.h"
+#include "functions/__init__.h"
 
 BOOST_PYTHON_MODULE(cpp_easygraph)
 {
