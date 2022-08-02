@@ -1,8 +1,11 @@
 import platform
-from distutils.core import setup
-from distutils.extension import Extension
+from pathlib import Path
 
 import setuptools
+
+# from distutils.core import setup
+# from distutils.extension import Extension
+
 
 boost_dir = "/usr/local/Cellar/boost/1.79.0_1"
 boost_python_dir = "/usr/local/Cellar/boost-python3/1.79.0"
@@ -10,16 +13,18 @@ boost_python_dir = "/usr/local/Cellar/boost-python3/1.79.0"
 with open("README.rst", "r") as fh:
     long_description = fh.read()
 
-sources = [
-    "easygraph/classes/GraphC/Graph.cpp",
-    "easygraph/classes/GraphC/GraphEdge.cpp",
-    "easygraph/classes/GraphC/GraphEdges.cpp",
-    "easygraph/classes/GraphC/GraphEdgesIter.cpp",
-    "easygraph/classes/GraphC/GraphMap.cpp",
-    "easygraph/classes/GraphC/GraphMapIter.cpp",
-    "easygraph/classes/GraphC/GraphModule.cpp",
-    "easygraph/classes/GraphC/ModuleMethods.cpp",
-]
+cpp_source_dir = Path(__file__).parent / "cpp_easygraph"
+sources = list(str(x) for x in cpp_source_dir.rglob("*.cpp"))
+# sources = [
+#     "easygraph/classes/GraphC/Graph.cpp",
+#     "easygraph/classes/GraphC/GraphEdge.cpp",
+#     "easygraph/classes/GraphC/GraphEdges.cpp",
+#     "easygraph/classes/GraphC/GraphEdgesIter.cpp",
+#     "easygraph/classes/GraphC/GraphMap.cpp",
+#     "easygraph/classes/GraphC/GraphMapIter.cpp",
+#     "easygraph/classes/GraphC/GraphModule.cpp",
+#     "easygraph/classes/GraphC/ModuleMethods.cpp",
+# ]
 
 uname = platform.uname()
 compileArgs = []
