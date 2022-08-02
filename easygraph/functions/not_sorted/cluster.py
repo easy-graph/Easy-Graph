@@ -1,6 +1,12 @@
 from collections import Counter
 from itertools import chain
 
+try:
+    from cpp_easygraph import cpp_clustering
+except ImportError:
+    pass
+
+from easygraph import not_implemented_for
 
 __all__ = ["average_clustering", "clustering"]
 
@@ -298,20 +304,22 @@ def clustering(G, nodes=None, weight=None):
     -----
     Self loops are ignored.
 
-    References
-    ----------
-    .. [1] Generalizations of the clustering coefficient to weighted
-       complex networks by J. Saramäki, M. Kivelä, J.-P. Onnela,
-       K. Kaski, and J. Kertész, Physical Review E, 75 027105 (2007).
-       http://jponnela.com/web_documents/a9.pdf
-    .. [2] Intensity and coherence of motifs in weighted complex
-       networks by J. P. Onnela, J. Saramäki, J. Kertész, and K. Kaski,
-       Physical Review E, 71(6), 065103 (2005).
-    .. [3] Generalization of Clustering Coefficients to Signed Correlation Networks
-       by G. Costantini and M. Perugini, PloS one, 9(2), e88669 (2014).
-    .. [4] Clustering in complex directed networks by G. Fagiolo,
-       Physical Review E, 76(2), 026107 (2007).
-    """
+        References
+        ----------
+        .. [1] Generalizations of the clustering coefficient to weighted
+           complex networks by J. Saramäki, M. Kivelä, J.-P. Onnela,
+           K. Kaski, and J. Kertész, Physical Review E, 75 027105 (2007).
+           http://jponnela.com/web_documents/a9.pdf
+        .. [2] Intensity and coherence of motifs in weighted complex
+           networks by J. P. Onnela, J. Saramäki, J. Kertész, and K. Kaski,
+           Physical Review E, 71(6), 065103 (2005).
+        .. [3] Generalization of Clustering Coefficients to Signed Correlation Networks
+           by G. Costantini and M. Perugini, PloS one, 9(2), e88669 (2014).
+        .. [4] Clustering in complex directed networks by G. Fagiolo,
+           Physical Review E, 76(2), 026107 (2007).
+        """
+    if G.cflag == 1:
+        return cpp_clustering(G, nodes, weight)
     if G.is_directed():
         if weight is not None:
             td_iter = _directed_weighted_triangles_and_degree_iter(G, nodes, weight)

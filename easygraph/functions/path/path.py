@@ -11,6 +11,13 @@ __all__ = [
     "multi_source_dijkstra",
 ]
 
+try:
+    from cpp_easygraph import cpp_dijkstra_multisource
+    from cpp_easygraph import cpp_Floyd
+    from cpp_easygraph import cpp_Prim
+    from cpp_easygraph import cpp_Kruskal
+except ImportError:
+    pass
 
 @not_implemented_for("multigraph")
 def Dijkstra(G, node):
@@ -59,6 +66,8 @@ def Floyd(G):
     >>> Floyd(G)
 
     """
+    if G.cflag == 1:
+        return cpp_Floyd(G)
     adj = G.adj.copy()
     result_dict = {}
     for i in G:
@@ -103,6 +112,8 @@ def Prim(G):
     >>> Prim(G)
 
     """
+    if G.cflag == 1:
+        return cpp_Prim(G)
     adj = G.adj.copy()
     result_dict = {}
     for i in G:
@@ -155,6 +166,8 @@ def Kruskal(G):
     >>> Kruskal(G)
 
     """
+    if G.cflag == 1:
+        return cpp_Kruskal(G)
     adj = G.adj.copy()
     result_dict = {}
     edge_list = []
@@ -215,9 +228,9 @@ def multi_source_dijkstra(G, sources, weight="weight", target=None):
 
 
 def _dijkstra_multisource(G, sources, weight="weight", target=None):
-    from heapq import heappop
-    from heapq import heappush
-
+    if G.cflag == 1:
+        return cpp_dijkstra_multisource(G, sources, weight, target)
+    from heapq import heappush, heappop
     push = heappush
     pop = heappop
     adj = G.adj
