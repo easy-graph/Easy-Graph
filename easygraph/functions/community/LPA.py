@@ -1,10 +1,14 @@
-import random
-import numpy as np
-from queue import Queue
-import easygraph as eg
-from collections import defaultdict
 import copy
+import random
+
+from collections import defaultdict
+from queue import Queue
+
+import easygraph as eg
+import numpy as np
+
 from easygraph.utils import *
+
 
 __all__ = [
     "LPA",
@@ -16,12 +20,12 @@ __all__ = [
 
 @not_implemented_for("multigraph")
 def LPA(G):
-    '''Detect community by label propagation algorithm
+    """Detect community by label propagation algorithm
     Return the detected communities. But the result is random.
     Each node in the network is initially assigned to its own community. At every iteration,nodes have
-    a label that the maximum number of their neighbors have. If there are more than one nodes fit and 
-    available, choose a label randomly. Finally, nodes having the same labels are grouped together as 
-    communities. In case two or more disconnected groups of nodes have the same label, we run a simple 
+    a label that the maximum number of their neighbors have. If there are more than one nodes fit and
+    available, choose a label randomly. Finally, nodes having the same labels are grouped together as
+    communities. In case two or more disconnected groups of nodes have the same label, we run a simple
     breadth-first search to separate the disconnected communities
 
     Parameters
@@ -40,9 +44,9 @@ def LPA(G):
 
     References
     ----------
-    .. [1] Usha Nandini Raghavan, Réka Albert, and Soundar Kumara: 
+    .. [1] Usha Nandini Raghavan, Réka Albert, and Soundar Kumara:
         Near linear time algorithm to detect community structures in large-scale networks
-    '''
+    """
     i = 0
     label_dict = dict()
     cluster_community = dict()
@@ -81,7 +85,7 @@ def LPA(G):
 
 @not_implemented_for("multigraph")
 def SLPA(G, T, r):
-    '''Detect Overlapping Communities by Speaker-listener Label Propagation Algorithm
+    """Detect Overlapping Communities by Speaker-listener Label Propagation Algorithm
     Return the detected Overlapping communities. But the result is random.
 
     Parameters
@@ -101,15 +105,15 @@ def SLPA(G, T, r):
     Examples
     ----------
     >>> SLPA(G,
-    ...     T = 20, 
+    ...     T = 20,
     ...     r = 0.05
-    ...     )     
-    
+    ...     )
+
     References
     ----------
     .. [1] Jierui Xie, Boleslaw K. Szymanski, Xiaoming Liu:
         SLPA: Uncovering Overlapping Communities in Social Networks via A Speaker-listener Interaction Dynamic Process
-    '''
+    """
     nodes = list(G.nodes.keys())
     if len(nodes) == 1:
         return {1: [nodes[0]]}
@@ -128,10 +132,9 @@ def SLPA(G, T, r):
                 # Speaker Rule
                 total = float(sum(memory[speaker].values()))
                 keys = list(memory[speaker].keys())
-                index = np.random.multinomial(1, [
-                    round(freq / total, 2)
-                    for freq in memory[speaker].values()
-                ]).argmax()
+                index = np.random.multinomial(
+                    1, [round(freq / total, 2) for freq in memory[speaker].values()]
+                ).argmax()
                 chosen_label = keys[index]
                 labels[chosen_label] += 1
             # Listener Rule
@@ -156,7 +159,7 @@ def SLPA(G, T, r):
             if label in communities:
                 communities[label].add(node)
             else:
-                communities[label] = set([node])
+                communities[label] = {node}
 
     # Remove nested communities
     RemoveNested(communities)
@@ -168,14 +171,14 @@ def SLPA(G, T, r):
 
 @not_implemented_for("multigraph")
 def HANP(G, m, delta, threshod=1, hier_open=0, combine_open=0):
-    '''Detect community by Hop attenuation & node preference algorithm
+    """Detect community by Hop attenuation & node preference algorithm
 
     Return the detected communities. But the result is random.
 
-    Implement the basic HANP algorithm and give more freedom through the parameters, e.g., you can use threshod 
+    Implement the basic HANP algorithm and give more freedom through the parameters, e.g., you can use threshod
     to set the condition for node updating. If network are known to be Hierarchical and overlapping communities,
-    it's recommended to choose geodesic distance as the measure(instead of receiving the current hop scores 
-    from the neighborhood and carry out a subtraction) and When an equilibrium is reached, treat newly combined 
+    it's recommended to choose geodesic distance as the measure(instead of receiving the current hop scores
+    from the neighborhood and carry out a subtraction) and When an equilibrium is reached, treat newly combined
     communities as a single node.
 
     For using Floyd to get the shortest distance, the time complexity is a little high.
@@ -188,10 +191,10 @@ def HANP(G, m, delta, threshod=1, hier_open=0, combine_open=0):
       Used to calculate score, when m > 0, more preference is given to node with more neighbors; m < 0, less
     delta : float
       Hop attenuation
-    threshod : float 
+    threshod : float
       Between 0 and 1, only update node whose number of neighbors sharing the maximal label is less than the threshod.
-      e.g., threshod == 1 means updating all nodes. 
-    hier_open : 
+      e.g., threshod == 1 means updating all nodes.
+    hier_open :
       1 means using geodesic distance as the score measure.
       0 means not.
     combine_open :
@@ -207,19 +210,19 @@ def HANP(G, m, delta, threshod=1, hier_open=0, combine_open=0):
     Examples
     ----------
     >>> HANP(G,
-    ...     m = 0.1, 
+    ...     m = 0.1,
     ...     delta = 0.05,
     ...     threshod = 1,
     ...     hier_open = 0,
     ...     combine_open = 0
-    ...     )    
+    ...     )
 
     References
     ----------
-    .. [1] Ian X. Y. Leung, Pan Hui, Pietro Liò, and Jon Crowcrof: 
+    .. [1] Ian X. Y. Leung, Pan Hui, Pietro Liò, and Jon Crowcrof:
         Towards real-time community detection in large networks
 
-    '''
+    """
     nodes = list(G.nodes.keys())
     if len(nodes) == 1:
         return {1: [nodes[0]]}
@@ -247,8 +250,9 @@ def HANP(G, m, delta, threshod=1, hier_open=0, combine_open=0):
         random.shuffle(nodes)
         score = 1
         for node in nodes:
-            labels = SelectLabels_HANP(G, node, label_dict, score_dict,
-                                       degrees, m, threshod)
+            labels = SelectLabels_HANP(
+                G, node, label_dict, score_dict, degrees, m, threshod
+            )
             if labels == []:
                 Next_label_dict[node] = label_dict[node]
                 continue
@@ -258,7 +262,8 @@ def HANP(G, m, delta, threshod=1, hier_open=0, combine_open=0):
             label_dict[node] = Next_label_dict[node]
             if hier_open == 1:
                 score_dict[Next_label_dict[node]] = UpdateScore_Hier(
-                    G, node, label_dict, node_dict, distance_dict)
+                    G, node, label_dict, node_dict, distance_dict
+                )
                 score = min(score, score_dict[Next_label_dict[node]])
             else:
                 if old_label == Next_label_dict[node]:
@@ -266,16 +271,37 @@ def HANP(G, m, delta, threshod=1, hier_open=0, combine_open=0):
                 else:
                     cdelta = delta
                 score_dict[Next_label_dict[node]] = UpdateScore(
-                    G, node, label_dict, score_dict, cdelta)
+                    G, node, label_dict, score_dict, cdelta
+                )
         if hier_open == 1 and combine_open == 1:
             if old_score - score > 1 / 3:
                 old_score = score
-                records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict = CombineNodes(
-                    records, G, label_dict, score_dict, node_dict,
-                    Next_label_dict, nodes, degrees, distance_dict)
+                (
+                    records,
+                    G,
+                    label_dict,
+                    score_dict,
+                    node_dict,
+                    Next_label_dict,
+                    nodes,
+                    degrees,
+                    distance_dict,
+                ) = CombineNodes(
+                    records,
+                    G,
+                    label_dict,
+                    score_dict,
+                    node_dict,
+                    Next_label_dict,
+                    nodes,
+                    degrees,
+                    distance_dict,
+                )
         label_dict = Next_label_dict
-        if estimate_stop_cond_HANP(G, label_dict, score_dict, degrees, m,
-                                   threshod) is True:
+        if (
+            estimate_stop_cond_HANP(G, label_dict, score_dict, degrees, m, threshod)
+            is True
+        ):
             break
         """As mentioned in the paper, it's suggested that the number of iterations
         required is independent to the number of nodes and that after
@@ -299,12 +325,12 @@ def HANP(G, m, delta, threshod=1, hier_open=0, combine_open=0):
 
 @not_implemented_for("multigraph")
 def BMLPA(G, p):
-    '''Detect community by Balanced Multi-Label Propagation algorithm
+    """Detect community by Balanced Multi-Label Propagation algorithm
 
     Return the detected communities.
 
     Firstly, initialize 'old' using cores generated by RC function, the propagate label till the number and size
-    of communities stay no change, check if there are subcommunity and delete it. Finally, split discontinuous 
+    of communities stay no change, check if there are subcommunity and delete it. Finally, split discontinuous
     communities.
 
     For some directed graphs lead to oscillations of labels, modify the stop condition.
@@ -314,7 +340,7 @@ def BMLPA(G, p):
     G : graph
       A easygraph graph
     p : float
-      Between 0 and 1, judge Whether a community identifier should be retained 
+      Between 0 and 1, judge Whether a community identifier should be retained
 
     Returns
     ----------
@@ -324,15 +350,15 @@ def BMLPA(G, p):
     Examples
     ----------
     >>> BMLPA(G,
-    ...     p = 0.1, 
-    ...     )    
+    ...     p = 0.1,
+    ...     )
 
     References
     ----------
     .. [1] Wu Zhihao, Lin You-Fang, Gregory Steve, Wan Huai-Yu, Tian Sheng-Feng
         Balanced Multi-Label Propagation for Overlapping Community Detection in Social Networks
 
-    '''
+    """
     nodes = list(G.nodes.keys())
     if len(nodes) == 1:
         return {1: [nodes[0]]}
@@ -377,7 +403,7 @@ def BMLPA(G, p):
             if label in communities:
                 communities[label].add(node)
             else:
-                communities[label] = set([node])
+                communities[label] = {node}
     RemoveNested(communities)
     result_community = CheckConnectivity(G, communities)
     return result_community
@@ -388,7 +414,7 @@ def RemoveNested(communities):
     keys = list(communities.keys())
     for i, label0 in enumerate(keys[:-1]):
         comm0 = communities[label0]
-        for label1 in keys[i + 1:]:
+        for label1 in keys[i + 1 :]:
             comm1 = communities[label1]
             if comm0.issubset(comm1):
                 nestedCommunities.add(label0)
@@ -413,7 +439,8 @@ def SelectLabels(G, node, label_dict):
 def estimate_stop_cond(G, label_dict):
     for node in G.nodes:
         if SelectLabels(G, node, label_dict) != [] and (
-                label_dict[node] not in SelectLabels(G, node, label_dict)):
+            label_dict[node] not in SelectLabels(G, node, label_dict)
+        ):
             return False
     return True
 
@@ -425,8 +452,11 @@ def SelectLabels_HANP(G, node, label_dict, score_dict, degrees, m, threshod):
     for neighbor in adj[node]:
         neighbor_label = label_dict[neighbor]
         cnt[neighbor_label] += 1
-        count[neighbor_label] += score_dict[neighbor_label] * (
-            degrees[neighbor]**m) * adj[node][neighbor].get("weight", 1)
+        count[neighbor_label] += (
+            score_dict[neighbor_label]
+            * (degrees[neighbor] ** m)
+            * adj[node][neighbor].get("weight", 1)
+        )
     count_items = sorted(count.items(), key=lambda x: x[1], reverse=True)
     labels = [k for k, v in count_items if v == count_items[0][1]]
     # only update node whose number of neighbors sharing the maximal label is less than a certain percentage.
@@ -452,8 +482,7 @@ def HopAttenuation_Hier(G, node, label_dict, node_dict, distance_dict):
 
 
 def UpdateScore_Hier(G, node, label_dict, node_dict, distance_dict):
-    return 1 - HopAttenuation_Hier(G, node, label_dict, node_dict,
-                                   distance_dict)
+    return 1 - HopAttenuation_Hier(G, node, label_dict, node_dict, distance_dict)
 
 
 def UpdateScore(G, node, label_dict, score_dict, delta):
@@ -469,15 +498,25 @@ def UpdateScore(G, node, label_dict, score_dict, delta):
 def estimate_stop_cond_HANP(G, label_dict, score_dict, degrees, m, threshod):
     for node in G.nodes:
         if SelectLabels_HANP(
-                G, node, label_dict, score_dict, degrees, m,
-                threshod) != [] and label_dict[node] not in SelectLabels_HANP(
-                    G, node, label_dict, score_dict, degrees, m, threshod):
+            G, node, label_dict, score_dict, degrees, m, threshod
+        ) != [] and label_dict[node] not in SelectLabels_HANP(
+            G, node, label_dict, score_dict, degrees, m, threshod
+        ):
             return False
     return True
 
 
-def CombineNodes(records, G, label_dict, score_dict, node_dict,
-                 Next_label_dict, nodes, degrees, distance_dict):
+def CombineNodes(
+    records,
+    G,
+    label_dict,
+    score_dict,
+    node_dict,
+    Next_label_dict,
+    nodes,
+    degrees,
+    distance_dict,
+):
     onerecord = dict()
     for node, label in label_dict.items():
         if label in onerecord:
@@ -504,7 +543,8 @@ def CombineNodes(records, G, label_dict, score_dict, node_dict,
     for i in range(0, len(record_labels)):
         edge[i] = dict()
         for j in range(0, len(record_labels)):
-            if i == j: continue
+            if i == j:
+                continue
             inodes = onerecord[record_labels[i]]
             jnodes = onerecord[record_labels[j]]
             for unode in inodes:
@@ -525,7 +565,17 @@ def CombineNodes(records, G, label_dict, score_dict, node_dict,
     nodes = nodesx
     degrees = G.degree()
     distance_dict = eg.Floyd(G)
-    return records, G, label_dict, score_dict, node_dict, Next_label_dict, nodes, degrees, distance_dict
+    return (
+        records,
+        G,
+        label_dict,
+        score_dict,
+        node_dict,
+        Next_label_dict,
+        nodes,
+        degrees,
+        distance_dict,
+    )
 
 
 def ShowRecord(records):
@@ -535,7 +585,7 @@ def ShowRecord(records):
                         {2:[0,1,3],3:[2,4,5]},
                             {2:[0,1]} ]
 
-        process :   {1:[1,2,3,4],2:[5,6,7,8],3:[9],4:[10],5:[11],6:[12]} -> 
+        process :   {1:[1,2,3,4],2:[5,6,7,8],3:[9],4:[10],5:[11],6:[12]} ->
                         {2:[ [1,2,3,4] + [5,6,7,8] + [10] ], 3:[ [9] + [11] + [12] ]} ->
                             {2:[ ([ [1,2,3,4] + [5,6,7,8] + [10] ]) + ([ [9] + [11] + [12] ] ]) } ->
 
@@ -583,7 +633,7 @@ def BFS(G, nodes, result):
     seen = set()
     seen.add(nodes[0])
     count = 0
-    while (queue.empty() == 0):
+    while queue.empty() == 0:
         vertex = queue.get()
         count += 1
         for w in adj[vertex]:
@@ -626,9 +676,7 @@ def Rough_Cores(G):
                 if j != []:
                     core = [node] + [j]
                     commNeiber = [i for i in adj[node] if i in adj[j]]
-                    commNeiber = [
-                        node for node, _ in degree_list if node in commNeiber
-                    ]
+                    commNeiber = [node for node, _ in degree_list if node in commNeiber]
                     commNeiber = commNeiber[::-1]
                     while commNeiber != []:
                         for h in commNeiber:

@@ -17,7 +17,7 @@ interact with different languages and even different Python versions.
 Re-importing from gml is also a concern.
 
 Without specifying a `stringizer`/`destringizer`, the code is capable of
-writing `int`/`float`/`str`/`dict`/`list` data as required by the GML 
+writing `int`/`float`/`str`/`dict`/`list` data as required by the GML
 specification.  For writing other data types, and for reading data other
 than `str` you need to explicitly supply a `stringizer`/`destringizer`.
 
@@ -28,21 +28,24 @@ Several example graphs in GML format may be found on Mark Newman's
 `Network data page <http://www-personal.umich.edu/~mejn/netdata/>`_.
 """
 
-from errno import E2BIG
-from io import StringIO
+
+import html.entities as htmlentitydefs
+import re
+import warnings
+
 from ast import literal_eval
 from collections import defaultdict
 from enum import Enum
-from lib2to3.pgen2 import token
-from typing import Any, NamedTuple
+from io import StringIO
+from typing import Any
+from typing import NamedTuple
 from unicodedata import category
-import easygraph as eg
-import warnings
-import re
-import html.entities as htmlentitydefs
 
-from easygraph.utils.exception import EasyGraphError
+import easygraph as eg
+
 from easygraph.utils import open_file
+from easygraph.utils.exception import EasyGraphError
+
 
 __all__ = ["read_gml", "parse_gml", "generate_gml", "write_gml"]
 
@@ -114,8 +117,7 @@ def literal_destringizer(rep):
         try:
             return literal_eval(rep)
         except SyntaxError as err:
-            raise ValueError(
-                f"{orig_rep!r} is not a valid Python literal") from err
+            raise ValueError(f"{orig_rep!r} is not a valid Python literal") from err
     else:
         raise ValueError(f"{rep!r} is not a string")
 
@@ -261,8 +263,7 @@ def parse_gml_lines(lines, label, destringizer):
     def unexpected(curr_token, expected):
         category, value, lineno, pos = curr_token
         value = repr(value) if value is not None else "EOF"
-        raise EasyGraphError(
-            f"expected {expected}, found {value} at ({lineno}, {pos})")
+        raise EasyGraphError(f"expected {expected}, found {value} at ({lineno}, {pos})")
 
     def consume(curr_token, category, expected):
         if curr_token.category == category:
@@ -309,8 +310,10 @@ def parse_gml_lines(lines, label, destringizer):
                                 pass
                         curr_token = next(tokens)
                     except Exception:
-                        msg = ("an int, float, string, '[' or string" +
-                               " convertable ASCII value for node id or label")
+                        msg = (
+                            "an int, float, string, '[' or string"
+                            + " convertable ASCII value for node id or label"
+                        )
                         unexpected(curr_token, msg)
                 elif curr_token.value in {"NAN", "INF"}:
                     value = float(curr_token.value)
@@ -357,8 +360,7 @@ def parse_gml_lines(lines, label, destringizer):
         try:
             return dct.pop(attr)
         except KeyError as err:
-            raise EasyGraphError(
-                f"{category} #{i} has no {attr!r} attribute") from err
+            raise EasyGraphError(f"{category} #{i} has no {attr!r} attribute") from err
 
     nodes = graph.get("node", [])
     mapping = {}
@@ -370,8 +372,7 @@ def parse_gml_lines(lines, label, destringizer):
         if label is not None and label != "id":
             node_label = pop_attr(node, "node", label, i)
             if node_label in node_labels:
-                raise EasyGraphError(
-                    f"node label {node_label!r} is duplicated")
+                raise EasyGraphError(f"node label {node_label!r} is duplicated")
             node_labels.add(node_label)
             mapping[id] = node_label
         G.add_node(id, **node)
@@ -511,8 +512,12 @@ def generate_gml(G, stringizer=None):
                 for key, value in value.items():
                     yield from stringize(key, value, (), next_indent)
                 yield indent + "]"
-            elif (isinstance(value, (list, tuple)) and key != "label" and value
-                  and not in_list):
+            elif (
+                isinstance(value, (list, tuple))
+                and key != "label"
+                and value
+                and not in_list
+            ):
                 if len(value) == 1:
                     yield indent + key + " " + f'"{LIST_START_VALUE}"'
                 for val in value:

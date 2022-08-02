@@ -1,26 +1,28 @@
-import easygraph as eg
 import math
 import random
+
+import easygraph as eg
 import numpy as np
 
 
 class NodeParams:
-
     def __init__(self, active, inWeight, threshold):
         self.active = active
         self.inWeight = inWeight
         self.threshold = threshold
 
 
-def structural_hole_influence_index(G_original,
-                                    S,
-                                    C,
-                                    model,
-                                    variant=False,
-                                    seedRatio=0.05,
-                                    randSeedIter=10,
-                                    countIterations=100,
-                                    Directed=True):
+def structural_hole_influence_index(
+    G_original,
+    S,
+    C,
+    model,
+    variant=False,
+    seedRatio=0.05,
+    randSeedIter=10,
+    countIterations=100,
+    Directed=True,
+):
     """Returns the SHII metric of each seed.
 
     Parameters
@@ -113,8 +115,10 @@ def structural_hole_influence_index(G_original,
                         seedNeighborSet.append(neighbor)
                     count_neighbor = count_neighbor + 1
                 if count_neighbor > 0:
-                    if len(queue) == 1 and len(oneSeedSet) + len(
-                            seedNeighborSet) < seedSetSize:
+                    if (
+                        len(queue) == 1
+                        and len(oneSeedSet) + len(seedNeighborSet) < seedSetSize
+                    ):
                         for node in seedNeighborSet:
                             if node not in oneSeedSet:
                                 oneSeedSet.append(node)
@@ -134,21 +138,28 @@ def structural_hole_influence_index(G_original,
                 seedNeighbors = []
                 for node in seedNeighborSet:
                     seedNeighbors.append(node)
-                while len(seedNeighbors) > 0 and len(
-                        randSeedSet) < seedSetSize:
+                while len(seedNeighbors) > 0 and len(randSeedSet) < seedSetSize:
                     r = random.randint(0, len(seedNeighbors) - 1)
                     if seedNeighbors[r] not in randSeedSet:
                         randSeedSet.append(seedNeighbors[r])
                     seedNeighbors.pop(r)
 
-                if model == 'IC':
+                if model == "IC":
                     censor_score_1, censor_score_2 = _independent_cascade(
-                        G, randSeedSet, community_label, countIterations,
-                        node_label_pair)
-                elif model == 'LT':
+                        G,
+                        randSeedSet,
+                        community_label,
+                        countIterations,
+                        node_label_pair,
+                    )
+                elif model == "LT":
                     censor_score_1, censor_score_2 = _linear_threshold(
-                        G, randSeedSet, community_label, countIterations,
-                        node_label_pair)
+                        G,
+                        randSeedSet,
+                        community_label,
+                        countIterations,
+                        node_label_pair,
+                    )
                 avg_censor_score_1 += censor_score_1 / randSeedIter
                 avg_censor_score_2 += censor_score_2 / randSeedIter
                 # print("seed ", seed, " avg_censor_score in ", randIter, "is ", censor_score_1 / randSeedIter)
@@ -159,8 +170,7 @@ def structural_hole_influence_index(G_original,
     return seed_shii_pair
 
 
-def _independent_cascade(G, S, community_label, countIterations,
-                         node_label_pair):
+def _independent_cascade(G, S, community_label, countIterations, node_label_pair):
     avg_result_1 = 0
     avg_result_2 = 0
     N = G.number_of_nodes()
@@ -270,19 +280,15 @@ def _linear_threshold(G, S, community_label, countIterations, node_label_pair):
     return avg_result_1, avg_result_2
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     G = eg.datasets.get_graph_karateclub()
     Com = []
     t1 = [1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 17, 18, 20, 22]
     Com.append(t1)
-    t2 = [
-        9, 10, 15, 16, 19, 21, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34
-    ]
+    t2 = [9, 10, 15, 16, 19, 21, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34]
     Com.append(t2)
     print("community_label:", Com)
-    result = structural_hole_influence_index(G, [3, 20, 9],
-                                             Com,
-                                             'IC',
-                                             seedRatio=0.1,
-                                             Directed=False)
+    result = structural_hole_influence_index(
+        G, [3, 20, 9], Com, "IC", seedRatio=0.1, Directed=False
+    )
     print(result)

@@ -1,13 +1,12 @@
-from numpy import number
-import easygraph as eg
-import random
-from easygraph.utils import *
 import random
 
-__all__ = [
-    "enumerate_subgraph",
-    "random_enumerate_subgraph"
-]
+import easygraph as eg
+
+from easygraph.utils import *
+
+
+__all__ = ["enumerate_subgraph", "random_enumerate_subgraph"]
+
 
 @not_implemented_for("multigraph")
 def enumerate_subgraph(G, k: int):
@@ -29,19 +28,20 @@ def enumerate_subgraph(G, k: int):
 
     References
     ----------
-    .. [1] Wernicke, Sebastian. "Efficient detection of network motifs." 
+    .. [1] Wernicke, Sebastian. "Efficient detection of network motifs."
         IEEE/ACM transactions on computational biology and bioinformatics 3.4 (2006): 347-359.
 
     """
     k_subgraphs = []
     for v, _ in G.nodes.items():
-        Vextension = set([u for u in G.adj[v] if u > v])
-        extend_subgraph(G, set([v]), Vextension, v, k, k_subgraphs)
+        Vextension = {u for u in G.adj[v] if u > v}
+        extend_subgraph(G, {v}, Vextension, v, k, k_subgraphs)
     return k_subgraphs
 
 
-def extend_subgraph(G, Vsubgraph: set, Vextension: set, v: int, k: int,
-                    k_subgraphs: list):
+def extend_subgraph(
+    G, Vsubgraph: set, Vextension: set, v: int, k: int, k_subgraphs: list
+):
     if len(Vsubgraph) == k:
         k_subgraphs.append(Vsubgraph)
         return
@@ -49,18 +49,18 @@ def extend_subgraph(G, Vsubgraph: set, Vextension: set, v: int, k: int,
         w = random.choice(tuple(Vextension))
         Vextension.remove(w)
         NexclwVsubgraph = exclusive_neighborhood(G, w, Vsubgraph)
-        VpExtension = Vextension | set([u for u in NexclwVsubgraph if u > v])
-        extend_subgraph(G, Vsubgraph | set([w]), VpExtension, v, k,
-                        k_subgraphs)
+        VpExtension = Vextension | {u for u in NexclwVsubgraph if u > v}
+        extend_subgraph(G, Vsubgraph | {w}, VpExtension, v, k, k_subgraphs)
 
 
 def exclusive_neighborhood(G, v: int, vp: set):
     Nv = set(G.adj[v])
-    NVp = set([u for n in vp for u in G.adj[n]]) | vp
+    NVp = {u for n in vp for u in G.adj[n]} | vp
     return Nv - NVp
 
+
 @not_implemented_for("multigraph")
-def random_enumerate_subgraph(G, k:int, cut_prob:list):
+def random_enumerate_subgraph(G, k: int, cut_prob: list):
     """
     Returns the motifs.
     Motifs are small weakly connected induced subgraphs of a given structure in a graph.
@@ -82,22 +82,31 @@ def random_enumerate_subgraph(G, k:int, cut_prob:list):
 
     References
     ----------
-    .. [1] Wernicke, Sebastian. "A faster algorithm for detecting network motifs." 
+    .. [1] Wernicke, Sebastian. "A faster algorithm for detecting network motifs."
     International Workshop on Algorithms in Bioinformatics. Springer, Berlin, Heidelberg, 2005.
 
     """
     if len(cut_prob) != k:
         raise eg.EasyGraphError("length of cut_prob invalid, should equal to k")
-    
+
     k_subgraphs = []
     for v, _ in G.nodes.items():
         if random.random() > cut_prob[0]:
             continue
-        Vextension = set([u for u in G.adj[v] if u > v])
-        random_extend_subgraph(G, set([v]), Vextension, v, k, k_subgraphs, cut_prob)
+        Vextension = {u for u in G.adj[v] if u > v}
+        random_extend_subgraph(G, {v}, Vextension, v, k, k_subgraphs, cut_prob)
     return k_subgraphs
 
-def random_extend_subgraph(G, Vsubgraph:set, Vextension:set, v:int, k:int, k_subgraphs:list, cut_prob:list):
+
+def random_extend_subgraph(
+    G,
+    Vsubgraph: set,
+    Vextension: set,
+    v: int,
+    k: int,
+    k_subgraphs: list,
+    cut_prob: list,
+):
     if len(Vsubgraph) == k:
         k_subgraphs.append(Vsubgraph)
         return
@@ -105,7 +114,7 @@ def random_extend_subgraph(G, Vsubgraph:set, Vextension:set, v:int, k:int, k_sub
         w = random.choice(tuple(Vextension))
         Vextension.remove(w)
         NexclwVsubgraph = exclusive_neighborhood(G, w, Vsubgraph)
-        VpExtension = Vextension | set([u for u in NexclwVsubgraph if u > v])
+        VpExtension = Vextension | {u for u in NexclwVsubgraph if u > v}
         if random.random() > cut_prob[len(Vsubgraph)]:
             continue
-        random_extend_subgraph(G, Vsubgraph | set([w]), VpExtension, v, k, k_subgraphs)
+        random_extend_subgraph(G, Vsubgraph | {w}, VpExtension, v, k, k_subgraphs)

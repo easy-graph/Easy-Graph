@@ -1,13 +1,13 @@
-import easygraph as eg
 from easygraph.functions.community.modularity import modularity
-from easygraph.utils.mapped_queue import MappedQueue
 from easygraph.utils import *
+from easygraph.utils.mapped_queue import MappedQueue
+
 
 __all__ = ["greedy_modularity_communities"]
 
 
 @not_implemented_for("multigraph")
-def greedy_modularity_communities(G, weight='weight'):
+def greedy_modularity_communities(G, weight="weight"):
     """Communities detection via greedy modularity method.
 
     Find communities in graph using Clauset-Newman-Moore greedy modularity
@@ -20,10 +20,10 @@ def greedy_modularity_communities(G, weight='weight'):
     Parameters
     ----------
     G : easygraph.Graph or easygraph.DiGraph
-    
+
     weight : string (default : 'weight')
-        The key for edge weight. For undirected graph, it will regard each edge 
-        weight as 1. 
+        The key for edge weight. For undirected graph, it will regard each edge
+        weight as 1.
 
     Returns
     ----------
@@ -41,22 +41,22 @@ def greedy_modularity_communities(G, weight='weight'):
     # Count nodes and edges
 
     N = len(G.nodes)
-    m = sum([d.get(weight, 1) for u, v, d in G.edges])
+    m = sum(d.get(weight, 1) for u, v, d in G.edges)
     if N == 0 or m == 0:
         print("Please input the graph which has at least one edge!")
         exit()
     q0 = 1.0 / (2.0 * m)
 
     # Map node labels to contiguous integers
-    label_for_node = dict((i, v) for i, v in enumerate(G.nodes))
-    node_for_label = dict((label_for_node[i], i) for i in range(N))
+    label_for_node = {i: v for i, v in enumerate(G.nodes)}
+    node_for_label = {label_for_node[i]: i for i in range(N)}
 
     # Calculate degrees
     k_for_label = G.degree(weight=weight)
     k = [k_for_label[label_for_node[i]] for i in range(N)]
 
     # Initialize community and merge lists
-    communities = dict((i, frozenset([i])) for i in range(N))
+    communities = {i: frozenset([i]) for i in range(N)}
     merges = []
 
     # Initial modularity
@@ -70,14 +70,16 @@ def greedy_modularity_communities(G, weight='weight'):
     # dq_heap[i][n] : (-dq, i, j) for communitiy i nth largest dQ
     # H[n]: (-dq, i, j) for community with nth largest max_j(dQ_ij)
     a = [k[i] * q0 for i in range(N)]
-    dq_dict = dict(
-        (i,
-         dict((j, 2 * q0 - 2 * k[i] * k[j] * q0 * q0) for j in
-              [node_for_label[u] for u in G.neighbors(label_for_node[i])]
-              if j != i)) for i in range(N))
-    dq_heap = [
-        MappedQueue([(-dq, i, j) for j, dq in dq_dict[i].items()])
+    dq_dict = {
+        i: {
+            j: 2 * q0 - 2 * k[i] * k[j] * q0 * q0
+            for j in [node_for_label[u] for u in G.neighbors(label_for_node[i])]
+            if j != i
+        }
         for i in range(N)
+    }
+    dq_heap = [
+        MappedQueue([(-dq, i, j) for j, dq in dq_dict[i].items()]) for i in range(N)
     ]
     H = MappedQueue([dq_heap[i].h[0] for i in range(N) if len(dq_heap[i]) > 0])
 
@@ -121,7 +123,7 @@ def greedy_modularity_communities(G, weight='weight'):
         # Get list of communities connected to merged communities
         i_set = set(dq_dict[i].keys())
         j_set = set(dq_dict[j].keys())
-        all_set = (i_set | j_set) - set([i, j])
+        all_set = (i_set | j_set) - {i, j}
         both_set = i_set & j_set
         # Merge i into j and update dQ
         for k in all_set:
@@ -195,7 +197,6 @@ def greedy_modularity_communities(G, weight='weight'):
         a[i] = 0
 
     communities = [
-        frozenset([label_for_node[i] for i in c])
-        for c in communities.values()
+        frozenset(label_for_node[i] for i in c) for c in communities.values()
     ]
     return sorted(communities, key=len, reverse=True)

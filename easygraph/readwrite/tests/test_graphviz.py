@@ -1,15 +1,18 @@
 import os
 import tempfile
+
 import pytest
+
 
 pygraphviz = pytest.importorskip("pygraphviz")
 
 import easygraph as eg
-from easygraph.utils import nodes_equal, edges_equal
+
+from easygraph.utils import edges_equal
+from easygraph.utils import nodes_equal
 
 
 class TestAGraph:
-
     def build_graph(self, G):
         edges = [("A", "B"), ("A", "C"), ("A", "C"), ("B", "C"), ("A", "D")]
         G.add_edges_from(edges)

@@ -1,10 +1,14 @@
 from itertools import chain
+
 from easygraph.utils import *
 
+
 __all__ = [
-    "is_biconnected", "biconnected_components",
+    "is_biconnected",
+    "biconnected_components",
     "generator_biconnected_components_nodes",
-    "generator_biconnected_components_edges", "generator_articulation_points"
+    "generator_biconnected_components_edges",
+    "generator_articulation_points",
 ]
 
 
@@ -30,7 +34,8 @@ def is_biconnected(G):
     bc_nodes = list(generator_biconnected_components_nodes(G))
     if len(bc_nodes) == 1:
         return len(bc_nodes[0]) == len(
-            G)  # avoid situations where there is isolated vertex
+            G
+        )  # avoid situations where there is isolated vertex
     return False
 
 
@@ -104,8 +109,7 @@ def generator_biconnected_components_edges(G):
     >>> generator_biconnected_components_edges(G)
 
     """
-    for component in _biconnected_dfs_record_edges(G, need_components=True):
-        yield component
+    yield from _biconnected_dfs_record_edges(G, need_components=True)
 
 
 @not_implemented_for("multigraph")
@@ -228,7 +232,7 @@ def _biconnected_dfs_record_nodes(G, need_components=True):
                         if need_components:
                             ind = node_stack.index(grandparent)
                             yield node_stack[ind:]
-                            node_stack = node_stack[:ind + 1]
+                            node_stack = node_stack[: ind + 1]
                         else:
                             yield grandparent
                     low[grandparent] = min(low[parent], low[grandparent])

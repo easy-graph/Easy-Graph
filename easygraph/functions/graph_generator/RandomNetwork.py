@@ -1,13 +1,14 @@
-import easygraph as eg
-import numpy as np
-import random
 import math
+import random
+
+import easygraph as eg
+
 
 __all__ = [
-    'erdos_renyi_M',
-    'erdos_renyi_P',
-    'fast_erdos_renyi_P',
-    'WS_Random',
+    "erdos_renyi_M",
+    "erdos_renyi_P",
+    "fast_erdos_renyi_P",
+    "WS_Random",
 ]
 
 
@@ -23,7 +24,7 @@ def erdos_renyi_M(n, edge, directed=False, FilePath=None):
     directed : bool, optional (default=False)
         If True, this function returns a directed graph.
     FilePath : string
-        The file path of storing the graph G. 
+        The file path of storing the graph G.
 
     Returns
     -------
@@ -116,7 +117,7 @@ def erdos_renyi_M(n, edge, directed=False, FilePath=None):
 
 def erdos_renyi_P(n, p, directed=False, FilePath=None):
     """Given the number of nodes and the probability of edge creation, return an Erdős-Rényi random graph, and store the graph in a document.
-    
+
     Parameters
     ----------
     n : int
@@ -184,7 +185,7 @@ def erdos_renyi_P(n, p, directed=False, FilePath=None):
 
 def fast_erdos_renyi_P(n, p, directed=False, FilePath=None):
     """Given the number of nodes and the probability of edge creation, return an Erdős-Rényi random graph, and store the graph in a document. Use this function for generating a huge scale graph.
-    
+
     Parameters
     ----------
     n : int
@@ -277,7 +278,7 @@ def WS_Random(n, k, p, FilePath=None):
     p : float
         The probability of rewiring each edge
     FilePath : string
-        The file path of storing the graph G 
+        The file path of storing the graph G
 
     Returns
     -------
@@ -356,15 +357,15 @@ def WS_Random(n, k, p, FilePath=None):
 
 def writeRandomNetworkToFile(n, adjacent, FilePath):
     if FilePath != None:
-        f = open(FilePath, 'w+')
+        f = open(FilePath, "w+")
     else:
-        f = open("RandomNetwork.txt", 'w+')
+        f = open("RandomNetwork.txt", "w+")
     adjacent = sorted(adjacent.items(), key=lambda d: d[0])
     for i in adjacent:
         i[1].sort()
         for j in i[1]:
             f.write(str(i[0]))
-            f.write(' ')
+            f.write(" ")
             f.write(str(j))
-            f.write('\n')
+            f.write("\n")
     f.close()

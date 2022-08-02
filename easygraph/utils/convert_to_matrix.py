@@ -1,5 +1,7 @@
-import easygraph as eg
 import itertools
+
+import easygraph as eg
+
 
 __all__ = [
     "to_numpy_matrix",
@@ -19,12 +21,13 @@ def to_numpy_matrix(G, edge_sign=1.0, not_edge_sign=0.0):
     ----------
     edge_sign : float
         Sign for the position of matrix where there is an edge
-    
+
     not_edge_sign : float
         Sign for the position of matrix where there is no edge
 
     """
     import numpy as np
+
     index_of_node = dict(zip(G.nodes, range(len(G))))
     N = len(G)
     M = np.full((N, N), not_edge_sign)
@@ -139,8 +142,7 @@ def from_numpy_array(A, parallel_edges=False, create_using=None):
         raise eg.EasyGraphError(f"Input array must be 2D, not {A.ndim}")
     n, m = A.shape
     if n != m:
-        raise eg.EasyGraphError(
-            f"Adjacency matrix not square: eg,ny={A.shape}")
+        raise eg.EasyGraphError(f"Adjacency matrix not square: eg,ny={A.shape}")
     dt = A.dtype
     try:
         python_type = kind_to_python_type[dt.kind]
@@ -155,16 +157,20 @@ def from_numpy_array(A, parallel_edges=False, create_using=None):
     # handle numpy constructed data type
     if python_type == "void":
         # Sort the fields by their offset, then by dtype, then by name.
-        fields = sorted((offset, dtype, name)
-                        for name, (dtype, offset) in A.dtype.fields.items())
-        triples = ((
-            u,
-            v,
-            {
-                name: kind_to_python_type[dtype.kind](val)
-                for (_, dtype, name), val in zip(fields, A[u, v])
-            },
-        ) for u, v in edges)
+        fields = sorted(
+            (offset, dtype, name) for name, (dtype, offset) in A.dtype.fields.items()
+        )
+        triples = (
+            (
+                u,
+                v,
+                {
+                    name: kind_to_python_type[dtype.kind](val)
+                    for (_, dtype, name), val in zip(fields, A[u, v])
+                },
+            )
+            for u, v in edges
+        )
     # If the entries in the adjacency matrix are integers, the graph is a
     # multigraph, and parallel_edges is True, then create parallel edges, each
     # with weight 1, for each entry in the adjacency matrix. Otherwise, create
@@ -178,9 +184,9 @@ def from_numpy_array(A, parallel_edges=False, create_using=None):
         #         for d in range(A[u, v]):
         #             G.add_edge(u, v, weight=1)
         #
-        triples = chain(((u, v, {
-            "weight": 1
-        }) for d in range(A[u, v])) for (u, v) in edges)
+        triples = chain(
+            ((u, v, {"weight": 1}) for d in range(A[u, v])) for (u, v) in edges
+        )
     else:  # basic data type
         triples = ((u, v, dict(weight=python_type(A[u, v]))) for u, v in edges)
     # If we are creating an undirected multigraph, only add the edges from the
@@ -309,8 +315,7 @@ def to_numpy_array(
         if nlen != len(nodeset):
             for n in nodelist:
                 if n not in G:
-                    raise eg.EasyGraphError(
-                        f"Node {n} in nodelist is not in G")
+                    raise eg.EasyGraphError(f"Node {n} in nodelist is not in G")
             raise eg.EasyGraphError("nodelist contains duplicates.")
 
     undirected = not G.is_directed()
@@ -356,8 +361,7 @@ def to_numpy_array(
         try:
             op = operator[multigraph_weight]
         except Exception as err:
-            raise ValueError(
-                "multigraph_weight must be sum, min, or max") from err
+            raise ValueError("multigraph_weight must be sum, min, or max") from err
 
         for u, v, _, attrs in G.edges:
             if (u in nodeset) and (v in nodeset):
@@ -381,6 +385,7 @@ def to_numpy_array(
     A[np.isnan(A)] = nonedge
     A = np.asarray(A, dtype=dtype)
     return A
+
 
 def from_pandas_adjacency(df, create_using=None):
     r"""Returns a graph from Pandas DataFrame.
@@ -438,6 +443,7 @@ def from_pandas_adjacency(df, create_using=None):
 
     G = eg.relabel_nodes(G, dict(enumerate(df.columns)))
     return G
+
 
 def from_pandas_edgelist(
     df,
@@ -567,7 +573,8 @@ def from_pandas_edgelist(
         attr_col_headings = [edge_attr]
     if len(attr_col_headings) == 0:
         raise eg.EasyGraphError(
-            f"Invalid edge_attr argument: No columns found with name: {attr_col_headings}"
+            "Invalid edge_attr argument: No columns found with name:"
+            f" {attr_col_headings}"
         )
 
     try:
@@ -600,6 +607,7 @@ def from_pandas_edgelist(
             g[s][t].update(zip(attr_col_headings, attrs))
 
     return g
+
 
 def from_scipy_sparse_matrix(
     A, parallel_edges=False, create_using=None, edge_attribute="weight"
@@ -669,13 +677,14 @@ def from_scipy_sparse_matrix(
     AtlasView({0: {'weight': 1}, 1: {'weight': 1}})
 
     """
-    
+
     return from_scipy_sparse_array(
         A,
         parallel_edges=parallel_edges,
         create_using=create_using,
         edge_attribute=edge_attribute,
     )
+
 
 def from_scipy_sparse_array(
     A, parallel_edges=False, create_using=None, edge_attribute="weight"
@@ -716,6 +725,7 @@ def from_scipy_sparse_array(
     G.add_edges_from(((u, v, {"weight": d}) for u, v, d in triples))
     return G
 
+
 def _generate_weighted_edges(A):
     """Returns an iterable over (u, v, w) triples, where u and v are adjacent
     vertices and w is the weight of the edge joining u and v.
@@ -731,6 +741,7 @@ def _generate_weighted_edges(A):
         return _dok_gen_triples(A)
     # If A is in any other format (including COO), convert it to COO format.
     return _coo_gen_triples(A.tocoo())
+
 
 def _csr_gen_triples(A):
     """Converts a SciPy sparse matrix in **Compressed Sparse Row** format to

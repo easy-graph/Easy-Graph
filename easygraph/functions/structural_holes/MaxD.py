@@ -1,12 +1,14 @@
-from easygraph.utils import *
 from typing import List
+
+from easygraph.utils import *
+
 
 __all__ = ["get_structural_holes_MaxD"]
 
 
 @not_implemented_for("multigraph")
-def get_community_kernel(G, C: List[frozenset], weight='weight'):
-    '''
+def get_community_kernel(G, C: List[frozenset], weight="weight"):
+    """
     To get community kernels with most degrees.
     Parameters
     ----------
@@ -18,7 +20,7 @@ def get_community_kernel(G, C: List[frozenset], weight='weight'):
     Returns
     -------
     kernels
-    '''
+    """
     area = []
     for i in range(len(G)):
         area.append(0)
@@ -37,8 +39,9 @@ def get_community_kernel(G, C: List[frozenset], weight='weight'):
                 q.append((G.degree(weight=weight)[i + 1], i + 1))
         q.sort()
         q.reverse()
-        for i in range(max(int(len(q) / 100),
-                           min(2, len(q)))):  # latter of min for test.
+        for i in range(
+            max(int(len(q) / 100), min(2, len(q)))
+        ):  # latter of min for test.
             p.append(q[i][1])
         kernels.append(p)
     if len(kernels) < 2:
@@ -53,9 +56,9 @@ def get_community_kernel(G, C: List[frozenset], weight='weight'):
 def get_structural_holes_MaxD(G, k, C: List[frozenset]):
     """Structural hole spanners detection via MaxD method.
 
-    Both **HIS** and **MaxD** are methods in [1]_. 
-    The authors developed these two methods to find the structural holes spanners, 
-    based on theory of information diffusion. 
+    Both **HIS** and **MaxD** are methods in [1]_.
+    The authors developed these two methods to find the structural holes spanners,
+    based on theory of information diffusion.
 
     Parameters
     ----------
@@ -87,8 +90,7 @@ def get_structural_holes_MaxD(G, k, C: List[frozenset]):
     """
     _init_data()
 
-    G_index, index_of_node, node_of_index = G.to_index_node_graph(
-        begin_index=1)
+    G_index, index_of_node, node_of_index = G.to_index_node_graph(begin_index=1)
     C_index = []
     for cmnt in C:
         cmnt_index = []
@@ -127,8 +129,7 @@ def get_structural_holes_MaxD(G, k, C: List[frozenset]):
             if save[i] == False:
                 q.append((-1, i))
             else:
-                q.append(
-                    (sflow[i] + G_index.degree(weight="weight")[i + 1], i))
+                q.append((sflow[i] + G_index.degree(weight="weight")[i + 1], i))
         q.sort()
         q.reverse()
         candidates = []
@@ -147,7 +148,7 @@ def get_structural_holes_MaxD(G, k, C: List[frozenset]):
 
 
 def pick_candidates(n, candidates, kernels, save):
-    '''
+    """
     detect candidates.
     Parameters
     ----------
@@ -159,7 +160,7 @@ def pick_candidates(n, candidates, kernels, save):
     Returns
     -------
     A tuple of min_cut, best_candidate of this round.
-    '''
+    """
     for i in range(len(candidates)):
         save[candidates[i]] = False
     old_flow = max_flow(n, kernels, save)
@@ -228,13 +229,13 @@ def _init_data():
 
 
 def dinic_bfs():
-    '''
+    """
     using BFS to find augmenting path.
 
     Returns
     -------
     A bool, whether found a augmenting path or not.
-    '''
+    """
     global dist, dest, src, node
     dist.clear()
     for i in range(node):
@@ -247,8 +248,7 @@ def dinic_bfs():
         k_ = Q[cl]
         i = head[k_]
         while i >= 0:
-            if flow[i] < capa[i] and dsave[
-                    point[i]] == True and dist[point[i]] < 0:
+            if flow[i] < capa[i] and dsave[point[i]] == True and dist[point[i]] < 0:
                 dist[point[i]] = dist[k_] + 1
                 Q.append(point[i])
             i = nex[i]
@@ -257,7 +257,7 @@ def dinic_bfs():
 
 
 def dinic_dfs(x, exp):
-    '''
+    """
     using DFS to calc the augmenting path and refresh network.
     Parameters
     ----------
@@ -267,7 +267,7 @@ def dinic_dfs(x, exp):
     Returns
     -------
     current flow.
-    '''
+    """
     if x == dest:
         return exp
     res = 0
@@ -290,13 +290,13 @@ def dinic_dfs(x, exp):
 
 
 def dinic_flow():
-    '''
+    """
     Dinic algorithm to calc max_flow.
 
     Returns
     -------
     max_flow.
-    '''
+    """
     result = 0
     global work
     while dinic_bfs():
@@ -308,7 +308,7 @@ def dinic_flow():
 
 
 def max_flow(n, kernels, save, prev_flow=None):
-    '''
+    """
     Calculate max_flow.
     Parameters
     ----------
@@ -320,7 +320,7 @@ def max_flow(n, kernels, save, prev_flow=None):
     Returns
     -------
     max_flow
-    '''
+    """
     global dsave, node
     dsave.clear()
     for i in range(node):
@@ -342,7 +342,7 @@ def max_flow(n, kernels, save, prev_flow=None):
 
 
 def init_MaxD(_node, _src, _dest):
-    '''
+    """
     Initialize a network.
     Parameters
     ----------
@@ -353,7 +353,7 @@ def init_MaxD(_node, _src, _dest):
     Returns
     -------
     void
-    '''
+    """
     global node, src, dest
     node = _node
     src = _src
@@ -372,7 +372,7 @@ def init_MaxD(_node, _src, _dest):
 
 
 def addedge(u, v, c1, c2):
-    '''
+    """
     Add an edge(u,v) with capacity c1 and inverse capacity c2.
     Parameters
     ----------
@@ -384,7 +384,7 @@ def addedge(u, v, c1, c2):
     Returns
     -------
     void
-    '''
+    """
     global nedge
     global point, capa, flow, nex, head
     point.append(v)
@@ -404,7 +404,7 @@ def addedge(u, v, c1, c2):
 
 
 def build_network(kernels, c, G):
-    '''
+    """
     build a network.
     Parameters
     ----------
@@ -416,7 +416,7 @@ def build_network(kernels, c, G):
     Returns
     -------
     void
-    '''
+    """
     n = len(G)
     init_MaxD(n * (c - 1) + 2, n * (c - 1), n * (c - 1) + 1)
 

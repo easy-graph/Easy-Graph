@@ -6,6 +6,7 @@ Exceptions
 Base exceptions and errors for EasyGraph.
 """
 
+
 __all__ = ["EasyGraphException", "EasyGraphError", "EasyGraphNotImplemented"]
 
 

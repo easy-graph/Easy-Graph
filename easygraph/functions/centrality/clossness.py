@@ -1,8 +1,9 @@
 from easygraph.functions.path import *
 from easygraph.utils import *
 
+
 __all__ = [
-    'closeness_centrality',
+    "closeness_centrality",
 ]
 
 
@@ -22,14 +23,14 @@ def closeness_centrality_parallel(nodes, G, path_length):
 
 @not_implemented_for("multigraph")
 def closeness_centrality(G, weight=None, n_workers=None):
-    r'''Compute closeness centrality for nodes.
+    r"""Compute closeness centrality for nodes.
 
     .. math::
 
         C_{WF}(u) = \frac{n-1}{N-1} \frac{n - 1}{\sum_{v=1}^{n-1} d(v, u)},
-    
-    Notice that the closeness distance function computes the 
-    outcoming distance to `u` for directed graphs. To use 
+
+    Notice that the closeness distance function computes the
+    outcoming distance to `u` for directed graphs. To use
     incoming distance, act on `G.reverse()`.
 
     Parameters
@@ -46,11 +47,12 @@ def closeness_centrality(G, weight=None, n_workers=None):
     nodes : dictionary
       Dictionary of nodes with closeness centrality as the value.
 
-    '''
+    """
     closeness = dict()
     nodes = G.nodes
     length = len(nodes)
     import functools
+
     if weight is not None:
         path_length = functools.partial(single_source_dijkstra, weight=weight)
     else:
@@ -58,9 +60,10 @@ def closeness_centrality(G, weight=None, n_workers=None):
 
     if n_workers is not None:
         # use parallel version for large graph
-        from multiprocessing import Pool
-        from functools import partial
         import random
+
+        from functools import partial
+        from multiprocessing import Pool
 
         nodes = list(nodes)
         random.shuffle(nodes)
@@ -69,9 +72,9 @@ def closeness_centrality(G, weight=None, n_workers=None):
             nodes = split_len(nodes, step=30000)
         else:
             nodes = split(nodes, n_workers)
-        local_function = partial(closeness_centrality_parallel,
-                                 G=G,
-                                 path_length=path_length)
+        local_function = partial(
+            closeness_centrality_parallel, G=G, path_length=path_length
+        )
         with Pool(n_workers) as p:
             ret = p.imap(local_function, nodes)
             res = [x for i in ret for x in i]

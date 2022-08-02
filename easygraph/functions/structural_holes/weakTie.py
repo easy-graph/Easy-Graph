@@ -1,5 +1,7 @@
 import easygraph as eg
+
 from easygraph.utils import *
+
 
 __all__ = [
     "weakTie",
@@ -15,7 +17,7 @@ def _computeTieStrength(G, node_u, node_v):
     uni = len(F_u.union(F_v))
     inter = len(F_u.intersection(F_v))
     S_uv = inter / uni
-    G[node_u][node_v]['strength'] = S_uv
+    G[node_u][node_v]["strength"] = S_uv
 
 
 def _computeAllTieStrength(G):
@@ -77,7 +79,7 @@ def _strongly_connected_components(G, threshold):
                     preorder[v] = i
                 done = True
                 for w in G[v]:
-                    if G[v][w]['strength'] >= threshold:
+                    if G[v][w]["strength"] >= threshold:
                         if w not in preorder:
                             queue.append(w)
                             done = False
@@ -85,7 +87,7 @@ def _strongly_connected_components(G, threshold):
                 if done:
                     lowlink[v] = preorder[v]
                     for w in G[v]:
-                        if G[v][w]['strength'] >= threshold:
+                        if G[v][w]["strength"] >= threshold:
                             if w not in scc_found:
                                 if preorder[w] > preorder[v]:
                                     lowlink[v] = min([lowlink[v], lowlink[w]])
@@ -94,8 +96,7 @@ def _strongly_connected_components(G, threshold):
                     queue.pop()
                     if lowlink[v] == preorder[v]:
                         scc = {v}
-                        while scc_queue and preorder[
-                                scc_queue[-1]] > preorder[v]:
+                        while scc_queue and preorder[scc_queue[-1]] > preorder[v]:
                             k = scc_queue.pop()
                             scc.add(k)
                         scc_found.update(scc)
@@ -109,9 +110,9 @@ def _computeCloseness(G, c, u, threshold, length):
     strength_sum_u = 0
     for v in c:
         if u in G[v] and v != u:
-            if G[v][u]['strength'] != 0:
+            if G[v][u]["strength"] != 0:
                 n += 1
-                strength_sum_u += G[v][u]['strength']
+                strength_sum_u += G[v][u]["strength"]
     closeness_c_u = (strength_sum_u - n * threshold) / length
     return closeness_c_u
 
@@ -246,8 +247,7 @@ def _commonUpdate(G, node_u, node_v, threshold, score_dict):
             for c in _strongly_connected_components(G_w, threshold):
                 if node_u in c:
                     length = len(c)
-                    closeness_c_w = _computeCloseness(G, c, node_w, threshold,
-                                                      length)
+                    closeness_c_w = _computeCloseness(G, c, node_w, threshold, length)
                     if closeness_c_w < 0:
                         score_w -= closeness_c_w
         score_dict[node_w] = score_w
@@ -309,7 +309,7 @@ def weakTieLocal(G, edges_plus, edges_delete, threshold, score_dict, k):
     return SHS_list
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     G = eg.DiGraph()
     G.add_edge(1, 5)
     G.add_edge(1, 4)

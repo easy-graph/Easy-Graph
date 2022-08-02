@@ -1,2 +1,2 @@
-from .RandomNetwork import *
 from .classic import *
+from .RandomNetwork import *

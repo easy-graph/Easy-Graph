@@ -1,6 +1,8 @@
 import collections
 import copy
+
 from easygraph.utils.decorators import *
+
 
 __all__ = [
     "flowbetweenness_centrality",
@@ -9,25 +11,25 @@ __all__ = [
 
 @not_implemented_for("multigraph")
 def flowbetweenness_centrality(G):
-    '''Compute the independent-path betweenness centrality for nodes in a flow network.
+    """Compute the independent-path betweenness centrality for nodes in a flow network.
 
     .. math::
 
-       c_B(v) =\sum_{s,t \in V} \frac{\sigma(s, t|v)}{\sigma(s, t)}
+       c_B(v) =\\sum_{s,t \\in V} \frac{\\sigma(s, t|v)}{\\sigma(s, t)}
 
-    where V is the set of nodes, 
-    
+    where V is the set of nodes,
+
     .. math::
 
-        \sigma(s, t)\ is\ the\ number\ of\ independent\ (s, t)-paths,
-    
-    .. math::
-        
-        \sigma(s, t|v)\ is\ the\ maximum\ number\ possible\ of\ those\ paths\ passing\ through\ some\ node\ v\ other\ than\ s, t.\
-    
+        \\sigma(s, t)\\ is\\ the\\ number\\ of\\ independent\\ (s, t)-paths,
+
     .. math::
 
-        If\ s\ =\ t,\ \sigma(s, t)\ =\ 1,\ and\ if\ v \in \{s, t\},\ \sigma(s, t|v)\ =\ 0\ [2]_.
+        \\sigma(s, t|v)\\ is\\ the\\ maximum\\ number\\ possible\\ of\\ those\\ paths\\ passing\\ through\\ some\\ node\\ v\\ other\\ than\\ s, t.\
+
+    .. math::
+
+        If\\ s\\ =\\ t,\\ \\sigma(s, t)\\ =\\ 1,\\ and\\ if\\ v \\in \\{s, t\\},\\ \\sigma(s, t|v)\\ =\\ 0\\ [2]_.
 
     Parameters
     ----------
@@ -41,8 +43,8 @@ def flowbetweenness_centrality(G):
 
     Notes
     -----
-    A flow network is a directed graph where each edge has a capacity and each edge receives a flow. 
-    '''
+    A flow network is a directed graph where each edge has a capacity and each edge receives a flow.
+    """
     if G.is_directed() == False:
         print("Please input a directed graph")
         return
@@ -64,8 +66,7 @@ def flowbetweenness_centrality(G):
                     num = 1
                 if node_v != node_s and node_v != node_t and node_s != node_t:
                     num = flow_dict[node_s][node_t]
-                    num_v = min(flow_dict[node_s][node_v],
-                                flow_dict[node_v][node_t])
+                    num_v = min(flow_dict[node_s][node_v], flow_dict[node_v][node_t])
                 if num == 0:
                     pass
                 else:

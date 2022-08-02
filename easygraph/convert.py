@@ -1,10 +1,17 @@
-import easygraph as eg
-from collections.abc import Collection, Generator, Iterator
 import warnings
 
+from collections.abc import Collection
+from collections.abc import Generator
+from collections.abc import Iterator
+
+import easygraph as eg
+
+
 __all__ = [
-    "from_dict_of_dicts", "to_easygraph_graph", "from_edgelist",
-    "from_dict_of_lists"
+    "from_dict_of_dicts",
+    "to_easygraph_graph",
+    "from_edgelist",
+    "from_dict_of_lists",
 ]
 
 
@@ -67,27 +74,26 @@ def to_easygraph_graph(data, create_using=None, multigraph_input=False):
                 result._node[n].update(dd)
             return result
         except Exception as err:
-            raise eg.EasyGraphError(
-                "Input is not a correct EasyGraph graph.") from err
+            raise eg.EasyGraphError("Input is not a correct EasyGraph graph.") from err
 
     # pygraphviz  agraph
     if hasattr(data, "is_strict"):
         try:
             return eg.from_pyGraphviz_agraph(data, create_using=create_using)
         except Exception as err:
-            raise eg.EasyGraphError(
-                "Input is not a correct pygraphviz graph.") from err
+            raise eg.EasyGraphError("Input is not a correct pygraphviz graph.") from err
 
     # dict of dicts/lists
     if isinstance(data, dict):
         try:
-            return from_dict_of_dicts(data,
-                                      create_using=create_using,
-                                      multigraph_input=multigraph_input)
+            return from_dict_of_dicts(
+                data, create_using=create_using, multigraph_input=multigraph_input
+            )
         except Exception as err:
             if multigraph_input is True:
                 raise eg.EasyGraphError(
-                    f"converting multigraph_input raised:\n{type(err)}: {err}")
+                    f"converting multigraph_input raised:\n{type(err)}: {err}"
+                )
             try:
                 return from_dict_of_lists(data, create_using=create_using)
             except Exception as err:
@@ -106,7 +112,9 @@ def to_easygraph_graph(data, create_using=None, multigraph_input=False):
                     raise eg.EasyGraphError(msg) from err
             else:
                 try:
-                    return eg.from_pandas_edgelist(data, edge_attr=True, create_using=create_using)
+                    return eg.from_pandas_edgelist(
+                        data, edge_attr=True, create_using=create_using
+                    )
                 except Exception as err:
                     msg = "Input is not a correct Pandas DataFrame adjacency edge-list."
                     raise eg.EasyGraphError(msg) from err
@@ -127,11 +135,8 @@ def to_easygraph_graph(data, create_using=None, multigraph_input=False):
     except ImportError:
         warnings.warn("numpy not found, skipping conversion test.", ImportWarning)
 
-
     # scipy sparse matrix - any format
     try:
-        import scipy
-
         if hasattr(data, "format"):
             try:
                 return eg.from_scipy_sparse_matrix(data, create_using=create_using)
@@ -142,7 +147,6 @@ def to_easygraph_graph(data, create_using=None, multigraph_input=False):
     except ImportError:
         warnings.warn("scipy not found, skipping conversion test.", ImportWarning)
 
-
     # Note: most general check - should remain last in order of execution
     # Includes containers (e.g. list, set, dict, etc.), generators, and
     # iterators (e.g. itertools.chain) of edges
@@ -152,7 +156,7 @@ def to_easygraph_graph(data, create_using=None, multigraph_input=False):
             return from_edgelist(data, create_using=create_using)
         except Exception as err:
             raise eg.EasyGraphError("Input is not a valid edge list") from err
-            
+
     raise eg.EasyGraphError("Input is not a known data type for conversion.")
 
 
@@ -171,7 +175,8 @@ def from_dict_of_lists(d, create_using=None):
             seen[node] = 1  # don't allow reverse edge to show up
     else:
         G.add_edges_from(
-            ((node, nbr) for node, nbrlist in d.items() for nbr in nbrlist))
+            ((node, nbr) for node, nbrlist in d.items() for nbr in nbrlist)
+        )
     return G
 
 
@@ -182,21 +187,28 @@ def from_dict_of_dicts(d, create_using=None, multigraph_input=False):
     if multigraph_input:
         if G.is_directed():
             if G.is_multigraph():
-                G.add_edges_from((u, v, key, data) for u, nbrs in d.items()
-                                 for v, datadict in nbrs.items()
-                                 for key, data in datadict.items())
+                G.add_edges_from(
+                    (u, v, key, data)
+                    for u, nbrs in d.items()
+                    for v, datadict in nbrs.items()
+                    for key, data in datadict.items()
+                )
             else:
-                G.add_edges_from((u, v, data) for u, nbrs in d.items()
-                                 for v, datadict in nbrs.items()
-                                 for key, data in datadict.items())
+                G.add_edges_from(
+                    (u, v, data)
+                    for u, nbrs in d.items()
+                    for v, datadict in nbrs.items()
+                    for key, data in datadict.items()
+                )
         else:  # Undirected
             if G.is_multigraph():
                 seen = set()  # don't add both directions of undirected graph
                 for u, nbrs in d.items():
                     for v, datadict in nbrs.items():
                         if (u, v) not in seen:
-                            G.add_edges_from((u, v, key, data)
-                                             for key, data in datadict.items())
+                            G.add_edges_from(
+                                (u, v, key, data) for key, data in datadict.items()
+                            )
                             seen.add((v, u))
             else:
                 seen = set()  # don't add both directions of undirected graph
@@ -204,7 +216,8 @@ def from_dict_of_dicts(d, create_using=None, multigraph_input=False):
                     for v, datadict in nbrs.items():
                         if (u, v) not in seen:
                             G.add_edges_from(
-                                (u, v, data) for key, data in datadict.items())
+                                (u, v, data) for key, data in datadict.items()
+                            )
                             seen.add((v, u))
 
     else:  # not a multigraph to multigraph transfer
@@ -220,8 +233,9 @@ def from_dict_of_dicts(d, create_using=None, multigraph_input=False):
                         G[u][v][0].update(data)
                     seen.add((v, u))
         else:
-            G.add_edges_from(((u, v, data) for u, nbrs in d.items()
-                              for v, data in nbrs.items()))
+            G.add_edges_from(
+                ((u, v, data) for u, nbrs in d.items() for v, data in nbrs.items())
+            )
     return G
 
 

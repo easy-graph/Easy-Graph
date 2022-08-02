@@ -1,5 +1,7 @@
 import easygraph as eg
+
 from easygraph.utils import *
+
 
 __all__ = ["ICC", "BICC", "AP_BICC"]
 
@@ -16,7 +18,7 @@ def bounded_inverse_closeness_centrality(G, v, l):
     seen.add(v)
     shortest_path = eg.Floyd(G)
     result = 0
-    while (len(queue) > 0):
+    while len(queue) > 0:
         vertex = queue.pop(0)
         if shortest_path[v][vertex] == l + 1:
             break
@@ -30,30 +32,29 @@ def bounded_inverse_closeness_centrality(G, v, l):
 
 
 def Modified_DFS(G, u, V, time, n):
-    V[u]['color'] = 'black'
+    V[u]["color"] = "black"
     time += 1
     n -= 1
-    V[u]['discovered'] = time
-    V[u]['lowest'] = time
+    V[u]["discovered"] = time
+    V[u]["lowest"] = time
     cc0 = n
-    V[u]['descendant'] = 0
+    V[u]["descendant"] = 0
     root = u
     for edge in G.edges:
         u, v = edge[:2]
-        if V[u]['color'] == 'white':
-            V[u]['color'] = 'grey'
-            V[v]['parent'] = u
-            V[u]['child'] += 1
+        if V[u]["color"] == "white":
+            V[u]["color"] = "grey"
+            V[v]["parent"] = u
+            V[u]["child"] += 1
             V, time, n = Modified_DFS(G, v, V, time, n)
-            V[u]['descendant'] = V[u]['descendant'] + V[v]['descendant']
-            V[u]['lowest'] = min(V[u]['lowest'], V[v]['lowest'])
-            if V[v]['lowest'] >= V[u][
-                    'discovered'] or root == u and V[u]['child'] > 1:
-                V[u]['c'] += V[v]['descendant'] * (n - V[v]['descendant'] - 1)
-                cc0 -= V[v]['descendant']
-        elif v != V[u]['parent']:
-            V[u]['lowest'] = min(V[u]['lowest'], V[v]['discovered'])
-    V[u]['c'] += cc0 * (n - cc0 - 1)
+            V[u]["descendant"] = V[u]["descendant"] + V[v]["descendant"]
+            V[u]["lowest"] = min(V[u]["lowest"], V[v]["lowest"])
+            if V[v]["lowest"] >= V[u]["discovered"] or root == u and V[u]["child"] > 1:
+                V[u]["c"] += V[v]["descendant"] * (n - V[v]["descendant"] - 1)
+                cc0 -= V[v]["descendant"]
+        elif v != V[u]["parent"]:
+            V[u]["lowest"] = min(V[u]["lowest"], V[v]["discovered"])
+    V[u]["c"] += cc0 * (n - cc0 - 1)
     return V, time, n
 
 
@@ -61,17 +62,17 @@ def approximate_inverse_closeness_centrality(G):
     V = {}
     for i in G.nodes:
         V[i] = {}
-        V[i]['child'] = 0
-        V[i]['color'] = 'white'
-        V[i]['c'] = 0
-        V[i]['parent'] = None
-        V[i]['discovered'] = 0
-        V[i]['lowest'] = 0
-        V[i]['descendant'] = 0
+        V[i]["child"] = 0
+        V[i]["color"] = "white"
+        V[i]["c"] = 0
+        V[i]["parent"] = None
+        V[i]["discovered"] = 0
+        V[i]["lowest"] = 0
+        V[i]["descendant"] = 0
     time = 0
     n = len(G)
     for u in G.nodes:
-        if V[u]['color'] == 'white':
+        if V[u]["color"] == "white":
             V, time, n = Modified_DFS(G, u, V, time, n)
     return V
 
@@ -95,7 +96,7 @@ def ICC(G, k):
     -------
     V : list
         The list of top-k structural hole spanners.
-    
+
     Examples
     --------
     Returns the top k nodes as structural hole spanners, using **ICC**.
@@ -105,7 +106,7 @@ def ICC(G, k):
     References
     ----------
     .. [1] https://dl.acm.org/doi/10.1145/2806416.2806431
-    
+
     """
     Q = []
     V = []
@@ -146,14 +147,14 @@ def BICC(G, k, K, l):
     K : int
         the number of candidates K for the top-k hole spanners
 
-    l : int 
+    l : int
         level-l neighbors of nodes
 
     Returns
     -------
     V : list
         The list of top-k structural hole spanners.
-    
+
     Examples
     --------
     Returns the top k nodes as structural hole spanners, using **BICC**.
@@ -163,7 +164,7 @@ def BICC(G, k, K, l):
     References
     ----------
     .. [1] https://dl.acm.org/doi/10.1145/2806416.2806431
-    
+
     """
     H = []
     V = []
@@ -220,14 +221,14 @@ def AP_BICC(G, k, K, l):
     K : int
         the number of candidates K for the top-k hole spanners
 
-    l : int 
+    l : int
         level-l neighbors of nodes
 
     Returns
     -------
     V : list
         The list of top-k structural hole spanners.
-    
+
     Examples
     --------
     Returns the top k nodes as structural hole spanners, using **AP_BICC**.
@@ -237,7 +238,7 @@ def AP_BICC(G, k, K, l):
     References
     ----------
     .. [1] https://dl.acm.org/doi/10.1145/2806416.2806431
-    
+
     """
     V = []
     T = []
@@ -245,7 +246,7 @@ def AP_BICC(G, k, K, l):
     A = approximate_inverse_closeness_centrality(G)
     for v in A:
         if len(T) < k:
-            T.append([v, A[v]['c']])
+            T.append([v, A[v]["c"]])
             continue
         MIN = 10000000
         t = v
@@ -253,9 +254,9 @@ def AP_BICC(G, k, K, l):
             if MIN > i[1]:
                 MIN = i[1]
                 t = i[0]
-        if A[v]['c'] > MIN:
+        if A[v]["c"] > MIN:
             T.remove([t, MIN])
-            T.append([v, A[v]['c']])
+            T.append([v, A[v]["c"]])
     if len(T) < k:
         U = {}
         for i in G.nodes:
@@ -284,13 +285,13 @@ def AP_BICC(G, k, K, l):
             if MAX < i[1]:
                 MAX = i[1]
                 t = i[0]
-        T.append([t, A[t]['c']])
+        T.append([t, A[t]["c"]])
     for i in T:
         V.append(i[0])
     return V
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     G = eg.datasets.get_graph_karateclub()
     print(ICC(G, 3))
     print(BICC(G, 3, 5, 3))

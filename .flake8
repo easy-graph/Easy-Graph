@@ -1,0 +1,69 @@
+[flake8]
+min_python_version = 3.7.0
+max-line-length = 88
+ban-relative-imports = true
+# flake8-use-fstring: https://github.com/MichaelKim0407/flake8-use-fstring#--percent-greedy-and---format-greedy
+format-greedy = 1
+inline-quotes = double
+enable-extensions = TC, TC1
+type-checking-exempt-modules = typing, typing-extensions
+eradicate-whitelist-extend = ^-.*;
+extend-ignore =
+    # E203: Whitespace before ':' (pycqa/pycodestyle#373)
+    E203,
+    # SIM106: Handle error-cases first
+    SIM106,
+    # ANN101: Missing type annotation for self in method
+    ANN101,
+    # ANN102: Missing type annotation for cls in classmethod
+    ANN102,
+    F401,
+    F403,
+    I252,
+    SIM115,
+    N806,
+    N803,
+    B007,
+    E501,
+    C408,
+    SIM113,
+    N802,
+    N400,
+    E501,
+    E802,
+    E800,
+    B001,
+    B006,
+    B020,
+    C414,
+    C416,
+    E402,
+    E711,
+    E712,
+    E722,
+    E741,
+    F405,
+    F541,
+    F811,
+    F821,
+    F841,
+    FS001,
+    FS002,
+    I250,
+    N801,
+    N804,
+    N812,
+    N816,
+    Q002,
+    SIM102,
+    SIM105,
+    SIM111,
+    SIM114,
+    SIM118,
+    SIM201,
+    SIM203,
+    SIM300,
+    SIM401,
+    TC002
+
+

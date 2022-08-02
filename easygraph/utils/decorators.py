@@ -1,10 +1,17 @@
+import bz2
+import collections
+import gzip
+import inspect
+import re
+
+from collections import defaultdict
 from os.path import splitext
 from pathlib import Path
-import inspect, itertools, collections
-from collections import defaultdict
-import re, gzip, bz2
+
 import easygraph as eg
+
 from easygraph.utils.exception import EasyGraphError
+
 
 __all__ = [
     "only_implemented_for_UnDirected_graph",
@@ -68,28 +75,24 @@ def not_implemented_for(*graph_types):
            pass
     """
     if ("directed" in graph_types) and ("undirected" in graph_types):
-        raise ValueError(
-            "Function not implemented on directed AND undirected graphs?")
+        raise ValueError("Function not implemented on directed AND undirected graphs?")
     if ("multigraph" in graph_types) and ("graph" in graph_types):
         raise ValueError("Function not implemented on graph AND multigraphs?")
-    if not set(graph_types) < {
-            "directed", "undirected", "multigraph", "graph"
-    }:
+    if not set(graph_types) < {"directed", "undirected", "multigraph", "graph"}:
         raise KeyError(
             "use one or more of directed, undirected, multigraph, graph.  "
-            f"You used {graph_types}")
+            f"You used {graph_types}"
+        )
 
     # 3-way logic: True if "directed" input, False if "undirected" input, else None
-    dval = ("directed"
-            in graph_types) or not ("undirected" in graph_types) and None
-    mval = ("multigraph"
-            in graph_types) or not ("graph" in graph_types) and None
+    dval = ("directed" in graph_types) or not ("undirected" in graph_types) and None
+    mval = ("multigraph" in graph_types) or not ("graph" in graph_types) and None
     errmsg = f"not implemented for {' '.join(graph_types)} type"
 
     def _not_implemented_for(g):
-        if (mval is None
-                or mval == g.is_multigraph()) and (dval is None
-                                                   or dval == g.is_directed()):
+        if (mval is None or mval == g.is_multigraph()) and (
+            dval is None or dval == g.is_directed()
+        ):
             raise eg.EasyGraphNotImplemented(errmsg)
 
         return g
@@ -683,7 +686,8 @@ class argmap:
 
         """
         sig, wrapped_name, functions, mapblock, finallys, mutable_args = self.assemble(
-            f)
+            f
+        )
 
         call = f"{sig.call_sig.format(wrapped_name)}#"
         mut_args = f"{sig.args} = list({sig.args})" if mutable_args else ""
@@ -775,8 +779,7 @@ class argmap:
         if id(self._func) in functions:
             fname, _ = functions[id(self._func)]
         else:
-            fname, _ = functions[id(self._func)] = self._name(
-                self._func), self._func
+            fname, _ = functions[id(self._func)] = self._name(self._func), self._func
 
         # this is a bit complicated -- we can call functions with a variety of
         # nested arguments, so long as their input and output are tuples with
@@ -795,21 +798,22 @@ class argmap:
                 name = ", ".join(get_name(x, False) for x in arg)
                 return name if first else f"({name})"
             if arg in applied:
-                raise EasyGraphError(
-                    f"argument {arg} is specified multiple times")
+                raise EasyGraphError(f"argument {arg} is specified multiple times")
             applied.add(arg)
             if arg in sig.names:
                 return sig.names[arg]
             elif isinstance(arg, str):
                 if sig.kwargs is None:
                     raise EasyGraphError(
-                        f"name {arg} is not a named parameter and this function doesn't have kwargs"
+                        f"name {arg} is not a named parameter and this function doesn't"
+                        " have kwargs"
                     )
                 return f"{sig.kwargs}[{arg!r}]"
             else:
                 if sig.args is None:
                     raise EasyGraphError(
-                        f"index {arg} not a parameter index and this function doesn't have args"
+                        f"index {arg} not a parameter index and this function doesn't"
+                        " have args"
                     )
                 mutable_args = True
                 return f"{sig.args}[{arg - sig.n_positional}]"
@@ -835,8 +839,9 @@ class argmap:
                 mapblock.append("try:")
                 finallys = ["finally:", f"{final}()#", "#", finallys]
         else:
-            mapblock.extend(f"{name} = {fname}({name})"
-                            for name in map(get_name, self._args))
+            mapblock.extend(
+                f"{name} = {fname}({name})" for name in map(get_name, self._args)
+            )
 
         return sig, wrapped_name, functions, mapblock, finallys, mutable_args
 
@@ -929,8 +934,7 @@ class argmap:
 
         call_sig = f"{_return} {{}}({', '.join(call_sig)})"
 
-        return cls.Signature(fname, sig, def_sig, call_sig, names, npos, args,
-                             kwargs)
+        return cls.Signature(fname, sig, def_sig, call_sig, names, npos, args, kwargs)
 
     Signature = collections.namedtuple(
         "Signature",
@@ -967,8 +971,7 @@ class argmap:
         for thing in nestlist:
             if isinstance(thing, list):
                 if id(thing) in visited:
-                    raise ValueError(
-                        "A cycle was found in nestlist.  Be a tree.")
+                    raise ValueError("A cycle was found in nestlist.  Be a tree.")
                 else:
                     visited.add(id(thing))
                 yield from argmap._flatten(thing, visited)
@@ -1078,6 +1081,6 @@ def nodes_or_number(which_args):
     try:
         iter_wa = iter(which_args)
     except TypeError:
-        iter_wa = (which_args, )
+        iter_wa = (which_args,)
 
     return argmap(_nodes_or_number, *iter_wa)

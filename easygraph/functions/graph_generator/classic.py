@@ -1,6 +1,9 @@
-from easygraph.utils import nodes_or_number, pairwise
-from easygraph.classes import Graph
 import itertools
+
+from easygraph.classes import Graph
+from easygraph.utils import nodes_or_number
+from easygraph.utils import pairwise
+
 
 __all__ = ["empty_graph", "path_graph", "complete_graph"]
 

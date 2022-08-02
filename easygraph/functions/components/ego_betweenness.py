@@ -1,21 +1,21 @@
 __all__ = ["ego_betweenness"]
 import numpy as np
-import numpy.matlib
+
 from easygraph.utils import *
 
 
 @not_implemented_for("multigraph")
 def ego_betweenness(G, node):
     """
-    ego networks are networks consisting of a single actor (ego) together with the actors they are connected to (alters) and all the links among those alters.[1] 
+    ego networks are networks consisting of a single actor (ego) together with the actors they are connected to (alters) and all the links among those alters.[1]
     Burt (1992), in his book Structural Holes, provides ample evidence that having high betweenness centrality, which is highly correlated with having many structural holes, can bring benefits to ego.[1]
     Returns the betweenness centrality of a ego network whose ego is set
 
     Parameters
-    ---------- 
+    ----------
     G : graph
     node : int
-    
+
     Returns
     -------
     sum : float

@@ -1,8 +1,9 @@
-import numpy as np
 import easygraph as eg
-import scipy as sp
-from scipy.sparse.linalg import eigs
+import numpy as np
+
 from easygraph.utils import *
+from scipy.sparse.linalg import eigs
+
 
 __all__ = ["NOBE", "NOBE_GA"]
 
@@ -31,7 +32,7 @@ def NOBE(G, K):
     References
     ----------
     .. [1] https://www.researchgate.net/publication/325004496_On_Spectral_Graph_Embedding_A_Non-Backtracking_Perspective_and_Graph_Approximation
-    
+
     """
     dict = {}
     a = 0
@@ -70,7 +71,7 @@ def NOBE_GA(G, K):
     References
     ----------
     .. [1] https://www.researchgate.net/publication/325004496_On_Spectral_Graph_Embedding_A_Non-Backtracking_Perspective_and_Graph_Approximation
-    
+
     """
     N = len(G)
     A = np.eye(N, N)
@@ -96,10 +97,10 @@ def NOBE_GA(G, K):
     D_D = 0.5 * I
     T_ua = np.zeros([2 * N, 2 * N])
     T_ua[0:N, 0:N] = M_D
-    T_ua[N:2 * N, N:2 * N] = M_D
-    T_ua[N:2 * N, 0:N] = D_D
-    T_ua[0:N, N:2 * N] = D_D
-    Y1, Y = eigs(T_ua, K + 1, which='LR')
+    T_ua[N : 2 * N, N : 2 * N] = M_D
+    T_ua[N : 2 * N, 0:N] = D_D
+    T_ua[0:N, N : 2 * N] = D_D
+    Y1, Y = eigs(T_ua, K + 1, which="LR")
     Y = Y[0:N, :-1]
     return Y
 
@@ -157,7 +158,7 @@ def eigs_nodes(P, K):
     I = np.identity(M)
     P_T = P.T
     L = I - (P + P_T) / 2
-    U, D = eigs(L, K + 1, which='LR')
+    U, D = eigs(L, K + 1, which="LR")
     D = D[:, :-1]
     V = np.zeros([M, K], dtype=complex)
     a = 0

@@ -1,24 +1,24 @@
+import math
+
 from itertools import combinations
 from typing import List
-import math
+
 from easygraph.utils import *
+
 
 __all__ = ["get_structural_holes_HIS"]
 
 
 @not_implemented_for("multigraph")
-def get_structural_holes_HIS(G,
-                             C: List[frozenset],
-                             epsilon=1e-4,
-                             weight='weight'):
+def get_structural_holes_HIS(G, C: List[frozenset], epsilon=1e-4, weight="weight"):
     """Structural hole spanners detection via HIS method.
 
-    Both **HIS** and **MaxD** are methods in [1]_. 
-    The authors developed these two methods to find the structural holes spanners, 
-    based on theory of information diffusion. 
+    Both **HIS** and **MaxD** are methods in [1]_.
+    The authors developed these two methods to find the structural holes spanners,
+    based on theory of information diffusion.
 
-    Returns the value of `S`, `I`, `H` ,defined in **HIS** of [1], of each node in the graph. 
-    Note that `H` quantifies the possibility that a node is a structural hole spanner. 
+    Returns the value of `S`, `I`, `H` ,defined in **HIS** of [1], of each node in the graph.
+    Note that `H` quantifies the possibility that a node is a structural hole spanner.
     To use `HIS` method, you should provide the community detection result as parameter.
 
     Parameters
@@ -62,7 +62,7 @@ def get_structural_holes_HIS(G,
     .. [1] https://www.aminer.cn/structural-hole
 
     """
-    # S: list[subset_index]
+    # S: List[subset_index]
     S = []
     for community_subset_size in range(2, len(C) + 1):
         S.extend(list(combinations(range(len(C)), community_subset_size)))
@@ -71,8 +71,7 @@ def get_structural_holes_HIS(G,
     I, H = initialize(G, C, S, weight=weight)
 
     alphas = [0.3 for i in range(len(C))]  # list[cmnt_index]
-    betas = [(0.5 - math.pow(0.5, len(subset)))
-             for subset in S]  # list[subset_index]
+    betas = [(0.5 - math.pow(0.5, len(subset))) for subset in S]  # list[subset_index]
 
     while True:
         P = update_P(G, C, alphas, betas, S, I, H)  # dict[node][cmnt_index]
@@ -84,7 +83,7 @@ def get_structural_holes_HIS(G,
     return S, I, H
 
 
-def initialize(G, C: List[frozenset], S: [tuple], weight='weight'):
+def initialize(G, C: List[frozenset], S: [tuple], weight="weight"):
     I, H = dict(), dict()
     for node in G.nodes:
         I[node] = dict()
@@ -100,7 +99,7 @@ def initialize(G, C: List[frozenset], S: [tuple], weight='weight'):
 
     for node in G.nodes:
         for index, subset in enumerate(S):
-            H[node][index] = min([I[node][i] for i in subset])
+            H[node][index] = min(I[node][i] for i in subset)
 
     return I, H
 
@@ -116,8 +115,9 @@ def update_P(G, C, alphas, betas, S, I, H):
             for subset_index in range(len(S)):
                 if cmnt_index in S[subset_index]:
                     subsets_including_current_cmnt.append(
-                        alphas[cmnt_index] * I[node][cmnt_index] +
-                        betas[subset_index] * H[node][subset_index])
+                        alphas[cmnt_index] * I[node][cmnt_index]
+                        + betas[subset_index] * H[node][subset_index]
+                    )
             P[node][cmnt_index] = max(subsets_including_current_cmnt)
     return P
 
@@ -130,12 +130,12 @@ def update_I_H(G, C, S, P, I):
 
     for node in G.nodes:
         for cmnt_index in range(len(C)):
-            P_max = max(
-                [P[neighbour][cmnt_index] for neighbour in G.adj[node]])
-            I_new[node][cmnt_index] = P_max if (
-                P_max > I[node][cmnt_index]) else I[node][cmnt_index]
+            P_max = max(P[neighbour][cmnt_index] for neighbour in G.adj[node])
+            I_new[node][cmnt_index] = (
+                P_max if (P_max > I[node][cmnt_index]) else I[node][cmnt_index]
+            )
         for subset_index, subset in enumerate(S):
-            H_new[node][subset_index] = min([I_new[node][i] for i in subset])
+            H_new[node][subset_index] = min(I_new[node][i] for i in subset)
     return I_new, H_new
 
 

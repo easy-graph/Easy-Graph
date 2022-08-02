@@ -5,16 +5,17 @@ def create_alias_table(area_ratio):
     """
     Parameters
     ---------
-    area_ratio : 
+    area_ratio :
         sum(area_ratio)=1
 
     Returns
-    ---------- 
+    ----------
     1. accept
     2. alias
 
     """
     import numpy as np
+
     l = len(area_ratio)
     accept, alias = [0] * l, [0] * l
     small, large = [], []
@@ -29,8 +30,7 @@ def create_alias_table(area_ratio):
         small_idx, large_idx = small.pop(), large.pop()
         accept[small_idx] = area_ratio_[small_idx]
         alias[small_idx] = large_idx
-        area_ratio_[large_idx] = area_ratio_[large_idx] - \
-            (1 - area_ratio_[small_idx])
+        area_ratio_[large_idx] = area_ratio_[large_idx] - (1 - area_ratio_[small_idx])
         if area_ratio_[large_idx] < 1.0:
             small.append(large_idx)
         else:
@@ -55,10 +55,11 @@ def alias_sample(accept, alias):
     alias :
 
     Returns
-    ---------- 
+    ----------
     sample index
     """
     import numpy as np
+
     N = len(accept)
     i = int(np.random.random() * N)
     r = np.random.random()

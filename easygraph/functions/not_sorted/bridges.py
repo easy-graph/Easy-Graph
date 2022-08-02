@@ -1,6 +1,9 @@
-import easygraph as eg
-from easygraph.utils.decorators import *
 from itertools import chain
+
+import easygraph as eg
+
+from easygraph.utils.decorators import *
+
 
 __all__ = ["bridges", "has_bridges"]
 
@@ -111,7 +114,6 @@ def has_bridges(G, root=None):
 
 
 def chain_decomposition(G, root=None):
-
     def _dfs_cycle_forest(G, root=None):
         H = eg.DiGraph()
         nodes = []
@@ -153,9 +155,9 @@ def chain_decomposition(G, root=None):
         # For each nontree edge going out of node u...
         edges = []
         for u, v, d in H.edges:
-            if d['nontree'] == True:
+            if d["nontree"] == True:
                 edges.append((u, v))
-        #edges = ((u, v) for u, v, d in H.out_edges(u, data="nontree") if d)
+        # edges = ((u, v) for u, v, d in H.out_edges(u, data="nontree") if d)
         for u, v in edges:
             # Create the cycle or cycle prefix starting with the
             # nontree edge.

@@ -1,5 +1,7 @@
 import easygraph as eg
+
 from easygraph.utils import *
+
 
 __all__ = ["pagerank"]
 
@@ -19,6 +21,7 @@ def pagerank(G, alpha=0.85):
 
     """
     import numpy as np
+
     if len(G) == 0:
         return {}
     M = google_matrix(G, alpha=alpha)
@@ -34,6 +37,7 @@ def pagerank(G, alpha=0.85):
 
 def google_matrix(G, alpha):
     import numpy as np
+
     M = eg.utils.to_numpy_array(G)
     N = len(G)
     if N == 0:

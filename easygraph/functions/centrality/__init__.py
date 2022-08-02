@@ -1,4 +1,4 @@
-from .flowbetweenness import *
-from .degree import *
-from .clossness import *
 from .betweenness import *
+from .clossness import *
+from .degree import *
+from .flowbetweenness import *

@@ -6,4 +6,3 @@ This dir offers some examples, which helps you onboard with EasyGraph quickly.
         - Structural Hole Spanner
         - C++ Implementation
         - Multiprocessing
-
