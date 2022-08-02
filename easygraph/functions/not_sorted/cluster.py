@@ -1,6 +1,8 @@
 from collections import Counter
 from itertools import chain
 
+from easygraph.utils.decorators import not_implemented_for
+
 
 try:
     from cpp_easygraph import cpp_clustering
@@ -9,8 +11,6 @@ except ImportError:
 
 
 __all__ = ["average_clustering", "clustering"]
-
-from easygraph.utils.decorators import not_implemented_for
 
 
 @not_implemented_for("multigraph")
