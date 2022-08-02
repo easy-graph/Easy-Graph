@@ -423,15 +423,15 @@ def hierarchy(G, nodes=None, weight=None, n_workers=None):
             res = [x for i in ret for x in i]
         hierarchy = dict(res)
     else:
-        for v in G.nodes:
+        for v in nodes:
             E = G.ego_subgraph(v)
             n = len(E) - 1
             C = 0
             c = {}
             neighbors_of_v = set(G.all_neighbors(v))
             for w in neighbors_of_v:
-                C += local_constraint(G, v, w)
-                c[w] = local_constraint(G, v, w)
+                C += local_constraint(G, v, w, weight)
+                c[w] = local_constraint(G, v, w, weight)
             if n > 1:
                 hierarchy[v] = sum(
                     c[w] / C * n * math.log(c[w] / C * n) / (n * math.log(n))

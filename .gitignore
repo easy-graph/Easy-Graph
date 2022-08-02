@@ -163,3 +163,11 @@ cython_debug/
 
 # End of https://www.toptal.com/developers/gitignore/api/python
 .idea/
+
+# Visual Studio project files
+x64/
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
