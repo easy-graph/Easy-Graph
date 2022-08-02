@@ -11,9 +11,9 @@ public:
         now = neighbor_map.begin();;
         end = neighbor_map.end();
     }
-    node_t next() throw(...) {
+    node_t next() {
         if (now == end) {
-            throw - 1;
+            throw -1;
         }
         else {
             return (now++)->first;
