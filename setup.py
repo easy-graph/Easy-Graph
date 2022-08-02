@@ -1,6 +1,9 @@
 import platform
+
 from pathlib import Path
+
 import setuptools
+
 
 with open("README.rst") as fh:
     long_description = fh.read()
