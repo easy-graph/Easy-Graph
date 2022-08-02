@@ -1,16 +1,16 @@
 from collections import Counter
 from itertools import chain
 
+from easygraph.utils.decorators import not_implemented_for
+
+
 try:
     from cpp_easygraph import cpp_clustering
 except ImportError:
     pass
 
-from easygraph import not_implemented_for
 
 __all__ = ["average_clustering", "clustering"]
-
-from easygraph.utils.decorators import not_implemented_for
 
 
 @not_implemented_for("multigraph")
@@ -32,7 +32,7 @@ def _weighted_triangles_and_degree_iter(G, nodes=None, weight="weight"):
     if nodes is None:
         nodes_nbrs = G.adj.items()
     else:
-        nodes_nbrs = ((n, G[n]) for n in G.edges)
+        nodes_nbrs = ((n, G[n]) for n in G.nbunch_iter(nodes))
 
     def wt(u, v):
         return G[u][v].get(weight, 1) / max_weight
@@ -69,9 +69,9 @@ def _directed_weighted_triangles_and_degree_iter(G, nodes=None, weight="weight")
     if weight is None or G.number_of_edges() == 0:
         max_weight = 1
     else:
-        max_weight = max(d.get(weight, 1) for u, v, d in G.edges(data=True))
+        max_weight = max(d.get(weight, 1) for u, v, d in G.edges)
 
-    nodes_nbrs = ((n, G._pred[n], G._succ[n]) for n in G.nbunch_iter(nodes))
+    nodes_nbrs = ((n, G._pred[n], G._adj[n]) for n in G.nbunch_iter(nodes))
 
     def wt(u, v):
         return G[u][v].get(weight, 1) / max_weight
@@ -83,7 +83,7 @@ def _directed_weighted_triangles_and_degree_iter(G, nodes=None, weight="weight")
         directed_triangles = 0
         for j in ipreds:
             jpreds = set(G._pred[j]) - {j}
-            jsuccs = set(G._succ[j]) - {j}
+            jsuccs = set(G._adj[j]) - {j}
             directed_triangles += sum(
                 np.cbrt([(wt(j, i) * wt(k, i) * wt(k, j)) for k in ipreds & jpreds])
             )
@@ -99,7 +99,7 @@ def _directed_weighted_triangles_and_degree_iter(G, nodes=None, weight="weight")
 
         for j in isuccs:
             jpreds = set(G._pred[j]) - {j}
-            jsuccs = set(G._succ[j]) - {j}
+            jsuccs = set(G._adj[j]) - {j}
             directed_triangles += sum(
                 np.cbrt([(wt(i, j) * wt(k, i) * wt(k, j)) for k in ipreds & jpreds])
             )
@@ -187,7 +187,7 @@ def _directed_triangles_and_degree_iter(G, nodes=None):
     directed triangles so does not count triangles twice.
 
     """
-    nodes_nbrs = ((n, G._pred[n], G._succ[n]) for n in nodes)
+    nodes_nbrs = ((n, G._pred[n], G._adj[n]) for n in G.nbunch_iter(nodes))
 
     for i, preds, succs in nodes_nbrs:
         ipreds = set(preds) - {i}
@@ -196,7 +196,7 @@ def _directed_triangles_and_degree_iter(G, nodes=None):
         directed_triangles = 0
         for j in chain(ipreds, isuccs):
             jpreds = set(G._pred[j]) - {j}
-            jsuccs = set(G._succ[j]) - {j}
+            jsuccs = set(G._adj[j]) - {j}
             directed_triangles += sum(
                 1
                 for k in chain(
@@ -223,7 +223,7 @@ def _triangles_and_degree_iter(G, nodes=None):
     if nodes is None:
         nodes_nbrs = G.adj.items()
     else:
-        nodes_nbrs = ((n, G[n]) for n in nodes)
+        nodes_nbrs = ((n, G[n]) for n in G.nbunch_iter(nodes))
 
     for v, v_nbrs in nodes_nbrs:
         vs = set(v_nbrs) - {v}
@@ -317,7 +317,7 @@ def clustering(G, nodes=None, weight=None):
            by G. Costantini and M. Perugini, PloS one, 9(2), e88669 (2014).
         .. [4] Clustering in complex directed networks by G. Fagiolo,
            Physical Review E, 76(2), 026107 (2007).
-        """
+    """
     if G.cflag == 1:
         return cpp_clustering(G, nodes, weight)
     if G.is_directed():

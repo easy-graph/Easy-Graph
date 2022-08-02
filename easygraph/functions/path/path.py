@@ -14,10 +14,11 @@ __all__ = [
 try:
     from cpp_easygraph import cpp_dijkstra_multisource
     from cpp_easygraph import cpp_Floyd
-    from cpp_easygraph import cpp_Prim
     from cpp_easygraph import cpp_Kruskal
+    from cpp_easygraph import cpp_Prim
 except ImportError:
     pass
+
 
 @not_implemented_for("multigraph")
 def Dijkstra(G, node):
@@ -230,7 +231,9 @@ def multi_source_dijkstra(G, sources, weight="weight", target=None):
 def _dijkstra_multisource(G, sources, weight="weight", target=None):
     if G.cflag == 1:
         return cpp_dijkstra_multisource(G, sources, weight, target)
-    from heapq import heappush, heappop
+    from heapq import heappop
+    from heapq import heappush
+
     push = heappush
     pop = heappop
     adj = G.adj

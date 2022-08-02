@@ -218,6 +218,126 @@ class Graph:
         s = sum(d for v, d in self.degree(weight=weight).items())
         return s // 2 if weight is None else s / 2
 
+    def number_of_edges(self, u=None, v=None):
+        """Returns the number of edges between two nodes.
+
+        Parameters
+        ----------
+        u, v : nodes, optional (default=all edges)
+            If u and v are specified, return the number of edges between
+            u and v. Otherwise return the total number of all edges.
+
+        Returns
+        -------
+        nedges : int
+            The number of edges in the graph.  If nodes `u` and `v` are
+            specified return the number of edges between those nodes. If
+            the graph is directed, this only returns the number of edges
+            from `u` to `v`.
+
+        See Also
+        --------
+        size
+
+        Examples
+        --------
+        For undirected graphs, this method counts the total number of
+        edges in the graph:
+
+        >>> G = eg.path_graph(4)
+        >>> G.number_of_edges()
+        3
+
+        If you specify two nodes, this counts the total number of edges
+        joining the two nodes:
+
+        >>> G.number_of_edges(0, 1)
+        1
+
+        For directed graphs, this method can count the total number of
+        directed edges from `u` to `v`:
+
+        >>> G = eg.DiGraph()
+        >>> G.add_edge(0, 1)
+        >>> G.add_edge(1, 0)
+        >>> G.number_of_edges(0, 1)
+        1
+
+        """
+        if u is None:
+            return int(self.size())
+        if v in self._adj[u]:
+            return 1
+        return 0
+
+    def nbunch_iter(self, nbunch=None):
+        """Returns an iterator over nodes contained in nbunch that are
+        also in the graph.
+
+        The nodes in nbunch are checked for membership in the graph
+        and if not are silently ignored.
+
+        Parameters
+        ----------
+        nbunch : single node, container, or all nodes (default= all nodes)
+            The view will only report edges incident to these nodes.
+
+        Returns
+        -------
+        niter : iterator
+            An iterator over nodes in nbunch that are also in the graph.
+            If nbunch is None, iterate over all nodes in the graph.
+
+        Raises
+        ------
+        EasyGraphError
+            If nbunch is not a node or sequence of nodes.
+            If a node in nbunch is not hashable.
+
+        See Also
+        --------
+        Graph.__iter__
+
+        Notes
+        -----
+        When nbunch is an iterator, the returned iterator yields values
+        directly from nbunch, becoming exhausted when nbunch is exhausted.
+
+        To test whether nbunch is a single node, one can use
+        "if nbunch in self:", even after processing with this routine.
+
+        If nbunch is not a node or a (possibly empty) sequence/iterator
+        or None, a :exc:`EasyGraphError` is raised.  Also, if any object in
+        nbunch is not hashable, a :exc:`EasyGraphError` is raised.
+        """
+        if nbunch is None:  # include all nodes via iterator
+            bunch = iter(self._adj)
+        elif nbunch in self:  # if nbunch is a single node
+            bunch = iter([nbunch])
+        else:  # if nbunch is a sequence of nodes
+
+            def bunch_iter(nlist, adj):
+                try:
+                    for n in nlist:
+                        if n in adj:
+                            yield n
+                except TypeError as err:
+                    exc, message = err, err.args[0]
+                    # capture error for non-sequence/iterator nbunch.
+                    if "iter" in message:
+                        exc = EasyGraphError(
+                            "nbunch is not a node or a sequence of nodes."
+                        )
+                    # capture error for unhashable node.
+                    if "hashable" in message:
+                        exc = EasyGraphError(
+                            f"Node {n} in sequence nbunch is not a valid node."
+                        )
+                    raise exc
+
+            bunch = bunch_iter(nbunch, self._adj)
+        return bunch
+
     def neighbors(self, node):
         """Returns an iterator of a node's neighbors.
 
@@ -475,6 +595,8 @@ class Graph:
         ... ])
 
         """
+        if edges_attr is None:
+            edges_attr = []
         if not len(edges_attr) == 0:  # Edges attributes included in input
             assert len(edges_for_adding) == len(
                 edges_attr
@@ -752,16 +874,6 @@ class Graph:
             The number of nodes.
         """
         return len(self._node)
-
-    def number_of_edges(self):
-        """Returns the number of edges.
-
-        Returns
-        -------
-        number_of_edges : int
-            The number of edges.
-        """
-        return int(self.size())
 
     def is_directed(self):
         return False

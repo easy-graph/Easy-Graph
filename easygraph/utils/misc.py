@@ -1,3 +1,4 @@
+from itertools import chain
 from itertools import tee
 
 
