@@ -7,25 +7,37 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
-        # python-version: ["3.8", "3.9"]
-
+        python-version: ["3.6", "3.7", "3.8", "3.9"]
+        boost-version: ["1.79.0"]
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
+        env:
+          python_version: ${{ matrix.python-version }}
+          boost_version: ${{ matrix.boost-version }}
         run: |
-          python -m pip install --upgrade pip
-          # pip install flake8 pytest
+          python_version_abbr=${python_version//./}
+          boost_version_alias=boost_${boost_version//./_}
+          apt-get install gcc -y
+          apt-get install g++ -y
+          wget https://boostorg.jfrog.io/artifactory/main/release/${boost_version}/source/${boost_version_alias}.tar.gz
+          tar -xf ${boost_version_alias}.tar.gz
+          cd ${boost_version_alias}
+          ./bootstrap.sh --with-python=python
+          ./b2  cxxflags="-fPIC" install --with-python
           cd ${{ github.workspace }}
+          
+          ln -s /usr/local/lib/libboost_python${python_version_abbr}.a /usr/local/lib/libboost_python.a
           pip install pytest
           pip install Pillow
           pip install kiwisolver
           pip install gensim
           pip install lxml
+          python setup.py build_ext -l boost_python -L "/usr/local/lib" -I "/usr/local/include"
           python setup.py install
           # python setup.py egg_info
           # pip install -r *.egg-info/requires.txt
