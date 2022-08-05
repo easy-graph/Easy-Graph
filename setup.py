@@ -1,21 +1,15 @@
 import platform
 
+from pathlib import Path
+
 import setuptools
 
 
 with open("README.rst") as fh:
     long_description = fh.read()
 
-sources = [
-    "easygraph/classes/GraphC/Graph.cpp",
-    "easygraph/classes/GraphC/GraphEdge.cpp",
-    "easygraph/classes/GraphC/GraphEdges.cpp",
-    "easygraph/classes/GraphC/GraphEdgesIter.cpp",
-    "easygraph/classes/GraphC/GraphMap.cpp",
-    "easygraph/classes/GraphC/GraphMapIter.cpp",
-    "easygraph/classes/GraphC/GraphModule.cpp",
-    "easygraph/classes/GraphC/ModuleMethods.cpp",
-]
+cpp_source_dir = Path(__file__).parent / "cpp_easygraph"
+sources = list(str(x) for x in cpp_source_dir.rglob("*.cpp"))
 
 uname = platform.uname()
 compileArgs = []
@@ -70,7 +64,10 @@ setuptools.setup(
     tests_require=[],
     ext_modules=[
         setuptools.Extension(
-            "cpp_easygraph", sources, optional=True, extra_compile_args=compileArgs
+            "cpp_easygraph",
+            sources,
+            optional=True,
+            extra_compile_args=compileArgs
         )
     ],
 )
