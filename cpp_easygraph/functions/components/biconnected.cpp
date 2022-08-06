@@ -3,9 +3,8 @@
 #include "../../common/utils.h"
 
 node_t index_edge(std::vector<std::pair<node_t, node_t>>& edges, const std::pair<node_t, node_t>& target) {
-    for (node_t i = 0;i < edges.size();i++) {
-        std::pair<node_t, node_t>edge = edges[i];
-        if ((edge.first == target.first) && (edge.second == target.second)) {
+    for (node_t i = edges.size() - 1;i >= 0;i--) {
+        if ((edges[i].first == target.first) && (edges[i].second == target.second)) {
             return i;
         }
     }
@@ -13,9 +12,9 @@ node_t index_edge(std::vector<std::pair<node_t, node_t>>& edges, const std::pair
 }
 
  
-py::object _generator_biconnected_components_edges(py::object G, bool need_components = true) {
+py::object _biconnected_dfs_record_edges(py::object G, py::object need_components) {
     py::list ret = py::list();
-    std::set<node_t> visited;
+    std::unordered_set<node_t> visited;
     Graph& G_ = py::extract<Graph&>(G);
     node_dict_factory nodes_list = G_.node;
     for (node_dict_factory::iterator iter = nodes_list.begin();iter != nodes_list.end();iter++) {
@@ -23,8 +22,8 @@ py::object _generator_biconnected_components_edges(py::object G, bool need_compo
         if (visited.find(start_id) != visited.end()) {
             continue;
         }
-        std::unordered_map<node_t, node_t> discovery;
-        std::unordered_map<node_t, node_t> low;
+        std::unordered_map<node_t, int> discovery;
+        std::unordered_map<node_t, int> low;
         node_t root_children = 0;
         discovery.emplace(start_id, 0);
         low.emplace(start_id, 0);
@@ -57,8 +56,7 @@ py::object _generator_biconnected_components_edges(py::object G, bool need_compo
                     visited.emplace(node_child_id);
                     adj_attr_dict_factory node_child_adj = G_.adj[node_child_id];
                     NeighborIterator child_neighbors_iter = NeighborIterator(G_.adj[node_child_id]);
-                    stack_node new_stack_node(node_parent_id, node_child_id, child_neighbors_iter);
-                    stack.emplace_back(new_stack_node);
+                    stack.emplace_back(node_parent_id, node_child_id, child_neighbors_iter);
                     if (need_components) {
                         edge_stack.emplace_back(std::make_pair(node_parent_id, node_child_id));
                     }
@@ -107,10 +105,4 @@ py::object _generator_biconnected_components_edges(py::object G, bool need_compo
         }
     }
     return ret;
-}
-
-py::object generator_biconnected_components_edges(py::object G) {
-
-    return _generator_biconnected_components_edges(G, true);
-
 }

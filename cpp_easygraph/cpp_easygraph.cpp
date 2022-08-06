@@ -48,6 +48,7 @@ BOOST_PYTHON_MODULE(cpp_easygraph)
     py::def("cpp_hierarchy", &hierarchy, (py::arg("G"), py::arg("nodes") = py::object(), py::arg("weight") = py::object(), py::arg("n_workers") = py::object()));
     py::def("cpp_dijkstra_multisource", &_dijkstra_multisource, (py::arg("G"), py::arg("sources"), py::arg("weight") = "weight", py::arg("target") = py::object()));
     py::def("cpp_clustering", &clustering, (py::arg("G"), py::arg("nodes") = py::object(), py::arg("weight") = py::object()));
+    py::def("cpp_biconnected_dfs_record_edges", &_biconnected_dfs_record_edges, (py::arg("G"), py::arg("need_components") = true));
     py::def("cpp_Floyd", &Floyd, (py::arg("G")));
     py::def("cpp_Prim", &Prim, (py::arg("G")));
     py::def("cpp_Kruskal", &Kruskal, (py::arg("G")));
