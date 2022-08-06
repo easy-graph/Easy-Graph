@@ -32,4 +32,4 @@ typedef struct stackNode {
     }
 }stack_node;
 
-py::object generator_biconnected_components_edges(py::object G);
+py::object _biconnected_dfs_record_edges(py::object G, py::object need_components);
