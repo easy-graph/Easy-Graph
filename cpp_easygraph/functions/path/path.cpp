@@ -7,7 +7,7 @@ py::object _dijkstra_multisource(py::object G, py::object sources, py::object we
 	std::string weight_key = weight_to_string(weight);
 	node_t target_id = py::extract<node_t>(G_.node_to_id.get(target, -1));
 	std::map<node_t, weight_t> dist, seen;
-	std::priority_queue<std::pair<weight_t, node_t>, std::vector<std::pair<weight_t, node_t>> > Q;
+	std::priority_queue<std::pair<weight_t, node_t>, std::vector<std::pair<weight_t, node_t>>, std::greater<std::pair<weight_t, node_t>>> Q;
 	py::list sources_list = py::list(sources);
 	for (int i = 0;i < py::len(sources_list);i++) {
 		node_t source = py::extract<node_t>(G_.node_to_id[sources_list[i]]);
