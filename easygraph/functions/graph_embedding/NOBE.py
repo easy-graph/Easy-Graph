@@ -154,7 +154,6 @@ def Transition(LG):
 
 def eigs_nodes(P, K):
     M = np.size(P, 0)
-    L = np.zeros([M, M])
     I = np.identity(M)
     P_T = P.T
     L = I - (P + P_T) / 2

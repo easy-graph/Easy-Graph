@@ -194,9 +194,7 @@ def _independent_cascade(G, S, community_label, countIterations, node_label_pair
                     toss = random.random() + 0.1
                     if v <= 0 or neighbor <= 0:
                         print(v, neighbor)
-                    # if toss>0.5:
-                    #     activeNodes.append(neighbor)
-                    #     Q.append(neighbor)
+
                     if toss >= p_vw[v - 1][neighbor - 1]:
                         activeNodes.append(neighbor)
                         Q.append(neighbor)

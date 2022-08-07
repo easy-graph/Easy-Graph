@@ -282,8 +282,6 @@ def AP_Greedy(G, k, c=1.0, weight="weight"):
         upper_bound = _get_upper_bound_of_non_ap_nodes(G_i, v_ap, c)
         lower_bound = sorted(lower_bound.items(), key=lambda x: x[1], reverse=True)
 
-        # print(upper_bound)
-        # print(lower_bound)
         if len(lower_bound) != 0 and lower_bound[0][1] > max(upper_bound):
             v_i = lower_bound[0][0]
         else:  # If acticulation points not chosen, use common_greedy instead.

@@ -157,7 +157,6 @@ def chain_decomposition(G, root=None):
         for u, v, d in H.edges:
             if d["nontree"] == True:
                 edges.append((u, v))
-        # edges = ((u, v) for u, v, d in H.out_edges(u, data="nontree") if d)
         for u, v in edges:
             # Create the cycle or cycle prefix starting with the
             # nontree edge.

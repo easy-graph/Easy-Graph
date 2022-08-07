@@ -60,6 +60,7 @@ class Graph:
     adjlist_outer_dict_factory = dict
     adjlist_inner_dict_factory = dict
     edge_attr_dict_factory = dict
+    none_cannot_be_a_node_message = "None cannot be a node"
 
     def __init__(self, incoming_graph_data=None, **graph_attr):
         self.graph = self.graph_attr_dict_factory()
@@ -83,7 +84,6 @@ class Graph:
             return False
 
     def __getitem__(self, node):
-        # return list(self._adj[node].keys())
         return self._adj[node]
 
     @property
@@ -93,7 +93,6 @@ class Graph:
     @property
     def nodes(self):
         return self._node
-        # return [node for node in self._node]
 
     @property
     def edges(self):
@@ -387,7 +386,7 @@ class Graph:
                 newdict.update(ndict)
             if newnode:
                 if n is None:
-                    raise ValueError("None cannot be a node")
+                    raise ValueError(self.none_cannot_be_a_node_message)
                 self._adj[n] = self.adjlist_inner_dict_factory()
                 self._node[n] = self.node_attr_dict_factory()
             self._node[n].update(newdict)
@@ -540,12 +539,12 @@ class Graph:
                 raise EasyGraphError(f"Edge tuple {e} must be a 2-tuple or 3-tuple.")
             if u not in self._node:
                 if u is None:
-                    raise ValueError("None cannot be a node")
+                    raise ValueError(self.none_cannot_be_a_node_message)
                 self._adj[u] = self.adjlist_inner_dict_factory()
                 self._node[u] = self.node_attr_dict_factory()
             if v not in self._node:
                 if v is None:
-                    raise ValueError("None cannot be a node")
+                    raise ValueError(self.none_cannot_be_a_node_message)
                 self._adj[v] = self.adjlist_inner_dict_factory()
                 self._node[v] = self.node_attr_dict_factory()
             datadict = self._adj[u].get(v, self.edge_attr_dict_factory())
@@ -594,7 +593,7 @@ class Graph:
             edges = fp.readlines()
         if weighted:
             for edge in edges:
-                edge = re.sub(",", " ", edge)
+                edge = edge.replace(",", " ")
                 edge = edge.split()
                 try:
                     self.add_edge(edge[0], edge[1], weight=float(edge[2]))
@@ -602,7 +601,7 @@ class Graph:
                     pass
         else:
             for edge in edges:
-                edge = re.sub(",", " ", edge)
+                edge = edge.replace("," " ")
                 edge = edge.split()
                 try:
                     self.add_edge(edge[0], edge[1])

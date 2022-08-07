@@ -120,7 +120,7 @@ def SLPA(G, T, r):
     nodes = G.nodes
     adj = G.adj
     memory = {i: {i: 1} for i in nodes}
-    for i in range(0, T):
+    for _ in range(0, T):
         listenerslist = list(G.nodes)
         random.shuffle(listenerslist)
         for listener in listenerslist:
@@ -376,7 +376,7 @@ def BMLPA(G, p):
             i += 1
     oldMin = dict()
     loop_count = 0
-    old_label_dictx = dict()
+
     while True:
         loop_count += 1
         old_label_dictx = old_label_dict
@@ -384,7 +384,7 @@ def BMLPA(G, p):
             Propagate_bbc(G, node, old_label_dict, new_label_dict, p)
         if loop_count > 50 and old_label_dict == old_label_dictx:
             break
-        Min = dict()
+
         if Id(old_label_dict) == Id(new_label_dict):
             Min = mc(count(old_label_dict), count(new_label_dict))
         else:
@@ -586,7 +586,6 @@ def ShowRecord(records):
 
         return :    {2:[1,2,3,4,5,6,7,8,10,9,11,12]}
     """
-    result = dict()
     first = records[0]
     for i in range(1, len(records)):
         keys = list(first.keys())

@@ -32,8 +32,6 @@ max_nmw_rec = {}
 def normalized_mutual_weight(G, u, v, norm=sum, weight=None):
     if norm == sum:
         try:
-            # res = sum_nmw_rec[(u, v)]
-            # print('yes')
             return sum_nmw_rec[(u, v)]
         except KeyError:
             scale = norm(mutual_weight(G, u, w, weight) for w in G.all_neighbors(u))

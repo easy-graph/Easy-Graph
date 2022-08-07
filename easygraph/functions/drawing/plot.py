@@ -12,6 +12,11 @@ __all__ = [
     "plot_Neighborhood_Followers",
 ]
 
+ORDINARY_USER_LABEL = "Ordinary User"
+SH_SPANNER_LABEL = "SH Spanner"
+CUMULATIVE_DISTRIBUTION_FUNCTION_Y_LABEL = "Cumulative Distribution Function"
+LOWER_RIGHT_LEGEND_LOC = "lower right"
+
 
 # Number of Followers
 def plot_Followers(G, SHS):
@@ -49,12 +54,12 @@ def plot_Followers(G, SHS):
     X2 = np.linspace(min(sample2), max(sample2))
     ecdf = sm.distributions.ECDF(sample2)
     Y2 = ecdf(X2)
-    plt.plot(X1, Y1, "b--", label="Ordinary User")
-    plt.plot(X2, Y2, "r", label="SH Spanner")
+    plt.plot(X1, Y1, "b--", label=ORDINARY_USER_LABEL)
+    plt.plot(X2, Y2, "r", label=SH_SPANNER_LABEL)
     plt.title("Number of Followers")
     plt.xlabel("Number of Followers")
-    plt.ylabel("Cumulative Distribution Function")
-    plt.legend(loc="lower right")
+    plt.ylabel(CUMULATIVE_DISTRIBUTION_FUNCTION_Y_LABEL)
+    plt.legend(loc=LOWER_RIGHT_LEGEND_LOC)
     plt.show()
 
 
@@ -108,12 +113,12 @@ def plot_Connected_Communities(G, SHS):
     X2 = np.linspace(min(sample2), max(sample2))
     ecdf = sm.distributions.ECDF(sample2)
     Y2 = ecdf(X2)
-    plt.plot(X1, Y1, "b--", label="Ordinary User")
-    plt.plot(X2, Y2, "r", label="SH Spanner")
+    plt.plot(X1, Y1, "b--", label=ORDINARY_USER_LABEL)
+    plt.plot(X2, Y2, "r", label=SH_SPANNER_LABEL)
     plt.title("Number of Connected Communities")
     plt.xlabel("Number of Connected Communities")
-    plt.ylabel("Cumulative Distribution Function")
-    plt.legend(loc="lower right")
+    plt.ylabel(CUMULATIVE_DISTRIBUTION_FUNCTION_Y_LABEL)
+    plt.legend(loc=LOWER_RIGHT_LEGEND_LOC)
     plt.show()
 
 
@@ -153,12 +158,12 @@ def plot_Betweenness_Centrality(G, SHS):
     X2 = np.linspace(min(sample2), max(sample2))
     ecdf = sm.distributions.ECDF(sample2)
     Y2 = ecdf(X2)
-    plt.plot(X1, Y1, "b--", label="Ordinary User")
-    plt.plot(X2, Y2, "r", label="SH Spanner")
+    plt.plot(X1, Y1, "b--", label=ORDINARY_USER_LABEL)
+    plt.plot(X2, Y2, "r", label=SH_SPANNER_LABEL)
     plt.title("Betweenness Centrality")
     plt.xlabel("Betweenness Centrality")
-    plt.ylabel("Cumulative Distribution Function")
-    plt.legend(loc="lower right")
+    plt.ylabel(CUMULATIVE_DISTRIBUTION_FUNCTION_Y_LABEL)
+    plt.legend(loc=LOWER_RIGHT_LEGEND_LOC)
     plt.show()
 
 
@@ -208,10 +213,10 @@ def plot_Neighborhood_Followers(G, SHS):
     X2 = np.linspace(min(sample2), max(sample2))
     ecdf = sm.distributions.ECDF(sample2)
     Y2 = ecdf(X2)
-    plt.plot(X1, Y1, "b--", label="Ordinary User")
-    plt.plot(X2, Y2, "r", label="SH Spanner")
+    plt.plot(X1, Y1, "b--", label=ORDINARY_USER_LABEL)
+    plt.plot(X2, Y2, "r", label=SH_SPANNER_LABEL)
     plt.title("Arg. Number of Followers of the Neighborhood Users")
     plt.xlabel("Arg. Number of Followers of the Neighborhood Users")
-    plt.ylabel("Cumulative Distribution Function")
-    plt.legend(loc="lower right")
+    plt.ylabel(CUMULATIVE_DISTRIBUTION_FUNCTION_Y_LABEL)
+    plt.legend(loc=LOWER_RIGHT_LEGEND_LOC)
     plt.show()

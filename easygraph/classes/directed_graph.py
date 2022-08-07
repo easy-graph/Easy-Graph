@@ -60,6 +60,8 @@ class DiGraph(Graph):
     adjlist_outer_dict_factory = dict
     adjlist_inner_dict_factory = dict
     edge_attr_dict_factory = dict
+    no_node_message = "No node {}"
+    none_cannot_be_a_node_message = "None cannot be a node"
 
     def __init__(self, incoming_graph_data=None, **graph_attr):
         self.graph = self.graph_attr_dict_factory()
@@ -83,7 +85,6 @@ class DiGraph(Graph):
             return False
 
     def __getitem__(self, node):
-        # return list(self._adj[node].keys())
         return self._adj[node]
 
     @property
@@ -93,7 +94,6 @@ class DiGraph(Graph):
     @property
     def nodes(self):
         return self._node
-        # return [node for node in self._node]
 
     @property
     def edges(self):
@@ -296,7 +296,7 @@ class DiGraph(Graph):
         try:
             return iter(self._adj[node])
         except KeyError:
-            print("No node {}".format(node))
+            print(self.no_node_message.format(node))
 
     successors = neighbors
 
@@ -325,7 +325,7 @@ class DiGraph(Graph):
         try:
             return iter(self._pred[node])
         except KeyError:
-            print("No node {}".format(node))
+            print(self.no_node_message.format(node))
 
     def all_neighbors(self, node):
         """Returns an iterator of a node's neighbors, including both successors and predecessors.
@@ -354,7 +354,7 @@ class DiGraph(Graph):
             neighbors.extend(self._pred[node])
             return iter(neighbors)
         except KeyError:
-            print("No node {}".format(node))
+            print(self.no_node_message.format(node))
 
     def add_node(self, node_for_adding, **node_attr):
         """Add one node
@@ -433,14 +433,13 @@ class DiGraph(Graph):
                 nodes_attr
             ), "Nodes and Attributes lists must have same length."
         else:  # Set empty attribute for each node
-            nodes_attr = [dict() for i in range(len(nodes_for_adding))]
+            nodes_attr = [dict() for _ in range(len(nodes_for_adding))]
 
         for i in range(len(nodes_for_adding)):
             try:
                 self._add_one_node(nodes_for_adding[i], nodes_attr[i])
             except Exception as err:
                 print(err)
-                pass
 
     def add_nodes_from(self, nodes_for_adding, **attr):
         """Add multiple nodes.
@@ -497,7 +496,7 @@ class DiGraph(Graph):
                 newdict.update(ndict)
             if newnode:
                 if n is None:
-                    raise ValueError("None cannot be a node")
+                    raise ValueError(self.none_cannot_be_a_node_message)
                 self._adj[n] = self.adjlist_inner_dict_factory()
                 self._pred[n] = self.adjlist_inner_dict_factory()
                 self._node[n] = self.node_attr_dict_factory()
@@ -653,13 +652,13 @@ class DiGraph(Graph):
                 raise EasyGraphError(f"Edge tuple {e} must be a 2-tuple or 3-tuple.")
             if u not in self._adj:
                 if u is None:
-                    raise ValueError("None cannot be a node")
+                    raise ValueError(self.none_cannot_be_a_node_message)
                 self._adj[u] = self.adjlist_inner_dict_factory()
                 self._pred[u] = self.adjlist_inner_dict_factory()
                 self._node[u] = self.node_attr_dict_factory()
             if v not in self._adj:
                 if v is None:
-                    raise ValueError("None cannot be a node")
+                    raise ValueError(self.none_cannot_be_a_node_message)
                 self._adj[v] = self.adjlist_inner_dict_factory()
                 self._pred[v] = self.adjlist_inner_dict_factory()
                 self._node[v] = self.node_attr_dict_factory()
@@ -709,7 +708,7 @@ class DiGraph(Graph):
             edges = fp.readlines()
         if weighted:
             for edge in edges:
-                edge = re.sub(",", " ", edge)
+                edge = edge.replace(",", " ")
                 edge = edge.split()
                 try:
                     self.add_edge(edge[0], edge[1], weight=float(edge[2]))
@@ -717,7 +716,7 @@ class DiGraph(Graph):
                     pass
         else:
             for edge in edges:
-                edge = re.sub(",", " ", edge)
+                edge = edge.replace(",", " ")
                 edge = edge.split()
                 try:
                     self.add_edge(edge[0], edge[1])
