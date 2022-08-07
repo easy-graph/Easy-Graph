@@ -4,7 +4,6 @@ import easygraph as eg
 
 
 class BetweennessTest(unittest.TestCase):
-
     def test_betweenness_centrality(self):
         test_graph = eg.Graph([(2, 6), (6, 10), (10, 25), (30, 40), (40, 50)])
         actual_result = eg.betweenness_centrality(test_graph, normalized=False)
@@ -17,5 +16,5 @@ class BetweennessTest(unittest.TestCase):
             self.assertEqual(actual_result.get(i), 0.0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

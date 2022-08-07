@@ -4,7 +4,6 @@ import easygraph as eg
 
 
 class MappedQueueTest(unittest.TestCase):
-
     def test_mapped_queue_push(self):
         mapped_queue = eg.MappedQueue([916, 50, 4609, 493, 237])
         mapped_queue.push(1310)
@@ -36,6 +35,5 @@ class MappedQueueTest(unittest.TestCase):
         self.assertEqual(mapped_queue.__len__(), 5)
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

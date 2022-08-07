@@ -18,5 +18,5 @@ class MSTTest(unittest.TestCase):
         self.assertEqual([0, 3, 2, 6], actual_result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

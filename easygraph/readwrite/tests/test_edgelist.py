@@ -4,7 +4,6 @@ import easygraph as eg
 
 
 class ParseEdgeList(unittest.TestCase):
-
     def test_parse_edgelist(self):
         self.assertEqual(self.run_parse_edgelist_with_no_data(), [1, 2, 3, 4])
         self.assertEqual(self.run_parse_edgelist_with_dict(), [1, 2, 3, 4])
@@ -23,5 +22,5 @@ class ParseEdgeList(unittest.TestCase):
         return list(eg.parse_edgelist(lines, nodetype=int, data=(("weight", float),)))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

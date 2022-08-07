@@ -4,7 +4,6 @@ import easygraph as eg
 
 
 class WeakTieTest(unittest.TestCase):
-
     def test_weakTie(self):
         test_graph = eg.DiGraph(
             [
@@ -26,20 +25,21 @@ class WeakTieTest(unittest.TestCase):
         self.assertEqual(high_score_list, [6, 5, 2])
         self.assertEqual(
             score_dict,
-            {1: 0,
-             6: 0.07500000000000001,
-             5: 0.07500000000000001,
-             2: 0.07500000000000001,
-             3: 0.07500000000000001,
-             7: 0.07500000000000001,
-             8: 0.07500000000000001,
-             9: 0.07500000000000001,
-             4: 0,
-             10: 0,
-             100: 0
-             }
+            {
+                1: 0,
+                6: 0.07500000000000001,
+                5: 0.07500000000000001,
+                2: 0.07500000000000001,
+                3: 0.07500000000000001,
+                7: 0.07500000000000001,
+                8: 0.07500000000000001,
+                9: 0.07500000000000001,
+                4: 0,
+                10: 0,
+                100: 0,
+            },
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

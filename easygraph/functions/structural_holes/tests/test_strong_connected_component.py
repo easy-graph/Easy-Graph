@@ -4,16 +4,8 @@ import easygraph as eg
 
 
 class StronglyConnectedComponentTest(unittest.TestCase):
-
     def test_strongly_connected_components(self):
-        test_graph = eg.DiGraph(
-            [
-                (4, 6),
-                (6, 8),
-                (8, 10),
-                (12, 14)
-            ]
-        )
+        test_graph = eg.DiGraph([(4, 6), (6, 8), (8, 10), (12, 14)])
 
         actual_result = []
         for result in eg.strongly_connected_components(test_graph):
@@ -32,10 +24,7 @@ class StronglyConnectedComponentTest(unittest.TestCase):
                 (10, 100),
             ]
         )
-        self.assertEqual(
-            eg.number_strongly_connected_components(test_graph),
-            6
-        )
+        self.assertEqual(eg.number_strongly_connected_components(test_graph), 6)
 
     def test_condensation(self):
         test_graph = eg.DiGraph(
@@ -47,10 +36,9 @@ class StronglyConnectedComponentTest(unittest.TestCase):
         )
 
         self.assertEqual(
-            eg.condensation(test_graph).edges,
-            [(1, 0, {}), (3, 2, {}), (4, 3, {})]
+            eg.condensation(test_graph).edges, [(1, 0, {}), (3, 2, {}), (4, 3, {})]
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

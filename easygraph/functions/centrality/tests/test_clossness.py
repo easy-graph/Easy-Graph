@@ -4,7 +4,6 @@ import easygraph as eg
 
 
 class ClossnessTest(unittest.TestCase):
-
     def test_closeness_centrality(self):
         test_graph = eg.Graph([(2, 6), (6, 10), (10, 25), (30, 40), (40, 50)])
         actual_result = eg.closeness_centrality(test_graph)
@@ -13,5 +12,5 @@ class ClossnessTest(unittest.TestCase):
         self.assertEqual(actual_result.get(30), actual_result.get(50))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
