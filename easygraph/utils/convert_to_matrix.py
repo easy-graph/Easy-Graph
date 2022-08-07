@@ -10,6 +10,7 @@ __all__ = [
     "from_pandas_adjacency",
     "from_pandas_edgelist",
     "from_scipy_sparse_matrix",
+    "from_scipy_sparse_array"
 ]
 
 
