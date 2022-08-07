@@ -488,7 +488,6 @@ py::object Graph_copy(py::object self) {
 
 py::object Graph_degree(py::object self, py::object weight) {
 	py::dict degree;
-	std::string weight_key = weight_to_string(weight);
 	py::list edges = py::extract<py::list>(self.attr("edges"));
 	py::object u, v;
 	py::dict d;
@@ -498,16 +497,23 @@ py::object Graph_degree(py::object self, py::object weight) {
 		v = edge[1];
 		d = py::extract<py::dict>(edge[2]);
 		if (degree.contains(u)) {
-			degree[u] += d.attr("get")(weight, 1);
+			degree[u] += d.get(weight, 1);
 		}
 		else {
-			degree[u] = d.attr("get")(weight, 1);
+			degree[u] = d.get(weight, 1);
 		}
 		if (degree.contains(v)) {
-			degree[v] += d.attr("get")(weight, 1);
+			degree[v] += d.get(weight, 1);
 		}
 		else {
-			degree[v] = d.attr("get")(weight, 1);
+			degree[v] = d.get(weight, 1);
+		}
+	}
+	py::list nodes = py::list(self.attr("nodes"));
+	for (int i = 0;i < py::len(nodes);i++) {
+		py::object node = nodes[i];
+		if (!degree.contains(node)) {
+			degree[node] = 0;
 		}
 	}
 	return degree;
