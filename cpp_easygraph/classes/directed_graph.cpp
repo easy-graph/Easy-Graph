@@ -85,6 +85,6 @@ py::object DiGraph_degree(py::object self, py::object weight) {
 
 py::object DiGraph_size(py::object self, py::object weight) {
 	py::dict out_degree = py::extract<py::dict>(self.attr("out_degree")(weight));
-	py::object s = sum(out_degree.values());
+	py::object s = py_sum(out_degree.values());
 	return (weight == py::object()) ? py::object(py::extract<int>(s)) : s;
 }

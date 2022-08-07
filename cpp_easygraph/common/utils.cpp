@@ -20,7 +20,7 @@ std::string weight_to_string(py::object weight) {
 	return weight_key;
 }
 
-py::object sum(py::object o) {
+py::object py_sum(py::object o) {
 	py::object sum = py::import("builtins").attr("sum");
 	return sum(o);
 }
