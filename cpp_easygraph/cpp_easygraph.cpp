@@ -49,7 +49,8 @@ BOOST_PYTHON_MODULE(cpp_easygraph)
         .def("out_degree", &DiGraph_out_degree, (py::arg("weight") = "weight"))
         .def("in_degree", &DiGraph_in_degree, (py::arg("weight") = "weight"))
         .def("degree", &DiGraph_degree, (py::arg("weight") = "weight"))
-        .def("size", &DiGraph_size, (py::arg("weight") = py::object()));
+        .def("size", &DiGraph_size, (py::arg("weight") = py::object()))
+        .def("number_of_edges", &DiGraph_number_of_edges, (py::arg("u") = py::object(), py::arg("v") = py::object()));
 
     py::def("cpp_constraint", &constraint, (py::arg("G"), py::arg("nodes") = py::object(), py::arg("weight") = py::object(), py::arg("n_workers") = py::object()));
     py::def("cpp_effective_size", &effective_size, (py::arg("G"), py::arg("nodes") = py::object(), py::arg("weight") = py::object(), py::arg("n_workers") = py::object()));

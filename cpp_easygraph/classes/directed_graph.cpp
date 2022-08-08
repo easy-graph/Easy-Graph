@@ -88,3 +88,13 @@ py::object DiGraph_size(py::object self, py::object weight) {
 	py::object s = py_sum(out_degree.values());
 	return (weight == py::object()) ? py::object(py::extract<int>(s)) : s;
 }
+
+py::object DiGraph_number_of_edges(py::object self, py::object u, py::object v) {
+	if (u == py::object()) {
+		return self.attr("size")();
+	}
+	Graph& G = py::extract<Graph&>(self);
+	node_t u_id = py::extract<node_t>(G.node_to_id[u]);
+	node_t v_id = py::extract<node_t>(G.node_to_id.get(v, -1));
+	return py::object(int(v != -1 && G.adj[u_id].count(v_id)));
+}
