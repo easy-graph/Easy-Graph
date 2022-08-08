@@ -8,7 +8,6 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.6", "3.7", "3.8", "3.9"]
-        boost-version: ["1.79.0"]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
@@ -18,7 +17,7 @@ jobs:
       - name: Install dependencies
         env:
           python_version: ${{ matrix.python-version }}
-          boost_version: ${{ matrix.boost-version }}
+          boost_version: "1.79.0"
         run: |
           python_version_abbr=${python_version//./}
           boost_version_alias=boost_${boost_version//./_}
