@@ -12,8 +12,12 @@ __all__ = [
     "selfloop_edges",
     "topological_sort",
     "number_of_selfloops",
+    "density",
 ]
-
+try:
+    from cpp_easygraph import cpp_density
+except ImportError:
+    pass
 
 def set_edge_attributes(G, values, name=None):
     """Sets edge attributes from a given value or dictionary of values.
@@ -408,3 +412,39 @@ def selfloop_edges(G, data=False, keys=False, default=None):
                 )
         else:
             return ((n, n) for n, nbrs in G.adj.items() if n in nbrs)
+
+def density(G):
+    r"""Returns the density of a graph.
+
+    The density for undirected graphs is
+
+    .. math::
+
+       d = \frac{2m}{n(n-1)},
+
+    and for directed graphs is
+
+    .. math::
+
+       d = \frac{m}{n(n-1)},
+
+    where `n` is the number of nodes and `m`  is the number of edges in `G`.
+
+    Notes
+    -----
+    The density is 0 for a graph without edges and 1 for a complete graph.
+    The density of multigraphs can be higher than 1.
+
+    Self loops are counted in the total number of edges so graphs with self
+    loops can have density higher than 1.
+    """
+    if G.cflag == 1:
+        return cpp_density(G)
+    n = G.number_of_nodes()
+    m = G.number_of_edges()
+    if m == 0 or n <= 1:
+        return 0
+    d = m / (n * (n - 1))
+    if not G.is_directed():
+        d *= 2
+    return d
