@@ -4,6 +4,7 @@ import easygraph as eg
 
 
 class HAMTest(unittest.TestCase):
+    @unittest.skip("eg.get_structural_holes_HAM's return can be random.")
     def test_get_structural_holes_HAM(self):
         test_graph = eg.Graph([(1, 2), (2, 3), (15, 25)])
         test_k = 2
