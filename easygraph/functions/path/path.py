@@ -28,7 +28,7 @@ def Dijkstra(G, node):
     ----------
     G : graph
         weighted graph
-    node : int
+    node : Hashable
 
     Returns
     -------

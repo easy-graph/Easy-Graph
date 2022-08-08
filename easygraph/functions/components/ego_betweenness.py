@@ -14,7 +14,7 @@ def ego_betweenness(G, node):
     Parameters
     ----------
     G : graph
-    node : int
+    node : Hashable
 
     Returns
     -------
