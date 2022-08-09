@@ -48,7 +48,7 @@ setuptools.setup(
         "progressbar33>=2.4",
         "scikit-learn>=0.23.0, <=0.24.2; python_version=='3.6'",
         "scikit-learn>=0.24.0, <=1.0.2; python_version=='3.7'",
-        "scikit-learn>=0.24.0; python_version>='3.8'",
+        "scikit-learn>=1.1; python_version>='3.8'",
         "scipy>=1.5.0, <=1.5.4; python_version=='3.6'",
         "scipy>=1.5.0, <=1.7.3; python_version=='3.7'",
         "scipy>=1.8.0; python_version>='3.8'",
