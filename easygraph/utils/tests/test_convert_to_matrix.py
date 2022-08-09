@@ -1,3 +1,4 @@
+import sys
 import unittest
 
 import easygraph as eg
@@ -158,6 +159,11 @@ class ConvertToMatrix(unittest.TestCase):
         )
         self.assertEqual(test_graph.adj, from_scipy_sparse_matrix_adj_expected_return)
 
+    # skip on python<3.8
+    @unittest.skipUnless(
+        hasattr(np, "sparse") and hasattr(np.sparse, "csr_array"),
+        "skip if np.sparse.csr_array is not available",
+    )
     def test_from_scipy_sparse_array(self):
         import scipy as sp
 
