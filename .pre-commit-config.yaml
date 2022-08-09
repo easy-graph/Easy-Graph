@@ -90,3 +90,8 @@ repos:
     rev: v2.20.0
     hooks:
       - id: validate_manifest
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.6.9
+    hooks:
+      - id: actionlint
