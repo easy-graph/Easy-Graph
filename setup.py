@@ -52,7 +52,8 @@ setuptools.setup(
         "scipy>=1.5.0, <=1.5.4; python_version=='3.6'",
         "scipy>=1.5.0, <=1.7.3; python_version=='3.7'",
         "scipy>=1.8.0; python_version>='3.8'",
-        "matplotlib>=3.3.0, <=3.3.4",
+        "matplotlib>=3.3.0, <=3.3.4; python_version<'3.10'",
+        "matplotlib>=3.5.2; python_version>='3.10'",
         "statsmodels>=0.12.0, <=0.12.2; python_version=='3.6'",
         "statsmodels>=0.12.0; python_version>='3.7'",
         "progressbar>=2.5",
@@ -64,10 +65,7 @@ setuptools.setup(
     tests_require=[],
     ext_modules=[
         setuptools.Extension(
-            "cpp_easygraph",
-            sources,
-            optional=True,
-            extra_compile_args=compileArgs
+            "cpp_easygraph", sources, optional=True, extra_compile_args=compileArgs
         )
     ],
 )

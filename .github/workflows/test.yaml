@@ -39,9 +39,11 @@ jobs:
           pip install kiwisolver
           pip install gensim
           pip install lxml
-      - name: Build and install easygraph
+      - name: Build easygraph
         run: |
           python setup.py build_ext -l boost_python -L "/usr/local/lib" -I "/usr/local/include"
+      - name: Install easygraph
+        run: |
           python setup.py install
       - name: Test with pytest
         run: |
