@@ -19,6 +19,7 @@ try:
 except ImportError:
     pass
 
+
 def set_edge_attributes(G, values, name=None):
     """Sets edge attributes from a given value or dictionary of values.
 
@@ -412,6 +413,7 @@ def selfloop_edges(G, data=False, keys=False, default=None):
                 )
         else:
             return ((n, n) for n, nbrs in G.adj.items() if n in nbrs)
+
 
 def density(G):
     r"""Returns the density of a graph.
