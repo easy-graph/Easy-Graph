@@ -65,7 +65,7 @@ boost_download_dir="$(pwd)"
 cd "${script_dir}" || exit 255
 if [ "${skip_process}" != "boost" ] && [ "${skip_process}" != "build" ]; then
    install_boost_script="install_boost_python_linux.sh"
-   echo bash "${install_boost_script}" -v "${python_version}" -p "${python_bin}" -b "${boost_version}" -d "${boost_download_dir}"
+   bash "${install_boost_script}" -v "${python_version}" -p "${python_bin}" -b "${boost_version}" -d "${boost_download_dir}"
    exit_code=${?}
    if [ ${exit_code} -ne 0 ]; then
       exit ${exit_code}
