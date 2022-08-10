@@ -4,20 +4,16 @@
 # check executability
 if [ ! -x "${0}" ]; then
    echo "Error: $0 is not executable."
-   echo "Please run \`sudo chmod 755 $0\` and try again."
+   echo "Please run \`sudo chmod 755 \"$0\"\` and try again."
    exit 255
 fi
 
-# directories
-script_dir=$(dirname "$0")
-easygraph_root_dir=${script_dir}/..
-
 # options
-python_version="3.8"      # Python version. For example and by default: "3.8".
-python_bin="python3"      # Python bin name or path. For example and by default: "python3".
-boost_version="1.79.0"    # Boost version. For example and by default: "1.79.0".
-boost_download_dir=$(pwd) # Boost download directory. By default: current working directory.
-skip_process="none"       # Skip process. By default "none". Use "boost" to skip installing boost python. Use "build" to additionally skip building extension.
+python_version="3.8"        # Python version. For example and by default: "3.8".
+python_bin="python3"        # Python bin name or path. For example and by default: "python3".
+boost_version="1.79.0"      # Boost version. For example and by default: "1.79.0".
+boost_download_dir="$(pwd)" # Boost download directory. By default: current working directory.
+skip_process="none"         # Skip process. By default "none". Use "boost" to skip installing boost python. Use "build" to additionally skip building extension.
 
 while getopts :v:p:b:d:s: opt; do
    case "${opt}" in
@@ -31,8 +27,7 @@ while getopts :v:p:b:d:s: opt; do
       boost_version=${OPTARG}
       ;;
    d)
-      boost_download_dir=${OPTARG%/}
-      sudo mkdir -p "${boost_download_dir}"
+      boost_download_dir=${OPTARG}
       ;;
    s)
       skip_process=${OPTARG}
@@ -54,10 +49,23 @@ while getopts :v:p:b:d:s: opt; do
    esac
 done
 
+# directories
+# process for bosth relative and absolute paths
+original_dir="$(pwd)"
+script_dir="$(dirname "$0")"
+cd "${script_dir}" || exit 255
+script_dir="$(pwd)"
+easygraph_root_dir="${script_dir}/.."
+cd "${original_dir}" || exit 255
+mkdir -p "${boost_download_dir}"
+cd "${boost_download_dir}" || exit 255
+boost_download_dir="$(pwd)"
+
 # download, build and install boost-python
+cd "${script_dir}" || exit 255
 if [ "${skip_process}" != "boost" ] && [ "${skip_process}" != "build" ]; then
    install_boost_script="install_boost_python_linux.sh"
-   bash "${script_dir}"/"${install_boost_script}" -v "${python_version}" -p "${python_bin}" -b "${boost_version}" -d "${boost_download_dir}"
+   echo bash "${install_boost_script}" -v "${python_version}" -p "${python_bin}" -b "${boost_version}" -d "${boost_download_dir}"
    exit_code=${?}
    if [ ${exit_code} -ne 0 ]; then
       exit ${exit_code}

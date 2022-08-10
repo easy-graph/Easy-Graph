@@ -4,7 +4,7 @@
 # check executability
 if [ ! -x "${0}" ]; then
    echo "Error: $0 is not executable."
-   echo "Please run \`sudo chmod 755 $0\` and try again."
+   echo "Please run \`sudo chmod 755 \"$0\"\` and try again."
    exit 255
 fi
 
@@ -12,7 +12,7 @@ fi
 python_version="3.8"      # Python version. For example and by default: "3.8".
 python_bin="python3"      # Python bin name or path. For example and by default: "python3".
 boost_version="1.79.0"    # Boost version. For example and by default: "1.79.0".
-boost_download_dir=$(pwd) # Boost download directory. By default: current working directory.
+boost_download_dir="$(pwd)" # Boost download directory. By default: current working directory.
 
 while getopts :v:p:b:d: opt; do
    case "${opt}" in
@@ -26,8 +26,7 @@ while getopts :v:p:b:d: opt; do
       boost_version=${OPTARG}
       ;;
    d)
-      boost_download_dir=${OPTARG%/}
-      sudo mkdir -p "${boost_download_dir}"
+      boost_download_dir=${OPTARG}
       ;;
    *)
       echo "Wrong option!"
@@ -43,6 +42,17 @@ while getopts :v:p:b:d: opt; do
       ;;
    esac
 done
+
+# directories
+# process for bosth relative and absolute paths
+original_dir="$(pwd)"
+script_dir="$(dirname "$0")"
+cd "${script_dir}" || exit 255
+script_dir="$(pwd)"
+cd "${original_dir}" || exit 255
+mkdir -p "${boost_download_dir}"
+cd "${boost_download_dir}" || exit 255
+boost_download_dir="$(pwd)"
 
 python_version_abbr=${python_version//./}       # replace "." with "", 3.8 -> 38
 boost_version_alias=boost_${boost_version//./_} # replace "." with "_", "1.79.0" -> 1_79_0
