@@ -8,7 +8,7 @@ if [ ! -x "${0}" ]; then
    exit 255
 fi
 
-# directories
+# options
 python_version="3.8"      # Python version. For example and by default: "3.8".
 python_bin="python3"      # Python bin name or path. For example and by default: "python3".
 boost_version="1.79.0"    # Boost version. For example and by default: "1.79.0".
