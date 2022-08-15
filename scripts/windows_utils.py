@@ -20,7 +20,7 @@ def get_vsdevcmd_path():
 def get_install_cmd(prefix):
     toolset = "msvc-" + str(get_build_version())
     address_model = struct.calcsize("P") * 8
-    return f"""b2 install --toolset={toolset} --with-python --prefix="{prefix}" link=static runtime-link=shared address-model={address_model}"""
+    return f"""b2 install --toolset={toolset} --with-python --prefix="{prefix}" link=static runtime-link=static address-model={address_model}"""
 
 
 if __name__ == "__main__":
