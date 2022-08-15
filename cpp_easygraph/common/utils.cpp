@@ -19,3 +19,8 @@ std::string weight_to_string(py::object weight) {
 	std::string weight_key = py::extract<std::string>(weight);
 	return weight_key;
 }
+
+py::object py_sum(py::object o) {
+	py::object sum = py::import("builtins").attr("sum");
+	return sum(o);
+}
