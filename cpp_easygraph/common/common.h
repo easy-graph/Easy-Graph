@@ -1,7 +1,6 @@
 #pragma once
-#define BOOST_PYTHON_STATIC_LIB
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -14,7 +13,7 @@
 #include <queue>
 #include <vector>
 
-namespace py = boost::python;
+namespace py = pybind11;
 
 typedef int node_t;
 typedef float weight_t;

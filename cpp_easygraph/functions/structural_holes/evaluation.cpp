@@ -86,17 +86,17 @@ py::object constraint(py::object G, py::object nodes, py::object weight, py::obj
 	sum_nmw_rec.clear();
 	max_nmw_rec.clear();
 	local_constraint_rec.clear();
-	if (nodes == py::object()) {
+	if (nodes.is_none()) {
 		nodes = G.attr("nodes");
 	}
 	py::list nodes_list = py::list(nodes);
 	py::list constraint_results = py::list();
-	Graph& G_ = py::extract<Graph&>(G);
+	Graph& G_ = G.cast<Graph&>();
 	for (int i = 0;i < py::len(nodes_list);i++) {
 		py::object v = nodes_list[i];
-		node_t v_id = py::extract<node_t>(G_.node_to_id[v]);
+		node_t v_id = G_.node_to_id[v].cast<node_t>();
 		std::pair<node_t, weight_t> constraint_pair = compute_constraint_of_v(G_.adj, v_id, weight_key);
-		py::tuple constraint_of_v = py::make_tuple(G_.id_to_node[constraint_pair.first], constraint_pair.second);
+		py::tuple constraint_of_v = py::make_tuple(G_.id_to_node[py::cast(constraint_pair.first)], constraint_pair.second);
 		constraint_results.append(constraint_of_v);
 	}
 	py::dict constraint = py::dict(constraint_results);
@@ -113,24 +113,24 @@ weight_t redundancy(adj_dict_factory& G, node_t u, node_t v, std::string weight 
 }
 
 py::object effective_size(py::object G, py::object nodes, py::object weight, py::object n_workers) {
-	Graph& G_ = py::extract<Graph&>(G);
+	Graph& G_ = G.cast<Graph&>();
 	sum_nmw_rec.clear();
 	max_nmw_rec.clear();
 	py::dict effective_size = py::dict();
-	if (nodes == py::object()) {
+	if (nodes.is_none()) {
 		nodes = G;
 	}
 	nodes = py::list(nodes);
-	if (!G.attr("is_directed")() && weight == py::object()) {
+	if (!G.attr("is_directed")() && weight.is_none()) {
 		for (int i = 0;i < py::len(nodes);i++) {
-			py::object v = nodes[i];
+			py::object v = nodes[py::cast(i)];
 			if (py::len(G[v]) == 0) {
-				effective_size[v] = py::object(Py_NAN);
+				effective_size[v] = py::cast(Py_NAN);
 				continue;
 			}
 			py::object E = G.attr("ego_subgraph")(v);
 			if (py::len(E) > 1) {
-				weight_t size = py::extract<weight_t>(E.attr("size")());
+				weight_t size = E.attr("size")().cast<weight_t>();
 				effective_size[v] = py::len(E) - 1 - (2.0 * size) / (py::len(E) - 1);
 			}
 			else {
@@ -141,13 +141,13 @@ py::object effective_size(py::object G, py::object nodes, py::object weight, py:
 	else {
 		std::string weight_key = weight_to_string(weight);
 		for (int i = 0;i < py::len(nodes);i++) {
-			py::object v = nodes[i];
+			py::object v = nodes[py::cast(i)];
 			if (py::len(G[v]) == 0) {
-				effective_size[v] = py::object(Py_NAN);
+				effective_size[v] = py::cast(Py_NAN);
 				continue;
 			}
 			weight_t redundancy_sum = 0;
-			node_t v_id = py::extract<node_t>(G_.node_to_id[v]);
+			node_t v_id = G_.node_to_id[v].cast<node_t>();
 			for (const auto& neighbor_info : G_.adj[v_id]) {
 				node_t u_id = neighbor_info.first;
 				redundancy_sum += redundancy(G_.adj, v_id, u_id, weight_key);
@@ -163,12 +163,12 @@ py::object hierarchy(py::object G, py::object nodes, py::object weight, py::obje
 	max_nmw_rec.clear();
 	local_constraint_rec.clear();
 	std::string weight_key = weight_to_string(weight);
-	if (nodes == py::object()) {
+	if (nodes.is_none()) {
 		nodes = G.attr("nodes");
 	}
 	py::list nodes_list = py::list(nodes);
 
-	Graph& G_ = py::extract<Graph&>(G);
+	Graph& G_ = G.cast<Graph&>();
 	py::dict hierarchy = py::dict();
 
 	for (int i = 0;i < py::len(nodes_list);i++) {
@@ -183,8 +183,8 @@ py::object hierarchy(py::object G, py::object nodes, py::object weight, py::obje
 
 		for (int j = 0;j < py::len(neighbors_of_v);j++) {
 			py::object w = neighbors_of_v[j];
-			node_t v_id = py::extract<node_t>(G_.node_to_id[v]);
-			node_t w_id = py::extract<node_t>(G_.node_to_id[w]);
+			node_t v_id = G_.node_to_id[v].cast<node_t>();
+			node_t w_id = G_.node_to_id[w].cast<node_t>();
 			C += local_constraint(G_.adj, v_id, w_id, weight_key);
 			c[w_id] = local_constraint(G_.adj, v_id, w_id, weight_key);
 		}
@@ -192,12 +192,12 @@ py::object hierarchy(py::object G, py::object nodes, py::object weight, py::obje
 			weight_t hierarchy_sum = 0;
 			for (int k = 0;k < py::len(neighbors_of_v);k++) {
 				py::object w = neighbors_of_v[k];
-				node_t w_id = py::extract<node_t>(G_.node_to_id[w]);
+				node_t w_id = G_.node_to_id[w].cast<node_t>();
 				hierarchy_sum += c[w_id] / C * n * log(c[w_id] / C * n) / (n * log(n));
 			}
 			hierarchy[v] = hierarchy_sum;
 		}
-		if (!hierarchy.has_key(v)) {
+		if (!hierarchy.contains(v)) {
 			hierarchy[v] = 0;
 		}
 	}

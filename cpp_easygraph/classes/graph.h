@@ -1,5 +1,4 @@
 #pragma once
-#define BOOST_PYTHON_STATIC_LIB
 
 #include "../common/common.h"
 
@@ -20,20 +19,20 @@ struct Graph
 	py::object get_edges();
 };
 
-py::object __init__(py::tuple args, py::dict kwargs);
+py::object __init__(py::args args, py::kwargs kwargs);
 py::object __iter__(py::object self);
 py::object __len__(py::object self);
 py::object __contains__(py::object self, py::object node);
 py::object __getitem__(py::object self, py::object node);
-py::object add_node(py::tuple args, py::dict kwargs);
+py::object add_node(py::args args, py::kwargs kwargs);
 py::object add_nodes(Graph& self, py::list nodes_for_adding, py::list nodes_attr);
-py::object add_nodes_from(py::tuple args, py::dict kwargs);
+py::object add_nodes_from(py::args args, py::kwargs kwargs);
 py::object remove_node(Graph& self, py::object node_to_remove);
 py::object remove_nodes(py::object self, py::list nodes_to_remove);
 py::object number_of_nodes(Graph& self);
 py::object has_node(Graph& self, py::object node);
 py::object nbunch_iter(py::object self, py::object nbunch);
-py::object add_edge(py::tuple args, py::dict kwargs);
+py::object add_edge(py::args args, py::kwargs kwargs);
 py::object add_edges(Graph& self, py::list edges_for_adding, py::list edges_attr);
 py::object add_edges_from(py::tuple args, py::dict attr);
 py::object add_edges_from_file(Graph& self, py::str file, py::object weighted);

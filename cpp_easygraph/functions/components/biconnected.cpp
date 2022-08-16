@@ -15,7 +15,7 @@ node_t index_edge(std::vector<std::pair<node_t, node_t>>& edges, const std::pair
 py::object _biconnected_dfs_record_edges(py::object G, py::object need_components) {
     py::list ret = py::list();
     std::unordered_set<node_t> visited;
-    Graph& G_ = py::extract<Graph&>(G);
+    Graph& G_ = G.cast<Graph&>();
     node_dict_factory nodes_list = G_.node;
     for (node_dict_factory::iterator iter = nodes_list.begin();iter != nodes_list.end();iter++) {
         node_t start_id = iter->first;
@@ -72,25 +72,25 @@ py::object _biconnected_dfs_record_edges(py::object G, py::object need_component
                             while ((iter_edge.first != node_grandparent_id || iter_edge.second != node_parent_id)) {
                                 iter_edge = edge_stack.back();
                                 edge_stack.pop_back();
-                                tmp_ret.append(py::make_tuple(G_.id_to_node[iter_edge.first], G_.id_to_node[iter_edge.second]));
+                                tmp_ret.append(py::make_tuple(G_.id_to_node[py::cast(iter_edge.first)], G_.id_to_node[py::cast(iter_edge.second)]));
                             }
                             ret.append(tmp_ret);
                         }
                         else {
-                            ret.append(G_.id_to_node[node_grandparent_id]);
+                            ret.append(G_.id_to_node[py::cast(node_grandparent_id)]);
                         }
                     }
                     low[node_grandparent_id] = std::min(low[node_grandparent_id], low[node_parent_id]);
                 }
                 else if (stack.size() > 0) {
                     root_children += 1;
-                    if (need_components == true) {
+                    if (need_components.is(py::cast(true))) {
                         std::pair<node_t, node_t> target = std::make_pair(node_grandparent_id, node_parent_id);
                         node_t ind = index_edge(edge_stack, target);
                         if (ind != -1) {
                             py::list tmp_ret = py::list();
                             for (node_t z = ind;z < edge_stack.size();z++) {
-                                tmp_ret.append(py::make_tuple(G_.id_to_node[edge_stack[z].first], G_.id_to_node[edge_stack[z].second]));
+                                tmp_ret.append(py::make_tuple(G_.id_to_node[py::cast(edge_stack[z].first)], G_.id_to_node[py::cast(edge_stack[z].second)]));
                             }
                             ret.append(tmp_ret);
                         }
