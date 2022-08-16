@@ -1,5 +1,5 @@
 @echo off 
-rem Usage: sh install_boost_python_linux.sh -v %python_version% -p %python_bin% -b %boost_version% -d %boost_download_dir -i %boost_install_dir%
+rem Usage: cmd install_boost_python_windows.bat -v %python_version% -p %python_bin% -b %boost_version% -d %boost_download_dir% -i %boost_install_dir% -a %compile_arch% -c "compiler_version"
 
 rem directories
 set "script_dir=%~dp0"
@@ -11,6 +11,8 @@ set "python_bin=python"          & rem Python bin name or path. For example and 
 set "boost_version=1.79.0"       & rem Boost version. For example and by default: "1.79.0".
 set "boost_download_dir=%cd%"    & rem Boost download directory. By default: current working directory.
 set "boost_install_dir=D:\Boost" & rem Boost install directory. By default: "D:\Boost".
+set "compile_arch=x86"           & rem MSVC compile arch mode referring to vcvarsall.bat arch. By default: "x86".
+set "compiler_version="          & rem MSVC compiler version. By default: search for the best.
 
 :parse
 if not "%1"=="" (
@@ -38,6 +40,16 @@ if not "%1"=="" (
         shift
         goto :parse
     )
+    if "%1"=="-a" (
+        set "compile_arch=%~2"
+        shift
+        goto :parse
+    )
+    if "%1"=="-c" (
+        set "compiler_version=%~2"
+        shift
+        goto :parse
+    )
     if "%1"=="-i" (
         set "boost_install_dir=%~2"
         shift
@@ -53,6 +65,8 @@ if not "%1"=="" (
         echo   -b        Boost version. For example and by default: "1.79.0".
         echo   -d        Boost download directory. By default: current working directory.
         echo   -i        Boost install directory. By default: "D:\Boost".
+        echo   -a        MSVC compile arch mode referring to vcvarsall.bat arch. By default: "x86".
+        echo   -c        MSVC compiler version. By default: search for the best.
         goto :eof
     goto :parse
 )
@@ -87,16 +101,16 @@ if exist "%boost_version_alias%.tar.gz" (
 echo Note: extract %boost_version_alias%.tar.gz ...
 call tar -xf %boost_version_alias%.tar.gz           & rem unzip source file
 
-set "vsdevcmd="
+set "vcvarsallcmd="
 set "installcmd="
 cd /d %script_dir%
-call "%python_bin%" windows_utils.py --vsdevcmd > eg.output
-set /p vsdevcmd=<eg.output
-call "%python_bin%" windows_utils.py --installcmd --prefix="%boost_install_dir%" > eg.output
+call "%python_bin%" windows_utils.py --vcvarsallcmd --arch="%compile_arch%" --version="%compiler_version%" > eg.output
+set /p vcvarsallcmd=<eg.output
+call "%python_bin%" windows_utils.py --installcmd --prefix="%boost_install_dir%" --version="%compiler_version%" > eg.output
 set /p installcmd=<eg.output
 del /q eg.output
+call "%vcvarsallcmd%"                                                                     & rem init VS environment
 
-call "%vsdevcmd%"                                                                     & rem init VS environment
 cd /d "%boost_download_dir%"
 cd /d "%boost_version_alias%"
 call bootstrap.bat --with-python="%python_bin%"

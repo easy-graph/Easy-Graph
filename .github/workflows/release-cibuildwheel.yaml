@@ -1,133 +1,71 @@
-name: Build and upload to PyPI
+name: Build wheels
 
-# Build on every branch push, tag push, and pull request change:
-# on: [push, pull_request]
-# Alternatively, to publish when a (published) GitHub Release is created, use the following:
-# on:
-#   push:
-#   pull_request:
-#   release:
-#     types:
-#       - published
-on:
-  workflow_dispatch:
-  # workflow_run:
-  #   workflows: ["Test the package with pytest"]
-  #   branches: [master]
-  #   types:
-  #     - completed
+on: [push, workflow_dispatch]
 
 jobs:
-  build_wheels:
-    name: Build wheels on ${{ matrix.os }}
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ${{ matrix.os }}
+  buildwheels_linux:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-
+        python-version: ["3.9"]
+        boost-version: ["1.79.0"]
     steps:
       - uses: actions/checkout@v2
-
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.8.1
-
-      - uses: actions/upload-artifact@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          path: ./wheelhouse/*.whl
+          python-version: ${{ matrix.python-version }}
+      - name: Install boost
+        run: |
+          sudo apt-get install g++
+          cd ${{ github.workspace }}
+          cd scripts
+          sudo chmod 755 "install_boost_python_linux.sh"
+          bash install_boost_python_linux.sh -v ${{ matrix.python-version }} -p python -b ${{ matrix.boost-version }}
+      - name: Build wheel
+        run: |
+          pip install wheel
+          cd ${{ github.workspace }}
+          python setup.py build_ext -l boost_python -L "/usr/local/lib" -I "/usr/local/include"
+          python setup.py bdist_wheel
 
-  build_sdist:
-    name: Build source distribution
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
+  buildwheels_win:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: ["3.9"]
+        boost-version: ["1.79.0"]
+        compiler-version: ["14.2"]
+        arch: ["x64"]
+        include:
+          - compiler-version: "14.2"
+            toolset: "14.29"
+          # - compiler-version: "14.3"
+          #   toolset: "14.32"
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Build sdist
-        run: pipx run build --sdist
-
-      - uses: actions/upload-artifact@v2
-        with:
-          path: dist/*.tar.gz
-
-  # verify_installation:
-  #   name: Test if the latest release on Test PyPI installs and works
-  #   needs: [build_wheels, build_sdist, upload_test_pypi]
-  #   # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
-  #   # if: startsWith(github.event.ref, 'refs/tags/v')
-  #   runs-on: ${{ matrix.os }}
-  #   strategy:
-  #     matrix:
-  #       os: [ubuntu-latest, windows-latest, macos-latest]
-  #       python-version: ["3.6", "3.7", "3.8", "3.9"]
-  #       # python-version: ["3.8", "3.9"]
-
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Set up Python ${{ matrix.python-version }}
-  #       uses: actions/setup-python@v2
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
-  #     - name: Install easygraph
-  #       run: |
-  #         python -m pip install --upgrade pip
-  #         # pip install flake8 pytest
-
-  #         # install deps from PyPI, and EG from TestPyPI
-
-  #         python setup.py egg_info
-  #         pip install -r *.egg-info/requires.txt
-
-  #         pip install --index-url https://test.pypi.org/simple/ --no-deps python-easygraph
-
-  #     - name: Check if the installation works
-  #       run: python "${{ github.workspace }}/scripts/check_installation.py"
-
-  # upload_test_pypi:
-  #   name: Upload to Test PyPI
-  #   needs: [build_wheels, build_sdist]
-  #   runs-on: ubuntu-latest
-  #   # upload to PyPI on every tag starting with 'v'
-  #   # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
-  #   # if: startsWith(github.event.ref, 'refs/tags/v')
-  #   # alternatively, to publish when a GitHub Release is created, use the following rule:
-  #   # if: github.event_name == 'release' && github.event.action == 'published'
-  #   steps:
-  #     - uses: actions/download-artifact@v2
-  #       with:
-  #         name: artifact
-  #         path: dist
-
-  #     - uses: pypa/gh-action-pypi-publish@v1.4.2
-  #       with:
-  #         user: __token__
-  #         password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-  #         # To test: repository_url: https://test.pypi.org/legacy/
-  #         repository_url: https://test.pypi.org/legacy/
-  #         verbose: true
-  #         # print_hash: true
-
-  upload_pypi:
-    # name: Upload to PyPI if the latest release on Test PyPI passes the checks
-    name: Upload to PyPI
-    # needs: [build_wheels, build_sdist, upload_test_pypi, verify_installation]
-    needs: [build_wheels, build_sdist]
-    runs-on: ubuntu-latest
-    # upload to PyPI on every tag starting with 'v'
-    # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
-    # if: startsWith(github.event.ref, 'refs/tags/v')
-    # alternatively, to publish when a GitHub Release is created, use the following rule:
-    # if: github.event_name == 'release' && github.event.action == 'published'
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: artifact
-          path: dist
-
-      - uses: pypa/gh-action-pypi-publish@v1.4.2
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          # To test: repository_url: https://test.pypi.org/legacy/
-          verbose: true
-          # print_hash: true
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Init MSVC env
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: ${{ matrix.arch }}
+        toolset: ${{ matrix.toolset }}
+    - name: Install boost
+      run: |
+        cd ${{ github.workspace }}
+        cd scripts
+        install_boost_python_windows.bat -b ${{ matrix.boost-version }} -a ${{ matrix.arch }} -c ${{ matrix.compiler-version }}
+      shell: cmd
+    - name: Build wheel
+      run: |
+        cd ${{ github.workspace }}
+        pip install wheel
+        set boost_version=${{ matrix.boost-version }}
+        set boost_version=%boost_version:~0,4%
+        python setup.py build_ext -L D:\Boost\lib -I D:\Boost\include\boost-%boost_version:.=_%
+        python setup.py bdist_wheel
+      shell: cmd
+  
