@@ -13,7 +13,7 @@ Graph::Graph() {
 	this->adj_cache = MappingProxyType(py::dict());
 }
 
-py::object __init__(py::args args, py::kwargs kwargs) {
+py::object Graph__init__(py::args args, py::kwargs kwargs) {
 	py::object MappingProxyType = py::module_::import("types").attr("MappingProxyType");
 	py::object self = args[0];
 	self.attr("__init__")();
@@ -25,16 +25,16 @@ py::object __init__(py::args args, py::kwargs kwargs) {
 	return py::none();
 }
 
-py::object __iter__(py::object self) {
+py::object Graph__iter__(py::object self) {
 	return self.attr("nodes").attr("__iter__")();
 }
 
-py::object __len__(py::object self) {
+py::object Graph__len__(py::object self) {
 	Graph& self_ = self.cast<Graph&>();
 	return py::cast(py::len(self_.node_to_id));
 }
 
-py::object __contains__(py::object self, py::object node) {
+py::object Graph__contains__(py::object self, py::object node) {
 	Graph& self_ = self.cast<Graph&>();
 	try {
 		return py::cast(self_.node_to_id.contains(node));
@@ -52,7 +52,7 @@ py::object __contains__(py::object self, py::object node) {
 	}
 }
 
-py::object __getitem__(py::object self, py::object node) {
+py::object Graph__getitem__(py::object self, py::object node) {
 	return self.attr("adj")[node];
 }
 
@@ -79,7 +79,7 @@ node_t _add_one_node(Graph& self, py::object one_node_for_adding, py::object nod
 	return id;
 }
 
-py::object add_node(py::args args, py::kwargs kwargs) {
+py::object Graph_add_node(py::args args, py::kwargs kwargs) {
 	Graph& self = args[0].cast<Graph&>();
 	self.dirty_nodes = true;
 	self.dirty_adj = true;
@@ -89,7 +89,7 @@ py::object add_node(py::args args, py::kwargs kwargs) {
 	return py::none();
 }
 
-py::object add_nodes(Graph& self, py::list nodes_for_adding, py::list nodes_attr) {
+py::object Graph_add_nodes(Graph& self, py::list nodes_for_adding, py::list nodes_attr) {
 	self.dirty_nodes = true;
 	self.dirty_adj = true;
 	if (py::len(nodes_attr) != 0) {
@@ -112,7 +112,7 @@ py::object add_nodes(Graph& self, py::list nodes_for_adding, py::list nodes_attr
 	return py::none();
 }
 
-py::object add_nodes_from(py::args args, py::kwargs kwargs) {
+py::object Graph_add_nodes_from(py::args args, py::kwargs kwargs) {
 	Graph& self = args[0].cast<Graph&>();
 	self.dirty_nodes = true;
 	self.dirty_adj = true;
@@ -159,7 +159,7 @@ py::object add_nodes_from(py::args args, py::kwargs kwargs) {
 	return py::none();
 }
 
-py::object remove_node(Graph& self, py::object node_to_remove) {
+py::object Graph_remove_node(Graph& self, py::object node_to_remove) {
 	self.dirty_nodes = true;
 	self.dirty_adj = true;
 	if (!self.node_to_id.contains(node_to_remove)) {
@@ -178,7 +178,7 @@ py::object remove_node(Graph& self, py::object node_to_remove) {
 	return py::none();
 }
 
-py::object remove_nodes(py::object self, py::list nodes_to_remove) {
+py::object Graph_remove_nodes(py::object self, py::list nodes_to_remove) {
 	Graph& self_ = self.cast<Graph&>();
 	self_.dirty_nodes = true;
 	self_.dirty_adj = true;
@@ -196,15 +196,15 @@ py::object remove_nodes(py::object self, py::list nodes_to_remove) {
 	return py::none();
 }
 
-py::object number_of_nodes(Graph& self) {
+py::object Graph_number_of_nodes(Graph& self) {
 	return py::cast(int(self.node.size()));
 }
 
-py::object has_node(Graph& self, py::object node) {
+py::object Graph_has_node(Graph& self, py::object node) {
 	return py::cast(self.node_to_id.contains(node));
 }
 
-py::object nbunch_iter(py::object self, py::object nbunch) {
+py::object Graph_nbunch_iter(py::object self, py::object nbunch) {
 	py::object bunch = py::none();
 	if (nbunch.is_none()) {
 		bunch = self.attr("adj").attr("__iter__")();
@@ -254,7 +254,7 @@ void _add_one_edge(Graph& self, py::object u_of_edge, py::object v_of_edge, py::
 	}
 }
 
-py::object add_edge(py::args args, py::kwargs kwargs) {
+py::object Graph_add_edge(py::args args, py::kwargs kwargs) {
 	Graph& self = args[0].cast<Graph&>();
 	self.dirty_nodes = true;
 	self.dirty_adj = true;
@@ -264,7 +264,7 @@ py::object add_edge(py::args args, py::kwargs kwargs) {
 	return py::none();
 }
 
-py::object add_edges(Graph& self, py::list edges_for_adding, py::list edges_attr) {
+py::object Graph_add_edges(Graph& self, py::list edges_for_adding, py::list edges_attr) {
 	self.dirty_nodes = true;
 	self.dirty_adj = true;
 	if (py::len(edges_attr) != 0) {
@@ -287,7 +287,7 @@ py::object add_edges(Graph& self, py::list edges_for_adding, py::list edges_attr
 	return py::none();
 }
 
-py::object add_edges_from(py::tuple args, py::dict attr) {
+py::object Graph_add_edges_from(py::tuple args, py::dict attr) {
 	Graph& self = args[0].cast<Graph&>();
 	self.dirty_nodes = true;
 	self.dirty_adj = true;
@@ -345,7 +345,7 @@ py::object add_edges_from(py::tuple args, py::dict attr) {
 	return py::none();
 }
 
-py::object add_edges_from_file(Graph& self, py::str file, py::object weighted) {
+py::object Graph_add_edges_from_file(Graph& self, py::str file, py::object weighted) {
 	self.dirty_nodes = true;
 	self.dirty_adj = true;
 	struct commactype : std::ctype<char> {
@@ -409,7 +409,7 @@ py::object add_edges_from_file(Graph& self, py::str file, py::object weighted) {
 	return py::none();
 }
 
-py::object add_weighted_edge(Graph& self, py::object u_of_edge, py::object v_of_edge, weight_t weight) {
+py::object Graph_add_weighted_edge(Graph& self, py::object u_of_edge, py::object v_of_edge, weight_t weight) {
 	self.dirty_nodes = true;
 	self.dirty_adj = true;
 	py::dict edge_attr;
@@ -418,7 +418,7 @@ py::object add_weighted_edge(Graph& self, py::object u_of_edge, py::object v_of_
 	return py::none();
 }
 
-py::object remove_edge(Graph& self, py::object u, py::object v) {
+py::object Graph_remove_edge(Graph& self, py::object u, py::object v) {
 	self.dirty_nodes = true;
 	self.dirty_adj = true;
 	if (self.node_to_id.contains(u) && self.node_to_id.contains(v)) {
@@ -437,7 +437,7 @@ py::object remove_edge(Graph& self, py::object u, py::object v) {
 	return py::none();
 }
 
-py::object remove_edges(py::object self, py::list edges_to_remove) {
+py::object Graph_remove_edges(py::object self, py::list edges_to_remove) {
 	Graph& self_ = self.cast<Graph&>();
 	for (int i = 0;i < py::len(edges_to_remove);i++) {
 		py::tuple edge = edges_to_remove[i].cast<py::tuple>();
@@ -450,7 +450,7 @@ py::object remove_edges(py::object self, py::list edges_to_remove) {
 }
 
 py::object number_of_edges(py::object self, py::object u, py::object v) {
-	if (u.is_none()) {
+	if (u == py::object()) {
 		return self.attr("size")();
 	}
 	Graph& self_ = self.cast<Graph&>();
@@ -459,7 +459,7 @@ py::object number_of_edges(py::object self, py::object u, py::object v) {
 	return py::cast(int(self_.adj.count(u_id) && self_.adj[u_id].count(v_id)));
 }
 
-py::object has_edge(Graph& self, py::object u, py::object v) {
+py::object Graph_has_edge(Graph& self, py::object u, py::object v) {
 	if (self.node_to_id.contains(u) && self.node_to_id.contains(v)) {
 		node_t u_id = self.node_to_id[u].cast<node_t>();
 		node_t v_id = self.node_to_id[v].cast<node_t>();
@@ -471,7 +471,7 @@ py::object has_edge(Graph& self, py::object u, py::object v) {
 	return py::cast(false);
 }
 
-py::object copy(py::object self) {
+py::object Graph_copy(py::object self) {
 	Graph& self_ = self.cast<Graph&>();
 	py::object G = self.attr("__class__")();
 	Graph& G_ = G.cast<Graph&>();
@@ -483,9 +483,8 @@ py::object copy(py::object self) {
 	return G;
 }
 
-py::object degree(py::object self, py::object weight) {
+py::object Graph_degree(py::object self, py::object weight) {
 	py::dict degree;
-	std::string weight_key = weight_to_string(weight);
 	py::list edges = self.attr("edges").cast<py::list>();
 	py::object u, v;
 	py::dict d;
@@ -495,7 +494,7 @@ py::object degree(py::object self, py::object weight) {
 		v = edge[1];
 		d = edge[2].cast<py::dict>();
 		if (degree.contains(u)) {
-			py::object(degree[u]) +=  d.attr("get")(weight, 1);
+			py::object(degree[u]) += d.attr("get")(weight, 1);
 		}
 		else {
 			degree[u] = d.attr("get")(weight, 1);
@@ -504,14 +503,21 @@ py::object degree(py::object self, py::object weight) {
 			py::object(degree[u]) += d.attr("get")(weight, 1);
 		}
 		else {
-			degree[v] = d.attr("get")(weight, 1);
+			degree[v] = d.get(weight, 1);
+		}
+	}
+	py::list nodes = py::list(self.attr("nodes"));
+	for (int i = 0;i < py::len(nodes);i++) {
+		py::object node = nodes[i];
+		if (!degree.contains(node)) {
+			degree[node] = 0;
 		}
 	}
 	return degree;
 }
 
 py::object neighbors(py::object self, py::object node) {
-	Graph& self_ = self.cast<Graph&>();
+	Graph& self_ = py::extract<Graph&>(self);
 	if (self_.node_to_id.contains(node)) {
 		return self.attr("adj")[node].attr("__iter__")();
 	}
@@ -521,7 +527,7 @@ py::object neighbors(py::object self, py::object node) {
 	}
 }
 
-py::object nodes_subgraph(py::object self, py::list from_nodes) {
+py::object Graph_nodes_subgraph(py::object self, py::list from_nodes) {
 	py::object G = self.attr("__class__")();
 	Graph& self_ = self.cast<Graph&>();
 	Graph& G_ = G.cast<Graph&>();
@@ -548,14 +554,15 @@ py::object nodes_subgraph(py::object self, py::list from_nodes) {
 	return G;
 }
 
-py::object ego_subgraph(py::object self, py::object center) {
+py::object Graph_ego_subgraph(py::object self, py::object center) {
 	py::list neighbors_of_center = py::list(self.attr("all_neighbors")(center));
 	neighbors_of_center.append(center);
 	return self.attr("nodes_subgraph")(neighbors_of_center);
 }
 
 py::object size(py::object self, py::object weight) {
-	py::dict degree = self.attr("degree")(weight).cast<py::dict>();
+	py::dict degree = py::extract<py::dict>(self.attr("degree")(weight));
+	py::list items = degree.items();
 	weight_t s = 0;
 	for (auto item: degree) {
 		s += item.second.cast<weight_t>();
@@ -564,11 +571,11 @@ py::object size(py::object self, py::object weight) {
 }
 
 py::object is_directed(py::object self) {
-	return py::cast(false);
+	return py::object(false);
 }
 
 py::object is_multigraph(py::object self) {
-	return py::cast(false);
+	return py::object(false);
 }
 
 py::object Graph::get_nodes() {

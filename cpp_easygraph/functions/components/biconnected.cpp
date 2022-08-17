@@ -3,7 +3,7 @@
 #include "../../common/utils.h"
 
 node_t index_edge(std::vector<std::pair<node_t, node_t>>& edges, const std::pair<node_t, node_t>& target) {
-    for (node_t i = edges.size() - 1;i >= 0;i--) {
+    for (int i = edges.size() - 1;i >= 0;i--) {
         if ((edges[i].first == target.first) && (edges[i].second == target.second)) {
             return i;
         }
