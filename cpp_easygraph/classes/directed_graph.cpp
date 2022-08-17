@@ -6,12 +6,12 @@ DiGraph::DiGraph(): Graph() {
 }
 
 py::object DiGraph__init__(py::tuple args, py::dict kwargs) {
-	py::object MappingProxyType = py::import("types").attr("MappingProxyType");
+	py::object MappingProxyType = py::module_::import("types").attr("MappingProxyType");
 	py::object self = args[0];
 	self.attr("__init__")();
-	DiGraph& self_ = py::extract<DiGraph&>(self);
+	DiGraph& self_ = self.cast<DiGraph&>();
 	py::dict graph_attr = kwargs;
-	self_.graph.update(graph_attr);
+	self_.graph.attr("update")(graph_attr);
 	self_.nodes_cache = MappingProxyType(py::dict());
 	self_.adj_cache = MappingProxyType(py::dict());
 	return py::object();
@@ -19,19 +19,19 @@ py::object DiGraph__init__(py::tuple args, py::dict kwargs) {
 
 py::object DiGraph_out_degree(py::object self, py::object weight) {
 	py::dict degree = py::dict();
-	py::list edges = py::extract<py::list>(self.attr("edges"));
+	py::list edges = self.attr("edges").cast<py::list>();
 	py::object u, v;
 	py::dict d;
 	for (int i = 0;i < py::len(edges);i++) {
-		py::tuple edge = py::extract<py::tuple>(edges[i]);
+		py::tuple edge = edges[i].cast<py::tuple>();
 		u = edge[0];
 		v = edge[1];
-		d = py::extract<py::dict>(edge[2]);
+		d = edge[2].cast<py::dict>();
 		if (degree.contains(u)) {
-			degree[u] += d.get(weight, 1);
+			py::object(degree[u]) += d.attr("get")(weight, 1);
 		}
 		else {
-			degree[u] = d.get(weight, 1);
+			degree[u] = d.attr("get")(weight, 1);
 		}
 	}
 	py::list nodes = py::list(self.attr("nodes"));
@@ -46,19 +46,19 @@ py::object DiGraph_out_degree(py::object self, py::object weight) {
 
 py::object DiGraph_in_degree(py::object self, py::object weight) {
 	py::dict degree = py::dict();
-	py::list edges = py::extract<py::list>(self.attr("edges"));
+	py::list edges = self.attr("edges").cast<py::list>();
 	py::object u, v;
 	py::dict d;
 	for (int i = 0;i < py::len(edges);i++) {
-		py::tuple edge = py::extract<py::tuple>(edges[i]);
+		py::tuple edge = edges[i].cast<py::tuple>();
 		u = edge[0];
 		v = edge[1];
-		d = py::extract<py::dict>(edge[2]);
+		d = edge[2].cast<py::dict>();
 		if (degree.contains(v)) {
-			degree[v] += d.get(weight, 1);
+			py::object(degree[v]) += d.attr("get")(weight, 1);
 		}
 		else {
-			degree[v] = d.get(weight, 1);
+			degree[v] = d.attr("get")(weight, 1);
 		}
 	}
 	py::list nodes = py::list(self.attr("nodes"));
@@ -73,8 +73,8 @@ py::object DiGraph_in_degree(py::object self, py::object weight) {
 
 py::object DiGraph_degree(py::object self, py::object weight) {
 	py::dict degree = py::dict();
-	py::dict out_degree = py::extract<py::dict>(self.attr("out_degree")(weight));
-	py::dict in_degree = py::extract<py::dict>(self.attr("in_degree")(weight));
+	py::dict out_degree = self.attr("out_degree")(weight).cast<py::dict>();
+	py::dict in_degree = self.attr("in_degree")(weight).cast<py::dict>();
 	py::list nodes = py::list(self.attr("nodes"));
 	for (int i = 0;i < py::len(nodes);i++) {
 		py::object u = nodes[i];
@@ -84,17 +84,17 @@ py::object DiGraph_degree(py::object self, py::object weight) {
 }
 
 py::object DiGraph_size(py::object self, py::object weight) {
-	py::dict out_degree = py::extract<py::dict>(self.attr("out_degree")(weight));
-	py::object s = py_sum(out_degree.values());
-	return (weight == py::object()) ? py::object(py::extract<int>(s)) : s;
+	py::dict out_degree = self.attr("out_degree")(weight).cast<py::dict>();
+	py::object s = py_sum(out_degree.attr("values")());
+	return (weight.is_none()) ? py::int_(s) : s;
 }
 
 py::object DiGraph_number_of_edges(py::object self, py::object u, py::object v) {
-	if (u == py::object()) {
+	if (u.is_none()) {
 		return self.attr("size")();
 	}
-	Graph& G = py::extract<Graph&>(self);
-	node_t u_id = py::extract<node_t>(G.node_to_id[u]);
-	node_t v_id = py::extract<node_t>(G.node_to_id.get(v, -1));
-	return py::object(int(v != -1 && G.adj[u_id].count(v_id)));
+	Graph& G = self.cast<Graph&>();
+	node_t u_id = G.node_to_id[u].cast<node_t>();
+	node_t v_id = G.node_to_id.attr("get")(v, -1).cast<node_t>();
+	return py::cast(int(v.cast<node_t>() != -1 && G.adj[u_id].count(v_id)));
 }

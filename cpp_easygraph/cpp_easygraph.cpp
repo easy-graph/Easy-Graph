@@ -43,15 +43,15 @@ PYBIND11_MODULE(cpp_easygraph, m)
         .def_property("adj", &Graph::get_adj, nullptr)
         .def_property("edges", &Graph::get_edges, nullptr);
     
-    py::class_<DiGraph, py::bases<Graph>>(m, "DiGraph")
+    py::class_<DiGraph, Graph>(m, "DiGraph")
         .def("__init__", &DiGraph__init__)
         .def("out_degree", &DiGraph_out_degree, py::arg("weight") = "weight")
         .def("in_degree", &DiGraph_in_degree, py::arg("weight") = "weight")
         .def("degree", &DiGraph_degree, py::arg("weight") = "weight")
-        .def("size", &DiGraph_size, py::arg("weight") = py::object())
+        .def("size", &DiGraph_size, py::arg("weight") = py::none())
         .def("number_of_edges", &DiGraph_number_of_edges, py::arg("u") = py::none(), py::arg("v") = py::none());
 
-    py::def("cpp_density", &density, py::arg("G"));
+    m.def("cpp_density", &density, py::arg("G"));
     m.def("cpp_constraint", &constraint, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
     m.def("cpp_effective_size", &effective_size, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
     m.def("cpp_hierarchy", &hierarchy, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());

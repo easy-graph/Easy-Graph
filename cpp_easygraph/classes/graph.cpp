@@ -287,7 +287,7 @@ py::object Graph_add_edges(Graph& self, py::list edges_for_adding, py::list edge
 	return py::none();
 }
 
-py::object Graph_add_edges_from(py::tuple args, py::dict attr) {
+py::object Graph_add_edges_from(py::args args, py::kwargs attr) {
 	Graph& self = args[0].cast<Graph&>();
 	self.dirty_nodes = true;
 	self.dirty_adj = true;
@@ -449,8 +449,8 @@ py::object Graph_remove_edges(py::object self, py::list edges_to_remove) {
 	return py::none();
 }
 
-py::object number_of_edges(py::object self, py::object u, py::object v) {
-	if (u == py::object()) {
+py::object Graph_number_of_edges(py::object self, py::object u, py::object v) {
+	if (u.is_none()) {
 		return self.attr("size")();
 	}
 	Graph& self_ = self.cast<Graph&>();
@@ -503,7 +503,7 @@ py::object Graph_degree(py::object self, py::object weight) {
 			py::object(degree[u]) += d.attr("get")(weight, 1);
 		}
 		else {
-			degree[v] = d.get(weight, 1);
+			degree[v] = d.attr("get")(weight, 1);
 		}
 	}
 	py::list nodes = py::list(self.attr("nodes"));
@@ -516,8 +516,8 @@ py::object Graph_degree(py::object self, py::object weight) {
 	return degree;
 }
 
-py::object neighbors(py::object self, py::object node) {
-	Graph& self_ = py::extract<Graph&>(self);
+py::object Graph_neighbors(py::object self, py::object node) {
+	Graph& self_ = self.cast<Graph&>();
 	if (self_.node_to_id.contains(node)) {
 		return self.attr("adj")[node].attr("__iter__")();
 	}
@@ -560,9 +560,8 @@ py::object Graph_ego_subgraph(py::object self, py::object center) {
 	return self.attr("nodes_subgraph")(neighbors_of_center);
 }
 
-py::object size(py::object self, py::object weight) {
-	py::dict degree = py::extract<py::dict>(self.attr("degree")(weight));
-	py::list items = degree.items();
+py::object Graph_size(py::object self, py::object weight) {
+	py::dict degree = self.attr("degree")(weight).cast<py::dict>();
 	weight_t s = 0;
 	for (auto item: degree) {
 		s += item.second.cast<weight_t>();
@@ -570,12 +569,12 @@ py::object size(py::object self, py::object weight) {
 	return (weight.is_none()) ? py::cast(int(s) / 2) : py::cast(s / 2);
 }
 
-py::object is_directed(py::object self) {
-	return py::object(false);
+py::object Graph_is_directed(py::object self) {
+	return py::cast(false);
 }
 
-py::object is_multigraph(py::object self) {
-	return py::object(false);
+py::object Graph_is_multigraph(py::object self) {
+	return py::cast(false);
 }
 
 py::object Graph::get_nodes() {
