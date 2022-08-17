@@ -4,6 +4,10 @@ from pathlib import Path
 
 import setuptools
 
+# Available at setup time due to pyproject.toml
+from pybind11.setup_helpers import Pybind11Extension
+from pybind11.setup_helpers import build_ext
+
 
 with open("README.rst") as fh:
     long_description = fh.read()
@@ -62,8 +66,9 @@ setuptools.setup(
     setup_requires=[CYTHON_STR],
     test_suite="nose.collector",
     tests_require=[],
+    cmdclass={"build_ext": build_ext},
     ext_modules=[
-        setuptools.Extension(
+        Pybind11Extension(
             "cpp_easygraph",
             sources,
             optional=True,
