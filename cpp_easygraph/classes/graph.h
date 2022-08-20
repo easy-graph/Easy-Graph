@@ -2,23 +2,22 @@
 
 #include "../common/common.h"
 
-struct Graph
-{
-	node_dict_factory node;
-	adj_dict_factory adj;
-	py::kwargs node_to_id, id_to_node, graph;
-	node_t id;
-	bool dirty_nodes, dirty_adj;
-	py::object nodes_cache, adj_cache;
+struct Graph {
+    node_dict_factory node;
+    adj_dict_factory adj;
+    py::kwargs node_to_id, id_to_node, graph;
+    node_t id;
+    bool dirty_nodes, dirty_adj;
+    py::object nodes_cache, adj_cache;
 
-	Graph();
-	py::object get_nodes();
-	py::object get_name();
-	py::object get_graph();
-	py::object get_adj();
-	py::object get_edges();
+    Graph();
+    py::object get_nodes();
+    py::object get_name();
+    py::object set_name(py::object name);
+    py::object get_graph();
+    py::object get_adj();
+    py::object get_edges();
 };
-
 
 py::object Graph__init__(py::args args, py::kwargs kwargs);
 py::object Graph__iter__(py::object self);
@@ -50,4 +49,3 @@ py::object Graph_ego_subgraph(py::object self, py::object center);
 py::object Graph_size(py::object self, py::object weight);
 py::object Graph_is_directed(py::object self);
 py::object Graph_is_multigraph(py::object self);
-

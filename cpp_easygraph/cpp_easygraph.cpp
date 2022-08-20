@@ -1,9 +1,7 @@
 #include "classes/__init__.h"
 #include "functions/__init__.h"
 
-PYBIND11_MODULE(cpp_easygraph, m)
-{
-    
+PYBIND11_MODULE(cpp_easygraph, m) {
     py::class_<Graph>(m, "Graph")
         .def(py::init<>())
         .def("__init__", &Graph__init__)
@@ -39,18 +37,36 @@ PYBIND11_MODULE(cpp_easygraph, m)
         .def("is_multigraph", &Graph_is_multigraph)
         .def_property("graph", &Graph::get_graph, nullptr)
         .def_property("nodes", &Graph::get_nodes, nullptr)
-        .def_property("name", &Graph::get_name, nullptr)
+        .def_property("name", &Graph::get_name, &Graph::set_name)
         .def_property("adj", &Graph::get_adj, nullptr)
         .def_property("edges", &Graph::get_edges, nullptr);
-    
+
     py::class_<DiGraph, Graph>(m, "DiGraph")
+        .def(py::init<>())
         .def("__init__", &DiGraph__init__)
         .def("out_degree", &DiGraph_out_degree, py::arg("weight") = "weight")
         .def("in_degree", &DiGraph_in_degree, py::arg("weight") = "weight")
         .def("degree", &DiGraph_degree, py::arg("weight") = "weight")
         .def("size", &DiGraph_size, py::arg("weight") = py::none())
-        .def("number_of_edges", &DiGraph_number_of_edges, py::arg("u") = py::none(), py::arg("v") = py::none());
-
+        .def("number_of_edges", &DiGraph_number_of_edges, py::arg("u") = py::none(), py::arg("v") = py::none())
+        .def("successors", &Graph_neighbors, py::arg("node"))
+        .def("predecessors", &DiGraph_predecessors, py::arg("node"))
+        .def("add_node", &DiGraph_add_node)
+        .def("add_nodes", &DiGraph_add_nodes, py::arg("nodes_for_adding"), py::arg("nodes_attr") = py::list())
+        .def("add_nodes_from", &DiGraph_add_nodes_from)
+        .def("remove_node", &DiGraph_remove_node, py::arg("node_to_remove"))
+        .def("remove_nodes", &DiGraph_remove_nodes, (py::arg("nodes_to_remove")))
+        .def("add_edge", &DiGraph_add_edge)
+        .def("add_edges", &DiGraph_add_edges, py::arg("edges_for_adding"), py::arg("edges_attr") = py::list())
+        .def("add_edges_from", &DiGraph_add_edges_from)
+        .def("add_edges_from_file", &DiGraph_add_edges_from_file, py::arg("file"), py::arg("weighted") = false)
+        .def("add_weighted_edge", &DiGraph_add_weighted_edge, py::arg("u_of_edge"), py::arg("v_of_edge"), py::arg("weight"))
+        .def("remove_edge", &DiGraph_remove_edge, py::arg("u"), py::arg("v"))
+        .def("remove_edges", &DiGraph_remove_edges, py::arg("edges_to_remove"))
+        .def("remove_edges_from", &DiGraph_remove_edges_from, py::arg("ebunch"))
+        .def("nodes_subgraph", &DiGraph_nodes_subgraph, py::arg("from_nodes"))
+        .def("is_directed", &DiGraph_is_directed)
+        .def_property("edges", &DiGraph::get_edges, nullptr);
     m.def("cpp_density", &density, py::arg("G"));
     m.def("cpp_constraint", &constraint, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
     m.def("cpp_effective_size", &effective_size, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
