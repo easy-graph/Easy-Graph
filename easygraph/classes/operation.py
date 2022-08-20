@@ -14,10 +14,6 @@ __all__ = [
     "number_of_selfloops",
     "density",
 ]
-try:
-    from cpp_easygraph import cpp_density
-except ImportError:
-    pass
 
 
 def set_edge_attributes(G, values, name=None):
@@ -415,6 +411,7 @@ def selfloop_edges(G, data=False, keys=False, default=None):
             return ((n, n) for n, nbrs in G.adj.items() if n in nbrs)
 
 
+@hybrid("cpp_density")
 def density(G):
     r"""Returns the density of a graph.
 
@@ -440,8 +437,6 @@ def density(G):
     Self loops are counted in the total number of edges so graphs with self
     loops can have density higher than 1.
     """
-    if G.cflag == 1:
-        return cpp_density(G)
     n = G.number_of_nodes()
     m = G.number_of_edges()
     if m == 0 or n <= 1:

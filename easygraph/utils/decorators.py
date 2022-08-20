@@ -19,6 +19,7 @@ __all__ = [
     "open_file",
     "nodes_or_number",
     "not_implemented_for",
+    "hybrid",
 ]
 
 
@@ -98,6 +99,25 @@ def not_implemented_for(*graph_types):
         return g
 
     return argmap(_not_implemented_for, 0)
+
+
+def hybrid(cpp_method_name):
+    def _hybrid(py_method):
+        def method(*args, **kwargs):
+            G = args[0]
+            if G.cflag and cpp_method_name is not None:
+                import cpp_easygraph
+
+                try:
+                    cpp_method = getattr(cpp_easygraph, cpp_method_name)
+                    return cpp_method(*args, **kwargs)
+                except AttributeError as e:
+                    print(f"Warning: {e}. use python method instead.")
+            return py_method(*args, **kwargs)
+
+        return method
+
+    return _hybrid
 
 
 # To handle new extensions, define a function accepting a `path` and `mode`.

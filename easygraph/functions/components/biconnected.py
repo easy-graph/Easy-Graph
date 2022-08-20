@@ -3,11 +3,6 @@ from itertools import chain
 from easygraph.utils import *
 
 
-try:
-    from cpp_easygraph import cpp_biconnected_dfs_record_edges
-except ImportError:
-    pass
-
 __all__ = [
     "is_biconnected",
     "biconnected_components",
@@ -141,6 +136,7 @@ def generator_articulation_points(G):
             yield cut_vertex
 
 
+@hybrid("cpp_biconnected_dfs_record_edges")
 def _biconnected_dfs_record_edges(G, need_components=True):
     """
     References
@@ -152,8 +148,6 @@ def _biconnected_dfs_record_edges(G, need_components=True):
     # Copied version from EasyGraph
     # depth-first search algorithm to generate articulation points
     # and biconnected components
-    if G.cflag == 1:
-        return cpp_biconnected_dfs_record_edges(G, need_components)
     visited = set()
     for start in G:
         if start in visited:

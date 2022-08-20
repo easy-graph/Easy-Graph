@@ -11,14 +11,6 @@ __all__ = [
     "multi_source_dijkstra",
 ]
 
-try:
-    from cpp_easygraph import cpp_dijkstra_multisource
-    from cpp_easygraph import cpp_Floyd
-    from cpp_easygraph import cpp_Kruskal
-    from cpp_easygraph import cpp_Prim
-except ImportError:
-    pass
-
 
 @not_implemented_for("multigraph")
 def Dijkstra(G, node):
@@ -47,6 +39,7 @@ def Dijkstra(G, node):
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
+@hybrid("cpp_Floyd")
 def Floyd(G):
     """Returns the length of paths from all nodes to remaining nodes
 
@@ -67,8 +60,6 @@ def Floyd(G):
     >>> Floyd(G)
 
     """
-    if G.cflag == 1:
-        return cpp_Floyd(G)
     adj = G.adj.copy()
     result_dict = {}
     for i in G:
@@ -93,6 +84,7 @@ def Floyd(G):
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
+@hybrid("cpp_Prim")
 def Prim(G):
     """Returns the edges that make up the minimum spanning tree
 
@@ -113,8 +105,6 @@ def Prim(G):
     >>> Prim(G)
 
     """
-    if G.cflag == 1:
-        return cpp_Prim(G)
     adj = G.adj.copy()
     result_dict = {}
     for i in G:
@@ -147,6 +137,7 @@ def Prim(G):
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
+@hybrid("cpp_Kruskal")
 def Kruskal(G):
     """Returns the edges that make up the minimum spanning tree
 
@@ -167,8 +158,6 @@ def Kruskal(G):
     >>> Kruskal(G)
 
     """
-    if G.cflag == 1:
-        return cpp_Kruskal(G)
     adj = G.adj.copy()
     result_dict = {}
     edge_list = []
@@ -228,9 +217,8 @@ def multi_source_dijkstra(G, sources, weight="weight", target=None):
     return _dijkstra_multisource(G, sources, weight, target=target)
 
 
+@hybrid("cpp_dijkstra_multisource")
 def _dijkstra_multisource(G, sources, weight="weight", target=None):
-    if G.cflag == 1:
-        return cpp_dijkstra_multisource(G, sources, weight, target)
     from heapq import heappop
     from heapq import heappush
 

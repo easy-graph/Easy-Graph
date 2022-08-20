@@ -1,13 +1,8 @@
 from collections import Counter
 from itertools import chain
 
+from easygraph.utils.decorators import hybrid
 from easygraph.utils.decorators import not_implemented_for
-
-
-try:
-    from cpp_easygraph import cpp_clustering
-except ImportError:
-    pass
 
 
 __all__ = ["average_clustering", "clustering"]
@@ -232,6 +227,7 @@ def _triangles_and_degree_iter(G, nodes=None):
         yield (v, len(vs), ntriangles, gen_degree)
 
 
+@hybrid("cpp_clustering")
 def clustering(G, nodes=None, weight=None):
     r"""Compute the clustering coefficient for nodes.
 
@@ -318,8 +314,6 @@ def clustering(G, nodes=None, weight=None):
         .. [4] Clustering in complex directed networks by G. Fagiolo,
            Physical Review E, 76(2), 026107 (2007).
     """
-    if G.cflag == 1:
-        return cpp_clustering(G, nodes, weight)
     if G.is_directed():
         if weight is not None:
             td_iter = _directed_weighted_triangles_and_degree_iter(G, nodes, weight)

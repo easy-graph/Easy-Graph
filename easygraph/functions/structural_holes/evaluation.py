@@ -3,13 +3,6 @@ import math
 from easygraph.utils import *
 
 
-try:
-    from cpp_easygraph import cpp_constraint
-    from cpp_easygraph import cpp_effective_size
-    from cpp_easygraph import cpp_hierarchy
-except ImportError:
-    pass
-
 __all__ = ["effective_size", "efficiency", "constraint", "hierarchy"]
 
 
@@ -88,6 +81,7 @@ def redundancy(G, u, v, weight=None):
 
 
 @not_implemented_for("multigraph")
+@hybrid("cpp_effective_size")
 def effective_size(G, nodes=None, weight=None, n_workers=None):
     """Burt's metric - Effective Size.
     Parameters
@@ -112,8 +106,6 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
     .. [1] Burt R S. Structural holes: The social structure of competition[M].
        Harvard university press, 2009.
     """
-    if G.cflag == 1:
-        return cpp_effective_size(G, nodes=nodes, weight=weight)
     sum_nmw_rec.clear()
     max_nmw_rec.clear()
     effective_size = {}
@@ -206,10 +198,7 @@ def efficiency(G, nodes=None, weight=None):
     .. [1] Burt R S. Structural holes: The social structure of competition[M].
        Harvard university press, 2009.
     """
-    if G.cflag == 1:
-        e_size = cpp_effective_size(G, nodes=nodes, weight=weight)
-    else:
-        e_size = effective_size(G, nodes=nodes, weight=weight)
+    e_size = effective_size(G, nodes=nodes, weight=weight)
     degree = G.degree(weight=weight)
     efficiency = {n: v / degree[n] for n, v in e_size.items()}
     return efficiency
@@ -229,6 +218,7 @@ def compute_constraint_of_nodes(nodes, G, weight):
 
 
 @not_implemented_for("multigraph")
+@hybrid("cpp_constraint")
 def constraint(G, nodes=None, weight=None, n_workers=None):
     """Burt's metric - Constraint.
     Parameters
@@ -257,8 +247,6 @@ def constraint(G, nodes=None, weight=None, n_workers=None):
     .. [1] Burt R S. Structural holes: The social structure of competition[M].
        Harvard university press, 2009.
     """
-    if G.cflag == 1:
-        return cpp_constraint(G, nodes=nodes, weight=weight, n_workers=n_workers)
     sum_nmw_rec.clear()
     max_nmw_rec.clear()
     local_constraint_rec.clear()
@@ -347,6 +335,7 @@ def hierarchy_parallel(nodes, G):
 
 
 @not_implemented_for("multigraph")
+@hybrid("cpp_hierarchy")
 def hierarchy(G, nodes=None, weight=None, n_workers=None):
     """Returns the hierarchy of nodes in the graph
     Parameters
@@ -366,8 +355,6 @@ def hierarchy(G, nodes=None, weight=None, n_workers=None):
     ---------
     https://m.book118.com/html/2019/0318/5320024122002021.shtm
     """
-    if G.cflag == 1:
-        return cpp_hierarchy(G, nodes=nodes, weight=weight)
     sum_nmw_rec.clear()
     max_nmw_rec.clear()
     local_constraint_rec.clear()
