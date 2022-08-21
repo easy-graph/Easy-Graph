@@ -384,7 +384,7 @@ py::object Graph_add_edges_from_file(Graph& self, py::str file, py::object weigh
         } else {
             v = self.node_to_id[pv].cast<node_t>();
         }
-        if (weighted) {
+        if (weighted.cast<bool>()) {
             in >> weight;
             self.adj[u][v][key] = self.adj[v][u][key] = weight;
         } else {

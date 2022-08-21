@@ -81,7 +81,7 @@ py::list _triangles_and_degree(py::object G, py::object nodes = py::none()) {
 
 py::object clustering(py::object G, py::object nodes, py::object weight) {
 	py::dict clusterc = py::dict();
-	if (G.attr("is_directed")()) {
+	if (G.attr("is_directed")().cast<bool>()) {
 		PyErr_Format(PyExc_RuntimeError, "Not implemented yet");
 		return py::none();
 	}

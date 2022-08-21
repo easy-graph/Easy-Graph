@@ -46,7 +46,7 @@ py::object _biconnected_dfs_record_edges(py::object G, py::object need_component
                 if (visited.find(node_child_id) != visited.end()) {
                     if (discovery[node_child_id] <= discovery[node_parent_id]) {
                         low[node_parent_id] = std::min(low[node_parent_id], discovery[node_child_id]);
-                        if (need_components) {
+                        if (need_components.cast<bool>()) {
                             edge_stack.emplace_back(std::make_pair(node_parent_id, node_child_id));
                         }
                     }
@@ -57,7 +57,7 @@ py::object _biconnected_dfs_record_edges(py::object G, py::object need_component
                     adj_attr_dict_factory node_child_adj = G_.adj[node_child_id];
                     NeighborIterator child_neighbors_iter = NeighborIterator(G_.adj[node_child_id]);
                     stack.emplace_back(node_parent_id, node_child_id, child_neighbors_iter);
-                    if (need_components) {
+                    if (need_components.cast<bool>()) {
                         edge_stack.emplace_back(std::make_pair(node_parent_id, node_child_id));
                     }
                 }
@@ -66,7 +66,7 @@ py::object _biconnected_dfs_record_edges(py::object G, py::object need_component
                 stack.pop_back();
                 if (stack.size() > 1) {
                     if (low[node_parent_id] >= discovery[node_grandparent_id]) {
-                        if (need_components) {
+                        if (need_components.cast<bool>()) {
                             py::list tmp_ret = py::list();
                             std::pair<node_t, node_t> iter_edge = std::make_pair(-1, -1);
                             while ((iter_edge.first != node_grandparent_id || iter_edge.second != node_parent_id)) {
@@ -84,7 +84,7 @@ py::object _biconnected_dfs_record_edges(py::object G, py::object need_component
                 }
                 else if (stack.size() > 0) {
                     root_children += 1;
-                    if (need_components.is(py::cast(true))) {
+                    if (need_components.cast<bool>()) {
                         std::pair<node_t, node_t> target = std::make_pair(node_grandparent_id, node_parent_id);
                         node_t ind = index_edge(edge_stack, target);
                         if (ind != -1) {
@@ -98,7 +98,7 @@ py::object _biconnected_dfs_record_edges(py::object G, py::object need_component
                 }
             }
         }
-        if (!need_components) {
+        if (!need_components.cast<bool>()) {
             if (root_children > 1) {
                 ret.append(G_.id_to_node(start_id));
             }
