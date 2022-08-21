@@ -431,7 +431,7 @@ py::object DiGraph_add_edges_from_file(DiGraph& self, py::str file, py::object w
         } else {
             v = self.node_to_id[pv].cast<node_t>();
         }
-        if (weighted) {
+        if (weighted.cast<bool>()) {
             in >> weight;
             self.adj[u][v][key] = weight;
             self.pred[v][u][key] = weight;

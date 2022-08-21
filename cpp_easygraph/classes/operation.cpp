@@ -3,9 +3,9 @@
 
 py::object density(py::object G) {
     Graph& G_ = G.cast<Graph&>();
-    node_t n = G_.node.size();
+    int n = G_.node.size();
     adj_dict_factory adj = G_.adj;
-    node_t m = 0;
+    int m = 0;
     for (adj_dict_factory::iterator i = adj.begin(); i != adj.end(); i++) {
         adj_attr_dict_factory node_edge = i->second;
         m += node_edge.size();
