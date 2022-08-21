@@ -5,7 +5,7 @@
 DiGraph::DiGraph() : Graph() {
 }
 
-py::object DiGraph__init__(py::tuple args, py::dict kwargs) {
+py::object DiGraph__init__(py::args args, py::kwargs kwargs) {
     py::object MappingProxyType = py::module_::import("types").attr("MappingProxyType");
     py::object self = args[0];
     self.attr("__init__")();

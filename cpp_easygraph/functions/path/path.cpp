@@ -53,7 +53,7 @@ py::object _dijkstra_multisource(py::object G, py::object sources, py::object we
     return pydist;
 }
 
-py::object Prim(py::object G) {
+py::object Prim(py::object G,py::object weight) {
     std::unordered_map<node_t, std::unordered_map<node_t, weight_t>> res_dict;
     py::dict result_dict = py::dict();
     Graph& G_ = G.cast<Graph&>();
@@ -61,6 +61,7 @@ py::object Prim(py::object G) {
     std::vector<node_t> selected;
     std::vector<node_t> candidate;
     node_dict_factory node_list = G_.node;
+    std::string weight_key=weight_to_string(weight);
     for (node_dict_factory::iterator i = node_list.begin(); i != node_list.end(); i++) {
         node_t node_id = i->first;
         result_dict[G_.id_to_node[py::cast(node_id)]] = py::dict();
@@ -84,7 +85,7 @@ py::object Prim(py::object G) {
                 bool j_exist = false;
                 if (node_adj.find(candidate[j]) != node_adj.end()) {
                     edge_attr = node_adj[candidate[j]];
-                    edge_weight = edge_attr.find("weight") != edge_attr.end() ? edge_attr["weight"] : 1;
+                    edge_weight = edge_attr.find(weight_key) != edge_attr.end() ? edge_attr[weight_key] : 1;
                     j_exist = true;
                 }
                 if ((node_list.find(selected[i]) != node_list.end()) &&
@@ -119,7 +120,7 @@ py::object Prim(py::object G) {
 bool comp(const std::pair<std::pair<node_t, node_t>, weight_t>& a, const std::pair<std::pair<node_t, node_t>, weight_t>& b) {
     return a.second < b.second;
 }
-py::object Kruskal(py::object G) {
+py::object Kruskal(py::object G,py::object weight) {
     std::unordered_map<node_t, std::unordered_map<node_t, weight_t>> res_dict;
     py::dict result_dict = py::dict();
     std::vector<std::vector<node_t>> group;
@@ -127,6 +128,7 @@ py::object Kruskal(py::object G) {
     adj_dict_factory adj = G_.adj;
     node_dict_factory node_list = G_.node;
     std::vector<std::pair<std::pair<node_t, node_t>, weight_t>> edge_list;
+    std::string weight_key=weight_to_string(weight);
     for (node_dict_factory::iterator i = node_list.begin(); i != node_list.end(); i++) {
         node_t i_id = i->first;
         result_dict[G_.id_to_node[py::cast(i_id)]] = py::dict();
@@ -136,8 +138,8 @@ py::object Kruskal(py::object G) {
         adj_attr_dict_factory i_adj = adj[i_id];
         for (adj_attr_dict_factory::iterator j = i_adj.begin(); j != i_adj.end(); j++) {
             node_t j_id = j->first;
-            weight_t weight = adj[i_id][j_id].find("weight") != adj[i_id][j_id].end() ? adj[i_id][j_id]["weight"] : 1;
-            edge_list.emplace_back(std::make_pair(std::make_pair(i_id, j_id), weight));
+            weight_t edge_weight = adj[i_id][j_id].find(weight_key) != adj[i_id][j_id].end() ? adj[i_id][j_id][weight_key] : 1;
+            edge_list.emplace_back(std::make_pair(std::make_pair(i_id, j_id), edge_weight));
         }
     }
     std::sort(edge_list.begin(), edge_list.end(), comp);
@@ -177,21 +179,22 @@ py::object Kruskal(py::object G) {
     return result_dict;
 }
 
-py::object Floyd(py::object G) {
+py::object Floyd(py::object G,py::object weight) {
     std::unordered_map<node_t, std::unordered_map<node_t, weight_t>> res_dict;
     Graph& G_ = G.cast<Graph&>();
     adj_dict_factory adj = G_.adj;
     py::dict result_dict = py::dict();
     node_dict_factory node_list = G_.node;
+    std::string weight_key=weight_to_string(weight);
     for (node_dict_factory::iterator i = node_list.begin(); i != node_list.end(); i++) {
         result_dict[G_.id_to_node[py::cast(i->first)]] = py::dict();
         adj_attr_dict_factory temp_key = adj[i->first];
         for (node_dict_factory::iterator j = node_list.begin(); j != node_list.end(); j++) {
             if (temp_key.find(j->first) != temp_key.end()) {
-                if (adj[i->first][j->first].count("weight") == 0) {
-                    adj[i->first][j->first]["weight"] = 1;
+                if (adj[i->first][j->first].count(weight_key) == 0) {
+                    adj[i->first][j->first][weight_key] = 1;
                 }
-                res_dict[i->first][j->first] = adj[i->first][j->first]["weight"];
+                res_dict[i->first][j->first] = adj[i->first][j->first][weight_key];
             } else {
                 res_dict[i->first][j->first] = INFINITY;
             }

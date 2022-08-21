@@ -13,7 +13,7 @@ __all__ = [
 
 
 @not_implemented_for("multigraph")
-def Dijkstra(G, node):
+def Dijkstra(G, node,weight="weight"):
     """Returns the length of paths from the certain node to remaining nodes
 
     Parameters
@@ -31,16 +31,16 @@ def Dijkstra(G, node):
     --------
     Returns the length of paths from node 1 to remaining nodes
 
-    >>> Dijkstra(G,node=1)
+    >>> Dijkstra(G,node=1,weight="weight")
 
     """
-    return single_source_dijkstra(G, node)
+    return single_source_dijkstra(G, node,weight=weight)
 
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 @hybrid("cpp_Floyd")
-def Floyd(G):
+def Floyd(G,weight="weight"):
     """Returns the length of paths from all nodes to remaining nodes
 
     Parameters
@@ -57,7 +57,7 @@ def Floyd(G):
     --------
     Returns the length of paths from all nodes to remaining nodes
 
-    >>> Floyd(G)
+    >>> Floyd(G,weight="weight")
 
     """
     adj = G.adj.copy()
@@ -68,7 +68,7 @@ def Floyd(G):
         temp_key = adj[i].keys()
         for j in G:
             if j in temp_key:
-                result_dict[i][j] = adj[i][j].get("weight", 1)
+                result_dict[i][j] = adj[i][j].get(weight, 1)
             else:
                 result_dict[i][j] = float("inf")
             if i == j:
@@ -85,7 +85,7 @@ def Floyd(G):
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 @hybrid("cpp_Prim")
-def Prim(G):
+def Prim(G,weight="weight"):
     """Returns the edges that make up the minimum spanning tree
 
     Parameters
@@ -102,7 +102,7 @@ def Prim(G):
     --------
     Returns the edges that make up the minimum spanning tree
 
-    >>> Prim(G)
+    >>> Prim(G,weight="weight")
 
     """
     adj = G.adj.copy()
@@ -122,10 +122,10 @@ def Prim(G):
         min_weight = float("inf")
         for i in selected:
             for j in candidate:
-                if i in G and j in G[i] and adj[i][j].get("weight", 1) < min_weight:
+                if i in G and j in G[i] and adj[i][j].get(weight, 1) < min_weight:
                     start = i
                     end = j
-                    min_weight = adj[i][j].get("weight", 1)
+                    min_weight = adj[i][j].get(weight, 1)
         if start != None and end != None:
             result_dict[start][end] = min_weight
             selected.append(end)
@@ -138,7 +138,7 @@ def Prim(G):
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 @hybrid("cpp_Kruskal")
-def Kruskal(G):
+def Kruskal(G,weight="weight"):
     """Returns the edges that make up the minimum spanning tree
 
     Parameters
@@ -155,7 +155,7 @@ def Kruskal(G):
     --------
     Returns the edges that make up the minimum spanning tree
 
-    >>> Kruskal(G)
+    >>> Kruskal(G,weight="weight")
 
     """
     adj = G.adj.copy()
@@ -165,8 +165,8 @@ def Kruskal(G):
         result_dict[i] = {}
     for i in G:
         for j in G[i]:
-            weight = adj[i][j].get("weight", 1)
-            edge_list.append([i, j, weight])
+            wt = adj[i][j].get(weight, 1)
+            edge_list.append([i, j, wt])
     edge_list.sort(key=lambda a: a[2])
     group = [[i] for i in G]
     for edge in edge_list:
