@@ -1176,3 +1176,21 @@ class DiGraph(Graph):
                 G.add_edge(index_of_node[u], index_of_node[v], **edge_data)
 
         return G, index_of_node, node_of_index
+
+try:
+    import cpp_easygraph
+
+    class DiGraphC(cpp_easygraph.DiGraph):
+        cflag = 1
+
+except ImportError:
+
+    class DiGraphC:
+        def __init__(self, **graph_attr):
+            print(
+                "Object cannot be instantiated because C extension has not been"
+                " successfully compiled and installed. Please refer to"
+                " https://github.com/easy-graph/Easy-Graph/blob/master/README.rst and"
+                " reinstall easygraph."
+            )
+            raise RuntimeError
