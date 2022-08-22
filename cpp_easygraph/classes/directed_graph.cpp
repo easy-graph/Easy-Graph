@@ -93,7 +93,7 @@ py::object DiGraph_number_of_edges(py::object self, py::object u, py::object v) 
     Graph& G = self.cast<Graph&>();
     node_t u_id = G.node_to_id[u].cast<node_t>();
     node_t v_id = G.node_to_id.attr("get")(v, -1).cast<node_t>();
-    return py::cast(int(v.cast<node_t>() != -1 && G.adj[u_id].count(v_id)));
+    return py::cast(int(v_id != -1 && G.adj[u_id].count(v_id)));
 }
 
 py::object DiGraph_neighbors(py::object self, py::object node) {
