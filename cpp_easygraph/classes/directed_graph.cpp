@@ -27,7 +27,7 @@ py::object DiGraph_out_degree(py::object self, py::object weight) {
         v = edge[1];
         d = edge[2].cast<py::dict>();
         if (degree.contains(u)) {
-            py::object(degree[u]) += d.attr("get")(weight, 1);
+            degree[u] = py::object(degree[u]) + d.attr("get")(weight, 1);
         } else {
             degree[u] = d.attr("get")(weight, 1);
         }
@@ -53,7 +53,7 @@ py::object DiGraph_in_degree(py::object self, py::object weight) {
         v = edge[1];
         d = edge[2].cast<py::dict>();
         if (degree.contains(v)) {
-            py::object(degree[v]) += d.attr("get")(weight, 1);
+            degree[v] = py::object(degree[v]) + d.attr("get")(weight, 1);
         } else {
             degree[v] = d.attr("get")(weight, 1);
         }
