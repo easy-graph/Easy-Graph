@@ -246,6 +246,8 @@ py::object DiGraph_remove_node(DiGraph& self, py::object node_to_remove) {
     }
     self.adj.erase(node_to_remove_id);
     self.pred.erase(node_to_remove_id);
+    self.node_to_id.attr("pop")(node_to_remove);
+    self.id_to_node.attr("pop")(node_to_remove_id);
     return py::none();
 }
 py::object DiGraph_remove_nodes(py::object self, py::list nodes_to_remove) {
