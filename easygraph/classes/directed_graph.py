@@ -1177,6 +1177,7 @@ class DiGraph(Graph):
 
         return G, index_of_node, node_of_index
 
+
 try:
     import cpp_easygraph
 

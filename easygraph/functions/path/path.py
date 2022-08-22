@@ -13,7 +13,7 @@ __all__ = [
 
 
 @not_implemented_for("multigraph")
-def Dijkstra(G, node,weight="weight"):
+def Dijkstra(G, node, weight="weight"):
     """Returns the length of paths from the certain node to remaining nodes
 
     Parameters
@@ -34,13 +34,13 @@ def Dijkstra(G, node,weight="weight"):
     >>> Dijkstra(G,node=1,weight="weight")
 
     """
-    return single_source_dijkstra(G, node,weight=weight)
+    return single_source_dijkstra(G, node, weight=weight)
 
 
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 @hybrid("cpp_Floyd")
-def Floyd(G,weight="weight"):
+def Floyd(G, weight="weight"):
     """Returns the length of paths from all nodes to remaining nodes
 
     Parameters
@@ -85,7 +85,7 @@ def Floyd(G,weight="weight"):
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 @hybrid("cpp_Prim")
-def Prim(G,weight="weight"):
+def Prim(G, weight="weight"):
     """Returns the edges that make up the minimum spanning tree
 
     Parameters
@@ -138,7 +138,7 @@ def Prim(G,weight="weight"):
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 @hybrid("cpp_Kruskal")
-def Kruskal(G,weight="weight"):
+def Kruskal(G, weight="weight"):
     """Returns the edges that make up the minimum spanning tree
 
     Parameters
