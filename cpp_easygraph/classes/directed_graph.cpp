@@ -6,14 +6,13 @@ DiGraph::DiGraph() : Graph() {
 }
 
 py::object DiGraph__init__(py::args args, py::kwargs kwargs) {
-    py::object MappingProxyType = py::module_::import("types").attr("MappingProxyType");
     py::object self = args[0];
     self.attr("__init__")();
     DiGraph& self_ = self.cast<DiGraph&>();
     py::dict graph_attr = kwargs;
     self_.graph.attr("update")(graph_attr);
-    self_.nodes_cache = MappingProxyType(py::dict());
-    self_.adj_cache = MappingProxyType(py::dict());
+    self_.nodes_cache = py::dict();
+    self_.adj_cache = py::dict();
     return py::none();
 }
 

@@ -11,7 +11,7 @@ py::list _weighted_triangles_and_degree(py::object G, py::object nodes, py::obje
 	std::string weight_key = weight_to_string(weight);
 	Graph& G_ = G.cast<Graph&>();
 	weight_t max_weight = 1;
-	if (weight.is_none() || G.attr("number_of_edges")().is(py::cast(0))) {
+	if (weight.is_none() || G.attr("number_of_edges")().equal(py::cast(0))) {
 		max_weight = 1;
 	}
 	else {
