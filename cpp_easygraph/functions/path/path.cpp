@@ -53,7 +53,7 @@ py::object _dijkstra_multisource(py::object G, py::object sources, py::object we
     return pydist;
 }
 
-py::object Prim(py::object G,py::object weight) {
+py::object Prim(py::object G, py::object weight) {
     std::unordered_map<node_t, std::unordered_map<node_t, weight_t>> res_dict;
     py::dict result_dict = py::dict();
     Graph& G_ = G.cast<Graph&>();
@@ -61,7 +61,7 @@ py::object Prim(py::object G,py::object weight) {
     std::vector<node_t> selected;
     std::vector<node_t> candidate;
     node_dict_factory node_list = G_.node;
-    std::string weight_key=weight_to_string(weight);
+    std::string weight_key = weight_to_string(weight);
     for (node_dict_factory::iterator i = node_list.begin(); i != node_list.end(); i++) {
         node_t node_id = i->first;
         result_dict[G_.id_to_node[py::cast(node_id)]] = py::dict();
@@ -120,7 +120,7 @@ py::object Prim(py::object G,py::object weight) {
 bool comp(const std::pair<std::pair<node_t, node_t>, weight_t>& a, const std::pair<std::pair<node_t, node_t>, weight_t>& b) {
     return a.second < b.second;
 }
-py::object Kruskal(py::object G,py::object weight) {
+py::object Kruskal(py::object G, py::object weight) {
     std::unordered_map<node_t, std::unordered_map<node_t, weight_t>> res_dict;
     py::dict result_dict = py::dict();
     std::vector<std::vector<node_t>> group;
@@ -128,7 +128,7 @@ py::object Kruskal(py::object G,py::object weight) {
     adj_dict_factory adj = G_.adj;
     node_dict_factory node_list = G_.node;
     std::vector<std::pair<std::pair<node_t, node_t>, weight_t>> edge_list;
-    std::string weight_key=weight_to_string(weight);
+    std::string weight_key = weight_to_string(weight);
     for (node_dict_factory::iterator i = node_list.begin(); i != node_list.end(); i++) {
         node_t i_id = i->first;
         result_dict[G_.id_to_node[py::cast(i_id)]] = py::dict();
@@ -179,13 +179,13 @@ py::object Kruskal(py::object G,py::object weight) {
     return result_dict;
 }
 
-py::object Floyd(py::object G,py::object weight) {
+py::object Floyd(py::object G, py::object weight) {
     std::unordered_map<node_t, std::unordered_map<node_t, weight_t>> res_dict;
     Graph& G_ = G.cast<Graph&>();
     adj_dict_factory adj = G_.adj;
     py::dict result_dict = py::dict();
     node_dict_factory node_list = G_.node;
-    std::string weight_key=weight_to_string(weight);
+    std::string weight_key = weight_to_string(weight);
     for (node_dict_factory::iterator i = node_list.begin(); i != node_list.end(); i++) {
         result_dict[G_.id_to_node[py::cast(i->first)]] = py::dict();
         adj_attr_dict_factory temp_key = adj[i->first];

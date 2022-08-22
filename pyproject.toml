@@ -166,3 +166,7 @@ exclude_lines = [
     "pragma: no cover",
     "if TYPE_CHECKING:"
 ]
+
+
+[tool.cibuildwheel]
+before-build = "pip install pybind11"
