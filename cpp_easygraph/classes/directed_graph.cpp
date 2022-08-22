@@ -6,14 +6,13 @@ DiGraph::DiGraph() : Graph() {
 }
 
 py::object DiGraph__init__(py::args args, py::kwargs kwargs) {
-    py::object MappingProxyType = py::module_::import("types").attr("MappingProxyType");
     py::object self = args[0];
     self.attr("__init__")();
     DiGraph& self_ = self.cast<DiGraph&>();
     py::dict graph_attr = kwargs;
     self_.graph.attr("update")(graph_attr);
-    self_.nodes_cache = MappingProxyType(py::dict());
-    self_.adj_cache = MappingProxyType(py::dict());
+    self_.nodes_cache = py::dict();
+    self_.adj_cache = py::dict();
     return py::none();
 }
 
@@ -28,7 +27,7 @@ py::object DiGraph_out_degree(py::object self, py::object weight) {
         v = edge[1];
         d = edge[2].cast<py::dict>();
         if (degree.contains(u)) {
-            py::object(degree[u]) += d.attr("get")(weight, 1);
+            degree[u] = py::object(degree[u]) + d.attr("get")(weight, 1);
         } else {
             degree[u] = d.attr("get")(weight, 1);
         }
@@ -54,7 +53,7 @@ py::object DiGraph_in_degree(py::object self, py::object weight) {
         v = edge[1];
         d = edge[2].cast<py::dict>();
         if (degree.contains(v)) {
-            py::object(degree[v]) += d.attr("get")(weight, 1);
+            degree[v] = py::object(degree[v]) + d.attr("get")(weight, 1);
         } else {
             degree[v] = d.attr("get")(weight, 1);
         }
@@ -94,7 +93,7 @@ py::object DiGraph_number_of_edges(py::object self, py::object u, py::object v) 
     Graph& G = self.cast<Graph&>();
     node_t u_id = G.node_to_id[u].cast<node_t>();
     node_t v_id = G.node_to_id.attr("get")(v, -1).cast<node_t>();
-    return py::cast(int(v.cast<node_t>() != -1 && G.adj[u_id].count(v_id)));
+    return py::cast(int(v_id != -1 && G.adj[u_id].count(v_id)));
 }
 
 py::object DiGraph_neighbors(py::object self, py::object node) {
@@ -247,6 +246,8 @@ py::object DiGraph_remove_node(DiGraph& self, py::object node_to_remove) {
     }
     self.adj.erase(node_to_remove_id);
     self.pred.erase(node_to_remove_id);
+    self.node_to_id.attr("pop")(node_to_remove);
+    self.id_to_node.attr("pop")(node_to_remove_id);
     return py::none();
 }
 py::object DiGraph_remove_nodes(py::object self, py::list nodes_to_remove) {

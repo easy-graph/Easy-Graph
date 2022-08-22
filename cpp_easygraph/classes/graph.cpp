@@ -3,26 +3,24 @@
 #include "../common/utils.h"
 
 Graph::Graph() {
-    py::object MappingProxyType = py::module_::import("types").attr("MappingProxyType");
     this->id = 0;
     this->dirty_nodes = true;
     this->dirty_adj = true;
     this->node_to_id = py::dict();
     this->id_to_node = py::dict();
     this->graph = py::dict();
-    this->nodes_cache = MappingProxyType(py::dict());
-    this->adj_cache = MappingProxyType(py::dict());
+    this->nodes_cache = py::dict();
+    this->adj_cache = py::dict();
 }
 
 py::object Graph__init__(py::args args, py::kwargs kwargs) {
-    py::object MappingProxyType = py::module_::import("types").attr("MappingProxyType");
     py::object self = args[0];
     self.attr("__init__")();
     Graph& self_ = self.cast<Graph&>();
     py::dict graph_attr = kwargs;
     self_.graph.attr("update")(graph_attr);
-    self_.nodes_cache = MappingProxyType(py::dict());
-    self_.adj_cache = MappingProxyType(py::dict());
+    self_.nodes_cache = py::dict();
+    self_.adj_cache = py::dict();
     return py::none();
 }
 
@@ -122,7 +120,8 @@ py::object Graph_add_nodes_from(py::args args, py::kwargs kwargs) {
         try {
             newnode = !self.node_to_id.contains(n);
             newdict = attr;
-        } catch (const py::error_already_set&) {
+        }
+        catch (const py::error_already_set&) {
             PyObject *type, *value, *traceback;
             PyErr_Fetch(&type, &value, &traceback);
             if (PyErr_GivenExceptionMatches(PyExc_TypeError, type)) {
@@ -146,7 +145,7 @@ py::object Graph_add_nodes_from(py::args args, py::kwargs kwargs) {
         }
         node_t id = self.node_to_id[n].cast<node_t>();
         for (auto item : newdict) {
-            std::string weight_key = weight_to_string(item.first());
+            std::string weight_key = weight_to_string(item.first.cast<py::object>());
             weight_t value = item.second.cast<weight_t>();
             self.node[id].insert(std::make_pair(weight_key, value));
         }
@@ -469,6 +468,7 @@ py::object Graph_copy(py::object self) {
     G_.graph.attr("update")(self_.graph);
     G_.id_to_node.attr("update")(self_.id_to_node);
     G_.node_to_id.attr("update")(self_.node_to_id);
+    G_.id = self_.id;
     G_.node = self_.node;
     G_.adj = self_.adj;
     return G;
@@ -485,12 +485,12 @@ py::object Graph_degree(py::object self, py::object weight) {
         v = edge[1];
         d = edge[2].cast<py::dict>();
         if (degree.contains(u)) {
-            py::object(degree[u]) += d.attr("get")(weight, 1);
+            degree[u] = py::object(degree[u]) + d.attr("get")(weight, 1);
         } else {
             degree[u] = d.attr("get")(weight, 1);
         }
         if (degree.contains(v)) {
-            py::object(degree[u]) += d.attr("get")(weight, 1);
+            degree[v] = py::object(degree[v]) + d.attr("get")(weight, 1);
         } else {
             degree[v] = d.attr("get")(weight, 1);
         }
@@ -566,15 +566,14 @@ py::object Graph_is_multigraph(py::object self) {
 }
 
 py::object Graph::get_nodes() {
-    py::object MappingProxyType = py::module_::import("types").attr("MappingProxyType");
     if (this->dirty_nodes) {
         py::dict nodes = py::dict();
         for (const auto& node_info : node) {
             node_t id = node_info.first;
             const auto& node_attr = node_info.second;
-            nodes[this->id_to_node[py::cast(id)]] = MappingProxyType(attr_to_dict(node_attr));
+            nodes[this->id_to_node[py::cast(id)]] = attr_to_dict(node_attr);
         }
-        this->nodes_cache = MappingProxyType(nodes);
+        this->nodes_cache = nodes;
         this->dirty_nodes = false;
     }
     return this->nodes_cache;
@@ -592,7 +591,6 @@ py::object Graph::get_graph() {
 }
 
 py::object Graph::get_adj() {
-    py::object MappingProxyType = py::module_::import("types").attr("MappingProxyType");
     if (this->dirty_adj) {
         py::dict adj = py::dict();
         for (const auto& ego_edges : this->adj) {
@@ -601,11 +599,11 @@ py::object Graph::get_adj() {
             for (const auto& edge_info : ego_edges.second) {
                 node_t end_point = edge_info.first;
                 const auto& edge_attr = edge_info.second;
-                ego_edges_dict[this->id_to_node[py::cast(end_point)]] = MappingProxyType(attr_to_dict(edge_attr));
+                ego_edges_dict[this->id_to_node[py::cast(end_point)]] = attr_to_dict(edge_attr);
             }
-            adj[this->id_to_node[py::cast(start_point)]] = MappingProxyType(ego_edges_dict);
+            adj[this->id_to_node[py::cast(start_point)]] = ego_edges_dict;
         }
-        this->adj_cache = MappingProxyType(adj);
+        this->adj_cache = adj;
         this->dirty_adj = false;
     }
     return this->adj_cache;
