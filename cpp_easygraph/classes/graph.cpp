@@ -468,6 +468,7 @@ py::object Graph_copy(py::object self) {
     G_.graph.attr("update")(self_.graph);
     G_.id_to_node.attr("update")(self_.id_to_node);
     G_.node_to_id.attr("update")(self_.node_to_id);
+    G_.id = self_.id;
     G_.node = self_.node;
     G_.adj = self_.adj;
     return G;
