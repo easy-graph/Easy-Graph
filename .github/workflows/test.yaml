@@ -21,6 +21,7 @@ jobs:
           # cpp-binding-framework: '${{ matrix.cpp-binding-framework }}'
           easygraph-checkout-path: ''
 
+      - uses: actions/checkout@v3
       - name: Test with pytest
         run: |
           pytest --disable-warnings
