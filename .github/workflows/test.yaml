@@ -17,9 +17,6 @@ jobs:
 
       - name: 'Build and install easygraph'
         uses: tddschn/install-easygraph@master
-        with:
-          # cpp-binding-framework: '${{ matrix.cpp-binding-framework }}'
-          easygraph-checkout-path: ''
 
       - uses: actions/checkout@v3
       - name: Test with pytest
