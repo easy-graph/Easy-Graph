@@ -1,7 +1,7 @@
 import os
 
 from typing import Iterator
-
+from numbers import Number
 import easygraph as eg
 
 
@@ -14,10 +14,30 @@ def fuzzy_equal(o1, o2):
             if not fuzzy_equal(o1_, o2_):
                 return False
         return True
-    if str(o1).isdigit() and str(o2).isdigit():
-        return abs(o2 - o1) < 1e-6
     if isinstance(o1, Iterator) and isinstance(o2, Iterator):
         return fuzzy_equal(list(o1), list(o2))
+    if isinstance(o1, list) and isinstance(o2, list): # every item in list1 should be in list2
+        if len(o1) != len(o2):
+            return False
+        for item1 in o1:
+            belong = False
+            for item2 in o2:
+                if fuzzy_equal(item1, item2):
+                    belong = True
+                    break
+            if not belong:
+                print(item1)
+                return False
+        return True
+    if isinstance(o1, tuple) and isinstance(o2, tuple): # corresponding items should be equal
+        if len(o1) != len(o2):
+            return False
+        for i in range(len(o1)):
+            if not fuzzy_equal(o1[i], o2[i]):
+                return False
+        return True
+    if isinstance(o1, Number) and isinstance(o2, Number):
+        return abs(o2 - o1) < 1e-6
     return o1 == o2
 
 
@@ -40,9 +60,17 @@ class Tester:
                 f" {self.class2.__name__}"
             )
 
-    def assert_property(self, name):
-        r1 = getattr(self.G1, name)
-        r2 = getattr(self.G2, name)
+    def assert_property(self, name, g1 = None, g2 = None):
+        if g1 is None:
+            g1 = self.G1
+        if g2 is None:
+            g2 = self.G2
+        r1 = getattr(g1, name)
+        r2 = getattr(g2, name)
+        if name == "edges":
+            if not g1.is_directed():
+                r1 = r1 + [(edge[1], edge[0]) if len(edge) == 2 else (edge[1], edge[0], edge[2]) for edge in r1]
+                r2 = r2 + [(edge[1], edge[0]) if len(edge) == 2 else (edge[1], edge[0], edge[2]) for edge in r2]
         self.assert_object(r1, r2)
 
     def assert_method(self, name, *args, **kwargs):
@@ -51,10 +79,10 @@ class Tester:
         self.assert_object(r1, r2)
 
     def assert_graph(self, g1, g2):
-        self.assert_object(g1.graph, g2.graph)
-        self.assert_object(g1.nodes, g2.nodes)
-        self.assert_object(g1.edges, g2.edges)
-        self.assert_object(g1.adj, g2.adj)
+        self.assert_property("graph", g1, g2)
+        self.assert_property("nodes", g1, g2)
+        self.assert_property("edges", g1, g2)
+        self.assert_property("adj", g1, g2)
 
     def test(self):
         self.G1 = self.class1(name="graph", time=0)
