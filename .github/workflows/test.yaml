@@ -4,6 +4,7 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   pytest:
+    name: Test with pytest
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -16,9 +17,35 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: 'Build and install easygraph'
-        uses: tddschn/install-easygraph@master
+        uses: tddschn/install-easygraph@v0.2.0
 
       - uses: actions/checkout@v3
       - name: Test with pytest
         run: |
           pytest --disable-warnings
+  # pytest-conda:
+  #   name: Test with pytest in conda environment
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       python-version: ["3.10"]
+  #   steps:
+  #     - name: Set up Python ${{ matrix.python-version }} (conda)
+  #     - uses: conda-incubator/setup-miniconda@v2
+  #       with:
+  #         auto-activate-base: true
+  #         activate-environment: ""
+  #     - name: Install dependencies
+  #       run: |
+  #         conda install -y pytest
+  #         conda install -y numpy pandas matplotlib statsmodels
+  #         conda install -y tqdm joblib six scikit-learn tensorflow
+  #         conda install -y scipy progressbar progressbar33
+  #     - name: 'Build and install easygraph'
+  #       uses: tddschn/install-easygraph@master
+  #     - uses: actions/checkout@v3
+  #     - name: Test with pytest
+  #       run: |
+  #         conda install -y pytest
+  #         pytest --disable-warnings
