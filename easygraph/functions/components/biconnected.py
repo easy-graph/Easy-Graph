@@ -12,7 +12,7 @@ __all__ = [
 ]
 
 
-@not_implemented_for("multigraph")
+@not_implemented_for("multigraph","directed")
 def is_biconnected(G):
     """Returns whether the graph is biconnected or not.
 
@@ -39,7 +39,7 @@ def is_biconnected(G):
     return False
 
 
-@not_implemented_for("multigraph")
+@not_implemented_for("multigraph","directed")
 # TODO: get the subgraph of each biconnected graph
 def biconnected_components(G):
     """Returns a list of biconnected components, each of which denotes the edges set of a biconnected component.
@@ -61,7 +61,7 @@ def biconnected_components(G):
     return list(generator_biconnected_components_edges(G))
 
 
-@not_implemented_for("multigraph")
+@not_implemented_for("multigraph","directed")
 def generator_biconnected_components_nodes(G):
     """Returns a generator of nodes in each biconnected component.
 
@@ -87,8 +87,7 @@ def generator_biconnected_components_nodes(G):
         # TODO: only one edge = biconnected_component?
         yield set(chain.from_iterable(component))
 
-
-@not_implemented_for("multigraph")
+@not_implemented_for("multigraph","directed")
 def generator_biconnected_components_edges(G):
     """Returns a generator of nodes in each biconnected component.
 
@@ -112,7 +111,7 @@ def generator_biconnected_components_edges(G):
     yield from _biconnected_dfs_record_edges(G, need_components=True)
 
 
-@not_implemented_for("multigraph")
+@not_implemented_for("multigraph","directed")
 def generator_articulation_points(G):
     """Returns a generator of articulation points.
 

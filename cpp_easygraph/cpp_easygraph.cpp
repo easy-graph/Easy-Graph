@@ -77,4 +77,6 @@ PYBIND11_MODULE(cpp_easygraph, m) {
     m.def("cpp_Floyd", &Floyd, py::arg("G"),py::arg("weight")="weight");
     m.def("cpp_Prim", &Prim, py::arg("G"),py::arg("weight")="weight");
     m.def("cpp_Kruskal", &Kruskal, py::arg("G"),py::arg("weight")="weight");
+    m.def("cpp_plain_bfs",&cpp_plain_bfs,py::arg("G"),py::arg("source"));
+    m.def("cpp_generator_connected_components",&cpp_generator_connected_components,py::arg("G"));
 }

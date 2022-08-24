@@ -9,7 +9,7 @@ __all__ = [
 ]
 
 
-@not_implemented_for("multigraph")
+@not_implemented_for("multigraph","directed")
 @only_implemented_for_UnDirected_graph
 def is_connected(G):
     """Returns whether the graph is connected or not.
@@ -34,7 +34,7 @@ def is_connected(G):
     return len(G) == sum(1 for node in _plain_bfs(G, arbitrary_node))
 
 
-@not_implemented_for("multigraph")
+@not_implemented_for("multigraph","directed")
 @only_implemented_for_UnDirected_graph
 def number_connected_components(G):
     """Returns the number of connected components.
@@ -55,8 +55,7 @@ def number_connected_components(G):
     """
     return sum(1 for component in _generator_connected_components(G))
 
-
-@not_implemented_for("multigraph")
+@not_implemented_for("multigraph","directed")
 @only_implemented_for_UnDirected_graph
 def connected_components(G):
     """Returns a list of connected components, each of which denotes the edges set of a connected component.
@@ -81,6 +80,7 @@ def connected_components(G):
 
 
 @only_implemented_for_UnDirected_graph
+@hybrid("cpp_generator_connected_components")
 def _generator_connected_components(G):
     seen = set()
     for v in G:
@@ -90,7 +90,7 @@ def _generator_connected_components(G):
             seen.update(component)
 
 
-@not_implemented_for("multigraph")
+@not_implemented_for("multigraph","directed")
 @only_implemented_for_UnDirected_graph
 def connected_component_of_node(G, node):
     """Returns the connected component that *node* belongs to.
@@ -116,7 +116,7 @@ def connected_component_of_node(G, node):
     """
     return set(_plain_bfs(G, node))
 
-
+@hybrid("cpp_plain_bfs")
 def _plain_bfs(G, source):
     """
     A fast BFS node generator
