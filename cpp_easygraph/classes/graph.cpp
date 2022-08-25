@@ -565,6 +565,14 @@ py::object Graph_is_multigraph(py::object self) {
     return py::cast(false);
 }
 
+py::object Graph_py(py::object self) {
+    py::object G = py::module_::import("easygraph").attr("Graph")();
+    G.attr("graph").attr("update")(self.attr("graph"));
+    G.attr("adj").attr("update")(self.attr("adj"));
+    G.attr("nodes").attr("update")(self.attr("nodes"));
+    return G;
+}
+
 py::object Graph::get_nodes() {
     if (this->dirty_nodes) {
         py::dict nodes = py::dict();
@@ -582,10 +590,12 @@ py::object Graph::get_nodes() {
 py::object Graph::get_name() {
     return this->graph.attr("get")("name", "");
 }
+
 py::object Graph::set_name(py::object name) {
     this->graph[py::cast("name")] = name;
     return py::none();
 }
+
 py::object Graph::get_graph() {
     return this->graph;
 }

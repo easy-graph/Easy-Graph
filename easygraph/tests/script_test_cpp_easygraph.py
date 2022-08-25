@@ -1,7 +1,8 @@
 import os
 
-from typing import Iterator
 from numbers import Number
+from typing import Iterator
+
 import easygraph as eg
 
 
@@ -16,7 +17,9 @@ def fuzzy_equal(o1, o2):
         return True
     if isinstance(o1, Iterator) and isinstance(o2, Iterator):
         return fuzzy_equal(list(o1), list(o2))
-    if isinstance(o1, list) and isinstance(o2, list): # every item in list1 should be in list2
+    if isinstance(o1, list) and isinstance(
+        o2, list
+    ):  # every item in list1 should be in list2
         if len(o1) != len(o2):
             return False
         for item1 in o1:
@@ -29,7 +32,9 @@ def fuzzy_equal(o1, o2):
                 print(item1)
                 return False
         return True
-    if isinstance(o1, tuple) and isinstance(o2, tuple): # corresponding items should be equal
+    if isinstance(o1, tuple) and isinstance(
+        o2, tuple
+    ):  # corresponding items should be equal
         if len(o1) != len(o2):
             return False
         for i in range(len(o1)):
@@ -60,7 +65,7 @@ class Tester:
                 f" {self.class2.__name__}"
             )
 
-    def assert_property(self, name, g1 = None, g2 = None):
+    def assert_property(self, name, g1=None, g2=None):
         if g1 is None:
             g1 = self.G1
         if g2 is None:
@@ -69,8 +74,18 @@ class Tester:
         r2 = getattr(g2, name)
         if name == "edges":
             if not g1.is_directed():
-                r1 = r1 + [(edge[1], edge[0]) if len(edge) == 2 else (edge[1], edge[0], edge[2]) for edge in r1]
-                r2 = r2 + [(edge[1], edge[0]) if len(edge) == 2 else (edge[1], edge[0], edge[2]) for edge in r2]
+                r1 = r1 + [
+                    (edge[1], edge[0])
+                    if len(edge) == 2
+                    else (edge[1], edge[0], edge[2])
+                    for edge in r1
+                ]
+                r2 = r2 + [
+                    (edge[1], edge[0])
+                    if len(edge) == 2
+                    else (edge[1], edge[0], edge[2])
+                    for edge in r2
+                ]
         self.assert_object(r1, r2)
 
     def assert_method(self, name, *args, **kwargs):
@@ -156,6 +171,11 @@ class Tester:
         self.assert_graph(self.G1, self.G2)
         self.assert_object(G_1.has_edge(-1, -1), True)
         self.assert_object(self.G1.has_edge(-1, -1), False)
+
+        G_2 = self.G2.py()
+        self.assert_graph(self.G1, G_2)
+        G_1 = self.G1.cpp()
+        self.assert_graph(G_1, self.G2)
 
         G_1, G_2 = self.run_method("nodes_subgraph", [1, 2, 3, "6"])
         self.assert_graph(G_1, G_2)
