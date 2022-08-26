@@ -149,6 +149,7 @@ node_t DiGraph_add_one_node(DiGraph& self, py::object one_node_for_adding,
     }
     return id;
 }
+
 py::object DiGraph_add_node(py::args args, py::kwargs kwargs) {
     DiGraph& self = args[0].cast<DiGraph&>();
     self.dirty_nodes = true;
@@ -158,6 +159,7 @@ py::object DiGraph_add_node(py::args args, py::kwargs kwargs) {
     DiGraph_add_one_node(self, one_node_for_adding, node_attr);
     return py::none();
 }
+
 py::object DiGraph_add_nodes(DiGraph& self, py::list nodes_for_adding, py::list nodes_attr) {
     self.dirty_nodes = true;
     self.dirty_adj = true;
@@ -227,6 +229,7 @@ py::object DiGraph_add_nodes_from(py::args args, py::kwargs kwargs) {
     }
     return py::none();
 }
+
 py::object DiGraph_remove_node(DiGraph& self, py::object node_to_remove) {
     self.dirty_nodes = true;
     self.dirty_adj = true;
@@ -250,6 +253,7 @@ py::object DiGraph_remove_node(DiGraph& self, py::object node_to_remove) {
     self.id_to_node.attr("pop")(node_to_remove_id);
     return py::none();
 }
+
 py::object DiGraph_remove_nodes(py::object self, py::list nodes_to_remove) {
     DiGraph& self_ = self.cast<DiGraph&>();
     self_.dirty_nodes = true;
@@ -267,6 +271,7 @@ py::object DiGraph_remove_nodes(py::object self, py::list nodes_to_remove) {
     }
     return py::none();
 }
+
 void DiGraph_add_one_edge(DiGraph& self, py::object u_of_edge,
                           py::object v_of_edge, py::object edge_attr) {
     node_t u, v;
@@ -302,6 +307,7 @@ py::object DiGraph_add_edge(py::args args, py::kwargs kwargs) {
     DiGraph_add_one_edge(self, u_of_edge, v_of_edge, edge_attr);
     return py::none();
 }
+
 py::object DiGraph_add_edges(DiGraph& self, py::list edges_for_adding, py::list edges_attr) {
     self.dirty_nodes = true;
     self.dirty_adj = true;
@@ -455,6 +461,7 @@ py::object DiGraph_add_weighted_edge(DiGraph& self, py::object u_of_edge, py::ob
     DiGraph_add_one_edge(self, u_of_edge, v_of_edge, edge_attr);
     return py::none();
 }
+
 py::object DiGraph_remove_edge(DiGraph& self, py::object u, py::object v) {
     self.dirty_nodes = true;
     self.dirty_adj = true;
@@ -472,6 +479,7 @@ py::object DiGraph_remove_edge(DiGraph& self, py::object u, py::object v) {
     PyErr_Format(PyExc_KeyError, "No edge %R-%R in graph.", u.ptr(), v.ptr());
     return py::none();
 }
+
 py::object DiGraph_remove_edges(py::object self, py::list edges_to_remove) {
     DiGraph& self_ = self.cast<DiGraph&>();
     for (int i = 0; i < py::len(edges_to_remove); i++) {
@@ -483,6 +491,7 @@ py::object DiGraph_remove_edges(py::object self, py::list edges_to_remove) {
     self_.dirty_adj = true;
     return py::none();
 }
+
 py::object DiGraph_remove_edges_from(py::object self, py::list ebunch) {
     DiGraph& self_ = self.cast<DiGraph&>();
     for (int i = 0; i < py::len(ebunch); i++) {
@@ -496,6 +505,7 @@ py::object DiGraph_remove_edges_from(py::object self, py::list ebunch) {
     }
     return py::none();
 }
+
 py::object DiGraph_nodes_subgraph(py::object self, py::list from_nodes) {
     py::object G = self.attr("__class__")();
     Graph& self_ = self.cast<Graph&>();
@@ -522,6 +532,7 @@ py::object DiGraph_nodes_subgraph(py::object self, py::list from_nodes) {
     }
     return G;
 }
+
 py::object DiGraph_copy(py::object self) {
     DiGraph& self_ = self.cast<DiGraph&>();
     py::object G = self.attr("__class__")();
@@ -538,6 +549,15 @@ py::object DiGraph_copy(py::object self) {
 py::object DiGraph_is_directed(py::object self) {
     return py::cast(true);
 }
+
+py::object DiGraph_py(py::object self) {
+    py::object G = py::module_::import("easygraph").attr("DiGraph")();
+    G.attr("graph").attr("update")(self.attr("graph"));
+    G.attr("adj").attr("update")(self.attr("adj"));
+    G.attr("nodes").attr("update")(self.attr("nodes"));
+    return G;
+}
+
 py::object DiGraph::get_edges() {
     py::list edges = py::list();
     std::set<std::pair<node_t, node_t> > seen;

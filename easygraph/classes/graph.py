@@ -1,8 +1,6 @@
-from copy import deepcopy
 from typing import Dict
 from typing import List
 
-import easygraph as eg
 import easygraph.convert as convert
 
 from easygraph.utils.exception import EasyGraphError
@@ -1020,6 +1018,15 @@ class Graph:
                 G.add_edge(index_of_node[u], index_of_node[v], **edge_data)
 
         return G, index_of_node, node_of_index
+
+    def cpp(self):
+        G = GraphC()
+        G.graph.update(self.graph)
+        for u, attr in self.nodes.items():
+            G.add_node(u, **attr)
+        for u, v, attr in self.edges:
+            G.add_edge(u, v, **attr)
+        return G
 
 
 try:

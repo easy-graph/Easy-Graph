@@ -49,3 +49,5 @@ py::object Graph_ego_subgraph(py::object self, py::object center);
 py::object Graph_size(py::object self, py::object weight);
 py::object Graph_is_directed(py::object self);
 py::object Graph_is_multigraph(py::object self);
+
+py::object Graph_py(py::object self);

@@ -32,3 +32,4 @@ py::object DiGraph_remove_edges_from(py::object self, py::list ebunch);
 py::object DiGraph_add_weighted_edge(DiGraph& self, py::object u_of_edge, py::object v_of_edge, weight_t weight);
 py::object DiGraph_nodes_subgraph(py::object self, py::list from_nodes);
 py::object DiGraph_is_directed(py::object self);
+py::object DiGraph_py(py::object self);

@@ -1177,6 +1177,15 @@ class DiGraph(Graph):
 
         return G, index_of_node, node_of_index
 
+    def cpp(self):
+        G = DiGraphC()
+        G.graph.update(self.graph)
+        for u, attr in self.nodes.items():
+            G.add_node(u, **attr)
+        for u, v, attr in self.edges:
+            G.add_edge(u, v, **attr)
+        return G
+
 
 try:
     import cpp_easygraph
