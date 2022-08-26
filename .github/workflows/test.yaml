@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9"]
+        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
     steps:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -17,7 +17,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: 'Build and install easygraph'
-        uses: tddschn/install-easygraph@v0.2.0
+        uses: tddschn/install-easygraph@v0.3.0
 
       - uses: actions/checkout@v3
       - name: Test with pytest

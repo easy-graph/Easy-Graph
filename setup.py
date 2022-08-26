@@ -43,7 +43,8 @@ setuptools.setup(
     python_requires=">=3.6, <3.11",
     install_requires=[
         "numpy>=1.18.5, <=1.19.5; python_version=='3.6'",
-        "numpy>=1.18.5; python_version>='3.7'",
+        "numpy>=1.23.1; python_version>='3.10'",
+        "numpy>=1.19.5; python_version>='3.7' and python_version<'3.10'",
         "tqdm>=4.49.0",
         "joblib>=0.16.0",
         "six>=1.15.0, <1.16.0",
@@ -69,10 +70,7 @@ setuptools.setup(
     cmdclass={"build_ext": build_ext},
     ext_modules=[
         Pybind11Extension(
-            "cpp_easygraph",
-            sources,
-            optional=True,
-            extra_compile_args=compileArgs
+            "cpp_easygraph", sources, optional=True, extra_compile_args=compileArgs
         )
     ],
 )
