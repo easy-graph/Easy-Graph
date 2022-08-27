@@ -183,6 +183,15 @@ class Tester:
         G_1, G_2 = self.run_method("ego_subgraph", 1)
         self.assert_graph(G_1, G_2)
 
+        (G_1, index_of_node_1, node_of_index_1), (
+            G_2,
+            index_of_node_2,
+            node_of_index_2,
+        ) = self.run_method("to_index_node_graph")
+        self.assert_graph(G_1, G_2)
+        self.assert_object(index_of_node_1, index_of_node_2)
+        self.assert_object(node_of_index_1, node_of_index_2)
+
         self.assert_method("__len__")
 
         self.assert_method("__contains__", 1)
