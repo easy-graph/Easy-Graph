@@ -565,6 +565,32 @@ py::object Graph_is_multigraph(py::object self) {
     return py::cast(false);
 }
 
+py::object Graph_to_index_node_graph(py::object self, py::object begin_index) {
+    py::object G = self.attr("__class__")();
+    G.attr("graph").attr("update")(self.attr("graph"));
+    py::dict index_of_node = py::dict(), node_of_index = py::dict();
+    int begin = begin_index.cast<int>();
+    int index = 0;
+    for (auto item : self.attr("nodes").cast<py::dict>()) {
+        py::object node = item.first.cast<py::object>();
+        py::dict node_attr = item.second.cast<py::dict>();
+        G.attr("add_node")(py::cast(index + begin), **node_attr);
+        index_of_node[node] = index + begin;
+        node_of_index[py::cast(index + begin)] = node;
+        index++;
+    }
+    for (auto item : self.attr("adj").cast<py::dict>()) {
+        py::object u = item.first.cast<py::object>();
+        py::dict nbrs = item.second.cast<py::dict>();
+        for (auto item_ : nbrs) {
+            py::object v = item_.first.cast<py::object>();
+            py::dict edge_data = item_.second.cast<py::dict>();
+            G.attr("add_edge")(index_of_node[u], index_of_node[v], **edge_data);
+        }
+    }
+    return py::make_tuple(G, index_of_node, node_of_index);
+}
+
 py::object Graph_py(py::object self) {
     py::object G = py::module_::import("easygraph").attr("Graph")();
     G.attr("graph").attr("update")(self.attr("graph"));

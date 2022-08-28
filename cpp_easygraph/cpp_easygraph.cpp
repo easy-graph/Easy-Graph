@@ -35,6 +35,7 @@ PYBIND11_MODULE(cpp_easygraph, m) {
         .def("size", &Graph_size, py::arg("weight") = py::none())
         .def("is_directed", &Graph_is_directed)
         .def("is_multigraph", &Graph_is_multigraph)
+        .def("to_index_node_graph", &Graph_to_index_node_graph, py::arg("begin_index") = 0)
         .def("py", &Graph_py)
         .def_property("graph", &Graph::get_graph, nullptr)
         .def_property("nodes", &Graph::get_nodes, nullptr)
