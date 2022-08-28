@@ -169,4 +169,7 @@ exclude_lines = [
 
 
 [tool.cibuildwheel]
-before-build = "pip install pybind11"
+# before-build = "pip install pybind11"
+before-all = "pip install pybind11"
+test-requires = "pytest"
+test-command = "pytest"
