@@ -655,6 +655,15 @@ class UnionFind:
 
         """
         # Ensure fully pruned paths
+
+        def groups(parents: dict):
+            sets = {}
+            for v, k in parents.items():
+                if k not in sets:
+                    sets[k] = set()
+                sets[k].add(v)
+            return sets
+
         for x in self.parents.keys():
             _ = self[x]  # Evaluated for side-effect only
 
