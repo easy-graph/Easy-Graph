@@ -4,7 +4,11 @@
 
 class UnionFind {
 public:
-	UnionFind(py::object elements = py::none());
-	node_t operator[](node_t node);
-	void _union(node_t node1, node_t node2);
+	UnionFind(std::vector<node_t> elements);
+	node_t operator[](node_t object);
+	void _union(node_t object1, node_t object2);
+
+private:
+	std::unordered_map<node_t, node_t> parents;
+	std::unordered_map<node_t, unsigned int> weights;
 };
