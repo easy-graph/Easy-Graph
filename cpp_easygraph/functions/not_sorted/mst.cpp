@@ -1,6 +1,10 @@
 #include "mst.h"
 
-UnionFind::UnionFind(std::vector<node_t> elements = std::vector<node_t>()) {
+UnionFind::UnionFind() {
+
+}
+
+UnionFind::UnionFind(std::vector<node_t> elements) {
 	for (node_t x : elements) {
 		parents[x] = x;
 		weights[x] = 1;
