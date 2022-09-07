@@ -1,5 +1,6 @@
 #include "mst.h"
 
+
 #include <pybind11/stl.h>
 
 #include <cmath>
@@ -9,7 +10,6 @@ UnionFind::UnionFind(std::vector<node_t> elements) {
     for (node_t x : elements) {
         parents[x] = x;
         weights[x] = 1;
-    }
 }
 
 node_t UnionFind::operator[](node_t object) {

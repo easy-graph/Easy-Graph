@@ -4,7 +4,9 @@
 
 class UnionFind {
 public:
-	UnionFind(std::vector<node_t> elements= std::vector<node_t>());
+
+	UnionFind();
+	UnionFind(std::vector<node_t> elements);
 	node_t operator[](node_t object);
 	void _union(node_t object1, node_t object2);
 
