@@ -183,14 +183,23 @@ class Tester:
         G_1, G_2 = self.run_method("ego_subgraph", 1)
         self.assert_graph(G_1, G_2)
 
-        (G_1, index_of_node_1, node_of_index_1), (
+        (G_1, _, node_of_index_1), (
             G_2,
-            index_of_node_2,
+            _,
             node_of_index_2,
         ) = self.run_method("to_index_node_graph")
-        self.assert_graph(G_1, G_2)
-        self.assert_object(index_of_node_1, index_of_node_2)
-        self.assert_object(node_of_index_1, node_of_index_2)
+        G_1_nodes = {node_of_index_1[i]: j for i, j in G_1.nodes.items()}
+        G_1_adj = {
+            node_of_index_1[i]: {node_of_index_1[a]: b for a, b in j.items()}
+            for i, j in G_1.adj.items()
+        }
+        G_2_nodes = {node_of_index_2[i]: j for i, j in G_2.nodes.items()}
+        G_2_adj = {
+            node_of_index_2[i]: {node_of_index_2[a]: b for a, b in j.items()}
+            for i, j in G_2.adj.items()
+        }
+        self.assert_object(G_1_nodes, G_2_nodes)
+        self.assert_object(G_1_adj, G_2_adj)
 
         self.assert_method("__len__")
 
