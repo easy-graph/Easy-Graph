@@ -5,7 +5,7 @@
 #include "../../classes/graph.h"
 #include "../../common/utils.h"
 
-std::set<node_t> cpp_plain_bfs(py::object G, py::object source) {
+std::set<node_t> plain_bfs(py::object G, py::object source) {
     Graph& G_ = G.cast<Graph&>();
     node_t source_id = G_.node_to_id.attr("get")(source).cast<node_t>();
     adj_dict_factory& G_adj = G_.adj;
@@ -34,7 +34,7 @@ std::set<node_t> cpp_plain_bfs(py::object G, py::object source) {
     return res;
 }
 
-std::vector<std::set<node_t>> cpp_generator_connected_components(py::object G) {
+std::vector<std::set<node_t>> generator_connected_components(py::object G) {
     Graph& G_ = G.cast<Graph&>();
     std::unordered_set<node_t> seen;
     std::vector<std::set<node_t>> component_res;
@@ -44,7 +44,7 @@ std::vector<std::set<node_t>> cpp_generator_connected_components(py::object G) {
         node_t node_id = iter->first;
         if (seen.find(node_id) == seen.end()) {
             py::object node = G_.id_to_node.attr("get")(node_id);
-            std::set<node_t> component = cpp_plain_bfs(G, node);
+            std::set<node_t> component = plain_bfs(G, node);
             temp_res.emplace(component);
             for (std::set<node_t>::iterator j = component.begin(); j != component.end(); j++) {
                 seen.emplace(*j);

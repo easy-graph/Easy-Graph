@@ -662,3 +662,22 @@ py::object Graph::get_edges() {
     }
     return edges;
 }
+
+
+std::vector<graph_edge> Graph::_get_edges() {
+    std::vector<graph_edge> edges;
+    std::set<std::pair<node_t, node_t> > seen;
+    for (const auto& ego_edges : this->adj) {
+        node_t u = ego_edges.first;
+        for (const auto& edge_info : ego_edges.second) {
+            node_t v = edge_info.first;
+            const auto& edge_attr = edge_info.second;
+            if (seen.find(std::make_pair(u, v)) == seen.end()) {
+                seen.insert(std::make_pair(u, v));
+                seen.insert(std::make_pair(v, u));
+                edges.emplace_back(u, v, edge_attr);
+            }
+        }
+    }
+    return edges;
+}

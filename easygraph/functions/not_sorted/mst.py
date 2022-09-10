@@ -104,6 +104,7 @@ def boruvka_mst_edges(G, minimum=True, weight="weight", data=True, ignore_nan=Fa
                 forest.union(u, v)
 
 
+@hybrid("cpp_kruskal_mst_edges")
 def kruskal_mst_edges(G, minimum, weight="weight", data=True, ignore_nan=False):
     """Iterate over edges of a Kruskal's algorithm min/max spanning tree.
 
@@ -154,6 +155,7 @@ def kruskal_mst_edges(G, minimum, weight="weight", data=True, ignore_nan=False):
             subtrees.union(u, v)
 
 
+@hybrid("cpp_prim_mst_edges")
 def prim_mst_edges(G, minimum, weight="weight", data=True, ignore_nan=False):
     """Iterate over edges of Prim's algorithm min/max spanning tree.
 

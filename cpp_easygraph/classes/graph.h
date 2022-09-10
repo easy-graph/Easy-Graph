@@ -17,6 +17,8 @@ struct Graph {
     py::object get_graph();
     py::object get_adj();
     py::object get_edges();
+
+    std::vector<graph_edge> _get_edges();
 };
 
 py::object Graph__init__(py::args args, py::kwargs kwargs);
