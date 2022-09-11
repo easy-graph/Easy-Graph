@@ -78,11 +78,10 @@ PYBIND11_MODULE(cpp_easygraph, m) {
     m.def("cpp_dijkstra_multisource", &_dijkstra_multisource, py::arg("G"), py::arg("sources"), py::arg("weight") = "weight", py::arg("target") = py::none());
     m.def("cpp_clustering", &clustering, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none());
     m.def("cpp_biconnected_dfs_record_edges", &_biconnected_dfs_record_edges, py::arg("G"), py::arg("need_components") = true);
-    m.def("cpp_Floyd", &Floyd, py::arg("G"),py::arg("weight")="weight");
-    m.def("cpp_Prim", &Prim, py::arg("G"),py::arg("weight")="weight");
-    m.def("cpp_Kruskal", &Kruskal, py::arg("G"),py::arg("weight")="weight");
-    m.def("cpp_plain_bfs",&plain_bfs,py::arg("G"),py::arg("source"));
-    m.def("cpp_generator_connected_components",&generator_connected_components,py::arg("G"));
-    m.def("cpp_kruskal_mst_edges", &kruskal_mst_edges, py::arg("G"), py::arg("minimum"), py::arg("weight") = "weight", py::arg("data") = true, py::arg("ignore_nan") = false);
-    m.def("cpp_prim_mst_edges", &prim_mst_edges, py::arg("G"), py::arg("minimum"), py::arg("weight") = "weight", py::arg("data") = true, py::arg("ignore_nan") = false);
+    m.def("cpp_Floyd", &Floyd, py::arg("G"), py::arg("weight") = "weight");
+    m.def("cpp_Prim", &Prim, py::arg("G"), py::arg("weight") = "weight");
+    m.def("cpp_Kruskal", &Kruskal, py::arg("G"), py::arg("weight") = "weight");
+    m.def("cpp_plain_bfs", &plain_bfs, py::arg("G"), py::arg("source"));
+    m.def("cpp_kruskal_mst_edges", &kruskal_mst_edges, py::arg("G"), py::arg("minimum") = true, py::arg("weight") = "weight", py::arg("data") = true, py::arg("ignore_nan") = false);
+    m.def("cpp_prim_mst_edges", &prim_mst_edges, py::arg("G"), py::arg("minimum") = true, py::arg("weight") = "weight", py::arg("data") = true, py::arg("ignore_nan") = false);
 }

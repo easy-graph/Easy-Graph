@@ -1,10 +1,11 @@
 #include "mst.h"
-#include "../../classes/graph.h"
-#include "../../common/utils.h"
+
 #include <cmath>
 
+#include "../../classes/graph.h"
+#include "../../common/utils.h"
 
-UnionFind::UnionFind(){}
+UnionFind::UnionFind() {}
 
 UnionFind::UnionFind(std::vector<node_t> elements) {
     for (node_t x : elements) {
@@ -71,17 +72,16 @@ py::object kruskal_mst_edges(py::object G, py::object minium, py::object weight,
         }
         edges.emplace_back(wt, edge);
     }
-    std::sort(edges.begin(), edges.end(), [](const std::pair<weight_t, graph_edge>& edge1, const std::pair<weight_t, graph_edge>& edge2)->bool {
+    std::sort(edges.begin(), edges.end(), [](const std::pair<weight_t, graph_edge>& edge1, const std::pair<weight_t, graph_edge>& edge2) -> bool {
         return edge1.first < edge2.first;
-        });
+    });
     py::list ret;
     for (const auto& edge : edges) {
         node_t u = edge.second.u, v = edge.second.v;
         if (subtrees[u] != subtrees[v]) {
             if (data.cast<bool>()) {
                 ret.append(py::make_tuple(G_.id_to_node[py::cast(u)], G_.id_to_node[py::cast(v)], attr_to_dict(edge.second.attr)));
-            }
-            else {
+            } else {
                 ret.append(py::make_tuple(G_.id_to_node[py::cast(u)], G_.id_to_node[py::cast(v)]));
             }
             subtrees._union(u, v);
@@ -91,13 +91,13 @@ py::object kruskal_mst_edges(py::object G, py::object minium, py::object weight,
 };
 
 struct cmp {
-    bool operator()(const mst_Edge &node1, const mst_Edge &node2) {
+    bool operator()(const mst_Edge& node1, const mst_Edge& node2) {
         return node1.wt > node2.wt;
     }
 };
 
 py::object prim_mst_edges(py::object G, py::object minimum, py::object weight, py::object data, py::object ignore_nan) {
-    Graph &G_ = G.cast<Graph &>();
+    Graph& G_ = G.cast<Graph&>();
     py::list res = py::list();
     node_dict_factory nodes_list = G_.node;
     std::unordered_set<node_t> nodes;
@@ -106,7 +106,7 @@ py::object prim_mst_edges(py::object G, py::object minimum, py::object weight, p
         nodes.emplace(node_id);
     }
     int sign = 1;
-    if (!minimum.cast<bool>()) {
+    if (!minimum.cast<py::bool_>().equal(py::cast(true))) {
         sign = -1;
     }
     while (!nodes.empty()) {
@@ -128,11 +128,7 @@ py::object prim_mst_edges(py::object G, py::object minimum, py::object weight, p
                 if (ignore_nan.cast<bool>()) {
                     continue;
                 }
-                py::dict temp_attr = py::dict();
-                for (edge_attr_dict_factory::iterator j = d.begin(); j != d.end(); j++) {
-                    temp_attr[py::cast(j->first)] = py::cast(j->second);
-                }
-                PyErr_Format(PyExc_ValueError, "NaN found as an edge weight. Edge {(%R %R %R)}", (G_.id_to_node.attr("get")(u)).ptr(), G_.id_to_node.attr("get")(v).ptr(), temp_attr.ptr());
+                PyErr_Format(PyExc_ValueError, "NaN found as an edge weight. Edge {(%R %R %R)}", (G_.id_to_node.attr("get")(u)).ptr(), G_.id_to_node.attr("get")(v).ptr(), attr_to_dict(d).ptr());
                 return py::none();
             }
             frontier.push(mst_Edge(wt, u_, v, d));
@@ -148,11 +144,7 @@ py::object prim_mst_edges(py::object G, py::object minimum, py::object weight, p
                 continue;
             }
             if (data.cast<bool>()) {
-                py::dict temp_attr = py::dict();
-                for (edge_attr_dict_factory::iterator j = d.begin(); j != d.end(); j++) {
-                    temp_attr[py::cast(j->first)] = py::cast(j->second);
-                }
-                res.append(py::make_tuple(G_.id_to_node.attr("get")(u_id), G_.id_to_node.attr("get")(v_id), temp_attr));
+                res.append(py::make_tuple(G_.id_to_node.attr("get")(u_id), G_.id_to_node.attr("get")(v_id), attr_to_dict(d)));
             } else {
                 res.append(py::make_tuple(G_.id_to_node.attr("get")(u_id), G_.id_to_node.attr("get")(v_id)));
             }

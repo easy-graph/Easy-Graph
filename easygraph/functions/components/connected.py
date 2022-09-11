@@ -81,7 +81,6 @@ def connected_components(G):
 
 
 @only_implemented_for_UnDirected_graph
-@hybrid("cpp_generator_connected_components")
 def _generator_connected_components(G):
     seen = set()
     for v in G:
