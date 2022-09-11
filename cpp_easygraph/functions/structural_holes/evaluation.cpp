@@ -118,7 +118,7 @@ py::object effective_size(py::object G, py::object nodes, py::object weight, py:
         nodes = G;
     }
     nodes = py::list(nodes);
-    if (!G.attr("is_directed")() && weight.is_none()) {
+    if (!G.attr("is_directed")().cast<bool>() && weight.is_none()) {
         int nodes_len = py::len(nodes);
         for (int i = 0; i < nodes_len; i++) {
             py::object v = nodes[py::cast(i)];
