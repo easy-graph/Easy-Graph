@@ -1,4 +1,4 @@
-name: Triggers bench-all.yaml every 6 hours
+name: "Run Teddy's benchmarking workflow"
 on:
   # schedule:
   #   - cron: "0 */6 * * *"
@@ -6,7 +6,7 @@ on:
   pull_request:
 jobs:
   trigger:
-    name: Trigger Teddy's benchmarking workflow
+    name: "Trigger Teddy's benchmarking workflow"
     uses: tddschn/easygraph-bench/.github/workflows/bench-all.yaml@master
     with:
       releaseTag: "CI-easygraph-bench"
