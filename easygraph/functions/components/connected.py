@@ -56,6 +56,7 @@ def number_connected_components(G):
     """
     return sum(1 for component in _generator_connected_components(G))
 
+
 @not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 def connected_components(G):
