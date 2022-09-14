@@ -1,9 +1,9 @@
 name: "Run Teddy's benchmarking workflow"
 on:
-  # schedule:
-  #   - cron: "0 */6 * * *"
   push:
   pull_request:
+  workflow_dispatch:
+    
 jobs:
   trigger:
     name: "Trigger Teddy's benchmarking workflow"
