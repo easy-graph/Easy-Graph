@@ -56,7 +56,7 @@ def number_connected_components(G):
     return sum(1 for component in _generator_connected_components(G))
 
 
-@not_implemented_for("multigraph", "directed")
+@not_implemented_for("multigraph")
 @only_implemented_for_UnDirected_graph
 def connected_components(G):
     """Returns a list of connected components, each of which denotes the edges set of a connected component.
@@ -64,10 +64,9 @@ def connected_components(G):
     Parameters
     ----------
     G : easygraph.Graph or easygraph.DiGraph
-
     Returns
     -------
-    biconnected_components : list of list
+    connected_components : list of list
         Each element list is the edges set of a connected component.
 
     Examples
@@ -75,9 +74,12 @@ def connected_components(G):
     >>> connected_components(G)
 
     """
-    # Return all components ordered by number of nodes included
-    all_components = sorted(list(_generator_connected_components(G)), key=len)
-    return all_components
+    seen = set()
+    for v in G:
+        if v not in seen:
+            c = set(_plain_bfs(G, v))
+            seen.update(c)
+            yield c
 
 
 @only_implemented_for_UnDirected_graph
