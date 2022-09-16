@@ -3,6 +3,7 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+
 jobs:
   trigger:
     permissions: write-all
