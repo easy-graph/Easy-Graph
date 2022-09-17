@@ -3,10 +3,13 @@ on:
   push:
   pull_request:
   workflow_dispatch:
-    
+
 jobs:
   trigger:
+    permissions: write-all
     name: "Trigger Teddy's benchmarking workflow"
     uses: tddschn/easygraph-bench/.github/workflows/bench-all.yaml@master
+    secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     with:
       releaseTag: "CI-easygraph-bench"
