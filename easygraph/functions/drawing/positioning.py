@@ -198,7 +198,7 @@ def rescale_position(pos, scale=1):
 def kamada_kawai_layout(
     G, dist=None, pos=None, weight="weight", scale=1, center=None, dim=2
 ):
-    """Position nodes using Kamada-Kawai path-length cost-function.
+    """Position nodes using Kamada-Kawai basic-length cost-function.
 
     Parameters
     ----------

@@ -31,11 +31,9 @@ def greedy_modularity_communities(G, weight="weight"):
 
     References
     ----------
-    .. [1] M. E. J Newman 'Networks: An Introduction', page 224
-       Oxford University Press 2011.
-    .. [2] Clauset, A., Newman, M. E., & Moore, C.
-       "Finding community structure in very large networks."
-       Physical Review E 70(6), 2004.
+    .. [1] Newman, M. E. J. "Networks: An Introduction Oxford Univ." (2010).
+    .. [2] Clauset, Aaron, Mark EJ Newman, and Cristopher Moore.
+    "Finding community structure in very large networks." Physical review E 70.6 (2004): 066111.
     """
 
     # Count nodes and edges
