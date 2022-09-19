@@ -125,8 +125,8 @@ py::object Kruskal(py::object G, py::object weight) {
     py::dict result_dict = py::dict();
     std::vector<std::vector<node_t>> group;
     Graph& G_ = G.cast<Graph&>();
-    adj_dict_factory adj = G_.adj;
-    node_dict_factory node_list = G_.node;
+    adj_dict_factory& adj = G_.adj;
+    node_dict_factory& node_list = G_.node;
     std::vector<std::pair<std::pair<node_t, node_t>, weight_t>> edge_list;
     std::string weight_key = weight_to_string(weight);
     for (node_dict_factory::iterator i = node_list.begin(); i != node_list.end(); i++) {
@@ -182,9 +182,9 @@ py::object Kruskal(py::object G, py::object weight) {
 py::object Floyd(py::object G, py::object weight) {
     std::unordered_map<node_t, std::unordered_map<node_t, weight_t>> res_dict;
     Graph& G_ = G.cast<Graph&>();
-    adj_dict_factory adj = G_.adj;
+    adj_dict_factory& adj = G_.adj;
     py::dict result_dict = py::dict();
-    node_dict_factory node_list = G_.node;
+    node_dict_factory& node_list = G_.node;
     std::string weight_key = weight_to_string(weight);
     for (node_dict_factory::iterator i = node_list.begin(); i != node_list.end(); i++) {
         result_dict[G_.id_to_node[py::cast(i->first)]] = py::dict();

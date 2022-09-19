@@ -20,7 +20,7 @@ py::object plain_bfs(py::object G, py::object source) {
             node_t v_id = *i;
             if (seen.find(v_id) == seen.end()) {
                 seen.emplace(v_id);
-                adj_attr_dict_factory v_adj = G_adj[v_id];
+                adj_attr_dict_factory& v_adj = G_adj[v_id];
                 for (adj_attr_dict_factory::iterator j = v_adj.begin(); j != v_adj.end(); j++) {
                     node_t neighbor_id = j->first;
                     nextlevel.emplace(neighbor_id);

@@ -16,7 +16,7 @@ py::object _biconnected_dfs_record_edges(py::object G, py::object need_component
     py::list ret = py::list();
     std::unordered_set<node_t> visited;
     Graph& G_ = G.cast<Graph&>();
-    node_dict_factory nodes_list = G_.node;
+    node_dict_factory &nodes_list = G_.node;
     for (node_dict_factory::iterator iter = nodes_list.begin();iter != nodes_list.end();iter++) {
         node_t start_id = iter->first;
         if (visited.find(start_id) != visited.end()) {
@@ -30,7 +30,7 @@ py::object _biconnected_dfs_record_edges(py::object G, py::object need_component
         visited.emplace(start_id);
         std::vector<std::pair<node_t, node_t>> edge_stack;
         std::vector<stack_node> stack;
-        adj_attr_dict_factory start_adj = G_.adj[start_id];
+        adj_attr_dict_factory& start_adj = G_.adj[start_id];
         NeighborIterator neighbors_iter = NeighborIterator(start_adj);
         stack_node initial_stack_node(start_id, start_id, neighbors_iter);
         stack.emplace_back(initial_stack_node);
@@ -54,7 +54,7 @@ py::object _biconnected_dfs_record_edges(py::object G, py::object need_component
                 else {
                     low[node_child_id] = discovery[node_child_id] = discovery.size();
                     visited.emplace(node_child_id);
-                    adj_attr_dict_factory node_child_adj = G_.adj[node_child_id];
+                    adj_attr_dict_factory& node_child_adj = G_.adj[node_child_id];
                     NeighborIterator child_neighbors_iter = NeighborIterator(G_.adj[node_child_id]);
                     stack.emplace_back(node_parent_id, node_child_id, child_neighbors_iter);
                     if (need_components.cast<bool>()) {
