@@ -230,11 +230,11 @@ def _init_data():
 
 def dinic_bfs():
     """
-    using BFS to find augmenting path.
+    using BFS to find augmenting basic.
 
     Returns
     -------
-    A bool, whether found a augmenting path or not.
+    A bool, whether found a augmenting basic or not.
     """
     global dist, dest, src, node
     dist.clear()
@@ -258,7 +258,7 @@ def dinic_bfs():
 
 def dinic_dfs(x, exp):
     """
-    using DFS to calc the augmenting path and refresh network.
+    using DFS to calc the augmenting basic and refresh network.
     Parameters
     ----------
     x : current node.

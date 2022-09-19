@@ -11,7 +11,7 @@ __all__ = [
 
 @not_implemented_for("multigraph")
 def flowbetweenness_centrality(G):
-    """Compute the independent-path betweenness centrality for nodes in a flow network.
+    """Compute the independent-basic betweenness centrality for nodes in a flow network.
 
     .. math::
 
@@ -39,7 +39,7 @@ def flowbetweenness_centrality(G):
     Returns
     -------
     nodes : dictionary
-       Dictionary of nodes with independent-path betweenness centrality as the value.
+       Dictionary of nodes with independent-basic betweenness centrality as the value.
 
     Notes
     -----

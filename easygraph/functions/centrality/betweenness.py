@@ -19,7 +19,7 @@ def betweenness_centrality_parallel(nodes, G, path_length, accumulate):
 def betweenness_centrality(
     G, weight=None, normalized=True, endpoints=False, n_workers=None
 ):
-    r"""Compute the shortest-path betweenness centrality for nodes.
+    r"""Compute the shortest-basic betweenness centrality for nodes.
 
     .. math::
 
@@ -57,7 +57,7 @@ def betweenness_centrality(
       is the number of nodes in G.
 
     endpoints : bool, optional
-      If True include the endpoints in the shortest path counts.
+      If True include the endpoints in the shortest basic counts.
 
     Returns
     -------

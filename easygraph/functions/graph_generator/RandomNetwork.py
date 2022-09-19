@@ -24,7 +24,7 @@ def erdos_renyi_M(n, edge, directed=False, FilePath=None):
     directed : bool, optional (default=False)
         If True, this function returns a directed graph.
     FilePath : string
-        The file path of storing the graph G.
+        The file basic of storing the graph G.
 
     Returns
     -------
@@ -127,7 +127,7 @@ def erdos_renyi_P(n, p, directed=False, FilePath=None):
     directed : bool, optional (default=False)
         If True, this function returns a directed graph.
     FilePath : string
-        The file path of storing the graph G.
+        The file basic of storing the graph G.
 
     Returns
     -------
@@ -195,7 +195,7 @@ def fast_erdos_renyi_P(n, p, directed=False, FilePath=None):
     directed : bool, optional (default=False)
         If True, this function returns a directed graph.
     FilePath : string
-        The file path of storing the graph G.
+        The file basic of storing the graph G.
 
     Returns
     -------
@@ -278,7 +278,7 @@ def WS_Random(n, k, p, FilePath=None):
     p : float
         The probability of rewiring each edge
     FilePath : string
-        The file path of storing the graph G
+        The file basic of storing the graph G
 
     Returns
     -------

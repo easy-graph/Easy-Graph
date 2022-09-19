@@ -1,4 +1,4 @@
-from easygraph.functions.path import *
+from easygraph.functions.basic import *
 from easygraph.utils import *
 
 

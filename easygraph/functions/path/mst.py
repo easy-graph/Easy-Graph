@@ -267,7 +267,7 @@ def minimum_spanning_edges(
 
     Examples
     --------
-    >>> from easygraph.functions.not_sorted import mst
+    >>> from easygraph.functions.basic import mst
 
     Find minimum spanning edges by Kruskal's algorithm
 
@@ -347,7 +347,7 @@ def maximum_spanning_edges(
 
     Examples
     --------
-    >>> from easygraph.functions.not_sorted import mst
+    >>> from easygraph.functions.basic import mst
 
     Find maximum spanning edges by Kruskal's algorithm
 
@@ -627,14 +627,14 @@ class UnionFind:
             self.weights[object] = 1
             return object
 
-        # find path of objects leading to the root
+        # find basic of objects leading to the root
         path = [object]
         root = self.parents[object]
         while root != path[-1]:
             path.append(root)
             root = self.parents[root]
 
-        # compress the path and return
+        # compress the basic and return
         for ancestor in path:
             self.parents[ancestor] = root
         return root
