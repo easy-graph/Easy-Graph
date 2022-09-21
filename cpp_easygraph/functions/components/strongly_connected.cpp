@@ -8,7 +8,7 @@ py::object strongly_connected_components(py::object G) {
     adj_dict_factory& adj = G_.adj;
     std::unordered_map<node_t, node_t> preorder;
     std::unordered_map<node_t, node_t> lowlink;
-    std::unordered_set<node_t> scc_found;
+    std::set<node_t> scc_found;
     std::vector<node_t> scc_queue;
     int i = 0;
     node_dict_factory& nodes_list = G_.node;
@@ -58,7 +58,7 @@ py::object strongly_connected_components(py::object G) {
                         py::set tmp_res;
                         for (std::unordered_set<node_t>::iterator z = scc.begin(); z != scc.end(); z++) {
                             scc_found.emplace(*z);
-                            tmp_res.add(G_.id_to_node.attr("get")(py::cast(*z)));
+                            tmp_res.add(G_.id_to_node.attr("get")(*z));
                         }
                         res.append(tmp_res);
                     } else {
