@@ -4,16 +4,17 @@ import sys
 
 import easygraph as eg
 
+from easygraph.functions.components.strongly_connected import condensation
+from easygraph.functions.components.strongly_connected import (
+    number_strongly_connected_components,
+)
 from easygraph.utils import *
-from easygraph.functions.components.strong_connected_component import condensation
-from easygraph.functions.components.strong_connected_component import number_strongly_connected_components
 
 
 __all__ = [
     "maxBlock",
     "maxBlockFast",
 ]
-
 tim = 0
 sys.setrecursionlimit(9000000)
 

@@ -1,13 +1,13 @@
 import easygraph as eg
 
-from easygraph.utils.decorators import hybrid
-from easygraph.utils.decorators import not_implemented_for
+from easygraph.utils.decorators import *
 
 
 __all__ = [
     "number_strongly_connected_components",
     "strongly_connected_components",
     "is_strongly_connected",
+    "condensation",
 ]
 
 
@@ -178,8 +178,67 @@ def is_strongly_connected(G):
     For directed graphs only.
     """
     if len(G) == 0:
-        raise eg.NetworkXPointlessConcept(
+        raise eg.EasyGraphPointlessConcept(
             """Connectivity is undefined for the null graph."""
         )
 
     return len(next(strongly_connected_components(G))) == len(G)
+
+
+@not_implemented_for("multigraph")
+@only_implemented_for_Directed_graph
+def condensation(G, scc=None):
+    """Returns the condensation of G.
+    The condensation of G is the graph with each of the strongly connected
+    components contracted into a single node.
+    Parameters
+    ----------
+    G : easygraph.DiGraph
+       A directed graph.
+    scc:  list or generator (optional, default=None)
+       Strongly connected components. If provided, the elements in
+       `scc` must partition the nodes in `G`. If not provided, it will be
+       calculated as scc=strongly_connected_components(G).
+    Returns
+    -------
+    C : easygraph.DiGraph
+       The condensation graph C of G.  The node labels are integers
+       corresponding to the index of the component in the list of
+       strongly connected components of G.  C has a graph attribute named
+       'mapping' with a dictionary mapping the original nodes to the
+       nodes in C to which they belong.  Each node in C also has a node
+       attribute 'members' with the set of original nodes in G that
+       form the SCC that the node in C represents.
+    Examples
+    --------
+    # >>> condensation(G)
+    Notes
+    -----
+    After contracting all strongly connected components to a single node,
+    the resulting graph is a directed acyclic graph.
+    """
+    if scc is None:
+        scc = strongly_connected_components(G)
+    mapping = {}
+    incoming_info = {}
+    members = {}
+    C = eg.DiGraph()
+    # Add mapping dict as graph attribute
+    C.graph["mapping"] = mapping
+    if len(G) == 0:
+        return C
+    for i, component in enumerate(scc):
+        members[i] = component
+        mapping.update((n, i) for n in component)
+    number_of_components = i + 1
+    for i in range(number_of_components):
+        C.add_node(i, member=members[i], incoming=set())
+    C.add_nodes(range(number_of_components))
+    for edge in G.edges:
+        if mapping[edge[0]] != mapping[edge[1]]:
+            C.add_edge(mapping[edge[0]], mapping[edge[1]])
+            if edge[1] not in incoming_info.keys():
+                incoming_info[edge[1]] = set()
+            incoming_info[edge[1]].add(edge[0])
+    C.graph["incoming_info"] = incoming_info
+    return C
