@@ -38,7 +38,7 @@ def NOBE_SH(G, K, topk):
     .. [1] https://www.researchgate.net/publication/325004496_On_Spectral_Graph_Embedding_A_Non-Backtracking_Perspective_and_Graph_Approximation
 
     """
-    Y = eg.NOBE(G, K)
+    Y = eg.graph_embedding.NOBE(G, K)
     dict = {}
     a = 0
     for i in G.nodes:
