@@ -46,7 +46,7 @@ setuptools.setup(
         "numpy>=1.23.1; python_version>='3.10'",
         "numpy>=1.19.5; python_version>='3.7' and python_version<'3.10'",
         "tqdm>=4.49.0",
-        "joblib>=0.16.0",
+        "joblib>=1.2.0",
         "six>=1.15.0, <1.16.0",
         "gensim<=4.1.2; python_version=='3.6'",
         "gensim>=4.1.2; python_version>='3.7'",
