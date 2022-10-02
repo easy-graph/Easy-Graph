@@ -64,10 +64,11 @@ def effective_size_borgatti_parallel(nodes, G, weight):
             ret.append([node, float("nan")])
             continue
         E = G.ego_subgraph(node)
-        if len(E) > 1:
-            ret.append([node, len(E) - 1 - (2 * E.size()) / (len(E) - 1)])
-        else:
-            ret.append([node, 0])
+        ret.append([node, len(E) - (2 * E.size()) / len(E)])
+        # if len(E) > 1:
+        #     ret.append([node, len(E) - 1 - (2 * E.size()) / (len(E) - 1)])
+        # else:
+        #     ret.append([node, 0])
     return ret
 
 
@@ -139,10 +140,11 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
                     effective_size[v] = float("nan")
                     continue
                 E = G.ego_subgraph(v)
-                if len(E) > 1:
-                    effective_size[v] = len(E) - 1 - (2 * E.size()) / (len(E) - 1)
-                else:
-                    effective_size[v] = 0
+                effective_size[v] = len(E) - (2 * E.size()) / len(E)
+                # if len(E) > 1:
+                #     effective_size[v] = len(E) - 1 - (2 * E.size()) / (len(E) - 1)
+                # else:
+                #     effective_size[v] = 0
     else:
         if n_workers is not None:
             import random
