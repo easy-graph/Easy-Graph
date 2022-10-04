@@ -19,44 +19,45 @@ enum norm_t {
     max
 };
 
-weight_t mutual_weight(adj_dict_factory& G, node_t u, node_t v, std::string weight) {
+weight_t mutual_weight(Graph& G, node_t u, node_t v, std::string weight) {
     weight_t a_uv = 0, a_vu = 0;
-    if (G.count(u) && G[u].count(v)) {
-        edge_attr_dict_factory& guv = G[u][v];
+    if (G.adj.count(u) && G.adj[u].count(v)) {
+        edge_attr_dict_factory& guv = G.adj[u][v];
         a_uv = guv.count(weight) ? guv[weight] : 1;
     }
-    if (G.count(v) && G[v].count(u)) {
-        edge_attr_dict_factory& gvu = G[v][u];
-        a_uv = gvu.count(weight) ? gvu[weight] : 1;
+    if (G.adj.count(v) && G.adj[v].count(u)) {
+        edge_attr_dict_factory& gvu = G.adj[v][u];
+        a_vu = gvu.count(weight) ? gvu[weight] : 1;
     }
     return a_uv + a_vu;
 }
 
-weight_t normalized_mutual_weight(adj_dict_factory& G, node_t u, node_t v, std::string weight, norm_t norm = sum) {
+weight_t normalized_mutual_weight(Graph& G, node_t u, node_t v, std::string weight, norm_t norm = sum) {
     std::pair<node_t, node_t> edge = std::make_pair(u, v);
     auto& nmw_rec = (norm == sum) ? sum_nmw_rec : max_nmw_rec;
+    weight_t nmw;
     if (nmw_rec.count(edge)) {
-        return nmw_rec[edge];
+        nmw = nmw_rec[edge];
     } else {
         weight_t scale = 0;
-        for (auto& w : G[u]) {
+        for (auto& w : G.adj[u]) {
             weight_t temp_weight = mutual_weight(G, u, w.first, weight);
             scale = (norm == sum) ? (scale + temp_weight) : std::max(scale, temp_weight);
         }
-        weight_t nmw = scale ? (mutual_weight(G, u, v, weight) / scale) : 0;
+        nmw = scale ? (mutual_weight(G, u, v, weight) / scale) : 0;
         nmw_rec[edge] = nmw;
-        return nmw;
     }
+    return nmw;
 }
 
-weight_t local_constraint(adj_dict_factory& G, node_t u, node_t v, std::string weight = "None") {
+weight_t local_constraint(Graph& G, node_t u, node_t v, std::string weight = "None") {
     std::pair<node_t, node_t> edge = std::make_pair(u, v);
     if (local_constraint_rec.count(edge)) {
         return local_constraint_rec[edge];
     } else {
         weight_t direct = normalized_mutual_weight(G, u, v, weight);
         weight_t indirect = 0;
-        for (auto& w : G[u]) {
+        for (auto& w : G.adj[u]) {
             indirect += normalized_mutual_weight(G, u, w.first, weight) * normalized_mutual_weight(G, w.first, v, weight);
         }
         weight_t result = pow((direct + indirect), 2);
@@ -65,12 +66,12 @@ weight_t local_constraint(adj_dict_factory& G, node_t u, node_t v, std::string w
     }
 }
 
-std::pair<node_t, weight_t> compute_constraint_of_v(adj_dict_factory& G, node_t v, std::string weight) {
+std::pair<node_t, weight_t> compute_constraint_of_v(Graph& G, node_t v, std::string weight) {
     weight_t constraint_of_v = 0;
-    if (G[v].size() == 0) {
+    if (G.adj[v].size() == 0) {
         constraint_of_v = Py_NAN;
     } else {
-        for (const auto& n : G[v]) {
+        for (const auto& n : G.adj[v]) {
             constraint_of_v += local_constraint(G, v, n.first, weight);
         }
     }
@@ -92,7 +93,7 @@ py::object constraint(py::object G, py::object nodes, py::object weight, py::obj
     for (int i = 0; i < nodes_list_len; i++) {
         py::object v = nodes_list[i];
         node_t v_id = G_.node_to_id[v].cast<node_t>();
-        std::pair<node_t, weight_t> constraint_pair = compute_constraint_of_v(G_.adj, v_id, weight_key);
+        std::pair<node_t, weight_t> constraint_pair = compute_constraint_of_v(G_, v_id, weight_key);
         py::tuple constraint_of_v = py::make_tuple(G_.id_to_node[py::cast(constraint_pair.first)], constraint_pair.second);
         constraint_results.append(constraint_of_v);
     }
@@ -100,9 +101,9 @@ py::object constraint(py::object G, py::object nodes, py::object weight, py::obj
     return constraint;
 }
 
-weight_t redundancy(adj_dict_factory& G, node_t u, node_t v, std::string weight = "None") {
+weight_t redundancy(Graph& G, node_t u, node_t v, std::string weight = "None") {
     weight_t r = 0;
-    for (const auto& neighbor_info : G[u]) {
+    for (const auto& neighbor_info : G.adj[u]) {
         node_t w = neighbor_info.first;
         r += normalized_mutual_weight(G, u, w, weight) * normalized_mutual_weight(G, v, w, weight, max);
     }
@@ -127,12 +128,9 @@ py::object effective_size(py::object G, py::object nodes, py::object weight, py:
                 continue;
             }
             py::object E = G.attr("ego_subgraph")(v);
-            if (py::len(E) > 1) {
-                weight_t size = E.attr("size")().cast<weight_t>();
-                effective_size[v] = py::len(E) - 1 - (2.0 * size) / (py::len(E) - 1);
-            } else {
-                effective_size[v] = 0;
-            }
+            E.attr("remove_node")(v);
+            weight_t size = E.attr("size")().cast<weight_t>();
+            effective_size[v] = py::len(E) - (2 * size) / py::len(E);
         }
     } else {
         std::string weight_key = weight_to_string(weight);
@@ -147,7 +145,7 @@ py::object effective_size(py::object G, py::object nodes, py::object weight, py:
             node_t v_id = G_.node_to_id[v].cast<node_t>();
             for (const auto& neighbor_info : G_.adj[v_id]) {
                 node_t u_id = neighbor_info.first;
-                redundancy_sum += redundancy(G_.adj, v_id, u_id, weight_key);
+                redundancy_sum += redundancy(G_, v_id, u_id, weight_key);
             }
             effective_size[v] = redundancy_sum;
         }
@@ -182,8 +180,8 @@ py::object hierarchy(py::object G, py::object nodes, py::object weight, py::obje
             py::object w = neighbors_of_v[j];
             node_t v_id = G_.node_to_id[v].cast<node_t>();
             node_t w_id = G_.node_to_id[w].cast<node_t>();
-            C += local_constraint(G_.adj, v_id, w_id, weight_key);
-            c[w_id] = local_constraint(G_.adj, v_id, w_id, weight_key);
+            C += local_constraint(G_, v_id, w_id, weight_key);
+            c[w_id] = local_constraint(G_, v_id, w_id, weight_key);
         }
         if (n > 1) {
             weight_t hierarchy_sum = 0;

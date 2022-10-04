@@ -25,11 +25,11 @@ max_nmw_rec = {}
 def normalized_mutual_weight(G, u, v, norm=sum, weight=None):
     if norm == sum:
         try:
-            # res = sum_nmw_rec[(u, v)]
-            # print('yes')
             return sum_nmw_rec[(u, v)]
         except KeyError:
-            scale = norm(mutual_weight(G, u, w, weight) for w in G.all_neighbors(u))
+            scale = norm(
+                mutual_weight(G, u, w, weight) for w in set(G.all_neighbors(u))
+            )
             nmw = 0 if scale == 0 else mutual_weight(G, u, v, weight) / scale
             sum_nmw_rec[(u, v)] = nmw
             return nmw
@@ -37,7 +37,9 @@ def normalized_mutual_weight(G, u, v, norm=sum, weight=None):
         try:
             return max_nmw_rec[(u, v)]
         except KeyError:
-            scale = norm(mutual_weight(G, u, w, weight) for w in G.all_neighbors(u))
+            scale = norm(
+                mutual_weight(G, u, w, weight) for w in set(G.all_neighbors(u))
+            )
             nmw = 0 if scale == 0 else mutual_weight(G, u, v, weight) / scale
             max_nmw_rec[(u, v)] = nmw
             return nmw
@@ -64,11 +66,8 @@ def effective_size_borgatti_parallel(nodes, G, weight):
             ret.append([node, float("nan")])
             continue
         E = G.ego_subgraph(node)
+        E.remove_node(node)
         ret.append([node, len(E) - (2 * E.size()) / len(E)])
-        # if len(E) > 1:
-        #     ret.append([node, len(E) - 1 - (2 * E.size()) / (len(E) - 1)])
-        # else:
-        #     ret.append([node, 0])
     return ret
 
 
@@ -140,11 +139,8 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
                     effective_size[v] = float("nan")
                     continue
                 E = G.ego_subgraph(v)
+                E.remove_node(v)
                 effective_size[v] = len(E) - (2 * E.size()) / len(E)
-                # if len(E) > 1:
-                #     effective_size[v] = len(E) - 1 - (2 * E.size()) / (len(E) - 1)
-                # else:
-                #     effective_size[v] = 0
     else:
         if n_workers is not None:
             import random
