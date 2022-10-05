@@ -305,7 +305,7 @@ def local_constraint(G, u, v, weight=None):
         return result
 
 
-def hierarchy_parallel(nodes, G):
+def hierarchy_parallel(nodes, G, weight):
     ret = []
     for v in nodes:
         E = G.ego_subgraph(v)
@@ -314,8 +314,8 @@ def hierarchy_parallel(nodes, G):
         c = {}
         neighbors_of_v = set(G.all_neighbors(v))
         for w in neighbors_of_v:
-            C += local_constraint(G, v, w)
-            c[w] = local_constraint(G, v, w)
+            C += local_constraint(G, v, w, weight)
+            c[w] = local_constraint(G, v, w, weight)
         if n > 1:
             ret.append(
                 [
@@ -365,7 +365,7 @@ def hierarchy(G, nodes=None, weight=None, n_workers=None):
         from functools import partial
         from multiprocessing import Pool
 
-        local_function = partial(hierarchy_parallel, G=G)
+        local_function = partial(hierarchy_parallel, G=G, weight=weight)
         nodes = list(nodes)
         random.shuffle(nodes)
         if len(nodes) > n_workers * 30000:
