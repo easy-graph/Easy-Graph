@@ -10,9 +10,11 @@
 #include <exception>
 #include <set>
 #include <cmath>
+#include <random>
 #include <algorithm>
 #include <queue>
 #include <vector>
+#include <thread>
 
 namespace py = pybind11;
 
