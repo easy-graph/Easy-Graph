@@ -1,7 +1,6 @@
 import random
 
 import easygraph as eg
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -32,6 +31,8 @@ def draw_SHS_center(G, SHS, rate=1, style="side"):
     graph : network
         the graph whose the SH Spanners are in the center.
     """
+    import matplotlib.pyplot as plt
+
     pos = eg.random_position(G)
     center = np.zeros((len(SHS), 2), float)
     node = np.zeros((len(pos) - len(SHS), 2), float)
@@ -196,6 +197,8 @@ def draw_SHS_center_kk(G, SHS, rate=1, style="side"):
     graph : network
         the graph whose the SH Spanners are in the center.
     """
+    import matplotlib.pyplot as plt
+
     pos = eg.kamada_kawai_layout(G)
     center = np.zeros((len(SHS), 2), float)
     node = np.zeros((len(pos) - len(SHS), 2), float)
@@ -351,6 +354,8 @@ def draw_kamada_kawai(G, rate=1, style="side"):
         "center"- the label is in the center of the dot
 
     """
+    import matplotlib.pyplot as plt
+
     pos = eg.kamada_kawai_layout(G)
     node = np.zeros((len(pos), 2), float)
     m, n = 0, 0
