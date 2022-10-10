@@ -1,8 +1,5 @@
 import easygraph as eg
 import numpy as np
-import statsmodels.api as sm
-
-from matplotlib import pyplot as plt
 
 
 __all__ = [
@@ -31,6 +28,9 @@ def plot_Followers(G, SHS):
     plt : CDF curves
         the CDF curves of "Number of Followers" of SH spanners and ordinary users in graph G.
     """
+    import matplotlib.pyplot as plt
+    import statsmodels.api as sm
+
     OU = []
     for i in G:
         if i not in SHS:
@@ -76,6 +76,9 @@ def plot_Connected_Communities(G, SHS):
     plt : CDF curves
         the CDF curves of "Number of Connected Communities" of SH spanners and ordinary users in graph G.
     """
+    import matplotlib.pyplot as plt
+    import statsmodels.api as sm
+
     OU = []
     for i in G:
         if i not in SHS:
@@ -135,6 +138,9 @@ def plot_Betweenness_Centrality(G, SHS):
     plt : CDF curves
         the CDF curves of "Betweenness Centrality" of SH spanners and ordinary users in graph G.
     """
+    import matplotlib.pyplot as plt
+    import statsmodels.api as sm
+
     OU = []
     for i in G:
         if i not in SHS:
@@ -181,6 +187,9 @@ def plot_Neighborhood_Followers(G, SHS):
         the CDF curves of "Arg. Number of Followers of the Neighborhood Users
         " of SH spanners and ordinary users in graph G.
     """
+    import matplotlib.pyplot as plt
+    import statsmodels.api as sm
+
     OU = []
     for i in G:
         if i not in SHS:

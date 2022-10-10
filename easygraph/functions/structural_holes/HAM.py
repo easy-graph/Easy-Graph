@@ -1,23 +1,17 @@
-import scipy.stats as stat
-
-
 __all__ = ["get_structural_holes_HAM"]
 from collections import Counter
 
 import numpy as np
-import scipy.linalg as spl
-import scipy.sparse as sps
 
 from easygraph.utils import *
-from scipy.cluster.vq import kmeans
-from scipy.cluster.vq import vq
-from sklearn import metrics
 
 
 eps = 2.220446049250313e-16
 
 
 def sym(w):
+    import scipy.linalg as spl
+
     """
     Initialize a random orthogonal matrix F = w * (wT * w)^ (-1/2)
     Parameters
@@ -44,6 +38,8 @@ def avg_entropy(predicted_labels, actual_labels):
     -------
     A float of average entropy.
     """
+    import scipy.stats as stat
+
     actual_labels_dict = {}
     predicted_labels_dict = {}
     for label in np.unique(actual_labels):
@@ -77,6 +73,8 @@ def load_adj_matrix(G):
     -------
     A : A sparse matrix A
     """
+    import scipy.sparse as sps
+
     listE = []
     for edge in G.edges:
         listE.append(edge[0] - 1)
@@ -195,6 +193,12 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
     .. [1] https://dl.acm.org/doi/10.1145/2939672.2939807
 
     """
+    import scipy.linalg as spl
+    import scipy.sparse as sps
+
+    from scipy.cluster.vq import kmeans
+    from scipy.cluster.vq import vq
+    from sklearn import metrics
 
     G_index, _, node_of_index = G.to_index_node_graph(begin_index=1)
 
