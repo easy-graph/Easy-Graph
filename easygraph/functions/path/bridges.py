@@ -154,9 +154,9 @@ def chain_decomposition(G, root=None):
         visited.add(u)
         # For each nontree edge going out of node u...
         edges = []
-        for u, v, d in H.edges:
-            if d["nontree"] == True:
-                edges.append((u, v))
+        for w, v, d in H.edges:
+            if w == u and d["nontree"] == True:
+                edges.append((w, v))
         # edges = ((u, v) for u, v, d in H.out_edges(u, data="nontree") if d)
         for u, v in edges:
             # Create the cycle or cycle prefix starting with the
