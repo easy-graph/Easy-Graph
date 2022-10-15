@@ -29,7 +29,7 @@ The current version on PyPI is outdated, we'll push the latest version as soon a
 
 In the meantime, here's a work around you can try to install the latest version of easygraph on your machine:
 
-::
+.. code:: bash
 
     git clone https://github.com/easy-graph/Easy-Graph && cd Easy-Graph && git checkout pybind11
     pip install pybind11
