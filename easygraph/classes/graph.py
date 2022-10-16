@@ -674,6 +674,38 @@ class Graph:
             self._adj[u][v] = datadict
             self._adj[v][u] = datadict
 
+    def add_weighted_edges_from(self, ebunch_to_add, weight="weight", **attr):
+        """Add weighted edges in `ebunch_to_add` with specified weight attr
+
+        Parameters
+        ----------
+        ebunch_to_add : container of edges
+            Each edge given in the list or container will be added
+            to the graph. The edges must be given as 3-tuples (u, v, w)
+            where w is a number.
+        weight : string, optional (default= 'weight')
+            The attribute name for the edge weights to be added.
+        attr : keyword arguments, optional (default= no attributes)
+            Edge attributes to add/update for all edges.
+
+        See Also
+        --------
+        add_edge : add a single edge
+        add_edges_from : add multiple edges
+
+        Notes
+        -----
+        Adding the same edge twice for Graph/DiGraph simply updates
+        the edge data. For MultiGraph/MultiDiGraph, duplicate edges
+        are stored.
+
+        Examples
+        --------
+        >>> G = eg.Graph()  # or DiGraph, MultiGraph, MultiDiGraph, etc
+        >>> G.add_weighted_edges_from([(0, 1, 3.0), (1, 2, 7.5)])
+        """
+        self.add_edges_from(((u, v, {weight: d}) for u, v, d in ebunch_to_add), **attr)
+
     def add_edges_from_file(self, file, weighted=False):
         """Added edges from file
         For example, txt files,
@@ -728,6 +760,41 @@ class Graph:
                     self.add_edge(edge[0], edge[1])
                 except:
                     pass
+
+    def remove_nodes_from(self, nodes):
+        """Remove multiple nodes.
+
+        Parameters
+        ----------
+        nodes : iterable container
+            A container of nodes (list, dict, set, etc.).  If a node
+            in the container is not in the graph it is silently
+            ignored.
+
+        See Also
+        --------
+        remove_node
+
+        Examples
+        --------
+        >>> G = eg.path_graph(3)  # or DiGraph, MultiGraph, MultiDiGraph, etc
+        >>> e = list(G.nodes)
+        >>> e
+        [0, 1, 2]
+        >>> G.remove_nodes_from(e)
+        >>> list(G.nodes)
+        []
+
+        """
+        adj = self._adj
+        for n in nodes:
+            try:
+                del self._node[n]
+                for u in list(adj[n]):  # list handles self-loops
+                    del adj[u][n]  # (allows mutation of dict in loop)
+                del adj[n]
+            except KeyError:
+                pass
 
     def _add_one_edge(self, u_of_edge, v_of_edge, edge_attr: dict = {}):
         u, v = u_of_edge, v_of_edge
