@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 
 
@@ -86,6 +88,10 @@ class TestConvertScipy:
         assert nodes_equal(G1.nodes, G2.nodes)
         assert edges_equal(G1.edges, G2.edges, need_data=False)
 
+    # skip if on python < 3.8
+    @pytest.mark.skipif(
+        sys.version_info < (3, 8), reason="requires python3.8 or higher"
+    )
     def test_from_scipy(self):
         data = sp.sparse.csr_matrix([[0, 1, 1], [1, 0, 1], [1, 1, 0]])
         G = eg.from_scipy_sparse_matrix(data)
