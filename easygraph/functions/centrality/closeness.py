@@ -1,3 +1,5 @@
+from easygraph import single_source_bfs
+from easygraph import single_source_dijkstra
 from easygraph.functions.basic import *
 from easygraph.utils import *
 
