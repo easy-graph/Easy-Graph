@@ -1,11 +1,132 @@
 import random
 
+from copy import deepcopy
+from typing import List
+from typing import Optional
+from typing import Union
+
 import easygraph as eg
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-__all__ = ["draw_SHS_center", "draw_SHS_center_kk", "draw_kamada_kawai"]
+__all__ = [
+    "draw_SHS_center",
+    "draw_SHS_center_kk",
+    "draw_kamada_kawai",
+    "draw_hypergraph",
+]
+
+from easygraph.functions.drawing.defaults import default_hypergraph_strength
+from easygraph.functions.drawing.defaults import default_hypergraph_style
+from easygraph.functions.drawing.defaults import default_size
+from easygraph.functions.drawing.layout import force_layout
+from easygraph.functions.drawing.utils import draw_circle_edge
+from easygraph.functions.drawing.utils import draw_vertex
+
+
+def draw_hypergraph(
+    hg: "eg.Hypergraph",
+    e_style: str = "circle",
+    v_label: Optional[List[str]] = None,
+    v_size: Union[float, list] = 1.0,
+    v_color: Union[str, list] = "r",
+    v_line_width: Union[str, list] = 1.0,
+    e_color: Union[str, list] = "gray",
+    e_fill_color: Union[str, list] = "whitesmoke",
+    e_line_width: Union[str, list] = 1.0,
+    font_size: float = 1.0,
+    font_family: str = "sans-serif",
+    push_v_strength: float = 1.0,
+    push_e_strength: float = 1.0,
+    pull_e_strength: float = 1.0,
+    pull_center_strength: float = 1.0,
+):
+    r"""Draw the hypergraph structure.
+
+    Args:
+        ``hg`` (``eg.Hypergraph``): The EasyGraph's hypergraph object.
+        ``e_style`` (``str``): The style of hyperedges. The available styles are only ``'circle'``. Defaults to ``'circle'``.
+        ``v_label`` (``list``): The labels of vertices. Defaults to ``None``.
+        ``v_size`` (``float`` or ``list``): The size of vertices. Defaults to ``1.0``.
+        ``v_color`` (``str`` or ``list``): The `color <https://matplotlib.org/stable/gallery/color/named_colors.html>`_ of vertices. Defaults to ``'r'``.
+        ``v_line_width`` (``float`` or ``list``): The line width of vertices. Defaults to ``1.0``.
+        ``e_color`` (``str`` or ``list``): The `color <https://matplotlib.org/stable/gallery/color/named_colors.html>`_ of hyperedges. Defaults to ``'gray'``.
+        ``e_fill_color`` (``str`` or ``list``): The fill `color <https://matplotlib.org/stable/gallery/color/named_colors.html>`_ of hyperedges. Defaults to ``'whitesmoke'``.
+        ``e_line_width`` (``float`` or ``list``): The line width of hyperedges. Defaults to ``1.0``.
+        ``font_size`` (``float``): The font size of labels. Defaults to ``1.0``.
+        ``font_family`` (``str``): The font family of labels. Defaults to ``'sans-serif'``.
+        ``push_v_strength`` (``float``): The strength of pushing vertices. Defaults to ``1.0``.
+        ``push_e_strength`` (``float``): The strength of pushing hyperedges. Defaults to ``1.0``.
+        ``pull_e_strength`` (``float``): The strength of pulling hyperedges. Defaults to ``1.0``.
+        ``pull_center_strength`` (``float``): The strength of pulling vertices to the center. Defaults to ``1.0``.
+    """
+    assert isinstance(
+        hg, eg.Hypergraph
+    ), "The input object must be a DHG's hypergraph object."
+    assert e_style in ["circle"], "e_style must be 'circle'"
+    assert hg.num_e > 0, "g must be a non-empty structure"
+    fig, ax = plt.subplots(figsize=(6, 6))
+
+    num_v, e_list = hg.num_v, deepcopy(hg.e[0])
+    # default configures
+    v_color, e_color, e_fill_color = default_hypergraph_style(
+        hg.num_v, hg.num_e, v_color, e_color, e_fill_color
+    )
+    v_size, v_line_width, e_line_width, font_size = default_size(
+        num_v, e_list, v_size, v_line_width, e_line_width
+    )
+    (
+        push_v_strength,
+        push_e_strength,
+        pull_e_strength,
+        pull_center_strength,
+    ) = default_hypergraph_strength(
+        num_v,
+        e_list,
+        push_v_strength,
+        push_e_strength,
+        pull_e_strength,
+        pull_center_strength,
+    )
+    # layout
+    v_coor = force_layout(
+        num_v,
+        e_list,
+        push_v_strength,
+        push_e_strength,
+        pull_e_strength,
+        pull_center_strength,
+    )
+    if e_style == "circle":
+        draw_circle_edge(
+            ax,
+            v_coor,
+            v_size,
+            e_list,
+            e_color,
+            e_fill_color,
+            e_line_width,
+        )
+    else:
+        raise ValueError("e_style must be 'circle'")
+
+    draw_vertex(
+        ax,
+        v_coor,
+        v_label,
+        font_size,
+        font_family,
+        v_size,
+        v_color,
+        v_line_width,
+    )
+
+    plt.xlim((0, 1.0))
+    plt.ylim((0, 1.0))
+    plt.axis("off")
+    fig.tight_layout()
+    plt.show()
 
 
 def draw_SHS_center(G, SHS, rate=1, style="side"):
@@ -32,6 +153,8 @@ def draw_SHS_center(G, SHS, rate=1, style="side"):
     graph : network
         the graph whose the SH Spanners are in the center.
     """
+    import matplotlib.pyplot as plt
+
     pos = eg.random_position(G)
     center = np.zeros((len(SHS), 2), float)
     node = np.zeros((len(pos) - len(SHS), 2), float)
@@ -196,6 +319,8 @@ def draw_SHS_center_kk(G, SHS, rate=1, style="side"):
     graph : network
         the graph whose the SH Spanners are in the center.
     """
+    import matplotlib.pyplot as plt
+
     pos = eg.kamada_kawai_layout(G)
     center = np.zeros((len(SHS), 2), float)
     node = np.zeros((len(pos) - len(SHS), 2), float)
@@ -351,6 +476,8 @@ def draw_kamada_kawai(G, rate=1, style="side"):
         "center"- the label is in the center of the dot
 
     """
+    import matplotlib.pyplot as plt
+
     pos = eg.kamada_kawai_layout(G)
     node = np.zeros((len(pos), 2), float)
     m, n = 0, 0

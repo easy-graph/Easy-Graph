@@ -397,7 +397,7 @@ class DiGraph(Graph):
 
         Parameters
         ----------
-        node : object
+        node : Hashable
             The target node.
 
         Returns
@@ -426,7 +426,7 @@ class DiGraph(Graph):
 
         Parameters
         ----------
-        node : object
+        node : Hashable
             The target node.
 
         Returns
@@ -453,7 +453,7 @@ class DiGraph(Graph):
 
         Parameters
         ----------
-        node : object
+        node : Hashable
             The target node.
 
         Returns

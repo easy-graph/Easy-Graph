@@ -96,7 +96,7 @@ def connected_component_of_node(G, node):
     ----------
     G : easygraph.Graph
 
-    node : object
+    node : Hashable
         The target node
 
     Returns

@@ -2,7 +2,6 @@ import easygraph as eg
 import numpy as np
 
 from easygraph.utils import *
-from scipy.sparse.linalg import eigs
 
 
 __all__ = ["NOBE", "NOBE_GA"]
@@ -73,6 +72,8 @@ def NOBE_GA(G, K):
     .. [1] https://www.researchgate.net/publication/325004496_On_Spectral_Graph_Embedding_A_Non-Backtracking_Perspective_and_Graph_Approximation
 
     """
+    from scipy.sparse.linalg import eigs
+
     N = len(G)
     A = np.eye(N, N)
     for i in G.edges:
@@ -153,6 +154,8 @@ def Transition(LG):
 
 
 def eigs_nodes(P, K):
+    from scipy.sparse.linalg import eigs
+
     M = np.size(P, 0)
     L = np.zeros([M, M])
     I = np.identity(M)

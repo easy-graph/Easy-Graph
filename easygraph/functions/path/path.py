@@ -20,7 +20,7 @@ def Dijkstra(G, node, weight="weight"):
     ----------
     G : graph
         weighted graph
-    node : int
+    node : Hashable
 
     Returns
     -------

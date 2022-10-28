@@ -2,7 +2,14 @@ from itertools import chain
 from itertools import tee
 
 
-__all__ = ["split_len", "split", "nodes_equal", "edges_equal", "pairwise"]
+__all__ = [
+    "split_len",
+    "split",
+    "nodes_equal",
+    "edges_equal",
+    "pairwise",
+    "graphs_equal",
+]
 
 
 def split_len(nodes, step=30000):
@@ -119,3 +126,25 @@ def pairwise(iterable, cyclic=False):
     if cyclic is True:
         return zip(a, chain(b, (first,)))
     return zip(a, b)
+
+
+def graphs_equal(graph1, graph2):
+    """Check if graphs are equal.
+
+    Equality here means equal as Python objects (not isomorphism).
+    Node, edge and graph data must match.
+
+    Parameters
+    ----------
+    graph1, graph2 : graph
+
+    Returns
+    -------
+    bool
+        True if graphs are equal, False otherwise.
+    """
+    return (
+        graph1.adj == graph2.adj
+        and graph1.nodes == graph2.nodes
+        and graph1.graph == graph2.graph
+    )

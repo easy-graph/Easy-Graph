@@ -1,7 +1,6 @@
 import time
 
 import numpy as np
-import scipy.sparse as sp
 
 from easygraph.utils import *
 
@@ -263,6 +262,8 @@ class SDNE:
         return self._embeddings
 
     def _create_A_L(self, graph, node2idx):
+        import scipy.sparse as sp
+
         node_size = graph.number_of_nodes()
         A_data = []
         A_row_index = []

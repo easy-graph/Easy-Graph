@@ -62,7 +62,6 @@ class MultiGraph(Graph):
         {'day': 'Friday'}
 
         """
-        self.edge_key_dict_factory = self.edge_key_dict_factory
         if isinstance(incoming_graph_data, dict) and multigraph_input is not False:
             Graph.__init__(self)
             try:
