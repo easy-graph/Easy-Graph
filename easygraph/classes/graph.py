@@ -1,9 +1,13 @@
+import warnings
+
 from typing import Dict
 from typing import List
+from typing import Tuple
 
 import easygraph.convert as convert
 
 from easygraph.utils.exception import EasyGraphError
+from easygraph.utils.exception import EasyGraphException
 
 
 class Graph:
@@ -119,6 +123,34 @@ class Graph:
     @name.setter
     def name(self, s):
         self.graph["name"] = s
+
+    @property
+    def e_both_side(self, weight="weight") -> Tuple[List[List], List[float]]:
+        if self.cache.get("e_both_side") != None:
+            return self.cache["e_both_side"]
+        edges = list()
+        weights = list()
+        seen = set()
+        for u in self._adj:
+            for v in self._adj[u]:
+                if (u, v) not in seen:
+                    seen.add((u, v))
+                    seen.add((v, u))
+                    edges.append([u, v])
+                    edges.append([v, u])
+                    if weight not in self._adj[u][v]:
+                        warnings.warn("There is no property %s,default to 1" % (weight))
+                        weights.append(1.0)
+                        weights.append(1.0)
+                    else:
+                        if type(self._adj[u][v][weight]) == float:
+                            weights.append(self._adj[u][v][weight])
+                            weights.append(self._adj[u][v][weight])
+                        else:
+                            raise EasyGraphException("The type of weight must be float")
+        del seen
+        self.cache["e_both_side"] = (edges, weights)
+        return self.cache["e_both_side"]
 
     def degree(self, weight="weight"):
         """Returns the weighted degree of of each node.
