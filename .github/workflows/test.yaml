@@ -16,6 +16,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+<<<<<<< HEAD
       - name: 'Build and install easygraph'
         uses: tddschn/install-easygraph@master
         with:
@@ -25,6 +26,11 @@ jobs:
           ref: '${{ github.ref }}'
           install-pytorch: 'true'
           install-lxml: 'true'
+=======
+      - name: Install EasyGraph
+        uses: tddschn/install-easygraph@v0.4.0
+
+>>>>>>> 709a11190cacd1c214793a360bdff1b312a05500
 
       - uses: actions/checkout@v3
       - name: Test with pytest

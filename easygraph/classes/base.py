@@ -10,7 +10,6 @@ from typing import Tuple
 from typing import Union
 
 import numpy as np
-import torch
 
 
 __all__ = ["load_structure", "BaseHypergraph"]
@@ -31,7 +30,6 @@ def load_structure(file_path: Union[str, Path]):
     with open(file_path, "rb") as f:
         data = pkl.load(f)
     class_name, state_dict = data["class"], data["state_dict"]
-    print("load_structure state_dict:", state_dict)
     structure_class = getattr(easygraph, class_name)
     structure = structure_class.from_state_dict(state_dict)
     return structure
@@ -52,6 +50,7 @@ class BaseHypergraph:
         ``v_weight`` (``Union[float, List[float]]``, optional): Weights for vertices. If set to ``None``, the value ``1`` is used for all vertices. Defaults to ``None``.
         ``device`` (``torch.device``, optional): The deivce to store the hypergraph. Defaults to ``torch.device('cpu')``.
     """
+    import torch
 
     def __init__(
         self,
