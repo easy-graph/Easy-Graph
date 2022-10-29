@@ -6,7 +6,6 @@ from typing import List
 from typing import Tuple
 
 import easygraph.convert as convert
-import torch
 
 from easygraph.utils.exception import EasyGraphError
 from easygraph.utils.exception import EasyGraphException
@@ -157,7 +156,9 @@ class Graph:
         return self.cache["e_both_side"]
 
     @property
-    def A(self) -> torch.Tensor:
+    def A(self):
+        import torch
+
         r"""Return the adjacency matrix :math:`\mathbf{A}` of the sample graph with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
         """
         if self.cache.get("A", None) is None:
@@ -178,7 +179,9 @@ class Graph:
     @property
     def D_v_neg_1_2(
         self,
-    ) -> torch.Tensor:
+    ):
+        import torch
+
         r"""Return the nomalized diagnal matrix of vertex degree :math:`\mathbf{D}_v^{-\frac{1}{2}}` with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
         """
         if self.cache.get("D_v_neg_1_2") is None:
@@ -226,7 +229,9 @@ class Graph:
         return self.cache["e"]
 
     @property
-    def D_v(self) -> torch.Tensor:
+    def D_v(self):
+        import torch
+
         r"""Return the diagnal matrix of vertex degree :math:`\mathbf{D}_v` with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
         """
         if self.cache.get("D_v") is None:

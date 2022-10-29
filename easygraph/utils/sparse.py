@@ -1,12 +1,11 @@
-import torch
-
-
 __all__ = ["sparse_dropout"]
 
 
 def sparse_dropout(
     sp_mat: torch.Tensor, p: float, fill_value: float = 0.0
 ) -> torch.Tensor:
+    import torch
+
     r"""Dropout function for sparse matrix. This function will return a new sparse matrix with the same shape as the input sparse matrix, but with some elements dropped out.
 
     Args:

@@ -16,8 +16,6 @@ class TestLocalAssort:
         node_num = len(self.G.nodes)
         for e in self.G.edges:
             edgelist.append([e[0] - 1, e[1] - 1])
-
-            # valuelist.append(random.choice(random_value))
         print("edgelist:", edgelist)
         for i in range(0, node_num):
             valuelist.append(random.choice(random_value))
@@ -26,14 +24,14 @@ class TestLocalAssort:
         self.valuelist = valuelist
 
     def test_karateclub(self):
-        assortM, assortT, Z = eg.localAssortF(
+        assortM, assortT, Z = eg.localAssort(
             self.edgelist, self.valuelist, pr=np.arange(0, 1, 0.1)
         )
         print("M:", assortM)
         print("T:", assortT)
         print("Z:", Z)
 
-        _, assortT, Z = easygraph.functions.basic.localassort.localAssortF(
+        _, assortT, Z = eg.functions.basic.localassort.localAssortF(
             self.edgelist, self.valuelist, pr=np.array([0.9])
         )
         print("_:", _)
