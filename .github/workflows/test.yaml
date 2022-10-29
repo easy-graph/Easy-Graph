@@ -17,7 +17,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: 'Build and install easygraph'
-        uses: tddschn/install-easygraph@v0.3.1
+        uses: tddschn/install-easygraph@master
+        with:
+          # use current repo
+          repository: '${{ github.repository }}'
+          # use current branch
+          ref: '${{ github.ref }}'
+          install-pytorch: 'true'
+          install-lxml: 'true'
 
       - uses: actions/checkout@v3
       - name: Test with pytest
