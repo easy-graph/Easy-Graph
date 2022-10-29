@@ -10,9 +10,6 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
-import scipy.spatial
-import torch
-
 from easygraph.classes.base import BaseHypergraph
 from easygraph.functions.drawing.drawing import draw_hypergraph
 from easygraph.utils.sparse import sparse_dropout
@@ -28,6 +25,7 @@ class Hypergraph(BaseHypergraph):
         ``merge_op`` (``str``): The operation to merge those conflicting hyperedges in the same hyperedge group, which can be ``'mean'``, ``'sum'`` or ``'max'``. Defaults to ``'mean'``.
         ``device`` (``torch.device``, optional): The deivce to store the hypergraph. Defaults to ``torch.device('cpu')``.
     """
+    import torch
 
     def __init__(
         self,
@@ -167,6 +165,8 @@ class Hypergraph(BaseHypergraph):
 
     @staticmethod
     def _e_list_from_feature_kNN(features: torch.Tensor, k: int):
+        import scipy
+
         r"""Construct hyperedges from the feature matrix. Each hyperedge in the hypergraph is constructed by the central vertex ans its :math:`k-1` neighbor vertices.
 
         Args:
