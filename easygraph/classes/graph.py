@@ -1,9 +1,15 @@
+import re
+import warnings
+
 from typing import Dict
 from typing import List
+from typing import Tuple
 
 import easygraph.convert as convert
+import torch
 
 from easygraph.utils.exception import EasyGraphError
+from easygraph.utils.exception import EasyGraphException
 
 
 class Graph:
@@ -52,6 +58,7 @@ class Graph:
 
     """
 
+    extra_selfloop = False
     graph_attr_dict_factory = dict
     node_dict_factory = dict
     node_attr_dict_factory = dict
@@ -63,7 +70,9 @@ class Graph:
         self.graph = self.graph_attr_dict_factory()
         self._node = self.node_dict_factory()
         self._adj = self.adjlist_outer_dict_factory()
+        self.cache = {}
         self.cflag = 0
+        self.device = "cpu"
         if incoming_graph_data is not None:
             convert.to_easygraph_graph(incoming_graph_data, create_using=self)
         self.graph.update(graph_attr)
@@ -95,16 +104,19 @@ class Graph:
 
     @property
     def edges(self):
-        edges = list()
+        if self.cache.get("edges") != None:
+            return self.cache["edges"]
+        edge_lst = list()
         seen = set()
         for u in self._adj:
             for v in self._adj[u]:
                 if (u, v) not in seen:
                     seen.add((u, v))
                     seen.add((v, u))
-                    edges.append((u, v, self._adj[u][v]))
+                    edge_lst.append((u, v, self._adj[u][v]))
         del seen
-        return edges
+        self.cache["edge"] = edge_lst
+        return self.cache["edge"]
 
     @property
     def name(self):
@@ -115,6 +127,144 @@ class Graph:
         a property) `G.name`. This is entirely user controlled.
         """
         return self.graph.get("name", "")
+
+    @property
+    def e_both_side(self, weight="weight") -> Tuple[List[List], List[float]]:
+        if self.cache.get("e_both_side") != None:
+            return self.cache["e_both_side"]
+        edges = list()
+        weights = list()
+        seen = set()
+        for u in self._adj:
+            for v in self._adj[u]:
+                if (u, v) not in seen:
+                    seen.add((u, v))
+                    seen.add((v, u))
+                    edges.append([u, v])
+                    edges.append([v, u])
+                    if weight not in self._adj[u][v]:
+                        warnings.warn("There is no property %s,default to 1" % (weight))
+                        weights.append(1.0)
+                        weights.append(1.0)
+                    else:
+                        if type(self._adj[u][v][weight]) == float:
+                            weights.append(self._adj[u][v][weight])
+                            weights.append(self._adj[u][v][weight])
+                        else:
+                            raise EasyGraphException("The type of weight must be float")
+        del seen
+        self.cache["e_both_side"] = (edges, weights)
+        return self.cache["e_both_side"]
+
+    @property
+    def A(self) -> torch.Tensor:
+        r"""Return the adjacency matrix :math:`\mathbf{A}` of the sample graph with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
+        """
+        if self.cache.get("A", None) is None:
+            if len(self.edges) == 0:
+                self.cache["A"] = torch.sparse_coo_tensor(
+                    size=(len(self.nodes), len(self.edges)), device=self.device
+                )
+            else:
+                e_list, e_weight = self.e_both_side
+                self.cache["A"] = torch.sparse_coo_tensor(
+                    indices=torch.tensor(e_list).t(),
+                    values=torch.tensor(e_weight),
+                    size=(len(self.nodes), len(self.nodes)),
+                    device=self.device,
+                ).coalesce()
+        return self.cache["A"]
+
+    @property
+    def D_v_neg_1_2(
+        self,
+    ) -> torch.Tensor:
+        r"""Return the nomalized diagnal matrix of vertex degree :math:`\mathbf{D}_v^{-\frac{1}{2}}` with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
+        """
+        if self.cache.get("D_v_neg_1_2") is None:
+            _mat = self.D_v.clone()
+            _val = _mat._values() ** -0.5
+            _val[torch.isinf(_val)] = 0
+            self.cache["D_v_neg_1_2"] = torch.sparse_coo_tensor(
+                _mat._indices(), _val, _mat.size(), device=self.device
+            ).coalesce()
+        return self.cache["D_v_neg_1_2"]
+
+    @property
+    def node2index(self):
+        if self.cache.get("node2index", None) is None:
+            node2index_dict = {}
+            index = 0
+            for n in self.nodes:
+                node2index_dict[n] = index
+                index += 1
+            self.cache["node2index"] = node2index_dict
+        return self.cache["node2index"]
+
+    @property
+    def e(self) -> Tuple[List[List[int]], List[float]]:
+        r"""Return the edge list and weight list in the graph."""
+
+        if self.cache.get("e", None) is None:
+            node2index = self.node2index
+            e_list = [
+                (node2index[src_idx], node2index[dst_idx])
+                for src_idx, dst_idx, d in self.edges
+            ]
+            w_list = []
+            for d in self.edges:
+                if "weight" not in d[2]:
+                    w_list.append(1.0)
+                else:
+                    w_list.append(d[2]["weight"])
+            # e_list.extend([(v_idx, v_idx) for v_idx in self._raw_selfloop_dict.keys()])
+            # w_list.extend(list(self._raw_selfloop_dict.values()))
+            # if self._has_extra_selfloop:
+            #     e_list.extend((v_idx, v_idx) for v_idx in range(self.num_v))
+            #     w_list.extend([1.0] * self.num_v)
+            self.cache["e"] = e_list, w_list
+        return self.cache["e"]
+
+    @property
+    def D_v(self) -> torch.Tensor:
+        r"""Return the diagnal matrix of vertex degree :math:`\mathbf{D}_v` with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
+        """
+        if self.cache.get("D_v") is None:
+            _tmp = torch.sparse.sum(self.A, dim=1).to_dense().clone().view(-1)
+            self.cache["D_v"] = torch.sparse_coo_tensor(
+                torch.arange(0, len(self.nodes)).view(1, -1).repeat(2, 1),
+                _tmp,
+                torch.Size([len(self.nodes), len(self.nodes)]),
+                device=self.device,
+            ).coalesce()
+        return self.cache["D_v"]
+
+    def nbr_v(self, v_idx: int) -> Tuple[List[int], List[float]]:
+        r"""Return a vertex list of the neighbors of the vertex ``v_idx``.
+
+        Args:
+            ``v_idx`` (``int``): The index of the vertex.
+        """
+        return self.N_v(v_idx).cpu().numpy().tolist()
+
+    def N_v(self, v_idx: int) -> Tuple[List[int], List[float]]:
+        r"""Return the neighbors of the vertex ``v_idx`` with ``torch.Tensor`` format.
+
+        Args:
+            ``v_idx`` (``int``): The index of the vertex.
+        """
+        sub_v_set = self.A[v_idx]._indices()[0].clone()
+        return sub_v_set
+
+    def clone(self):
+        r"""Clone the graph."""
+        # _g = Graph(self.num_v, extra_selfloop=self._has_extra_selfloop, device=self.device)
+        # _g=self.__class__()
+        # _g.device="cpu"
+        # _g.extra_selfloop=False
+        # _g.edges = deepcopy(self.edges)
+        # _g.cache = deepcopy(self.cache)
+        return self.copy()
 
     @name.setter
     def name(self, s):
@@ -148,6 +298,8 @@ class Graph:
         >>> G.degree(weight='weight_1')
 
         """
+        if self.cache.get("degree") != None:
+            return self.cache["degree"]
         degree = dict()
         for u, v, d in self.edges:
             if u in degree:
@@ -163,7 +315,7 @@ class Graph:
         for node in self.nodes:
             if node not in degree:
                 degree[node] = 0
-
+        self.cache["degree"] = degree
         return degree
 
     def order(self):
@@ -213,8 +365,11 @@ class Graph:
         >>> G.size(weight='weight')
 
         """
+        if self.cache.get("size") != None:
+            return self.cache["size"]
         s = sum(d for v, d in self.degree(weight=weight).items())
-        return s // 2 if weight is None else s / 2
+        self.cache["size"] = s // 2 if weight is None else s / 2
+        return self.cache["size"]
 
     def number_of_edges(self, u=None, v=None):
         """Returns the number of edges between two nodes.
@@ -396,6 +551,7 @@ class Graph:
 
         """
         self._add_one_node(node_for_adding, node_attr)
+        self._clear_cache()
 
     def add_nodes(self, nodes_for_adding: list, nodes_attr: List[Dict] = []):
         """Add nodes with a list of nodes.
@@ -449,6 +605,7 @@ class Graph:
             except Exception as err:
                 print(err)
                 pass
+        self._clear_cache()
 
     def add_nodes_from(self, nodes_for_adding, **attr):
         """Add multiple nodes.
@@ -509,6 +666,7 @@ class Graph:
                 self._adj[n] = self.adjlist_inner_dict_factory()
                 self._node[n] = self.node_attr_dict_factory()
             self._node[n].update(newdict)
+        self._clear_cache()
 
     def _add_one_node(self, one_node_for_adding, node_attr: dict = {}):
         node = one_node_for_adding
@@ -518,6 +676,7 @@ class Graph:
             attr_dict.update(node_attr)
         else:  # If already exists, there is no complain and still updating the node attribute
             self._node[node].update(node_attr)
+        self._clear_cache()
 
     def add_edge(self, u_of_edge, v_of_edge, **edge_attr):
         """Add one edge.
@@ -555,9 +714,11 @@ class Graph:
 
         """
         self._add_one_edge(u_of_edge, v_of_edge, edge_attr)
+        self._clear_cache()
 
     def add_weighted_edge(self, u_of_edge, v_of_edge, weight):
         self._add_one_edge(u_of_edge, v_of_edge, edge_attr={"weight": weight})
+        self._clear_cache()
 
     def add_edges(self, edges_for_adding, edges_attr: List[Dict] = []):
         """Add a list of edges.
@@ -610,6 +771,7 @@ class Graph:
                 self._add_one_edge(edge[0], edge[1], attr)
             except Exception as err:
                 print(err)
+        self._clear_cache()
 
     def add_edges_from(self, ebunch_to_add, **attr):
         """Add all the edges in ebunch_to_add.
@@ -673,6 +835,7 @@ class Graph:
             datadict.update(dd)
             self._adj[u][v] = datadict
             self._adj[v][u] = datadict
+        self._clear_cache()
 
     def add_weighted_edges_from(self, ebunch_to_add, weight="weight", **attr):
         """Add weighted edges in `ebunch_to_add` with specified weight attr
@@ -836,6 +999,7 @@ class Graph:
         for neighbor in neighbors:  # Remove edges with other nodes
             del self._adj[neighbor][node_to_remove]
         del self._adj[node_to_remove]  # Remove this node
+        self._clear_cache()
 
     def remove_nodes(self, nodes_to_remove: list):
         """Remove nodes from your graph.
@@ -864,6 +1028,7 @@ class Graph:
             assert node in self._node, "Remove Error: No node {} in graph".format(node)
         for node in nodes_to_remove:
             self.remove_node(node)
+        self._clear_cache()
 
     def remove_edge(self, u, v):
         """Remove one edge from your graph.
@@ -891,6 +1056,7 @@ class Graph:
             del self._adj[u][v]
             if u != v:  # self-loop needs only one entry removed
                 del self._adj[v][u]
+            self._clear_cache()
         except KeyError:
             raise KeyError("No edge {}-{} in graph.".format(u, v))
 
@@ -920,6 +1086,7 @@ class Graph:
         for edge in edges_to_remove:
             u, v = edge[:2]
             self.remove_edge(u, v)
+        self._clear_cache()
 
     def has_node(self, node):
         return node in self._node
@@ -1085,6 +1252,10 @@ class Graph:
                 G.add_edge(index_of_node[u], index_of_node[v], **edge_data)
 
         return G, index_of_node, node_of_index
+
+    def _clear_cache(self):
+        r"""Clear the cache."""
+        self.cache = {}
 
     def cpp(self):
         G = GraphC()
