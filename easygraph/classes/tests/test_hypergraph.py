@@ -1,7 +1,6 @@
 from copy import deepcopy
 
 import pytest
-import scipy.spatial
 
 from easygraph.classes import *
 from easygraph.random.hypergraphs import *
@@ -38,6 +37,7 @@ def test_save(g1, tmp_path):
 # test construction
 def test_from_feature_kNN():
     import numpy as np
+    import scipy.spatial
     import torch
 
     ft = np.random.rand(32, 8)
@@ -142,6 +142,7 @@ def test_add_and_merge_hyperedges(g1):
 
 def test_add_hyperedges_from_feature_kNN(g1):
     import numpy as np
+    import scipy.spatial
     import torch
 
     origin_e = deepcopy(g1.e[0])

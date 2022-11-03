@@ -10,6 +10,7 @@ from typing import Tuple
 from typing import Union
 
 import numpy as np
+import torch
 
 
 __all__ = ["load_structure", "BaseHypergraph"]
@@ -50,7 +51,6 @@ class BaseHypergraph:
         ``v_weight`` (``Union[float, List[float]]``, optional): Weights for vertices. If set to ``None``, the value ``1`` is used for all vertices. Defaults to ``None``.
         ``device`` (``torch.device``, optional): The deivce to store the hypergraph. Defaults to ``torch.device('cpu')``.
     """
-    import torch
 
     def __init__(
         self,

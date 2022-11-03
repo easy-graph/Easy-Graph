@@ -1,1 +1,1 @@
-from easygraph.classes.hypergraphs.hypergraph import Hypergraph
+from .hypergraph import Hypergraph

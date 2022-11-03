@@ -1,4 +1,3 @@
-import re
 import warnings
 
 from typing import Dict
@@ -6,9 +5,11 @@ from typing import List
 from typing import Tuple
 
 import easygraph.convert as convert
+import torch
 
 from easygraph.utils.exception import EasyGraphError
 from easygraph.utils.exception import EasyGraphException
+from easygraph.utils.sparse import sparse_dropout
 
 
 class Graph:
@@ -57,7 +58,7 @@ class Graph:
 
     """
 
-    extra_selfloop = False
+    _raw_selfloop_dict = dict
     graph_attr_dict_factory = dict
     node_dict_factory = dict
     node_attr_dict_factory = dict
@@ -65,10 +66,12 @@ class Graph:
     adjlist_inner_dict_factory = dict
     edge_attr_dict_factory = dict
 
-    def __init__(self, incoming_graph_data=None, **graph_attr):
+    def __init__(self, incoming_graph_data=None, extra_selfloop=False, **graph_attr):
         self.graph = self.graph_attr_dict_factory()
         self._node = self.node_dict_factory()
         self._adj = self.adjlist_outer_dict_factory()
+        self._raw_selfloop_dict = self._raw_selfloop_dict()
+        self.extra_selfloop = extra_selfloop
         self.cache = {}
         self.cflag = 0
         self.device = "cpu"
@@ -154,6 +157,68 @@ class Graph:
         del seen
         self.cache["e_both_side"] = (edges, weights)
         return self.cache["e_both_side"]
+
+    @staticmethod
+    def from_hypergraph_hypergcn(
+        hypergraph,
+        feature,
+        with_mediator=False,
+        remove_selfloop=True,
+    ):
+        import torch
+
+        r"""Construct a graph from a hypergraph with methods proposed in `HyperGCN: A New Method of Training Graph Convolutional Networks on Hypergraphs <https://arxiv.org/pdf/1809.02589.pdf>`_ paper .
+
+        Args:
+            ``hypergraph`` (``Hypergraph``): The source hypergraph.
+            ``feature`` (``torch.Tensor``): The feature of the vertices.
+            ``with_mediator`` (``str``): Whether to use mediator to transform the hyperedges to edges in the graph. Defaults to ``False``.
+            ``remove_selfloop`` (``bool``): Whether to remove self-loop. Defaults to ``True``.
+            ``device`` (``torch.device``): The device to store the graph. Defaults to ``torch.device("cpu")``.
+        """
+        num_v = hypergraph.num_v
+        assert (
+            num_v == feature.shape[0]
+        ), "The number of vertices in hypergraph and feature.shape[0] must be equal!"
+        e_list, new_e_list, new_e_weight = hypergraph.e[0], [], []
+        rv = torch.rand((feature.shape[1], 1), device=feature.device)
+        for e in e_list:
+            num_v_in_e = len(e)
+            assert (
+                num_v_in_e >= 2
+            ), "The number of vertices in an edge must be greater than or equal to 2!"
+            p = torch.mm(feature[e, :], rv).squeeze()
+            v_a_idx, v_b_idx = torch.argmax(p), torch.argmin(p)
+            if not with_mediator:
+                new_e_list.append([e[v_a_idx], e[v_b_idx]])
+                new_e_weight.append(1.0 / num_v_in_e)
+            else:
+                w = 1.0 / (2 * num_v_in_e - 3)
+                for mid_v_idx in range(num_v_in_e):
+                    if mid_v_idx != v_a_idx and mid_v_idx != v_b_idx:
+                        new_e_list.append([e[v_a_idx], e[mid_v_idx]])
+                        new_e_weight.append(w)
+                        new_e_list.append([e[v_b_idx], e[mid_v_idx]])
+                        new_e_weight.append(w)
+        # remove selfloop
+        if remove_selfloop:
+            new_e_list = torch.tensor(new_e_list, dtype=torch.long)
+            new_e_weight = torch.tensor(new_e_weight, dtype=torch.float)
+            e_mask = (new_e_list[:, 0] != new_e_list[:, 1]).bool()
+            new_e_list = new_e_list[e_mask].numpy().tolist()
+            new_e_weight = new_e_weight[e_mask].numpy().tolist()
+
+        _g = Graph()
+        _g.add_nodes(list(range(0, num_v)))
+        for (
+            e,
+            w,
+        ) in zip(new_e_list, new_e_weight):
+            if _g.has_edge(e[0], e[1]):
+                _g.add_edge(e[0], e[1], weight=(w + _g.adj[e[0]][e[1]]["weight"]))
+            else:
+                _g.add_edge(e[0], e[1], weight=w)
+        return _g
 
     @property
     def A(self):
@@ -243,6 +308,22 @@ class Graph:
                 device=self.device,
             ).coalesce()
         return self.cache["D_v"]
+
+    def add_extra_selfloop(self):
+        r"""Add extra selfloops to the graph."""
+        self._has_extra_selfloop = True
+        self._clear_cache()
+
+    def remove_extra_selfloop(self):
+        r"""Remove extra selfloops from the graph."""
+        self._has_extra_selfloop = False
+        self._clear_cache()
+
+    def remove_selfloop(self):
+        r"""Remove all selfloops from the graph."""
+        self._raw_selfloop_dict.clear()
+        self.remove_extra_selfloop()
+        self._clear_cache()
 
     def nbr_v(self, v_idx: int) -> Tuple[List[int], List[float]]:
         r"""Return a vertex list of the neighbors of the vertex ``v_idx``.
@@ -375,6 +456,39 @@ class Graph:
         s = sum(d for v, d in self.degree(weight=weight).items())
         self.cache["size"] = s // 2 if weight is None else s / 2
         return self.cache["size"]
+
+    # GCN Laplacian smoothing
+    @property
+    def L_GCN(self):
+        r"""Return the GCN Laplacian matrix :math:`\mathcal{L}_{GCN}` of the graph with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
+
+        .. math::
+            \mathcal{L}_{GCN} = \mathbf{\hat{D}}_v^{-\frac{1}{2}} \mathbf{\hat{A}} \mathbf{\hat{D}}_v^{-\frac{1}{2}}
+
+        """
+        if self.cache.get("L_GCN") is None:
+            _tmp_g = self.clone()
+            _tmp_g.add_extra_selfloop()
+            self.cache["L_GCN"] = (
+                _tmp_g.D_v_neg_1_2.mm(_tmp_g.A)
+                .mm(_tmp_g.D_v_neg_1_2)
+                .clone()
+                .coalesce()
+            )
+        return self.cache["L_GCN"]
+
+    def smoothing_with_GCN(self, X, drop_rate=0.0):
+        r"""Return the smoothed feature matrix with GCN Laplacian matrix :math:`\mathcal{L}_{GCN}`.
+
+        Args:
+            ``X`` (``torch.Tensor``): Vertex feature matrix. Size :math:`(|\mathcal{V}|, C)`.
+            ``drop_rate`` (``float``): Dropout rate. Randomly dropout the connections in adjacency matrix with probability ``drop_rate``. Default: ``0.0``.
+        """
+        if drop_rate > 0.0:
+            L_GCN = sparse_dropout(self.L_GCN, drop_rate)
+        else:
+            L_GCN = self.L_GCN
+        return L_GCN.mm(X)
 
     def number_of_edges(self, u=None, v=None):
         """Returns the number of edges between two nodes.
@@ -976,6 +1090,10 @@ class Graph:
         datadict.update(edge_attr)
         self._adj[u][v] = datadict
         self._adj[v][u] = datadict
+        if u == v:
+            self.extra_selfloop = True
+            self._raw_selfloop_dict[u] = datadict
+            self._clear_cache()
 
     def remove_node(self, node_to_remove):
         """Remove one node from your graph.

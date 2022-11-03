@@ -10,6 +10,8 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
+import torch
+
 from easygraph.classes.base import BaseHypergraph
 from easygraph.functions.drawing.drawing import draw_hypergraph
 from easygraph.utils.sparse import sparse_dropout
@@ -25,7 +27,6 @@ class Hypergraph(BaseHypergraph):
         ``merge_op`` (``str``): The operation to merge those conflicting hyperedges in the same hyperedge group, which can be ``'mean'``, ``'sum'`` or ``'max'``. Defaults to ``'mean'``.
         ``device`` (``torch.device``, optional): The deivce to store the hypergraph. Defaults to ``torch.device('cpu')``.
     """
-    import torch
 
     def __init__(
         self,
@@ -202,16 +203,14 @@ class Hypergraph(BaseHypergraph):
         return hg
 
     @staticmethod
-    def from_graph(
-        graph: "Graph", device: torch.device = torch.device("cpu")
-    ) -> "Hypergraph":
+    def from_graph(graph, device: torch.device = torch.device("cpu")) -> "Hypergraph":
         r"""Construct the hypergraph from the graph. Each edge in the graph is treated as a hyperedge in the constructed hypergraph.
 
         .. note::
             The construsted hypergraph is a 2-uniform hypergraph, and has the same number of vertices and edges/hyperedges as the graph.
 
         Args:
-            ``graph`` (``Graph``): The graph to construct the hypergraph.
+            ``graph`` (``eg.Graph``): The graph to construct the hypergraph.
             ``device`` (``torch.device``, optional): The device to store the hypergraph. Defaults to ``torch.device('cpu')``.
         """
         e_list, e_weight = graph.e
@@ -220,7 +219,7 @@ class Hypergraph(BaseHypergraph):
 
     @staticmethod
     def _e_list_from_graph_kHop(
-        graph: "Graph",
+        graph,
         k: int,
         only_kHop: bool = False,
     ) -> List[tuple]:
@@ -230,7 +229,7 @@ class Hypergraph(BaseHypergraph):
             If the graph have :math:`|\mathcal{V}|` vertices, the constructed hypergraph will have :math:`|\mathcal{V}|` vertices and equal to or less than :math:`|\mathcal{V}|` hyperedges.
 
         Args:
-            ``graph`` (``Graph``): The graph to construct the hypergraph.
+            ``graph`` (``eg.Graph``): The graph to construct the hypergraph.
             ``k`` (``int``): The number of hop neighbors.
             ``only_kHop`` (``bool``, optional): If set to ``True``, only the central vertex and its :math:`k`-th Hop neighbors are used to construct the hyperedges. By default, the constructed hyperedge will include the central vertex and its [ :math:`1`-th, :math:`2`-th, :math:`\cdots`, :math:`k`-th ] Hop neighbors. Defaults to ``False``.
         """
@@ -255,7 +254,7 @@ class Hypergraph(BaseHypergraph):
 
     @staticmethod
     def from_graph_kHop(
-        graph: "Graph",
+        graph,
         k: int,
         only_kHop: bool = False,
         device: torch.device = torch.device("cpu"),
@@ -266,7 +265,7 @@ class Hypergraph(BaseHypergraph):
             If the graph have :math:`|\mathcal{V}|` vertices, the constructed hypergraph will have :math:`|\mathcal{V}|` vertices and equal to or less than :math:`|\mathcal{V}|` hyperedges.
 
         Args:
-            ``graph`` (``Graph``): The graph to construct the hypergraph.
+            ``graph`` (``eg.Graph``): The graph to construct the hypergraph.
             ``k`` (``int``): The number of hop neighbors.
             ``only_kHop`` (``bool``): If set to ``True``, only the central vertex and its :math:`k`-th Hop neighbors are used to construct the hyperedges. By default, the constructed hyperedge will include the central vertex and its [ :math:`1`-th, :math:`2`-th, :math:`\cdots`, :math:`k`-th ] Hop neighbors. Defaults to ``False``.
             ``device`` (``torch.device``, optional): The device to store the hypergraph. Defaults to ``torch.device('cpu')``.
@@ -333,11 +332,11 @@ class Hypergraph(BaseHypergraph):
         e_list = Hypergraph._e_list_from_feature_kNN(feature, k)
         self.add_hyperedges(e_list, group_name=group_name)
 
-    def add_hyperedges_from_graph(self, graph: "Graph", group_name: str = "main"):
+    def add_hyperedges_from_graph(self, graph, group_name: str = "main"):
         r"""Add hyperedges from edges in the graph. Each edge in the graph is treated as a hyperedge.
 
         Args:
-            ``graph`` (``Graph``): The graph to join the hypergraph.
+            ``graph`` (``eg.Graph``): The graph to join the hypergraph.
             ``group_name`` (``str``, optional): The target hyperedge group to add these hyperedges. Defaults to the ``main`` hyperedge group.
         """
         assert self.num_v == len(
@@ -347,7 +346,7 @@ class Hypergraph(BaseHypergraph):
         self.add_hyperedges(e_list, e_weight=e_weight, group_name=group_name)
 
     def add_hyperedges_from_graph_kHop(
-        self, graph: "Graph", k: int, only_kHop: bool = False, group_name: str = "main"
+        self, graph, k: int, only_kHop: bool = False, group_name: str = "main"
     ):
         r"""Add hyperedges from vertices and its k-Hop neighbors in the graph. Each hyperedge in the hypergraph is constructed by the central vertex and its :math:`k`-Hop neighbor vertices.
 
@@ -355,7 +354,7 @@ class Hypergraph(BaseHypergraph):
             If the graph have :math:`|\mathcal{V}|` vertices, the constructed hypergraph will have :math:`|\mathcal{V}|` vertices and equal to or less than :math:`|\mathcal{V}|` hyperedges.
 
         Args:
-            ``graph`` (``Graph``): The graph to join the hypergraph.
+            ``graph`` (``eg.Graph``): The graph to join the hypergraph.
             ``k`` (``int``): The number of hop neighbors.
             ``only_kHop`` (``bool``): If set to ``True``, only the central vertex and its :math:`k`-th Hop neighbors are used to construct the hyperedges. By default, the constructed hyperedge will include the central vertex and its [ :math:`1`-th, :math:`2`-th, :math:`\cdots`, :math:`k`-th ] Hop neighbors. Defaults to ``False``.
             ``group_name`` (``str``, optional): The target hyperedge group to add these hyperedges. Defaults to the ``main`` hyperedge group.

@@ -9,3 +9,7 @@ from easygraph.datasets import *
 from easygraph.functions import *
 from easygraph.readwrite import *
 from easygraph.utils import *
+
+
+def __getattr__(name):
+    print(f"attr {name} doesn'n exist!")

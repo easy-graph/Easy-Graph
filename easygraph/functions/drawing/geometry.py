@@ -2,8 +2,6 @@ import math
 
 from math import pi
 
-import numpy as np
-
 
 def radian_from_atan(x, y):
     if x == 0:
@@ -32,6 +30,8 @@ def common_tangent_radian(r1, r2, d):
 
 
 def polar_position(r, theta, start_point):
+    import numpy as np
+
     x = r * math.cos(theta)
     y = r * math.sin(theta)
     return np.array([x, y]) + start_point
