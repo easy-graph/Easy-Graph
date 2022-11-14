@@ -13,4 +13,7 @@ try:
     from .base import load_structure
     from .hypergraphs import *
 except:
-    print("Please install Pytorch before you use functions related to Hypergraph")
+    print(
+        "Error raise in module:classes. Please install Pytorch before you use functions"
+        " related to Hypergraph"
+    )
