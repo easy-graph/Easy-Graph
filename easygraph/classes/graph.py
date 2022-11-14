@@ -58,7 +58,7 @@ class Graph:
 
     """
 
-    _raw_selfloop_dict = dict
+    raw_selfloop_dict = dict
     graph_attr_dict_factory = dict
     node_dict_factory = dict
     node_attr_dict_factory = dict
@@ -70,7 +70,7 @@ class Graph:
         self.graph = self.graph_attr_dict_factory()
         self._node = self.node_dict_factory()
         self._adj = self.adjlist_outer_dict_factory()
-        self._raw_selfloop_dict = self._raw_selfloop_dict()
+        self._raw_selfloop_dict = self.raw_selfloop_dict()
         self.extra_selfloop = extra_selfloop
         self.cache = {}
         self.cflag = 0
