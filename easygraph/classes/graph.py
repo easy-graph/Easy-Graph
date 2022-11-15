@@ -1284,14 +1284,14 @@ class Graph:
         """
         G = self.__class__()
         G.graph.update(self.graph)
+        # Edge
+        from_nodes = set(from_nodes)
         for node in from_nodes:
             try:
                 G.add_node(node, **self._node[node])
             except KeyError:
                 pass
 
-            # Edge
-            from_nodes = set(from_nodes)
             for v, edge_data in self._adj[node].items():
                 if v in from_nodes:
                     G.add_edge(node, v, **edge_data)

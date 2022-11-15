@@ -1,4 +1,3 @@
-from copy import deepcopy
 from typing import Dict
 from typing import List
 
@@ -1084,6 +1083,8 @@ class DiGraph(Graph):
         >>> G_sub = G.nodes_subgraph(from_nodes= [1,2,3])
 
         """
+        # Edge
+        from_nodes = set(from_nodes)
         G = self.__class__()
         G.graph.update(self.graph)
         for node in from_nodes:
@@ -1092,8 +1093,6 @@ class DiGraph(Graph):
             except KeyError:
                 pass
 
-            # Edge
-            from_nodes = set(from_nodes)
             for v, edge_data in self._adj[node].items():
                 if v in from_nodes:
                     G.add_edge(node, v, **edge_data)
