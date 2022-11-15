@@ -17,6 +17,9 @@ from easygraph.functions.drawing.drawing import draw_hypergraph
 from easygraph.utils.sparse import sparse_dropout
 
 
+__all__ = ["Hypergraph"]
+
+
 class Hypergraph(BaseHypergraph):
     r"""The ``Hypergraph`` class is developed for hypergraph structures.
 

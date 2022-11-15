@@ -1,15 +1,13 @@
 from copy import deepcopy
 
+import easygraph as eg
 import pytest
-
-from easygraph.classes import *
-from easygraph.random.hypergraphs import *
 
 
 @pytest.fixture()
 def g1():
     e_list = [(0, 1, 2, 5), (0, 1), (2, 3, 4), (3, 2, 4)]
-    g = Hypergraph(6, e_list)
+    g = eg.Hypergraph(6, e_list)
     return g
 
 
@@ -17,7 +15,7 @@ def g1():
 def g2():
     e_list = [(1, 2, 3), (0, 1, 3), (0, 1), (2, 4, 3), (2, 3)]
     e_weight = [0.5, 1, 0.5, 1, 0.5]
-    g = Hypergraph(5, e_list, e_weight)
+    g = eg.Hypergraph(5, e_list, e_weight)
     return g
 
 
@@ -43,7 +41,7 @@ def test_from_feature_kNN():
     ft = np.random.rand(32, 8)
     cdist = scipy.spatial.distance.cdist(ft, ft)
     tk_mat = np.argsort(cdist, axis=1)[:, :3]
-    hg = Hypergraph.from_feature_kNN(torch.tensor(ft), k=3)
+    hg = eg.Hypergraph.from_feature_kNN(torch.tensor(ft), k=3)
     assert tuple(sorted(tk_mat[0].tolist())) in hg.e[0]
     assert tuple(sorted(tk_mat[8].tolist())) in hg.e[0]
     assert tuple(sorted(tk_mat[13].tolist())) in hg.e[0]
@@ -51,7 +49,7 @@ def test_from_feature_kNN():
 
 
 def test_from_graph():
-    g = Graph()
+    g = eg.Graph()
     g.add_nodes(range(0, 5))
     g.add_edges(
         [(0, 1), (0, 3), (1, 4), (2, 3), (3, 4)],
@@ -63,30 +61,30 @@ def test_from_graph():
             {"weight": 1.0},
         ],
     )
-    hg = Hypergraph.from_graph(g)
+    hg = eg.Hypergraph.from_graph(g)
     assert hg.num_e == 5
     assert (0, 1) in hg.e[0]
     assert (1, 4) in hg.e[0]
 
 
 def test_from_graph_kHop():
-    g = Graph()
+    g = eg.Graph()
     g.add_nodes(range(0, 5))
     g.add_edges(
         [(0, 1), (0, 3), (1, 4), (2, 3)],
         [{"weight": 1.0}, {"weight": 1.0}, {"weight": 1.0}, {"weight": 1.0}],
     )
-    hg = Hypergraph.from_graph_kHop(g, k=1)
+    hg = eg.Hypergraph.from_graph_kHop(g, k=1)
     assert hg.num_e == 5
     assert (0, 1, 3) in hg.e[0]
     assert (0, 1, 4) in hg.e[0]
     assert (1, 4) in hg.e[0]
     assert (2, 3) in hg.e[0]
     assert (0, 2, 3) in hg.e[0]
-    hg = Hypergraph.from_graph_kHop(g, k=2)
+    hg = eg.Hypergraph.from_graph_kHop(g, k=2)
     assert hg.num_e == 5
     assert (0, 1, 3, 4) in hg.e[0]
-    hg = Hypergraph.from_graph_kHop(g, k=2, only_kHop=True)
+    hg = eg.Hypergraph.from_graph_kHop(g, k=2, only_kHop=True)
     assert hg.num_e == 4
     assert (1, 3) in hg.e[0]
 
@@ -107,7 +105,7 @@ def test_from_graph_kHop():
 
 # test representation
 def test_empty():
-    g = Hypergraph(10)
+    g = eg.Hypergraph(10)
     assert g.num_v == 10
     assert g.e == ([], [])
 
@@ -164,7 +162,7 @@ def test_add_hyperedges_from_feature_kNN(g1):
 
 
 def test_add_hyperedges_from_graph(g1):
-    g = graph_Gnm(6, 3)
+    g = eg.graph_Gnm(6, 3)
     origin_e = deepcopy(g1.e[0])
 
     g1.add_hyperedges_from_graph(g, group_name="graph")
@@ -182,7 +180,7 @@ def test_add_hyperedges_from_graph(g1):
 
 
 def test_add_hyperedges_from_graph_kHop(g1):
-    g = graph_Gnm(6, 5)
+    g = eg.graph_Gnm(6, 5)
 
     origin_e = deepcopy(g1.e[0])
     for k in range(1, 3):
@@ -589,7 +587,7 @@ def test_D_neg(g1, g2):
         g2.D_v_neg_1_2.cpu()._values() == torch.tensor([2, 3, 3, 4, 1]) ** (-0.5)
     ).all()
     # isolated vertex
-    g3 = Hypergraph(3, [0, 1])
+    g3 = eg.Hypergraph(3, [0, 1])
     assert (g3.D_v_neg_1.cpu()._values() == torch.tensor([1, 1, 0])).all()
 
 
@@ -706,7 +704,7 @@ def test_smoothing():
 
     x = torch.rand(10, 5)
     L = torch.rand(10, 10)
-    g = Hypergraph(10)
+    g = eg.Hypergraph(10)
     lbd = 0.1
     assert pytest.approx(g.smoothing(x, L, lbd)) == x + lbd * L @ x
 
@@ -925,12 +923,12 @@ def test_graph_and_hypergraph():
     import torch
 
     # g = Graph(4, [[0, 1], [0, 2], [1, 3]])
-    g = Graph()
+    g = eg.Graph()
     g.add_nodes([0, 1, 2, 3])
     g.add_edges(
         [(0, 1), (0, 2), (1, 3)], [{"weight": 1.0}, {"weight": 1.0}, {"weight": 1.0}]
     )
-    hg = Hypergraph.from_graph(g)
+    hg = eg.Hypergraph.from_graph(g)
     _mm = torch.sparse.mm
     est_A = _mm(_mm(g.D_v_neg_1_2, g.A), g.D_v_neg_1_2) + torch.eye(4).to_sparse()
     # print("d:", hg.L_HGNN.to_dense())

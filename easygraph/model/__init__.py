@@ -1,4 +1,7 @@
 try:
     from .hypergraphs import *
 except:
-    print("Please install Pytorch before you use functions related to Hypergraph")
+    print(
+        "Error raise in module:model.Please install Pytorch before you use functions"
+        " related to Hypergraph"
+    )
