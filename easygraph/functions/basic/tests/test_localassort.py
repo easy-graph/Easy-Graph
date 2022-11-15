@@ -10,7 +10,7 @@ class TestLocalAssort:
     @classmethod
     def setup_class(self):
         self.G = eg.get_graph_karateclub()
-        random_value = [1, 2, 3, 4, 5]
+        random_value = [0, 1, 2, 3, 4, 5]
         edgelist = []
         valuelist = []
         node_num = len(self.G.nodes)
@@ -31,7 +31,7 @@ class TestLocalAssort:
         print("T:", assortT)
         print("Z:", Z)
 
-        _, assortT, Z = eg.functions.basic.localassort.localAssortF(
+        _, assortT, Z = eg.functions.basic.localassort.localAssort(
             self.edgelist, self.valuelist, pr=np.array([0.9])
         )
         print("_:", _)

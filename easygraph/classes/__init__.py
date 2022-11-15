@@ -11,7 +11,7 @@ from .operation import *
 try:
     from .base import BaseHypergraph
     from .base import load_structure
-    from .hypergraphs import *
+    from .hypergraph import Hypergraph
 except:
     print(
         "Error raise in module:classes. Please install Pytorch before you use functions"

@@ -1,1 +1,1 @@
-from easygraph.random.hypergraphs import *
+from .hypergraph import *

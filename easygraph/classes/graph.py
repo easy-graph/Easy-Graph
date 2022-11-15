@@ -5,7 +5,6 @@ from typing import List
 from typing import Tuple
 
 import easygraph.convert as convert
-import torch
 
 from easygraph.utils.exception import EasyGraphError
 from easygraph.utils.exception import EasyGraphException
