@@ -2,11 +2,6 @@ import torch
 import torch.nn as nn
 
 
-__all__ = [
-    "MultiHeadWrapper",
-]
-
-
 class MultiHeadWrapper(nn.Module):
     r"""A wrapper to apply multiple heads to a given layer.
 
@@ -16,20 +11,6 @@ class MultiHeadWrapper(nn.Module):
         ``layer`` (``nn.Module``): The layer to apply multiple heads.
         ``**kwargs``: The keyword arguments for the layer.
 
-    Example:
-        >>> import torch
-        >>> import dhg
-        >>> from dhg.nn import GATConv, MultiHeadWrapper
-        >>> multi_head_layer = MultiHeadWrapper(
-                4,
-                "concat",
-                GATConv,
-                in_channels=16,
-                out_channels=8,
-            )
-        >>> X = torch.rand(20, 16)
-        >>> g = dhg.random.graph_Gnm(20, 15)
-        >>> X_ = multi_head_layer(X=X, g=g)
     """
 
     def __init__(

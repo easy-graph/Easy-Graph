@@ -32,12 +32,12 @@ class HNHN(nn.Module):
             HNHNConv(hid_channels, num_classes, use_bn=use_bn, is_last=True)
         )
 
-    def forward(self, X: torch.Tensor, hg: "dhg.Hypergraph") -> torch.Tensor:
+    def forward(self, X: torch.Tensor, hg: "eg.Hypergraph") -> torch.Tensor:
         r"""The forward function.
 
         Args:
             ``X`` (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
-            ``hg`` (``dhg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
+            ``hg`` (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
         """
         for layer in self.layers:
             X = layer(X, hg)

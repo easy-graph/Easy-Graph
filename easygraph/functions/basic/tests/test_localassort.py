@@ -1,7 +1,9 @@
 import random
+import sys
 
 import easygraph as eg
 import numpy as np
+import pytest
 
 from matplotlib import pyplot as plt
 
@@ -23,6 +25,9 @@ class TestLocalAssort:
         valuelist = np.int32(valuelist)
         self.valuelist = valuelist
 
+    @pytest.mark.skipif(
+        sys.version_info < (3, 7), reason="python version should higher than 3.7"
+    )
     def test_karateclub(self):
         assortM, assortT, Z = eg.localAssort(
             self.edgelist, self.valuelist, pr=np.arange(0, 1, 0.1)

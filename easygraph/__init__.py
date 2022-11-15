@@ -1,6 +1,8 @@
 import easygraph.classes
 import easygraph.datasets
 import easygraph.functions
+import easygraph.model
+import easygraph.nn
 import easygraph.random
 import easygraph.readwrite
 import easygraph.utils

@@ -14,6 +14,6 @@ try:
     from .hypergraph import Hypergraph
 except:
     print(
-        "Error raise in module:classes. Please install Pytorch before you use functions"
-        " related to Hypergraph"
+        "Warning raise in module:classes. Please install Pytorch before you use"
+        " functions related to Hypergraph"
     )

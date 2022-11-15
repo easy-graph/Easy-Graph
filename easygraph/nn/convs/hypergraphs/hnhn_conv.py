@@ -1,14 +1,7 @@
+import torch
+import torch.nn as nn
+
 from easygraph.classes import Hypergraph
-
-
-torch_import = False
-try:
-    import torch
-    import torch.nn as nn
-
-    torch_import = True
-except:
-    torch_import = False
 
 
 class HNHNConv(nn.Module):

@@ -47,12 +47,12 @@ class HyperGCN(nn.Module):
             )
         )
 
-    def forward(self, X: torch.Tensor, hg: "dhg.Hypergraph") -> torch.Tensor:
+    def forward(self, X: torch.Tensor, hg: "eg.Hypergraph") -> torch.Tensor:
         r"""The forward function.
 
         Args:
             ``X`` (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
-            ``hg`` (``dhg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
+            ``hg`` (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
         """
         if self.fast:
             if self.cached_g is None:

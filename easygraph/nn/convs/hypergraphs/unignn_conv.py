@@ -1,15 +1,7 @@
 import torch
 import torch.nn as nn
 
-from easygraph.classes.hypergraphs import Hypergraph
-
-
-__all__ = [
-    "UniGCNConv",
-    "UniGATConv",
-    "UniSAGEConv",
-    "UniGINConv",
-]
+from easygraph.classes import Hypergraph
 
 
 class UniGCNConv(nn.Module):

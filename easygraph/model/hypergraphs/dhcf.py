@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from easygraph.classes.hypergraphs import Hypergraph
+from easygraph.classes import Hypergraph
 
 
 class DHCF(nn.Module):
@@ -58,8 +58,8 @@ class DHCF(nn.Module):
         r"""The forward function.
 
         Args:
-            ``hg_ui`` (``dhg.Hypergraph``): The hypergraph structure that users as vertices.
-            ``hg_iu`` (``dhg.Hypergraph``): The hypergraph structure that items as vertices.
+            ``hg_ui`` (``eg.Hypergraph``): The hypergraph structure that users as vertices.
+            ``hg_iu`` (``eg.Hypergraph``): The hypergraph structure that items as vertices.
         """
         u_embs = self.u_embedding.weight
         i_embs = self.i_embedding.weight
