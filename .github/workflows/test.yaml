@@ -17,7 +17,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: 'Build and install easygraph'
-        uses: tddschn/install-easygraph@master
+        # still investigating issues, use the dummy workflow for now
+        # uses: tddschn/install-easygraph@master
+        uses: tddschn/install-easygraph/dummy@master
         with:
           # use current repo
           repository: '${{ github.repository }}'
