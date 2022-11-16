@@ -26,7 +26,8 @@ class TestLocalAssort:
         self.valuelist = valuelist
 
     @pytest.mark.skipif(
-        sys.version_info < (3, 7), reason="python version should higher than 3.7"
+        sys.version_info.major <= 3 and sys.version_info.minor <= 7,
+        reason="python version should higher than 3.7",
     )
     def test_karateclub(self):
         assortM, assortT, Z = eg.localAssort(
