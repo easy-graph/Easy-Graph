@@ -1,3 +1,5 @@
+import sys
+
 from copy import deepcopy
 
 import easygraph as eg
@@ -658,6 +660,10 @@ def test_N_group(g1):
     assert (g1.N_e_of_group(1, "knn").cpu() == torch.tensor([0, 1])).all()
 
 
+@pytest.mark.skipif(
+    sys.version_info.major <= 3 and sys.version_info.minor < 7,
+    reason="python requires >= 3.7",
+)
 def test_L_HGNN(g1):
     import torch
 
@@ -670,6 +676,10 @@ def test_L_HGNN(g1):
     assert (L_HGNN == g1.L_HGNN.to_dense().cpu()).all()
 
 
+@pytest.mark.skipif(
+    sys.version_info.major <= 3 and sys.version_info.minor < 7,
+    reason="python requires >= 3.7",
+)
 def test_L_HGNN_group(g1):
     import torch
 
@@ -699,6 +709,10 @@ def test_L_HGNN_group(g1):
     assert (L_HGNN == g1.L_HGNN_of_group("knn").to_dense().cpu()).all()
 
 
+@pytest.mark.skipif(
+    sys.version_info.major <= 3 and sys.version_info.minor < 7,
+    reason="python requires >= 3.7",
+)
 def test_smoothing():
     import torch
 
@@ -709,6 +723,10 @@ def test_smoothing():
     assert pytest.approx(g.smoothing(x, L, lbd)) == x + lbd * L @ x
 
 
+@pytest.mark.skipif(
+    sys.version_info.major <= 3 and sys.version_info.minor < 7,
+    reason="python requires >= 3.7",
+)
 def test_L_sym(g1):
     import torch
 
@@ -722,6 +740,10 @@ def test_L_sym(g1):
     assert (L_sym == g1.L_sym.to_dense().cpu()).all()
 
 
+@pytest.mark.skipif(
+    sys.version_info.major <= 3 and sys.version_info.minor < 7,
+    reason="python requires >= 3.7",
+)
 def test_L_sym_group(g1):
     import torch
 
@@ -757,6 +779,10 @@ def test_L_sym_group(g1):
     assert (L_sym == g1.L_sym_of_group("knn").to_dense().cpu()).all()
 
 
+@pytest.mark.skipif(
+    sys.version_info.major <= 3 and sys.version_info.minor < 7,
+    reason="python requires >= 3.7",
+)
 def test_L_rw(g1):
     import torch
 
@@ -768,6 +794,10 @@ def test_L_rw(g1):
     assert (L_rw == g1.L_rw.to_dense().cpu()).all()
 
 
+@pytest.mark.skipif(
+    sys.version_info.major <= 3 and sys.version_info.minor < 7,
+    reason="python requires >= 3.7",
+)
 def test_L_rw_group(g1):
     import torch
 
@@ -821,6 +851,10 @@ def test_smoothing_with_HGNN(g1):
     assert pytest.approx(gt, rel=1e-6) == res.cpu()
 
 
+@pytest.mark.skipif(
+    sys.version_info.major <= 3 and sys.version_info.minor < 7,
+    reason="python requires >= 3.7",
+)
 def test_smoothing_with_HGNN_group(g1):
     import torch
 
@@ -919,10 +953,13 @@ def test_v2v_message_passing(g1):
     assert pytest.approx(gt_mean, rel=1e-6) == res_mean.cpu()
 
 
+@pytest.mark.skipif(
+    sys.version_info.major <= 3 and sys.version_info.minor < 7,
+    reason="python requires >= 3.7",
+)
 def test_graph_and_hypergraph():
     import torch
 
-    # g = Graph(4, [[0, 1], [0, 2], [1, 3]])
     g = eg.Graph()
     g.add_nodes([0, 1, 2, 3])
     g.add_edges(
@@ -931,5 +968,4 @@ def test_graph_and_hypergraph():
     hg = eg.Hypergraph.from_graph(g)
     _mm = torch.sparse.mm
     est_A = _mm(_mm(g.D_v_neg_1_2, g.A), g.D_v_neg_1_2) + torch.eye(4).to_sparse()
-    # print("d:", hg.L_HGNN.to_dense())
     assert pytest.approx(est_A.to_dense() / 2) == hg.L_HGNN.to_dense()
