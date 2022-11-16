@@ -827,6 +827,10 @@ def test_L_rw_group(g1):
     assert (L_rw == g1.L_rw_of_group("knn").to_dense().cpu()).all()
 
 
+@pytest.mark.skipif(
+    sys.version_info.major <= 3 and sys.version_info.minor < 7,
+    reason="python requires >= 3.7",
+)
 def test_smoothing_with_HGNN(g1):
     import torch
 
