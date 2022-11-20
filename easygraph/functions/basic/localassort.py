@@ -83,7 +83,6 @@ def localAssort(
     yi = (hasAttribute).nonzero()[0]
 
     yj = node_attr[hasAttribute]
-    print("n:", n, "c:", c)
     Y = sparse.coo_matrix((values, (yi, yj)), shape=(n, c)).tocsc()
     eij_glob = np.array(Y.T @ (A @ Y).todense())
 

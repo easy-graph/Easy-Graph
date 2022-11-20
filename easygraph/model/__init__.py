@@ -13,14 +13,3 @@ except:
         "Warning raise in module:model.Please install Pytorch before you use functions"
         " related to Hypergraph"
     )
-__all__ = [
-    "HGNN",
-    "HGNNP",
-    "HNHN",
-    "HyperGCN",
-    "DHCF",
-    "UniGCN",
-    "UniGAT",
-    "UniSAGE",
-    "UniGIN",
-]
