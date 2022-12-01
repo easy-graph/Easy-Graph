@@ -86,7 +86,7 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
     """Burt's metric - Effective Size.
     Parameters
     ----------
-    G : easygraph.Graph
+    G : easygraph.Graph or easygraph.DiGraph
     nodes : list of nodes or None, optional (default : None)
         The nodes you want to calculate. If *None*, all nodes in `G` will be calculated.
     weight : string or None, optional (default : None)
