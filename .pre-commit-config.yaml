@@ -90,18 +90,3 @@ repos:
     rev: v2.20.0
     hooks:
       - id: validate_manifest
-
-  - repo: https://github.com/rhysd/actionlint
-    rev: v1.6.9
-    hooks:
-      - id: actionlint
-
-  # disabled
-  # reason:
-  # the check will never pass with @coreturn's scripts
-  # - repo: https://github.com/koalaman/shellcheck-precommit
-  #   rev: v0.8.0
-  #   hooks:
-  #     - id: shellcheck
-  #       # args: ["--severity=warning"]  # Optionally only show errors and warnings
-  #       args: ["--severity=error"]  # Optionally only show errors and warnings
