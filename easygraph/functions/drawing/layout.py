@@ -1,7 +1,5 @@
 from typing import List
 
-import numpy as np
-
 from .simulator import Simulator
 from .utils import edge_list_to_incidence_matrix
 from .utils import init_pos
@@ -15,6 +13,8 @@ def force_layout(
     pull_e_strength: float,
     pull_center_strength: float,
 ):
+    import numpy as np
+
     v_coor = init_pos(num_v, scale=5)
     assert v_coor.max() <= 5.0 and v_coor.min() >= -5.0
     centers = [np.array([0, 0])]

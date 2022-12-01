@@ -6,8 +6,8 @@ from typing import Tuple
 import matplotlib
 import numpy as np
 
+from matplotlib.axes import Axes
 from matplotlib.collections import PatchCollection
-from matplotlib.collections import PathCollection
 from matplotlib.patches import Circle
 from matplotlib.patches import PathPatch
 from matplotlib.path import Path
@@ -35,7 +35,7 @@ def init_pos(num_v: int, center: Tuple[float, float] = (0, 0), scale: float = 1.
 
 
 def draw_line_edge(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     v_coor: np.array,
     v_size: list,
     e_list: List[Tuple[int, int]],
@@ -73,7 +73,7 @@ def draw_line_edge(
 
 
 def draw_circle_edge(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     v_coor: List[Tuple[float, float]],
     v_size: list,
     e_list: List[Tuple[int, int]],
@@ -136,7 +136,7 @@ def edge_list_to_incidence_matrix(num_v: int, e_list: List[tuple]) -> np.ndarray
 
 
 def draw_vertex(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     v_coor: List[Tuple[float, float]],
     v_label: Optional[List[str]],
     font_size: int,

@@ -6,8 +6,6 @@ from typing import Optional
 from typing import Union
 
 import easygraph as eg
-import matplotlib.pyplot as plt
-import numpy as np
 
 
 __all__ = [
@@ -61,6 +59,8 @@ def draw_hypergraph(
         ``pull_e_strength`` (``float``): The strength of pulling hyperedges. Defaults to ``1.0``.
         ``pull_center_strength`` (``float``): The strength of pulling vertices to the center. Defaults to ``1.0``.
     """
+    import matplotlib.pyplot as plt
+
     assert isinstance(
         hg, eg.Hypergraph
     ), "The input object must be a DHG's hypergraph object."
@@ -154,6 +154,7 @@ def draw_SHS_center(G, SHS, rate=1, style="side"):
         the graph whose the SH Spanners are in the center.
     """
     import matplotlib.pyplot as plt
+    import numpy as np
 
     pos = eg.random_position(G)
     center = np.zeros((len(SHS), 2), float)
@@ -320,6 +321,7 @@ def draw_SHS_center_kk(G, SHS, rate=1, style="side"):
         the graph whose the SH Spanners are in the center.
     """
     import matplotlib.pyplot as plt
+    import numpy as np
 
     pos = eg.kamada_kawai_layout(G)
     center = np.zeros((len(SHS), 2), float)
@@ -477,6 +479,7 @@ def draw_kamada_kawai(G, rate=1, style="side"):
 
     """
     import matplotlib.pyplot as plt
+    import numpy as np
 
     pos = eg.kamada_kawai_layout(G)
     node = np.zeros((len(pos), 2), float)

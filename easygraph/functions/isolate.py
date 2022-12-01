@@ -26,12 +26,12 @@ def is_isolate(G, n):
 
     Examples
     --------
-    >>> G = nx.Graph()
+    >>> G = eg.Graph()
     >>> G.add_edge(1, 2)
     >>> G.add_node(3)
-    >>> nx.is_isolate(G, 2)
+    >>> eg.is_isolate(G, 2)
     False
-    >>> nx.is_isolate(G, 3)
+    >>> eg.is_isolate(G, 3)
     True
     """
     return G.degree()[n] == 0
@@ -58,24 +58,24 @@ def isolates(G):
     To get a list of all isolates of a graph, use the :class:`list`
     constructor::
 
-        >>> G = nx.Graph()
+        >>> G = eg.Graph()
         >>> G.add_edge(1, 2)
         >>> G.add_node(3)
-        >>> list(nx.isolates(G))
+        >>> list(eg.isolates(G))
         [3]
 
     To remove all isolates in the graph, first create a list of the
     isolates, then use :meth:`Graph.remove_nodes_from`::
 
-        >>> G.remove_nodes_from(list(nx.isolates(G)))
+        >>> G.remove_nodes_from(list(eg.isolates(G)))
         >>> list(G)
         [1, 2]
 
     For digraphs, isolates have zero in-degree and zero out_degre::
 
-        >>> G = nx.DiGraph([(0, 1), (1, 2)])
+        >>> G = eg.DiGraph([(0, 1), (1, 2)])
         >>> G.add_node(3)
-        >>> list(nx.isolates(G))
+        >>> list(eg.isolates(G))
         [3]
 
     """

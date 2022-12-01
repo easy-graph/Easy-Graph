@@ -1,9 +1,5 @@
-import random
-
 from collections import Counter
-from functools import partial
 from itertools import chain
-from multiprocessing import Pool
 
 import numpy as np
 
@@ -19,6 +15,8 @@ __all__ = ["average_clustering", "clustering"]
 def _local_weighted_triangles_and_degree_iter_parallel(
     nodes_nbrs, G, weight, max_weight
 ):
+    ret = []
+
     def wt(u, v):
         return G[u][v].get(weight, 1) / max_weight
 
@@ -36,7 +34,8 @@ def _local_weighted_triangles_and_degree_iter_parallel(
             weighted_triangles += sum(
                 np.cbrt([(wij * wt(j, k) * wt(k, i)) for k in inbrs & jnbrs])
             )
-        yield (i, len(inbrs), 2 * weighted_triangles)
+        ret.append((i, len(inbrs), 2 * weighted_triangles))
+    return ret
 
 
 @not_implemented_for("multigraph")
@@ -63,6 +62,11 @@ def _weighted_triangles_and_degree_iter(G, nodes=None, weight="weight", n_worker
         return G[u][v].get(weight, 1) / max_weight
 
     if n_workers is not None:
+        import random
+
+        from functools import partial
+        from multiprocessing import Pool
+
         _local_weighted_triangles_and_degree_iter_function = partial(
             _local_weighted_triangles_and_degree_iter_parallel,
             G=G,
@@ -101,6 +105,8 @@ def _weighted_triangles_and_degree_iter(G, nodes=None, weight="weight", n_worker
 def _local_directed_weighted_triangles_and_degree_parallel(
     nodes_nbrs, G, weight, max_weight
 ):
+    ret = []
+
     def wt(u, v):
         return G[u][v].get(weight, 1) / max_weight
 
@@ -143,7 +149,8 @@ def _local_directed_weighted_triangles_and_degree_parallel(
 
         dtotal = len(ipreds) + len(isuccs)
         dbidirectional = len(ipreds & isuccs)
-        yield [i, dtotal, dbidirectional, directed_triangles]
+        ret.append([i, dtotal, dbidirectional, directed_triangles])
+    return ret
 
 
 @not_implemented_for("multigraph")
@@ -170,6 +177,11 @@ def _directed_weighted_triangles_and_degree_iter(
         return G[u][v].get(weight, 1) / max_weight
 
     if n_workers is not None:
+        import random
+
+        from functools import partial
+        from multiprocessing import Pool
+
         _local_directed_weighted_triangles_and_degree_function = partial(
             _local_directed_weighted_triangles_and_degree_parallel,
             G=G,
@@ -400,6 +412,11 @@ def _triangles_and_degree_iter(G, nodes=None, n_workers=None):
         nodes_nbrs = ((n, G[n]) for n in G.nbunch_iter(nodes))
 
     if n_workers is not None:
+        import random
+
+        from functools import partial
+        from multiprocessing import Pool
+
         _local_triangles_and_degree_iter_function = partial(
             _local_triangles_and_degree_iter_function_parallel, G=G
         )
@@ -510,16 +527,6 @@ def clustering(G, nodes=None, weight=None, n_workers=None):
         .. [4] Clustering in complex directed networks by G. Fagiolo,
            Physical Review E, 76(2), 026107 (2007).
     """
-
-    # if nodes is None:
-    #     nodes=G.nodes
-    # if n_workers is not None:
-    #     import random
-    #
-    #     from functools import partial
-    #     from multiprocessing import Pool
-    #
-    #     local_function = partial(clustering_parallel, G=G, weight=weight)
 
     if G.is_directed():
         if weight is not None:

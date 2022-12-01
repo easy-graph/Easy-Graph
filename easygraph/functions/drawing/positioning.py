@@ -1,5 +1,4 @@
 import easygraph as eg
-import numpy as np
 
 
 __all__ = [
@@ -237,6 +236,7 @@ def kamada_kawai_layout(
     --------
     >>> pos = eg.kamada_kawai_layout(G)
     """
+    import numpy as np
 
     nNodes = len(G)
     if nNodes == 0:

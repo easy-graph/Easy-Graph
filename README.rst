@@ -16,7 +16,7 @@ Copyright (C) <2020-2022> by Mobile Systems and Networking Group, Fudan Universi
 - **Source Code:** https://github.com/easy-graph/Easy-Graph
 - **Issue Tracker:** https://github.com/easy-graph/Easy-Graph/issues
 - **PyPI Homepage:** https://pypi.org/project/Python-EasyGraph/
-- **Youtube channel:** https://www.youtube.com/channel/UCZGhOPPx8aeL30uEdpk23Aw
+- **Youtube channel:** https://www.youtube.com/@python-easygraph
 
 Introduction
 ------------

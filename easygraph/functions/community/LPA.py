@@ -560,16 +560,21 @@ def CombineNodes(
     G = Gx
     label_dict = label_dictx
     score_dict = score_dictx
+    node_dict = node_dictx
+    Next_label_dict = label_dictx
+    nodes = nodesx
+    degrees = G.degree()
+    distance_dict = eg.Floyd(G)
     return (
         records,
         G,
         label_dict,
         score_dict,
-        node_dictx,
-        label_dictx,
-        nodesx,
-        G.degree(),
-        eg.Floyd(G),
+        node_dict,
+        Next_label_dict,
+        nodes,
+        degrees,
+        distance_dict,
     )
 
 

@@ -3,8 +3,6 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-import numpy as np
-
 
 def default_style(
     num_v: int,
@@ -72,6 +70,8 @@ def default_size(
     e_line_width: Union[float, list] = 1.0,
     font_size: float = 1.0,
 ):
+    import numpy as np
+
     _v_size = 1 / np.sqrt(num_v + 10) * 0.1
     _v_line_width = 1 * np.exp(-num_v / 50)
     _e_line_width = 1 * np.exp(-len(e_list) / 120)
@@ -97,6 +97,8 @@ def default_bipartite_size(
     u_font_size: float = 1.0,
     v_font_size: float = 1.0,
 ):
+    import numpy as np
+
     _u_size = 1 / np.sqrt(num_u + 12) * 0.08
     _u_line_width = 1 * np.exp(-num_u / 50)
     _v_size = 1 / np.sqrt(num_v + 12) * 0.08

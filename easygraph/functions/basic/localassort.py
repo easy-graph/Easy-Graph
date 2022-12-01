@@ -1,16 +1,14 @@
-import random
-
 import easygraph as eg
 import numpy as np
 import scipy.sparse as sparse
 
 
 __all__ = [
-    "localAssortF",
+    "localAssort",
 ]
 
 
-def localAssortF(
+def localAssort(
     edgelist, node_attr, pr=np.arange(0.0, 1.0, 0.1), undir=True, missingValue=-1
 ):
     """Calculate the multiscale assortativity.
@@ -85,7 +83,6 @@ def localAssortF(
     yi = (hasAttribute).nonzero()[0]
 
     yj = node_attr[hasAttribute]
-
     Y = sparse.coo_matrix((values, (yi, yj)), shape=(n, c)).tocsc()
     eij_glob = np.array(Y.T @ (A @ Y).todense())
 

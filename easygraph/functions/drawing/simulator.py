@@ -1,9 +1,5 @@
 from copy import deepcopy
 
-import numpy as np
-
-from sklearn.metrics import euclidean_distances
-
 from .utils import safe_div
 
 
@@ -32,6 +28,8 @@ class Simulator:
         self.damping_factor = damping_factor
 
     def simulate(self, init_position, H, max_iter=400, epsilon=0.001, dt=2.0) -> None:
+        import numpy as np
+
         """
         Simulate the force-directed layout algorithm.
         """
@@ -50,6 +48,10 @@ class Simulator:
         return position
 
     def _step(self, position, velocity, H, epsilon, damping, dt):
+        import numpy as np
+
+        from sklearn.metrics import euclidean_distances
+
         """
         One step of the simulation.
         """
@@ -104,6 +106,8 @@ class Simulator:
         return position, velocity, self._stop_condition(velocity, epsilon)
 
     def _node_attraction(self, position, e_center, v2e_dist, x0=0.1, k=1.0):
+        import numpy as np
+
         """
         Node attracted by edge center.
         """
@@ -121,6 +125,8 @@ class Simulator:
         return f
 
     def _node_repulsion(self, position, v2v_dist, k=1.0):
+        import numpy as np
+
         """
         Node repulsed by other nodes.
         """
@@ -142,6 +148,8 @@ class Simulator:
         return f
 
     def _edge_repulsion(self, e_center, H, e2e_dist, k=1.0):
+        import numpy as np
+
         """
         Edge repulsed by other edges.
         """
@@ -163,6 +171,8 @@ class Simulator:
         return np.matmul(H, f)
 
     def _center_gravity(self, position, center, v2c_dist, k=1):
+        import numpy as np
+
         """
         Node attracted by center.
         """
@@ -179,6 +189,8 @@ class Simulator:
         return f
 
     def _stop_condition(self, velocity, epsilon):
+        import numpy as np
+
         """
         Stop condition.
         """

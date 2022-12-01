@@ -7,7 +7,4 @@ test:
 publish:
 	gh workflow run release-cibuildwheel.yaml
 
-clean:
-	rm -rf build
-
 .PHONY: *
