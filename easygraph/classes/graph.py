@@ -52,7 +52,7 @@ class Graph:
 
     """
 
-    extra_selfloop = False
+    gnn_data_dict_factory = dict
     graph_attr_dict_factory = dict
     node_dict_factory = dict
     node_attr_dict_factory = dict
@@ -64,6 +64,7 @@ class Graph:
         self.graph = self.graph_attr_dict_factory()
         self._node = self.node_dict_factory()
         self._adj = self.adjlist_outer_dict_factory()
+        self._ndata = self.gnn_data_dict_factory()
         self.cache = {}
         self.cflag = 0
         if incoming_graph_data is not None:
@@ -85,6 +86,10 @@ class Graph:
     def __getitem__(self, node):
         # return list(self._adj[node].keys())
         return self._adj[node]
+
+    @property
+    def ndata(self):
+        return self._ndata
 
     @property
     def adj(self):

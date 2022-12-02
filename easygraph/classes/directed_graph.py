@@ -54,6 +54,7 @@ class DiGraph(Graph):
 
     """
 
+    gnn_data_dict_factory = dict
     graph_attr_dict_factory = dict
     node_dict_factory = dict
     node_attr_dict_factory = dict
@@ -63,6 +64,7 @@ class DiGraph(Graph):
 
     def __init__(self, incoming_graph_data=None, **graph_attr):
         self.graph = self.graph_attr_dict_factory()
+        self.ndata = self.gnn_data_dict_factory()
         self._node = self.node_dict_factory()
         self._adj = self.adjlist_outer_dict_factory()
         self._pred = self.adjlist_outer_dict_factory()
