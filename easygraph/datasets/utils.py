@@ -3,6 +3,7 @@ import hashlib
 import numbers
 import os
 
+import numpy as np
 import requests
 import torch as th
 
@@ -12,6 +13,7 @@ __all__ = [
     "extract_archive",
     "get_download_dir",
     "makedirs",
+    "generate_mask_tensor",
 ]
 
 import warnings
@@ -40,6 +42,11 @@ def _set_features(G, features):
         G.add_node(node, feat=features[index])
         index += 1
     return G
+
+
+def nonzero_1d(input):
+    x = th.nonzero(input, as_tuple=False).squeeze()
+    return x if x.dim() == 1 else x.view(-1)
 
 
 def tensor(data, dtype=None):
@@ -260,3 +267,23 @@ def check_sha1(filename, sha1_hash):
             sha1.update(data)
 
     return sha1.hexdigest() == sha1_hash
+
+
+def generate_mask_tensor(mask):
+    """Generate mask tensor according to different backend
+    For torch, it will create a bool tensor
+    Parameters
+    ----------
+    mask: numpy ndarray
+        input mask tensor
+    """
+    assert isinstance(
+        mask, np.ndarray
+    ), "input for generate_mask_tensorshould be an numpy ndarray"
+    return tensor(mask, dtype=data_type_dict()["bool"])
+
+
+def deprecate_property(old, new):
+    warnings.warn(
+        "Property {} will be deprecated, please use {} instead.".format(old, new)
+    )
