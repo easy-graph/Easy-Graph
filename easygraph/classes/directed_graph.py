@@ -64,7 +64,7 @@ class DiGraph(Graph):
 
     def __init__(self, incoming_graph_data=None, **graph_attr):
         self.graph = self.graph_attr_dict_factory()
-        self.ndata = self.gnn_data_dict_factory()
+        self._ndata = self.gnn_data_dict_factory()
         self._node = self.node_dict_factory()
         self._adj = self.adjlist_outer_dict_factory()
         self._pred = self.adjlist_outer_dict_factory()
@@ -88,6 +88,10 @@ class DiGraph(Graph):
     def __getitem__(self, node):
         # return list(self._adj[node].keys())
         return self._adj[node]
+
+    @property
+    def ndata(self):
+        return self._ndata
 
     @property
     def adj(self):
