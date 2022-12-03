@@ -170,7 +170,7 @@ def _plain_bfs(G, source):
     For directed graphs only.
 
     """
-    Gsucc = G.succ
+    Gsucc = G.adj
     Gpred = G.pred
 
     seen = set()

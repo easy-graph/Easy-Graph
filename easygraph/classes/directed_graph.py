@@ -94,6 +94,10 @@ class DiGraph(Graph):
         return self._ndata
 
     @property
+    def pred(self):
+        return self._pred
+
+    @property
     def adj(self):
         return self._adj
 
