@@ -1,13 +1,7 @@
-import os
-
 import easygraph as eg
 
-from .eg_dataset import EasyGraphBuiltinDataset
 from .eg_dataset import EasyGraphDataset
-from .utils import _get_dgl_url
-from .utils import _set_features
 from .utils import _set_labels
-from .utils import data_type_dict
 from .utils import tensor
 
 

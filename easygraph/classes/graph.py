@@ -1,6 +1,8 @@
+from copy import deepcopy
 from typing import Dict
 from typing import List
 
+import easygraph as eg
 import easygraph.convert as convert
 
 from easygraph.utils.exception import EasyGraphError
@@ -1102,6 +1104,68 @@ class Graph:
                 G.add_edge(index_of_node[u], index_of_node[v], **edge_data)
 
         return G, index_of_node, node_of_index
+
+    def to_directed_class(self):
+        """Returns the class to use for empty directed copies.
+
+        If you subclass the base classes, use this to designate
+        what directed class to use for `to_directed()` copies.
+        """
+        return eg.DiGraph
+
+    def to_directed(self):
+        """Returns a directed representation of the graph.
+
+        Returns
+        -------
+        G : DiGraph
+            A directed graph with the same name, same nodes, and with
+            each edge (u, v, data) replaced by two directed edges
+            (u, v, data) and (v, u, data).
+
+        Notes
+        -----
+        This returns a "deepcopy" of the edge, node, and
+        graph attributes which attempts to completely copy
+        all of the data and references.
+
+        This is in contrast to the similar D=DiGraph(G) which returns a
+        shallow copy of the data.
+
+        See the Python copy module for more information on shallow
+        and deep copies, https://docs.python.org/3/library/copy.html.
+
+        Warning: If you have subclassed Graph to use dict-like objects
+        in the data structure, those changes do not transfer to the
+        DiGraph created by this method.
+
+        Examples
+        --------
+        >>> G = eg.Graph()  # or MultiGraph, etc
+        >>> G.add_edge(0, 1)
+        >>> H = G.to_directed()
+        >>> list(H.edges)
+        [(0, 1), (1, 0)]
+
+        If already directed, return a (deep) copy
+
+        >>> G = eg.DiGraph()  # or MultiDiGraph, etc
+        >>> G.add_edge(0, 1)
+        >>> H = G.to_directed()
+        >>> list(H.edges)
+        [(0, 1)]
+        """
+        graph_class = self.to_directed_class()
+
+        G = graph_class()
+        G.graph.update(deepcopy(self.graph))
+        G.add_nodes_from((n, deepcopy(d)) for n, d in self._node.items())
+        G.add_edges_from(
+            (u, v, deepcopy(data))
+            for u, nbrs in self._adj.items()
+            for v, data in nbrs.items()
+        )
+        return G
 
     def cpp(self):
         G = GraphC()
