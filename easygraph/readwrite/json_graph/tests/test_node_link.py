@@ -1,20 +1,20 @@
 import json
 
-import networkx as nx
+import easygraph as eg
 import pytest
 
-from networkx.readwrite.json_graph import node_link_data
-from networkx.readwrite.json_graph import node_link_graph
+from easygraph.readwrite.json_graph import node_link_data
+from easygraph.readwrite.json_graph import node_link_graph
 
 
 class TestNodeLink:
     def test_graph(self):
-        G = nx.path_graph(4)
+        G = eg.path_graph(4)
         H = node_link_graph(node_link_data(G))
-        assert nx.is_isomorphic(G, H)
+        assert eg.is_isomorphic(G, H)
 
     def test_graph_attributes(self):
-        G = nx.path_graph(4)
+        G = eg.path_graph(4)
         G.add_node(1, color="red")
         G.add_edge(1, 2, width=7)
         G.graph[1] = "one"
@@ -33,20 +33,20 @@ class TestNodeLink:
         assert H[1][2]["width"] == 7
 
     def test_digraph(self):
-        G = nx.DiGraph()
+        G = eg.DiGraph()
         H = node_link_graph(node_link_data(G))
         assert H.is_directed()
 
     def test_multigraph(self):
-        G = nx.MultiGraph()
+        G = eg.MultiGraph()
         G.add_edge(1, 2, key="first")
         G.add_edge(1, 2, key="second", color="blue")
         H = node_link_graph(node_link_data(G))
-        nx.is_isomorphic(G, H)
+        eg.is_isomorphic(G, H)
         assert H[1][2]["second"]["color"] == "blue"
 
     def test_graph_with_tuple_nodes(self):
-        G = nx.Graph()
+        G = eg.Graph()
         G.add_edge((0, 0), (1, 0), color=[255, 255, 0])
         d = node_link_data(G)
         dumped_d = json.dumps(d)
@@ -57,7 +57,7 @@ class TestNodeLink:
 
     def test_unicode_keys(self):
         q = "qualité"
-        G = nx.Graph()
+        G = eg.Graph()
         G.add_node(1, **{q: q})
         s = node_link_data(G)
         output = json.dumps(s, ensure_ascii=False)
@@ -66,14 +66,14 @@ class TestNodeLink:
         assert H.nodes[1][q] == q
 
     def test_exception(self):
-        with pytest.raises(nx.NetworkXError):
-            G = nx.MultiDiGraph()
+        with pytest.raises(eg.EasyGraphError):
+            G = eg.MultiDiGraph()
             attrs = dict(name="node", source="node", target="node", key="node")
             node_link_data(G, attrs)
 
     def test_string_ids(self):
         q = "qualité"
-        G = nx.DiGraph()
+        G = eg.DiGraph()
         G.add_node("A")
         G.add_node(q)
         G.add_edge("A", q)
@@ -81,10 +81,10 @@ class TestNodeLink:
         assert data["links"][0]["source"] == "A"
         assert data["links"][0]["target"] == q
         H = node_link_graph(data)
-        assert nx.is_isomorphic(G, H)
+        assert eg.is_isomorphic(G, H)
 
     def test_custom_attrs(self):
-        G = nx.path_graph(4)
+        G = eg.path_graph(4)
         G.add_node(1, color="red")
         G.add_edge(1, 2, width=7)
         G.graph[1] = "one"
@@ -101,7 +101,7 @@ class TestNodeLink:
         H = node_link_graph(
             node_link_data(G, attrs=attrs), multigraph=False, attrs=attrs
         )
-        assert nx.is_isomorphic(G, H)
+        assert eg.is_isomorphic(G, H)
         assert H.graph["foo"] == "bar"
         assert H.nodes[1]["color"] == "red"
         assert H[1][2]["width"] == 7

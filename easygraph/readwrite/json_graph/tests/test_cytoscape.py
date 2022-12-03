@@ -1,21 +1,21 @@
 import copy
 import json
 
-import networkx as nx
+import easygraph as eg
 import pytest
 
-from networkx.readwrite.json_graph import cytoscape_data
-from networkx.readwrite.json_graph import cytoscape_graph
+from easygraph.readwrite.json_graph import cytoscape_data
+from easygraph.readwrite.json_graph import cytoscape_graph
 
 
 def test_graph():
-    G = nx.path_graph(4)
+    G = eg.path_graph(4)
     H = cytoscape_graph(cytoscape_data(G))
-    nx.is_isomorphic(G, H)
+    eg.is_isomorphic(G, H)
 
 
 def test_input_data_is_not_modified_when_building_graph():
-    G = nx.path_graph(4)
+    G = eg.path_graph(4)
     input_data = cytoscape_data(G)
     orig_data = copy.deepcopy(input_data)
     # Ensure input is unmodified by cytoscape_graph (gh-4173)
@@ -24,7 +24,7 @@ def test_input_data_is_not_modified_when_building_graph():
 
 
 def test_graph_attributes():
-    G = nx.path_graph(4)
+    G = eg.path_graph(4)
     G.add_node(1, color="red")
     G.add_edge(1, 2, width=7)
     G.graph["foo"] = "bar"
@@ -49,31 +49,31 @@ def test_graph_attributes():
 
 
 def test_digraph():
-    G = nx.DiGraph()
-    nx.add_path(G, [1, 2, 3])
+    G = eg.DiGraph()
+    eg.add_path(G, [1, 2, 3])
     H = cytoscape_graph(cytoscape_data(G))
     assert H.is_directed()
-    nx.is_isomorphic(G, H)
+    eg.is_isomorphic(G, H)
 
 
 def test_multidigraph():
-    G = nx.MultiDiGraph()
-    nx.add_path(G, [1, 2, 3])
+    G = eg.MultiDiGraph()
+    eg.add_path(G, [1, 2, 3])
     H = cytoscape_graph(cytoscape_data(G))
     assert H.is_directed()
     assert H.is_multigraph()
 
 
 def test_multigraph():
-    G = nx.MultiGraph()
+    G = eg.MultiGraph()
     G.add_edge(1, 2, key="first")
     G.add_edge(1, 2, key="second", color="blue")
     H = cytoscape_graph(cytoscape_data(G))
-    assert nx.is_isomorphic(G, H)
+    assert eg.is_isomorphic(G, H)
     assert H[1][2]["second"]["color"] == "blue"
 
 
 def test_exception():
-    with pytest.raises(nx.NetworkXError):
-        G = nx.MultiDiGraph()
+    with pytest.raises(eg.EasyGraphError):
+        G = eg.MultiDiGraph()
         cytoscape_data(G, name="foo", ident="foo")
