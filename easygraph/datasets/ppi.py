@@ -136,14 +136,16 @@ class PPIDataset(EasyGraphBuiltinDataset):
             and os.path.exists(info_path)
         )
 
-    # def save(self):
-    #     graph_list_path = os.path.join(self.save_path, '{}_dgl_graph_list.bin'.format(self.mode))
-    #     g_path = os.path.join(self.save_path, '{}_dgl_graph.bin'.format(self.mode))
-    #     info_path = os.path.join(self.save_path, '{}_info.pkl'.format(self.mode))
-    #     save_graphs(graph_list_path, self.graphs)
-    #     save_graphs(g_path, self.graph)
-    #     save_info(info_path, {'labels': self._labels, 'feats': self._feats})
-    #
+    def save(self):
+        graph_list_path = os.path.join(
+            self.save_path, "{}_dgl_graph_list.bin".format(self.mode)
+        )
+        g_path = os.path.join(self.save_path, "{}_dgl_graph.bin".format(self.mode))
+        info_path = os.path.join(self.save_path, "{}_info.pkl".format(self.mode))
+        # save_graphs(graph_list_path, self.graphs)
+        # save_graphs(g_path, self.graph)
+        # save_info(info_path, {'labels': self._labels, 'feats': self._feats})
+
     # def load(self):
     #     graph_list_path = os.path.join(self.save_path, '{}_dgl_graph_list.bin'.format(self.mode))
     #     g_path = os.path.join(self.save_path, '{}_dgl_graph.bin'.format(self.mode))

@@ -1,6 +1,7 @@
 import time
 
 import numpy as np
+import tensorflow as tf
 
 from easygraph.utils import *
 
@@ -27,7 +28,9 @@ def l_2nd(beta):
         y_true_numpy = y_true.numpy()
         b_ = np.ones_like(y_true.numpy())
         b_[y_true_numpy != 0] = beta
-        x = K.square((y_true - y_pred) * b_)
+        y_true = tf.cast(y_true, tf.int64)
+        y_pred = tf.cast(y_pred, tf.int64)
+        x = K.square((y_true - y_pred) * tf.cast(b_, tf.int64))
         t = K.sum(
             x,
             axis=-1,
@@ -96,7 +99,7 @@ def create_model(node_size, hidden_size=[256, 128], l1=1e-5, l2=1e-4):
 
 
 class SDNE:
-    @not_implemented_for("multigraph")
+    # @not_implemented_for("multigraph")
     def __init__(
         self,
         graph,
