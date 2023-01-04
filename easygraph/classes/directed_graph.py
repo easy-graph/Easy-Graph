@@ -53,6 +53,7 @@ class DiGraph(Graph):
 
     """
 
+    gnn_data_dict_factory = dict
     graph_attr_dict_factory = dict
     node_dict_factory = dict
     node_attr_dict_factory = dict
@@ -62,6 +63,7 @@ class DiGraph(Graph):
 
     def __init__(self, incoming_graph_data=None, **graph_attr):
         self.graph = self.graph_attr_dict_factory()
+        self._ndata = self.gnn_data_dict_factory()
         self._node = self.node_dict_factory()
         self._adj = self.adjlist_outer_dict_factory()
         self._pred = self.adjlist_outer_dict_factory()
@@ -85,6 +87,14 @@ class DiGraph(Graph):
     def __getitem__(self, node):
         # return list(self._adj[node].keys())
         return self._adj[node]
+
+    @property
+    def ndata(self):
+        return self._ndata
+
+    @property
+    def pred(self):
+        return self._pred
 
     @property
     def adj(self):
@@ -396,7 +406,7 @@ class DiGraph(Graph):
 
         Parameters
         ----------
-        node : object
+        node : Hashable
             The target node.
 
         Returns
@@ -425,7 +435,7 @@ class DiGraph(Graph):
 
         Parameters
         ----------
-        node : object
+        node : Hashable
             The target node.
 
         Returns
@@ -452,7 +462,7 @@ class DiGraph(Graph):
 
         Parameters
         ----------
-        node : object
+        node : Hashable
             The target node.
 
         Returns
@@ -1087,12 +1097,12 @@ class DiGraph(Graph):
         from_nodes = set(from_nodes)
         G = self.__class__()
         G.graph.update(self.graph)
+        from_nodes = set(from_nodes)
         for node in from_nodes:
             try:
                 G.add_node(node, **self._node[node])
             except KeyError:
                 pass
-
             for v, edge_data in self._adj[node].items():
                 if v in from_nodes:
                     G.add_edge(node, v, **edge_data)

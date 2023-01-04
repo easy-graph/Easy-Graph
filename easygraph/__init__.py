@@ -7,6 +7,7 @@ import easygraph.random
 import easygraph.readwrite
 import easygraph.utils
 
+from easygraph import convert
 from easygraph.classes import *
 from easygraph.convert import *
 from easygraph.datasets import *

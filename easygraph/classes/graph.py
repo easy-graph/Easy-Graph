@@ -1,9 +1,11 @@
 import warnings
 
+from copy import deepcopy
 from typing import Dict
 from typing import List
 from typing import Tuple
 
+import easygraph as eg
 import easygraph.convert as convert
 
 from easygraph.utils.exception import EasyGraphError
@@ -58,6 +60,7 @@ class Graph:
     """
 
     raw_selfloop_dict = dict
+    gnn_data_dict_factory = dict
     graph_attr_dict_factory = dict
     node_dict_factory = dict
     node_attr_dict_factory = dict
@@ -71,6 +74,7 @@ class Graph:
         self._adj = self.adjlist_outer_dict_factory()
         self._raw_selfloop_dict = self.raw_selfloop_dict()
         self.extra_selfloop = extra_selfloop
+        self._ndata = self.gnn_data_dict_factory()
         self.cache = {}
         self.cflag = 0
         self.device = "cpu"
@@ -93,6 +97,10 @@ class Graph:
     def __getitem__(self, node):
         # return list(self._adj[node].keys())
         return self._adj[node]
+
+    @property
+    def ndata(self):
+        return self._ndata
 
     @property
     def adj(self):
@@ -614,7 +622,7 @@ class Graph:
 
         Parameters
         ----------
-        node : object
+        node : Hashable
             The target node.
 
         Returns
@@ -987,6 +995,38 @@ class Graph:
         """
         self.add_edges_from(((u, v, {weight: d}) for u, v, d in ebunch_to_add), **attr)
 
+    def add_weighted_edges_from(self, ebunch_to_add, weight="weight", **attr):
+        """Add weighted edges in `ebunch_to_add` with specified weight attr
+
+        Parameters
+        ----------
+        ebunch_to_add : container of edges
+            Each edge given in the list or container will be added
+            to the graph. The edges must be given as 3-tuples (u, v, w)
+            where w is a number.
+        weight : string, optional (default= 'weight')
+            The attribute name for the edge weights to be added.
+        attr : keyword arguments, optional (default= no attributes)
+            Edge attributes to add/update for all edges.
+
+        See Also
+        --------
+        add_edge : add a single edge
+        add_edges_from : add multiple edges
+
+        Notes
+        -----
+        Adding the same edge twice for Graph/DiGraph simply updates
+        the edge data. For MultiGraph/MultiDiGraph, duplicate edges
+        are stored.
+
+        Examples
+        --------
+        >>> G = eg.Graph()  # or DiGraph, MultiGraph, MultiDiGraph, etc
+        >>> G.add_weighted_edges_from([(0, 1, 3.0), (1, 2, 7.5)])
+        """
+        self.add_edges_from(((u, v, {weight: d}) for u, v, d in ebunch_to_add), **attr)
+
     def add_edges_from_file(self, file, weighted=False):
         """Added edges from file
         For example, txt files,
@@ -1179,6 +1219,7 @@ class Graph:
             if u != v:  # self-loop needs only one entry removed
                 del self._adj[v][u]
             self._clear_cache()
+
         except KeyError:
             raise KeyError("No edge {}-{} in graph.".format(u, v))
 
@@ -1284,7 +1325,6 @@ class Graph:
         """
         G = self.__class__()
         G.graph.update(self.graph)
-        # Edge
         from_nodes = set(from_nodes)
         for node in from_nodes:
             try:
@@ -1378,6 +1418,68 @@ class Graph:
     def _clear_cache(self):
         r"""Clear the cache."""
         self.cache = {}
+
+    def to_directed_class(self):
+        """Returns the class to use for empty directed copies.
+
+        If you subclass the base classes, use this to designate
+        what directed class to use for `to_directed()` copies.
+        """
+        return eg.DiGraph
+
+    def to_directed(self):
+        """Returns a directed representation of the graph.
+
+        Returns
+        -------
+        G : DiGraph
+            A directed graph with the same name, same nodes, and with
+            each edge (u, v, data) replaced by two directed edges
+            (u, v, data) and (v, u, data).
+
+        Notes
+        -----
+        This returns a "deepcopy" of the edge, node, and
+        graph attributes which attempts to completely copy
+        all of the data and references.
+
+        This is in contrast to the similar D=DiGraph(G) which returns a
+        shallow copy of the data.
+
+        See the Python copy module for more information on shallow
+        and deep copies, https://docs.python.org/3/library/copy.html.
+
+        Warning: If you have subclassed Graph to use dict-like objects
+        in the data structure, those changes do not transfer to the
+        DiGraph created by this method.
+
+        Examples
+        --------
+        >>> G = eg.Graph()  # or MultiGraph, etc
+        >>> G.add_edge(0, 1)
+        >>> H = G.to_directed()
+        >>> list(H.edges)
+        [(0, 1), (1, 0)]
+
+        If already directed, return a (deep) copy
+
+        >>> G = eg.DiGraph()  # or MultiDiGraph, etc
+        >>> G.add_edge(0, 1)
+        >>> H = G.to_directed()
+        >>> list(H.edges)
+        [(0, 1)]
+        """
+        graph_class = self.to_directed_class()
+
+        G = graph_class()
+        G.graph.update(deepcopy(self.graph))
+        G.add_nodes_from((n, deepcopy(d)) for n, d in self._node.items())
+        G.add_edges_from(
+            (u, v, deepcopy(data))
+            for u, nbrs in self._adj.items()
+            for v, data in nbrs.items()
+        )
+        return G
 
     def cpp(self):
         G = GraphC()
