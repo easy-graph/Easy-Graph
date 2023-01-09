@@ -49,7 +49,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.8.1
         env:
           # CIBW_BEFORE_ALL: python -m pip install pybind11
-          CIBW_TEST_SKIP: "*"
+          # CIBW_TEST_SKIP: "*"
           CIBW_TEST_COMMAND: pytest --disable-warnings {package} -c {package}/pytest.ini
         # run: |
         #   cibuildwheel
