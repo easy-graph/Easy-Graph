@@ -1,0 +1,141 @@
+name: Build and upload to PyPI (cibw with pybind11)
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload:
+        type: choice
+        description: "Where to upload built artifacts"
+        required: false
+        default: 'test_pypi'
+        options:
+          - "pypi"
+          - "test_pypi"
+          - "none"
+  # workflow_dispatch:
+  # pull_request:
+  # push:
+  #   branches:
+  #    - master
+  # release:
+  #   types:
+  #     - published
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_sdist:
+    name: Build SDist
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build SDist
+      run: pipx run build --sdist
+
+    - name: Check metadata
+      run: pipx run twine check dist/*
+
+    - uses: actions/upload-artifact@v3
+      with:
+        path: dist/*.tar.gz
+
+
+  build_wheels:
+    name: Wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: pypa/cibuildwheel@v2.11.4
+      env:
+        CIBW_ARCHS_MACOS: auto universal2
+
+    - name: Verify clean directory
+      run: git diff --exit-code
+      shell: bash
+
+    - name: Upload wheels
+      uses: actions/upload-artifact@v3
+      with:
+        path: wheelhouse/*.whl
+
+  upload_test_pypi:
+    name: Upload to Test PyPI
+    if: inputs.upload == 'test_pypi'
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    # upload to PyPI on every tag starting with 'v'
+    # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
+    # if: startsWith(github.event.ref, 'refs/tags/v')
+    # alternatively, to publish when a GitHub Release is created, use the following rule:
+    # if: github.event_name == 'release' && github.event.action == 'published'
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@v1.4.2
+        with:
+          user: __token__
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          # To test: repository_url: https://test.pypi.org/legacy/
+          repository_url: https://test.pypi.org/legacy/
+          verbose: true
+          # print_hash: true
+
+  upload_pypi:
+    # name: Upload to PyPI if the latest release on Test PyPI passes the checks
+    name: Upload to PyPI
+    if: inputs.upload == 'pypi'
+    # needs: [build_wheels, build_sdist, upload_test_pypi, verify_installation]
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    # upload to PyPI on every tag starting with 'v'
+    # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
+    # if: startsWith(github.event.ref, 'refs/tags/v')
+    # alternatively, to publish when a GitHub Release is created, use the following rule:
+    # if: github.event_name == 'release' && github.event.action == 'published'
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@v1.4.2
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          # To test: repository_url: https://test.pypi.org/legacy/
+          verbose: true
+          # print_hash: true
+
+
+  # upload_all:
+  #   name: Upload if release
+  #   needs: [build_wheels, build_sdist]
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'release' && github.event.action == 'published'
+
+  #   steps:
+  #   - uses: actions/setup-python@v4
+  #     with:
+  #       python-version: "3.x"
+
+  #   - uses: actions/download-artifact@v3
+  #     with:
+  #       name: artifact
+  #       path: dist
+
+  #   - uses: pypa/gh-action-pypi-publish@v1.6.4
+  #     with:
+  #       user: __token__
+  #       password: ${{ secrets.pypi_password }}
