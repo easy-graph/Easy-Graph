@@ -167,8 +167,9 @@ exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
 
 [tool.cibuildwheel]
 # before-build = "pip install pybind11"
-before-all = "pip install pybind11"
-test-requires = ["pytest", "lxml", "torch"]
+# before-all = "pip install pybind11"
+# installing torch is very time consuming
+# test-requires = ["pytest", "lxml", "torch"]
 # test-command = "pytest"
 
 # https://cibuildwheel.readthedocs.io/en/stable/faq/#cibw-options-alternatives-deps
