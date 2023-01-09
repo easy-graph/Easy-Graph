@@ -65,7 +65,10 @@ jobs:
 
       - name: Build sdist
         run: |
-          pip install pybind11
+          # pip install pybind11
+          # pipx run build --sdist
+          pipx install build
+          pipx inject build pybind11
           pipx run build --sdist
 
       - uses: actions/upload-artifact@v2
