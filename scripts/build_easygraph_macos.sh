@@ -17,9 +17,9 @@ cd "$WORKDIR"/Easy-Graph || exit
 
 pip install wheel
 
-# compile Python 3.6
-pyenv global 3.6.15
-time python setup.py bdist_wheel --plat-name macosx-10.9-x86_64
+# # compile Python 3.6
+# pyenv global 3.6.15
+# time python setup.py bdist_wheel --plat-name macosx-10.9-x86_64
 
 # compile Python 3.7
 pyenv global 3.7.9
