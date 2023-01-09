@@ -50,7 +50,7 @@ jobs:
         env:
           # CIBW_BEFORE_ALL: python -m pip install pybind11
           # CIBW_TEST_SKIP: "*"
-          CIBW_TEST_COMMAND: pytest --disable-warnings {package}
+          CIBW_TEST_COMMAND: pytest --disable-warnings {package} -c {package}/pytest.ini
         # run: |
         #   cibuildwheel
 
