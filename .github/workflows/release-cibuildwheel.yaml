@@ -47,6 +47,8 @@ jobs:
           python -m pip install pybind11 cibuildwheel
       - name: Build wheels
         # uses: pypa/cibuildwheel@v2.8.1
+        env:
+          CIBW_BEFORE_ALL: python -m pip install pybind11
         run: |
           cibuildwheel
 
