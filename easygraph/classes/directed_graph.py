@@ -1103,6 +1103,7 @@ class DiGraph(Graph):
                 G.add_node(node, **self._node[node])
             except KeyError:
                 pass
+
             for v, edge_data in self._adj[node].items():
                 if v in from_nodes:
                     G.add_edge(node, v, **edge_data)

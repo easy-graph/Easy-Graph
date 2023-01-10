@@ -59,8 +59,8 @@ class Graph:
 
     """
 
-    raw_selfloop_dict = dict
     gnn_data_dict_factory = dict
+    raw_selfloop_dict = dict
     graph_attr_dict_factory = dict
     node_dict_factory = dict
     node_attr_dict_factory = dict
@@ -1219,7 +1219,6 @@ class Graph:
             if u != v:  # self-loop needs only one entry removed
                 del self._adj[v][u]
             self._clear_cache()
-
         except KeyError:
             raise KeyError("No edge {}-{} in graph.".format(u, v))
 

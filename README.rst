@@ -25,26 +25,31 @@ EasyGraph is an open source graph processing library. It is mainly written in Py
 Install
 -------
 
-The current version on PyPI is outdated, we'll push the latest version as soon as we figure out how to integrate the C++ binding framework we use with our CI pipeline.
+.. The current version on PyPI is outdated, we'll push the latest version as soon as we figure out how to integrate the C++ binding framework we use with our CI pipeline.
 
-In the meantime, here's a work around you can try to install the latest version of easygraph on your machine:
+.. In the meantime, here's a work around you can try to install the latest version of easygraph on your machine:
+
+
+
+.. Installation with ``pip`` (outdated)
+
+Installation with ``pip``
+
+.. code::
+
+    $ pip install --upgrade Python-EasyGraph
+
+The conda package is no longer updated or maintained.
+
+If you've installed `easygraph` this way before, please uninstall it with `conda` and install it with `pip`.
+
+If prebuilt `easygraph` wheels are not supported for your platform (OS / CPU arch, check `here <https://pypi.org/simple/python-easygraph/>`_), you can build it locally this way:
 
 .. code:: bash
 
     git clone https://github.com/easy-graph/Easy-Graph && cd Easy-Graph && git checkout pybind11
     pip install pybind11
     python3 setup.py install
-
-
-Installation with ``pip`` (outdated)
-::
-
-    $ pip install Python-EasyGraph
-
-or ``conda`` (abandoned)
-::
-
-    $ conda install Python-EasyGraph
 
 Simple Example
 --------------

@@ -157,19 +157,23 @@ force-exclude = '''
 
 [tool.coverage.run]
 branch = true
-source = [ "easygraph/"]
+source = ["easygraph/"]
 relative_files = true
 
 
 [tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "if TYPE_CHECKING:"
-]
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
 
 
 [tool.cibuildwheel]
 # before-build = "pip install pybind11"
-before-all = "pip install pybind11"
-test-requires = "pytest"
-test-command = "pytest"
+# before-all = "pip install pybind11"
+# installing torch is very time consuming
+# test-requires = ["pytest", "lxml", "torch"]
+# test-command = "pytest"
+
+# https://cibuildwheel.readthedocs.io/en/stable/faq/#cibw-options-alternatives-deps
+[build-system]
+requires = ["setuptools>=42", "wheel", "Cython", "pybind11"]
+
+build-backend = "setuptools.build_meta"
