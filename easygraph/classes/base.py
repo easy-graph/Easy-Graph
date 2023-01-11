@@ -17,10 +17,10 @@ __all__ = ["load_structure", "BaseHypergraph"]
 
 
 def load_structure(file_path: Union[str, Path]):
-    r"""Load a DHG's structure from a file. The supported structure includes: ``Graph``, ``DiGraph``, ``BiGraph``, ``Hypergraph``.
+    r"""Load a EasyGraph's high-order network structure from a file. The supported structure ``Hypergraph``.
 
     Args:
-        ``file_path`` (``Union[str, Path]``): The file path to load the DHG's structure.
+        ``file_path`` (``Union[str, Path]``): The file path to load the EasyGraph's structure.
     """
     import pickle as pkl
 
@@ -40,27 +40,19 @@ class BaseHypergraph:
     r"""The ``BaseHypergraph`` class is the base class for all hypergraph structures.
 
     Args:
-        ``num_v`` (``int``): The number of vertices in the hypergraph.
-        ``e_list_v2e`` (``Union[List[int], List[List[int]]]``, optional): A list of hyperedges describes how the vertices point to the hyperedges. Defaults to ``None``.
-        ``e_list_e2v`` (``Union[List[int], List[List[int]]]``, optional): A list of hyperedges describes how the hyperedges point to the vertices. Defaults to ``None``.
-        ``w_list_v2e`` (``Union[List[float], List[List[float]]]``, optional): The weights are attached to the connections from vertices to hyperedges, which has the same shape
-            as ``e_list_v2e``. If set to ``None``, the value ``1`` is used for all connections. Defaults to ``None``.
-        ``w_list_e2v`` (``Union[List[float], List[List[float]]]``, optional): The weights are attached to the connections from the hyperedges to the vertices, which has the
-            same shape to ``e_list_e2v``. If set to ``None``, the value ``1`` is used for all connections. Defaults to ``None``.
-        ``e_weight`` (``Union[float, List[float]]``, optional): A list of weights for hyperedges. If set to ``None``, the value ``1`` is used for all hyperedges. Defaults to ``None``.
-        ``v_weight`` (``Union[float, List[float]]``, optional): Weights for vertices. If set to ``None``, the value ``1`` is used for all vertices. Defaults to ``None``.
-        ``device`` (``torch.device``, optional): The deivce to store the hypergraph. Defaults to ``torch.device('cpu')``.
+        ``num_v`` (``int``): The number of vertices.
+        ``e_list`` (``Union[List[int], List[List[int]]], optional``): Edge list. Defaults to ``None``.
+        ``e_weight`` (``Union[float, List[float]], optional``): A list of weights for edges. Defaults to ``None``.
+        ``extra_selfloop`` (``bool``, optional): Whether to add extra self-loop to the graph. Defaults to ``False``.
+        ``device`` (``torch.device``, optional): The device to store the graph. Defaults to ``torch.device('cpu')``.
     """
 
     def __init__(
         self,
         num_v: int,
-        e_list_v2e: Optional[Union[List[int], List[List[int]]]] = None,
-        e_list_e2v: Optional[Union[List[int], List[List[int]]]] = None,
-        w_list_v2e: Optional[Union[List[float], List[List[float]]]] = None,
-        w_list_e2v: Optional[Union[List[float], List[List[float]]]] = None,
+        e_list: Optional[Union[List[int], List[List[int]]]] = None,
         e_weight: Optional[Union[float, List[float]]] = None,
-        v_weight: Optional[List[float]] = None,
+        extra_selfloop: bool = False,
         device: torch.device = torch.device("cpu"),
     ):
         assert (
@@ -69,6 +61,7 @@ class BaseHypergraph:
         self.clear()
         self._num_v = num_v
         self.device = device
+        self._has_extra_selfloop = extra_selfloop
 
     @abc.abstractmethod
     def __repr__(self) -> str:
@@ -81,28 +74,28 @@ class BaseHypergraph:
 
     @abc.abstractmethod
     def save(self, file_path: Union[str, Path]):
-        r"""Save the DHG's hypergraph structure to a file.
+        r"""Save the EasyGraph's hypergraph structure to a file.
 
         Args:
-            ``file_path`` (``str``): The file_path to store the DHG's hypergraph structure.
+            ``file_path`` (``str``): The file_path to store the EasyGraph's hypergraph structure.
         """
 
     @staticmethod
     @abc.abstractmethod
     def load(file_path: Union[str, Path]):
-        r"""Load the DHG's hypergraph structure from a file.
+        r"""Load the EasyGraph's hypergraph structure from a file.
 
         Args:
-            ``file_path`` (``str``): The file path to load the DHG's hypergraph structure.
+            ``file_path`` (``str``): The file path to load the DEasyGraph's hypergraph structure.
         """
 
     @staticmethod
     @abc.abstractmethod
     def from_state_dict(state_dict: dict):
-        r"""Load the DHG's hypergraph structure from the state dict.
+        r"""Load the EasyGraph's hypergraph structure from the state dict.
 
         Args:
-            ``state_dict`` (``dict``): The state dict to load the DHG's hypergraph.
+            ``state_dict`` (``dict``): The state dict to load the EasyGraph's hypergraph.
         """
 
     @abc.abstractmethod
@@ -119,6 +112,7 @@ class BaseHypergraph:
         self._raw_groups = {}
 
     def _clear_cache(self, group_name: Optional[str] = None):
+        r"""Clear the cache."""
         self.cache = {}
         if group_name is None:
             self.group_cache = defaultdict(dict)

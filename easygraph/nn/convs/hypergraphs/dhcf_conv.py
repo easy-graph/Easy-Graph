@@ -43,7 +43,7 @@ class JHConv(nn.Module):
 
         Args:
             X (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
-            hg (``dhg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
+            hg (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
         """
         X = self.theta(X)
         if self.bn is not None:

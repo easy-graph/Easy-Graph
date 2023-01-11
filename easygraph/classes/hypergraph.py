@@ -53,10 +53,10 @@ class Hypergraph(BaseHypergraph):
         return {"num_v": self.num_v, "raw_groups": self._raw_groups}
 
     def save(self, file_path: Union[str, Path]):
-        r"""Save the DHG's hypergraph structure a file.
+        r"""Save the EasyGraph's hypergraph structure a file.
 
         Args:
-            ``file_path`` (``Union[str, Path]``): The file path to store the DHG's hypergraph structure.
+            ``file_path`` (``Union[str, Path]``): The file path to store the EasyGraph's hypergraph structure.
         """
         file_path = Path(file_path)
         assert file_path.parent.exists(), "The directory does not exist."
@@ -69,16 +69,18 @@ class Hypergraph(BaseHypergraph):
 
     @staticmethod
     def load(file_path: Union[str, Path]):
-        r"""Load the DHG's hypergraph structure from a file.
+        r"""Load the EasyGraph's hypergraph structure from a file.
 
         Args:
-            ``file_path`` (``Union[str, Path]``): The file path to load the DHG's hypergraph structure.
+            ``file_path`` (``Union[str, Path]``): The file path to load the EasyGraph's hypergraph structure.
         """
         file_path = Path(file_path)
         assert file_path.exists(), "The file does not exist."
         with open(file_path, "rb") as fp:
             data = pickle.load(fp)
-        assert data["class"] == "Hypergraph", "The file is not a DHG's hypergraph file."
+        assert (
+            data["class"] == "Hypergraph"
+        ), "The file is not a EasyGraph's hypergraph file."
         return Hypergraph.from_state_dict(data["state_dict"])
 
     def draw(

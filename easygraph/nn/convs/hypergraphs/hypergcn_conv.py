@@ -45,8 +45,8 @@ class HyperGCNConv(nn.Module):
 
         Args:
             ``X`` (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
-            ``hg`` (``dhg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
-            ``cached_g`` (``dhg.Graph``): The pre-transformed graph structure from the hypergraph structure that contains :math:`N` vertices. If not provided, the graph structure will be transformed for each forward time. Defaults to ``None``.
+            ``hg`` (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
+            ``cached_g`` (``eg.Graph``): The pre-transformed graph structure from the hypergraph structure that contains :math:`N` vertices. If not provided, the graph structure will be transformed for each forward time. Defaults to ``None``.
         """
         X = self.theta(X)
         if self.bn is not None:

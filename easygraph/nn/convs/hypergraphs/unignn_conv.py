@@ -54,7 +54,7 @@ class UniGCNConv(nn.Module):
 
         Args:
             X (``torch.Tensor``): Input vertex feature matrix. Size :math:`(|\mathcal{V}|, C_{in})`.
-            hg (``dhg.Hypergraph``): The hypergraph structure that contains :math:`|\mathcal{V}|` vertices.
+            hg (``eg.Hypergraph``): The hypergraph structure that contains :math:`|\mathcal{V}|` vertices.
         """
         X = self.theta(X)
         if self.bn is not None:
@@ -127,7 +127,7 @@ class UniGATConv(nn.Module):
 
         Args:
             X (``torch.Tensor``): Input vertex feature matrix. Size :math:`(|\mathcal{V}|, C_{in})`.
-            hg (``dhg.Hypergraph``): The hypergraph structure that contains :math:`|\mathcal{V}|` vertices.
+            hg (``eg.Hypergraph``): The hypergraph structure that contains :math:`|\mathcal{V}|` vertices.
         """
         X = self.theta(X)
         if self.bn is not None:
@@ -195,7 +195,7 @@ class UniSAGEConv(nn.Module):
 
         Args:
             X (``torch.Tensor``): Input vertex feature matrix. Size :math:`(|\mathcal{V}|, C_{in})`.
-            hg (``dhg.Hypergraph``): The hypergraph structure that contains :math:`|\mathcal{V}|` vertices.
+            hg (``eg.Hypergraph``): The hypergraph structure that contains :math:`|\mathcal{V}|` vertices.
         """
         X = self.theta(X)
         if self.bn is not None:
@@ -264,7 +264,7 @@ class UniGINConv(nn.Module):
 
         Args:
             X (``torch.Tensor``): Input vertex feature matrix. Size :math:`(|\mathcal{V}|, C_{in})`.
-            hg (``dhg.Hypergraph``): The hypergraph structure that contains :math:`|\mathcal{V}|` vertices.
+            hg (``eg.Hypergraph``): The hypergraph structure that contains :math:`|\mathcal{V}|` vertices.
         """
         X = self.theta(X)
         if self.bn is not None:

@@ -38,7 +38,7 @@ class HNHNConv(nn.Module):
 
         Args:
             X (``torch.Tensor``): Input vertex feature matrix. Size :math:`(|\mathcal{V}|, C_{in})`.
-            hg (``dhg.Hypergraph``): The hypergraph structure that contains :math:`|\mathcal{V}|` vertices.
+            hg (``eg.Hypergraph``): The hypergraph structure that contains :math:`|\mathcal{V}|` vertices.
         """
         # v -> e
         X = self.theta_v2e(X)
