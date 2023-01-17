@@ -6,7 +6,7 @@ import torch.nn.functional as F
 class BPRLoss(nn.Module):
     r"""This criterion computes the Bayesian Personalized Ranking (BPR) loss between the positive scores and the negative scores.
 
-    Args:
+    Parameters:
         ``alpha`` (``float``, optional): The weight for the positive scores in the BPR loss. Defaults to ``1.0``.
         ``beta`` (``float``, optional): The weight for the negative scores in the BPR loss. Defaults to ``1.0``.
         ``activation`` (``str``, optional): The activation function to use can be one of ``"sigmoid_then_log"``, ``"softplus"``. Defaults to ``"sigmoid_then_log"``.
@@ -30,7 +30,7 @@ class BPRLoss(nn.Module):
     def forward(self, pos_scores: torch.Tensor, neg_scores: torch.Tensor):
         r"""The forward function of BPRLoss.
 
-        Args:
+        Parameters:
             ``pos_scores`` (``torch.Tensor``): The positive scores.
             ``neg_scores`` (``torch.Tensor``): The negative scores.
         """

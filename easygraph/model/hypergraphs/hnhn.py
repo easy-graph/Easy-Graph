@@ -7,7 +7,7 @@ from easygraph.nn import HNHNConv
 class HNHN(nn.Module):
     r"""The HNHN model proposed in `HNHN: Hypergraph Networks with Hyperedge Neurons <https://arxiv.org/pdf/2006.12278.pdf>`_ paper (ICML 2020).
 
-    Args:
+    Parameters:
         ``in_channels`` (``int``): :math:`C_{in}` is the number of input channels.
         ``hid_channels`` (``int``): :math:`C_{hid}` is the number of hidden channels.
         ``num_classes`` (``int``): The Number of class of the classification task.
@@ -35,7 +35,7 @@ class HNHN(nn.Module):
     def forward(self, X: torch.Tensor, hg: "eg.Hypergraph") -> torch.Tensor:
         r"""The forward function.
 
-        Args:
+        Parameters:
             ``X`` (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
             ``hg`` (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
         """

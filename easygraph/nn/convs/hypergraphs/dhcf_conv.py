@@ -13,7 +13,7 @@ class JHConv(nn.Module):
         \mathbf{X}^{\prime} = \sigma \left( \mathbf{D}_v^{-\frac{1}{2}} \mathbf{H} \mathbf{W}_e \mathbf{D}_e^{-1}
         \mathbf{H}^\top \mathbf{D}_v^{-\frac{1}{2}} \mathbf{X} \mathbf{\Theta} + \mathbf{X} \right).
 
-    Args:
+    Parameters:
         ``in_channels`` (``int``): :math:`C_{in}` is the number of input channels.
         ``out_channels`` (int): :math:`C_{out}` is the number of output channels.
         ``bias`` (``bool``): If set to ``False``, the layer will not learn the bias parameter. Defaults to ``True``.
@@ -41,7 +41,7 @@ class JHConv(nn.Module):
     def forward(self, X: torch.Tensor, hg: Hypergraph) -> torch.Tensor:
         r"""The forward function.
 
-        Args:
+        Parameters:
             X (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
             hg (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
         """

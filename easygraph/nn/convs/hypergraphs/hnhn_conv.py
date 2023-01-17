@@ -7,7 +7,7 @@ from easygraph.classes import Hypergraph
 class HNHNConv(nn.Module):
     r"""The HNHN convolution layer proposed in `HNHN: Hypergraph Networks with Hyperedge Neurons <https://arxiv.org/pdf/2006.12278.pdf>`_ paper (ICML 2020).
 
-    Args:
+    Parameters:
         ``in_channels`` (``int``): :math:`C_{in}` is the number of input channels.
         ``out_channels`` (int): :math:`C_{out}` is the number of output channels.
         ``bias`` (``bool``): If set to ``False``, the layer will not learn the bias parameter. Defaults to ``True``.
@@ -36,7 +36,7 @@ class HNHNConv(nn.Module):
     def forward(self, X: torch.Tensor, hg: Hypergraph) -> torch.Tensor:
         r"""The forward function.
 
-        Args:
+        Parameters:
             X (``torch.Tensor``): Input vertex feature matrix. Size :math:`(|\mathcal{V}|, C_{in})`.
             hg (``eg.Hypergraph``): The hypergraph structure that contains :math:`|\mathcal{V}|` vertices.
         """

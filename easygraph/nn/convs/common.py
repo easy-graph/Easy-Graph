@@ -5,7 +5,7 @@ import torch.nn as nn
 class MultiHeadWrapper(nn.Module):
     r"""A wrapper to apply multiple heads to a given layer.
 
-    Args:
+    Parameters:
         ``num_heads`` (``int``): The number of heads.
         ``readout`` (``bool``): The readout method. Can be ``"mean"``, ``"max"``, ``"sum"``, or ``"concat"``.
         ``layer`` (``nn.Module``): The layer to apply multiple heads.
