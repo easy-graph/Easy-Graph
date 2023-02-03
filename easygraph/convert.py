@@ -3,15 +3,28 @@ import warnings
 from collections.abc import Collection
 from collections.abc import Generator
 from collections.abc import Iterator
+from typing import TYPE_CHECKING
+from typing import Union
 
 import easygraph as eg
 
+from easygraph import DiGraph
+from easygraph import Graph
+
+
+if TYPE_CHECKING:
+    import dgl
+    import networkx as nx
 
 __all__ = [
     "from_dict_of_dicts",
     "to_easygraph_graph",
     "from_edgelist",
     "from_dict_of_lists",
+    "from_networkx",
+    "from_dgl",
+    "to_networkx",
+    "to_dgl",
 ]
 
 
@@ -263,3 +276,63 @@ def from_edgelist(edgelist, create_using=None):
     G = eg.empty_graph(0, create_using)
     G.add_edges_from(edgelist)
     return G
+
+
+def to_networkx(g: Union[Graph, DiGraph]) -> "Union[nx.Graph, nx.DiGraph]":
+    # if load_func_name in di_load_functions_name:
+    try:
+        import networkx as nx
+    except ImportError:
+        raise ImportError("NetworkX not found. Please install it.")
+    if isinstance(g, DiGraph):
+        G = nx.DiGraph()
+    else:
+        G = nx.Graph()
+
+    nodes_with_edges = set()
+    for v1, v2, _ in g.edges:
+        G.add_edge(v1, v2)
+        nodes_with_edges.add(v1)
+        nodes_with_edges.add(v2)
+    for node in set(g.nodes) - nodes_with_edges:
+        G.add_node(node)
+    return G
+
+
+def from_networkx(g: "Union[nx.Graph, nx.DiGraph]") -> Union[Graph, DiGraph]:
+    try:
+        import networkx as nx
+    except ImportError:
+        raise ImportError("NetworkX not found. Please install it.")
+    if isinstance(g, nx.DiGraph):
+        G = DiGraph()
+    else:
+        G = Graph()
+    nodes_with_edges = set()
+    for v1, v2 in g.edges:
+        G.add_edge(v1, v2)
+        nodes_with_edges.add(v1)
+        nodes_with_edges.add(v2)
+    for node in set(g.nodes) - nodes_with_edges:
+        G.add_node(node)
+    return G
+
+
+def to_dgl(g: Union[Graph, DiGraph]):
+    try:
+        import dgl
+    except ImportError:
+        raise ImportError("DGL not found. Please install it.")
+    g_nx = to_networkx(g)
+    g_dgl = dgl.from_networkx(g_nx)
+    return g_dgl
+
+
+def from_dgl(g) -> Union[Graph, DiGraph]:
+    try:
+        import dgl
+    except ImportError:
+        raise ImportError("DGL not found. Please install it.")
+    g_nx = dgl.to_networkx(g)
+    g_eg = from_networkx(g_nx)
+    return g_eg
