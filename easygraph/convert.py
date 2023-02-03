@@ -8,13 +8,13 @@ from typing import Union
 
 import easygraph as eg
 
-from easygraph import DiGraph
-from easygraph import Graph
-
 
 if TYPE_CHECKING:
     import dgl
     import networkx as nx
+
+    from easygraph import DiGraph
+    from easygraph import Graph
 
 __all__ = [
     "from_dict_of_dicts",
@@ -278,7 +278,7 @@ def from_edgelist(edgelist, create_using=None):
     return G
 
 
-def to_networkx(g: Union[Graph, DiGraph]) -> "Union[nx.Graph, nx.DiGraph]":
+def to_networkx(g: "Union[Graph, DiGraph]") -> "Union[nx.Graph, nx.DiGraph]":
     # if load_func_name in di_load_functions_name:
     try:
         import networkx as nx
@@ -299,7 +299,7 @@ def to_networkx(g: Union[Graph, DiGraph]) -> "Union[nx.Graph, nx.DiGraph]":
     return G
 
 
-def from_networkx(g: "Union[nx.Graph, nx.DiGraph]") -> Union[Graph, DiGraph]:
+def from_networkx(g: "Union[nx.Graph, nx.DiGraph]") -> "Union[Graph, DiGraph]":
     try:
         import networkx as nx
     except ImportError:
@@ -318,7 +318,7 @@ def from_networkx(g: "Union[nx.Graph, nx.DiGraph]") -> Union[Graph, DiGraph]:
     return G
 
 
-def to_dgl(g: Union[Graph, DiGraph]):
+def to_dgl(g: "Union[Graph, DiGraph]"):
     try:
         import dgl
     except ImportError:
@@ -328,7 +328,7 @@ def to_dgl(g: Union[Graph, DiGraph]):
     return g_dgl
 
 
-def from_dgl(g) -> Union[Graph, DiGraph]:
+def from_dgl(g) -> "Union[Graph, DiGraph]":
     try:
         import dgl
     except ImportError:
