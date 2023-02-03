@@ -10,6 +10,7 @@ try:
     from .citation_graph import CoraBinary
     from .citation_graph import CoraGraphDataset
     from .citation_graph import PubmedGraphDataset
+    from .cooking_200 import Cooking200
     from .ppi import LegacyPPIDataset
     from .ppi import PPIDataset
 

@@ -31,6 +31,8 @@ class Hypergraph(BaseHypergraph):
         e_weight : (Union[float, List[float]], optional)  A list of weights for hyperedges. If set to None, the value ``1`` is used for all hyperedges. Defaults to None
         merge_op : (str) The operation to merge those conflicting hyperedges in the same hyperedge group, which can be ``'mean'``, ``'sum'`` or ``'max'``. Defaults to ``'mean'``
         device : (torch.device, optional)  The deivce to store the hypergraph. Defaults to torch.device('cpu')
+
+
     """
 
     def __init__(

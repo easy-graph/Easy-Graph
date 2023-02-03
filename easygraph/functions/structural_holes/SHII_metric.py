@@ -39,7 +39,7 @@ def structural_hole_influence_index(
         Propagation Model. Should be IC or LT.
 
     variant: bool, default is False
-        Whether returns variant SHII metrics or not.
+        Whether returns variant SHII ml_metrics or not.
         variant SHII = # of the influenced outsider / # of the influenced insiders
         SHII = # of the influenced outsiders / # of the total influenced nodes
 
