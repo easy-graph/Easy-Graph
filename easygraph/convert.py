@@ -3,6 +3,7 @@ import warnings
 from collections.abc import Collection
 from collections.abc import Generator
 from collections.abc import Iterator
+from copy import deepcopy
 from typing import TYPE_CHECKING
 from typing import Union
 
@@ -289,6 +290,9 @@ def to_networkx(g: "Union[Graph, DiGraph]") -> "Union[nx.Graph, nx.DiGraph]":
     else:
         G = nx.Graph()
 
+    # copy attributes
+    G.graph = deepcopy(g.graph)
+
     nodes_with_edges = set()
     for v1, v2, _ in g.edges:
         G.add_edge(v1, v2)
@@ -308,6 +312,10 @@ def from_networkx(g: "Union[nx.Graph, nx.DiGraph]") -> "Union[Graph, DiGraph]":
         G = DiGraph()
     else:
         G = Graph()
+
+    # copy attributes
+    G.graph = deepcopy(g.graph)
+
     nodes_with_edges = set()
     for v1, v2 in g.edges:
         G.add_edge(v1, v2)
