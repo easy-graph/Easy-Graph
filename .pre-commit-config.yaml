@@ -58,7 +58,9 @@ repos:
   #       args: [--all]
 
   - repo: https://github.com/pycqa/isort
-    rev: 5.10.1
+    # rev: 5.10.1
+    # https://stackoverflow.com/questions/75269700/pre-commit-fails-to-install-isort-5-11-4-with-error-runtimeerror-the-poetry-co
+    rev: 5.12.0
     hooks:
       - id: isort
         name: "isort (python)"
