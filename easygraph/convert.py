@@ -5,6 +5,10 @@ from collections.abc import Generator
 from collections.abc import Iterator
 from copy import deepcopy
 from typing import TYPE_CHECKING
+from typing import Any
+from typing import Iterable
+from typing import List
+from typing import Optional
 from typing import Union
 
 import easygraph as eg
@@ -13,6 +17,7 @@ import easygraph as eg
 if TYPE_CHECKING:
     import dgl
     import networkx as nx
+    import torch_geometric
 
     from easygraph import DiGraph
     from easygraph import Graph
@@ -24,8 +29,10 @@ __all__ = [
     "from_dict_of_lists",
     "from_networkx",
     "from_dgl",
+    "from_pyg",
     "to_networkx",
     "to_dgl",
+    "to_pyg",
 ]
 
 
@@ -342,5 +349,115 @@ def from_dgl(g) -> "Union[Graph, DiGraph]":
     except ImportError:
         raise ImportError("DGL not found. Please install it.")
     g_nx = dgl.to_networkx(g)
+    g_eg = from_networkx(g_nx)
+    return g_eg
+
+
+def to_pyg(
+    G: Any,
+    group_node_attrs: Optional[Union[List[str], all]] = None,  # type: ignore
+    group_edge_attrs: Optional[Union[List[str], all]] = None,  # type: ignore
+) -> "torch_geometric.data.Data":  # type: ignore
+    r"""Converts a :obj:`easygraph.Graph` or :obj:`easygraph.DiGraph` to a
+    :class:`torch_geometric.data.Data` instance.
+
+    Args:
+        G (easygraph.Graph or easygraph.DiGraph): A easygraph graph.
+        group_node_attrs (List[str] or all, optional): The node attributes to
+            be concatenated and added to :obj:`data.x`. (default: :obj:`None`)
+        group_edge_attrs (List[str] or all, optional): The edge attributes to
+            be concatenated and added to :obj:`data.edge_attr`.
+            (default: :obj:`None`)
+
+    .. note::
+
+        All :attr:`group_node_attrs` and :attr:`group_edge_attrs` values must
+        be numeric.
+
+    Examples:
+
+        >>> import torch_geometric as pyg
+
+        >>> pyg_to_networkx = pyg.utils.convert.to_networkx  # type: ignore
+        >>> networkx_to_pyg = pyg.utils.convert.from_networkx  # type: ignore
+        >>> Data = pyg.data.Data  # type: ignore
+        >>> edge_index = torch.tensor([
+        ...     [0, 1, 1, 2, 2, 3],
+        ...     [1, 0, 2, 1, 3, 2],
+        ... ])
+        >>> data = Data(edge_index=edge_index, num_nodes=4)
+        >>> g = pyg_to_networkx(data)
+        >>> # A `Data` object is returned
+        >>> to_pyg(g)
+        Data(edge_index=[2, 6], num_nodes=4)
+    """
+    try:
+        import torch_geometric as pyg
+
+        pyg_to_networkx = pyg.utils.convert.to_networkx  # type: ignore
+        networkx_to_pyg = pyg.utils.convert.from_networkx  # type: ignore
+    except ImportError:
+        raise ImportError("pytorch_geometric not found. Please install it.")
+
+    g_nx = to_networkx(G)
+    g_pyg = networkx_to_pyg(g_nx, group_node_attrs, group_edge_attrs)
+    return g_pyg
+
+
+def from_pyg(
+    data: "torch_geometric.data.Data",  # type: ignore
+    node_attrs: Optional[Iterable[str]] = None,
+    edge_attrs: Optional[Iterable[str]] = None,
+    graph_attrs: Optional[Iterable[str]] = None,
+    to_undirected: Optional[Union[bool, str]] = False,
+    remove_self_loops: bool = False,
+) -> Any:
+    r"""Converts a :class:`torch_geometric.data.Data` instance to a
+    :obj:`easygraph.Graph` if :attr:`to_undirected` is set to :obj:`True`, or
+    a directed :obj:`easygraph.DiGraph` otherwise.
+
+    Args:
+        data (torch_geometric.data.Data): The data object.
+        node_attrs (iterable of str, optional): The node attributes to be
+            copied. (default: :obj:`None`)
+        edge_attrs (iterable of str, optional): The edge attributes to be
+            copied. (default: :obj:`None`)
+        graph_attrs (iterable of str, optional): The graph attributes to be
+            copied. (default: :obj:`None`)
+        to_undirected (bool or str, optional): If set to :obj:`True` or
+            "upper", will return a :obj:`easygraph.Graph` instead of a
+            :obj:`easygraph.DiGraph`. The undirected graph will correspond to
+            the upper triangle of the corresponding adjacency matrix.
+            Similarly, if set to "lower", the undirected graph will correspond
+            to the lower triangle of the adjacency matrix. (default:
+            :obj:`False`)
+        remove_self_loops (bool, optional): If set to :obj:`True`, will not
+            include self loops in the resulting graph. (default: :obj:`False`)
+
+    Examples:
+
+        >>> import torch_geometric as pyg
+
+        >>> Data = pyg.data.Data  # type: ignore
+        >>> edge_index = torch.tensor([
+        ...     [0, 1, 1, 2, 2, 3],
+        ...     [1, 0, 2, 1, 3, 2],
+        ... ])
+        >>> data = Data(edge_index=edge_index, num_nodes=4)
+        >>> from_pyg(data)
+        <easygraph.classes.digraph.DiGraph at 0x2713fdb40d0>
+
+    """
+
+    try:
+        import torch_geometric as pyg
+
+        pyg_to_networkx = pyg.utils.convert.to_networkx  # type: ignore
+        networkx_to_pyg = pyg.utils.convert.from_networkx  # type: ignore
+    except ImportError:
+        raise ImportError("pytorch_geometric not found. Please install it.")
+    g_nx = pyg_to_networkx(
+        data, node_attrs, edge_attrs, graph_attrs, to_undirected, remove_self_loops
+    )
     g_eg = from_networkx(g_nx)
     return g_eg
