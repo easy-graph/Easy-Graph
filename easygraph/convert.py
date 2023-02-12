@@ -287,6 +287,17 @@ def from_edgelist(edgelist, create_using=None):
 
 
 def to_networkx(g: "Union[Graph, DiGraph]") -> "Union[nx.Graph, nx.DiGraph]":
+    """Convert an EasyGraph to a NetworkX graph.
+
+    Args:
+        g (Union[Graph, DiGraph]): An EasyGraph graph
+
+    Raises:
+        ImportError is raised if NetworkX is not installed.
+
+    Returns:
+        Union[nx.Graph, nx.DiGraph]: Converted NetworkX graph
+    """
     # if load_func_name in di_load_functions_name:
     try:
         import networkx as nx
@@ -311,6 +322,17 @@ def to_networkx(g: "Union[Graph, DiGraph]") -> "Union[nx.Graph, nx.DiGraph]":
 
 
 def from_networkx(g: "Union[nx.Graph, nx.DiGraph]") -> "Union[Graph, DiGraph]":
+    """Convert a NetworkX graph to an EasyGraph graph.
+
+    Args:
+        g (Union[nx.Graph, nx.DiGraph]): A NetworkX graph
+
+    Raises:
+        ImportError: If NetworkX is not installed.
+
+    Returns:
+        Union[Graph, DiGraph]: Converted EasyGraph graph
+    """
     try:
         import networkx as nx
     except ImportError:
@@ -334,6 +356,17 @@ def from_networkx(g: "Union[nx.Graph, nx.DiGraph]") -> "Union[Graph, DiGraph]":
 
 
 def to_dgl(g: "Union[Graph, DiGraph]"):
+    """Convert an EasyGraph graph to a DGL graph.
+
+    Args:
+        g (Union[Graph, DiGraph]): An EasyGraph graph
+
+    Raises:
+        ImportError: If DGL is not installed.
+
+    Returns:
+        DGLGraph: Converted DGL graph
+    """
     try:
         import dgl
     except ImportError:
@@ -344,6 +377,17 @@ def to_dgl(g: "Union[Graph, DiGraph]"):
 
 
 def from_dgl(g) -> "Union[Graph, DiGraph]":
+    """Convert a DGL graph to an EasyGraph graph.
+
+    Args:
+        g (DGLGraph): A DGL graph
+
+    Raises:
+        ImportError: If DGL is not installed.
+
+    Returns:
+        Union[Graph, DiGraph]: Converted EasyGraph graph
+    """
     try:
         import dgl
     except ImportError:
