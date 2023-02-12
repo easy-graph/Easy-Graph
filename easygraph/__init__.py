@@ -1,4 +1,5 @@
 import easygraph.classes
+import easygraph.convert
 import easygraph.datasets
 import easygraph.functions
 import easygraph.model
@@ -7,7 +8,6 @@ import easygraph.random
 import easygraph.readwrite
 import easygraph.utils
 
-from easygraph import convert
 from easygraph.classes import *
 from easygraph.convert import *
 from easygraph.datasets import *
@@ -20,4 +20,4 @@ from easygraph.utils import *
 
 
 def __getattr__(name):
-    print(f"attr {name} doesn'n exist!")
+    print(f"attr {name} doesn't exist!")

@@ -303,7 +303,7 @@ def to_networkx(g: "Union[Graph, DiGraph]") -> "Union[nx.Graph, nx.DiGraph]":
         import networkx as nx
     except ImportError:
         raise ImportError("NetworkX not found. Please install it.")
-    if isinstance(g, DiGraph):
+    if g.is_directed():
         G = nx.DiGraph()
     else:
         G = nx.Graph()
@@ -327,20 +327,17 @@ def from_networkx(g: "Union[nx.Graph, nx.DiGraph]") -> "Union[Graph, DiGraph]":
     Args:
         g (Union[nx.Graph, nx.DiGraph]): A NetworkX graph
 
-    Raises:
-        ImportError: If NetworkX is not installed.
-
     Returns:
         Union[Graph, DiGraph]: Converted EasyGraph graph
     """
-    try:
-        import networkx as nx
-    except ImportError:
-        raise ImportError("NetworkX not found. Please install it.")
-    if isinstance(g, nx.DiGraph):
-        G = DiGraph()
+    # try:
+    #     import networkx as nx
+    # except ImportError:
+    #     raise ImportError("NetworkX not found. Please install it.")
+    if g.is_directed():
+        G = eg.DiGraph()
     else:
-        G = Graph()
+        G = eg.Graph()
 
     # copy attributes
     G.graph = deepcopy(g.graph)

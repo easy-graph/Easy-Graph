@@ -23,7 +23,7 @@ CYTHON_STR = "Cython"
 
 setuptools.setup(
     name="Python-EasyGraph",
-    version="0.2a41",
+    version="0.2a42",
     author="Fudan MSN Group",
     author_email="easygraph@163.com",
     description="Easy Graph",
