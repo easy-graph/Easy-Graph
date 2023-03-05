@@ -973,3 +973,16 @@ def test_graph_and_hypergraph():
     _mm = torch.sparse.mm
     est_A = _mm(_mm(g.D_v_neg_1_2, g.A), g.D_v_neg_1_2) + torch.eye(4).to_sparse()
     assert pytest.approx(est_A.to_dense() / 2) == hg.L_HGNN.to_dense()
+
+
+@pytest.skip(reason="skip")
+def test_get_linegraph():
+    num_v = 5
+    e_list = [[0, 1], [1, 2, 3], [0, 3, 4]]
+    e_weight = [1.0, 0.5, 2.0]
+    v_weight = [0.2, 0.3, 0.4, 0.5, 0.6]
+
+    hg = eg.Hypergraph(num_v=num_v, e_list=e_list, e_weight=e_weight)
+    lg = hg.get_linegraph()
+    assert lg.edges == [[0, 1], [0, 2], [1, 2]]
+    assert lg.nodes == [0, 1, 2]
