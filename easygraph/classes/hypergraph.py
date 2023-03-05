@@ -1806,12 +1806,14 @@ class Hypergraph(BaseHypergraph):
         hyperedge_nodes = {}
         for e_idx, e in enumerate(self.e[0]):
             hyperedge_nodes[e_idx] = set(e)
-            linegraph.add_node(e_idx)
+            linegraph.add_node(e_idx, hyperedge=hyperedge_nodes[e_idx])
         for e_idx1, nodes1 in hyperedge_nodes.items():
             for e_idx2, nodes2 in hyperedge_nodes.items():
                 if e_idx1 >= e_idx2:
                     continue
                 common_nodes = nodes1.intersection(nodes2)
                 if len(common_nodes) > 0:
-                    linegraph.add_edge(e_idx1, e_idx2)
+                    linegraph.add_edge(
+                        e_idx1, e_idx2, hyperedge_intersection=common_nodes
+                    )
         return linegraph
