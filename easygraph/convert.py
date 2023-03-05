@@ -3,15 +3,36 @@ import warnings
 from collections.abc import Collection
 from collections.abc import Generator
 from collections.abc import Iterator
+from copy import deepcopy
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Iterable
+from typing import List
+from typing import Optional
+from typing import Union
 
 import easygraph as eg
 
+
+if TYPE_CHECKING:
+    import dgl
+    import networkx as nx
+    import torch_geometric
+
+    from easygraph import DiGraph
+    from easygraph import Graph
 
 __all__ = [
     "from_dict_of_dicts",
     "to_easygraph_graph",
     "from_edgelist",
     "from_dict_of_lists",
+    "from_networkx",
+    "from_dgl",
+    "from_pyg",
+    "to_networkx",
+    "to_dgl",
+    "to_pyg",
 ]
 
 
@@ -263,3 +284,221 @@ def from_edgelist(edgelist, create_using=None):
     G = eg.empty_graph(0, create_using)
     G.add_edges_from(edgelist)
     return G
+
+
+def to_networkx(g: "Union[Graph, DiGraph]") -> "Union[nx.Graph, nx.DiGraph]":
+    """Convert an EasyGraph to a NetworkX graph.
+
+    Args:
+        g (Union[Graph, DiGraph]): An EasyGraph graph
+
+    Raises:
+        ImportError is raised if NetworkX is not installed.
+
+    Returns:
+        Union[nx.Graph, nx.DiGraph]: Converted NetworkX graph
+    """
+    # if load_func_name in di_load_functions_name:
+    try:
+        import networkx as nx
+    except ImportError:
+        raise ImportError("NetworkX not found. Please install it.")
+    if g.is_directed():
+        G = nx.DiGraph()
+    else:
+        G = nx.Graph()
+
+    # copy attributes
+    G.graph = deepcopy(g.graph)
+
+    nodes_with_edges = set()
+    for v1, v2, _ in g.edges:
+        G.add_edge(v1, v2)
+        nodes_with_edges.add(v1)
+        nodes_with_edges.add(v2)
+    for node in set(g.nodes) - nodes_with_edges:
+        G.add_node(node)
+    return G
+
+
+def from_networkx(g: "Union[nx.Graph, nx.DiGraph]") -> "Union[Graph, DiGraph]":
+    """Convert a NetworkX graph to an EasyGraph graph.
+
+    Args:
+        g (Union[nx.Graph, nx.DiGraph]): A NetworkX graph
+
+    Returns:
+        Union[Graph, DiGraph]: Converted EasyGraph graph
+    """
+    # try:
+    #     import networkx as nx
+    # except ImportError:
+    #     raise ImportError("NetworkX not found. Please install it.")
+    if g.is_directed():
+        G = eg.DiGraph()
+    else:
+        G = eg.Graph()
+
+    # copy attributes
+    G.graph = deepcopy(g.graph)
+
+    nodes_with_edges = set()
+    for v1, v2 in g.edges:
+        G.add_edge(v1, v2)
+        nodes_with_edges.add(v1)
+        nodes_with_edges.add(v2)
+    for node in set(g.nodes) - nodes_with_edges:
+        G.add_node(node)
+    return G
+
+
+def to_dgl(g: "Union[Graph, DiGraph]"):
+    """Convert an EasyGraph graph to a DGL graph.
+
+    Args:
+        g (Union[Graph, DiGraph]): An EasyGraph graph
+
+    Raises:
+        ImportError: If DGL is not installed.
+
+    Returns:
+        DGLGraph: Converted DGL graph
+    """
+    try:
+        import dgl
+    except ImportError:
+        raise ImportError("DGL not found. Please install it.")
+    g_nx = to_networkx(g)
+    g_dgl = dgl.from_networkx(g_nx)
+    return g_dgl
+
+
+def from_dgl(g) -> "Union[Graph, DiGraph]":
+    """Convert a DGL graph to an EasyGraph graph.
+
+    Args:
+        g (DGLGraph): A DGL graph
+
+    Raises:
+        ImportError: If DGL is not installed.
+
+    Returns:
+        Union[Graph, DiGraph]: Converted EasyGraph graph
+    """
+    try:
+        import dgl
+    except ImportError:
+        raise ImportError("DGL not found. Please install it.")
+    g_nx = dgl.to_networkx(g)
+    g_eg = from_networkx(g_nx)
+    return g_eg
+
+
+def to_pyg(
+    G: Any,
+    group_node_attrs: Optional[Union[List[str], all]] = None,  # type: ignore
+    group_edge_attrs: Optional[Union[List[str], all]] = None,  # type: ignore
+) -> "torch_geometric.data.Data":  # type: ignore
+    r"""Converts a :obj:`easygraph.Graph` or :obj:`easygraph.DiGraph` to a
+    :class:`torch_geometric.data.Data` instance.
+
+    Args:
+        G (easygraph.Graph or easygraph.DiGraph): A easygraph graph.
+        group_node_attrs (List[str] or all, optional): The node attributes to
+            be concatenated and added to :obj:`data.x`. (default: :obj:`None`)
+        group_edge_attrs (List[str] or all, optional): The edge attributes to
+            be concatenated and added to :obj:`data.edge_attr`.
+            (default: :obj:`None`)
+
+    .. note::
+
+        All :attr:`group_node_attrs` and :attr:`group_edge_attrs` values must
+        be numeric.
+
+    Examples:
+
+        >>> import torch_geometric as pyg
+
+        >>> pyg_to_networkx = pyg.utils.convert.to_networkx  # type: ignore
+        >>> networkx_to_pyg = pyg.utils.convert.from_networkx  # type: ignore
+        >>> Data = pyg.data.Data  # type: ignore
+        >>> edge_index = torch.tensor([
+        ...     [0, 1, 1, 2, 2, 3],
+        ...     [1, 0, 2, 1, 3, 2],
+        ... ])
+        >>> data = Data(edge_index=edge_index, num_nodes=4)
+        >>> g = pyg_to_networkx(data)
+        >>> # A `Data` object is returned
+        >>> to_pyg(g)
+        Data(edge_index=[2, 6], num_nodes=4)
+    """
+    try:
+        import torch_geometric as pyg
+
+        pyg_to_networkx = pyg.utils.convert.to_networkx  # type: ignore
+        networkx_to_pyg = pyg.utils.convert.from_networkx  # type: ignore
+    except ImportError:
+        raise ImportError("pytorch_geometric not found. Please install it.")
+
+    g_nx = to_networkx(G)
+    g_pyg = networkx_to_pyg(g_nx, group_node_attrs, group_edge_attrs)
+    return g_pyg
+
+
+def from_pyg(
+    data: "torch_geometric.data.Data",  # type: ignore
+    node_attrs: Optional[Iterable[str]] = None,
+    edge_attrs: Optional[Iterable[str]] = None,
+    graph_attrs: Optional[Iterable[str]] = None,
+    to_undirected: Optional[Union[bool, str]] = False,
+    remove_self_loops: bool = False,
+) -> Any:
+    r"""Converts a :class:`torch_geometric.data.Data` instance to a
+    :obj:`easygraph.Graph` if :attr:`to_undirected` is set to :obj:`True`, or
+    a directed :obj:`easygraph.DiGraph` otherwise.
+
+    Args:
+        data (torch_geometric.data.Data): The data object.
+        node_attrs (iterable of str, optional): The node attributes to be
+            copied. (default: :obj:`None`)
+        edge_attrs (iterable of str, optional): The edge attributes to be
+            copied. (default: :obj:`None`)
+        graph_attrs (iterable of str, optional): The graph attributes to be
+            copied. (default: :obj:`None`)
+        to_undirected (bool or str, optional): If set to :obj:`True` or
+            "upper", will return a :obj:`easygraph.Graph` instead of a
+            :obj:`easygraph.DiGraph`. The undirected graph will correspond to
+            the upper triangle of the corresponding adjacency matrix.
+            Similarly, if set to "lower", the undirected graph will correspond
+            to the lower triangle of the adjacency matrix. (default:
+            :obj:`False`)
+        remove_self_loops (bool, optional): If set to :obj:`True`, will not
+            include self loops in the resulting graph. (default: :obj:`False`)
+
+    Examples:
+
+        >>> import torch_geometric as pyg
+
+        >>> Data = pyg.data.Data  # type: ignore
+        >>> edge_index = torch.tensor([
+        ...     [0, 1, 1, 2, 2, 3],
+        ...     [1, 0, 2, 1, 3, 2],
+        ... ])
+        >>> data = Data(edge_index=edge_index, num_nodes=4)
+        >>> from_pyg(data)
+        <easygraph.classes.digraph.DiGraph at 0x2713fdb40d0>
+
+    """
+
+    try:
+        import torch_geometric as pyg
+
+        pyg_to_networkx = pyg.utils.convert.to_networkx  # type: ignore
+        networkx_to_pyg = pyg.utils.convert.from_networkx  # type: ignore
+    except ImportError:
+        raise ImportError("pytorch_geometric not found. Please install it.")
+    g_nx = pyg_to_networkx(
+        data, node_attrs, edge_attrs, graph_attrs, to_undirected, remove_self_loops
+    )
+    g_eg = from_networkx(g_nx)
+    return g_eg

@@ -3,6 +3,7 @@ import random
 
 from copy import deepcopy
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Dict
 from typing import List
@@ -10,12 +11,16 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
+import easygraph as eg
 import torch
 
 from easygraph.classes.base import BaseHypergraph
 from easygraph.functions.drawing.drawing import draw_hypergraph
 from easygraph.utils.sparse import sparse_dropout
 
+
+if TYPE_CHECKING:
+    from easygraph import Graph
 
 __all__ = ["Hypergraph"]
 
@@ -1796,3 +1801,23 @@ class Hypergraph(BaseHypergraph):
             group_name, X, e2v_aggr, e2v_weight, drop_rate=e2v_drop_rate
         )
         return X
+
+    def get_linegraph(self) -> "Graph":
+        r"""Get the linegraph of the hypergraph.
+
+        Returns:
+            ``Graph``: The linegraph of the hypergraph.
+        """
+        linegraph = eg.Graph()
+        hyperedge_nodes = {}
+        for e_idx, e in enumerate(self.e[0]):
+            hyperedge_nodes[e_idx] = set(e)
+            linegraph.add_node(e_idx)
+        for e_idx1, nodes1 in hyperedge_nodes.items():
+            for e_idx2, nodes2 in hyperedge_nodes.items():
+                if e_idx1 >= e_idx2:
+                    continue
+                common_nodes = nodes1.intersection(nodes2)
+                if len(common_nodes) > 0:
+                    linegraph.add_edge(e_idx1, e_idx2)
+        return linegraph
