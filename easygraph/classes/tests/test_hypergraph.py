@@ -975,7 +975,7 @@ def test_graph_and_hypergraph():
     assert pytest.approx(est_A.to_dense() / 2) == hg.L_HGNN.to_dense()
 
 
-@pytest.skip(reason="skip")
+@pytest.mark.skip(reason="skip")
 def test_get_linegraph():
     num_v = 5
     e_list = [[0, 1], [1, 2, 3], [0, 3, 4]]
