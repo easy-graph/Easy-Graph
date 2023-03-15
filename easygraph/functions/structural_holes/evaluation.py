@@ -1,11 +1,14 @@
 import math
 
+from functools import lru_cache
+
 from easygraph.utils import *
 
 
 __all__ = ["effective_size", "efficiency", "constraint", "hierarchy"]
 
 
+@lru_cache(maxsize=None)
 def mutual_weight(G, u, v, weight=None):
     try:
         a_uv = G[u][v].get(weight, 1)

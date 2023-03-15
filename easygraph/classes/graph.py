@@ -1,6 +1,7 @@
 import warnings
 
 from copy import deepcopy
+from functools import lru_cache
 from typing import Dict
 from typing import List
 from typing import Tuple
@@ -363,6 +364,7 @@ class Graph:
     def name(self, s):
         self.graph["name"] = s
 
+    @lru_cache(maxsize=None)
     def degree(self, weight="weight"):
         """Returns the weighted degree of of each node.
 
@@ -617,6 +619,7 @@ class Graph:
             bunch = bunch_iter(nbunch, self._adj)
         return bunch
 
+    @lru_cache(maxsize=None)
     def neighbors(self, node):
         """Returns an iterator of a node's neighbors.
 
@@ -1337,6 +1340,7 @@ class Graph:
                     G.add_edge(node, v, **edge_data)
         return G
 
+    @lru_cache(maxsize=None)
     def ego_subgraph(self, center):
         """Returns an ego network graph of a node.
 
@@ -1489,6 +1493,9 @@ class Graph:
         for u, v, attr in self.edges:
             G.add_edge(u, v, **attr)
         return G
+
+    def __hash__(self):
+        return id(self)
 
 
 try:
