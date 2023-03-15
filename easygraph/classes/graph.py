@@ -1,3 +1,4 @@
+import uuid
 import warnings
 
 from copy import deepcopy
@@ -70,6 +71,7 @@ class Graph:
     edge_attr_dict_factory = dict
 
     def __init__(self, incoming_graph_data=None, extra_selfloop=False, **graph_attr):
+        self._uuid = uuid.uuid4()
         self.graph = self.graph_attr_dict_factory()
         self._node = self.node_dict_factory()
         self._adj = self.adjlist_outer_dict_factory()
@@ -82,6 +84,9 @@ class Graph:
         if incoming_graph_data is not None:
             convert.to_easygraph_graph(incoming_graph_data, create_using=self)
         self.graph.update(graph_attr)
+
+    def _update_uuid(self):
+        self._uuid = uuid.uuid4()
 
     def __iter__(self):
         return iter(self._node)
@@ -799,6 +804,7 @@ class Graph:
 
     def _add_one_node(self, one_node_for_adding, node_attr: dict = {}):
         node = one_node_for_adding
+        self._update_uuid()
         if node not in self._node:
             self._adj[node] = self.adjlist_inner_dict_factory()
             attr_dict = self._node[node] = self.node_attr_dict_factory()
@@ -1121,6 +1127,7 @@ class Graph:
                 pass
 
     def _add_one_edge(self, u_of_edge, v_of_edge, edge_attr: dict = {}):
+        self._update_uuid()
         u, v = u_of_edge, v_of_edge
         # add nodes
         if u not in self._node:
@@ -1494,8 +1501,14 @@ class Graph:
             G.add_edge(u, v, **attr)
         return G
 
+    # def __hash__(self):
+    #     return id(self)
+
     def __hash__(self):
-        return id(self)
+        return hash(self._uuid)
+
+    # def __eq__(self, other):
+    #     return isinstance(other, Graph) and self._uuid == other._uuid
 
 
 try:
