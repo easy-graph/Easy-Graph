@@ -1,5 +1,16 @@
+from collections import deque
+from typing import TYPE_CHECKING
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Tuple
+
 from easygraph.utils import *
 from easygraph.utils.decorators import *
+
+
+if TYPE_CHECKING:
+    from easygraph import Graph
 
 
 __all__ = [
@@ -70,7 +81,7 @@ def betweenness_centrality(
     if weight is not None:
         path_length = functools.partial(_single_source_dijkstra_path, weight=weight)
     else:
-        path_length = functools.partial(_single_source_bfs_path)
+        path_length = functools.partial(_single_source_bfs_path_optimized)
 
     if endpoints:
         accumulate = functools.partial(_accumulate_endpoints)
@@ -229,3 +240,29 @@ def _accumulate_basic(betweenness, S, P, sigma, s):
         if w != s:
             betweenness[w] += delta[w]
     return betweenness
+
+
+def _single_source_bfs_path_optimized(
+    G: "Graph", source: Any
+) -> Tuple[List[Any], Dict[Any, List[Any]], Dict[Any, float]]:
+    S = []
+    P = {v: [] for v in G}
+    sigma = dict.fromkeys(G, 0.0)
+    D = {}
+    sigma[source] = 1.0
+    D[source] = 0
+    Q = deque([source])
+    adj = G.adj
+    while Q:
+        v = Q.popleft()
+        S.append(v)
+        Dv = D[v]
+        sigmav = sigma[v]
+        for w in adj[v]:
+            if w not in D:
+                Q.append(w)
+                D[w] = Dv + 1
+            if D[w] == Dv + 1:
+                sigma[w] += sigmav
+                P[w].append(v)
+    return S, P, sigma
