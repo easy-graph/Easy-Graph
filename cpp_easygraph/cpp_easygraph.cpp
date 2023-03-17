@@ -1,7 +1,7 @@
 #include "classes/__init__.h"
 #include "functions/__init__.h"
-
 PYBIND11_MODULE(cpp_easygraph, m) {
+
     py::class_<Graph>(m, "Graph")
         .def(py::init<>())
         .def("__init__", &Graph__init__)
@@ -75,7 +75,7 @@ PYBIND11_MODULE(cpp_easygraph, m) {
     m.def("cpp_constraint", &constraint, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
     m.def("cpp_effective_size", &effective_size, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
     m.def("cpp_hierarchy", &hierarchy, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
-    m.def("cpp_dijkstra_multisource", &_dijkstra_multisource, py::arg("G"), py::arg("sources"), py::arg("weight") = "weight", py::arg("target") = py::none());
+    m.def("cpp_dijkstra_multisource", &_dijkstra_multisource, py::arg("G"), py::arg("sources"), py::arg("weight") = "weight", py::arg("target") = py::none());    m.def("cpp_spfa", &_spfa, py::arg("G"), py::arg("source"), py::arg("weight") = "weight");
     m.def("cpp_clustering", &clustering, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none());
     m.def("cpp_biconnected_dfs_record_edges", &_biconnected_dfs_record_edges, py::arg("G"), py::arg("need_components") = true);
     m.def("cpp_strongly_connected_components",&strongly_connected_components,py::arg("G"));

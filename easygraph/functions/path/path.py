@@ -183,6 +183,7 @@ def Kruskal(G, weight="weight"):
 
 
 @not_implemented_for("multigraph")
+@hybrid("cpp_plain_bfs")
 def single_source_bfs(G, source, target=None):
     nextlevel = {source: 0}
     return dict(_single_source_bfs(G.adj, nextlevel, target=target))

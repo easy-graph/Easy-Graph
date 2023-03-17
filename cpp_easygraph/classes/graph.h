@@ -2,6 +2,7 @@
 
 #include "../common/common.h"
 
+// old version
 struct Graph {
     node_dict_factory node;
     adj_dict_factory adj;
