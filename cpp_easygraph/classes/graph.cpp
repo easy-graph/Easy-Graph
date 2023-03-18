@@ -622,6 +622,14 @@ py::object Graph::set_name(py::object name) {
     return py::none();
 }
 
+py::object Graph::get_node_index() {
+    py::dict node_index = py::dict();
+    int len = py::len(this->node_to_id);
+    for(int i = 1; i <= len; i++){
+        node_index[this->id_to_node[py::cast(i)]] = py::cast(i);
+    }
+    return node_index;
+}
 py::object Graph::get_graph() {
     return this->graph;
 }

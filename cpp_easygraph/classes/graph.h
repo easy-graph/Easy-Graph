@@ -18,7 +18,7 @@ struct Graph {
     py::object get_graph();
     py::object get_adj();
     py::object get_edges();
-
+    py::object get_node_index();
     std::vector<graph_edge> _get_edges();
 };
 

@@ -41,7 +41,8 @@ PYBIND11_MODULE(cpp_easygraph, m) {
         .def_property("nodes", &Graph::get_nodes, nullptr)
         .def_property("name", &Graph::get_name, &Graph::set_name)
         .def_property("adj", &Graph::get_adj, nullptr)
-        .def_property("edges", &Graph::get_edges, nullptr);
+        .def_property("edges", &Graph::get_edges, nullptr)
+        .def_property("node_index", &Graph::get_node_index, nullptr);
 
     py::class_<DiGraph, Graph>(m, "DiGraph")
         .def(py::init<>())
@@ -71,6 +72,7 @@ PYBIND11_MODULE(cpp_easygraph, m) {
         .def("py", &DiGraph_py)
         .def_property("edges", &DiGraph::get_edges, nullptr);
 
+    m.def("cpp_k_core", &core_decomposition, py::arg("G"));
     m.def("cpp_density", &density, py::arg("G"));
     m.def("cpp_constraint", &constraint, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
     m.def("cpp_effective_size", &effective_size, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());

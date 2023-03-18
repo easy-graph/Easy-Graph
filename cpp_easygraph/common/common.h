@@ -18,8 +18,6 @@
 #include <thread>
 #include <inttypes.h>
 
-// The purpose of this function is to provide a way to destroy memory allocated in its scope
-typedef void easygraph_finally_func_t (void*);
 namespace py = pybind11;
 
 typedef int node_t;
@@ -35,12 +33,3 @@ struct graph_edge {
 	graph_edge(node_t, node_t, edge_attr_dict_factory);
 };
 
-
-
-typedef struct s_vector_ptr {
-    void** stor_begin;
-    void** stor_end;
-    void** end;
-	// used for 
-    easygraph_finally_func_t* item_destructor;
-} igraph_vector_ptr_t;

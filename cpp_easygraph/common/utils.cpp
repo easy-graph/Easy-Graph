@@ -1,4 +1,6 @@
 #include "utils.h"
+#include "../classes/graph.h"
+#include "../classes/linkgraph.h"
 
 py::object attr_to_dict(const node_attr_dict_factory& attr) {
 	py::dict attr_dict = py::dict();
@@ -23,4 +25,37 @@ std::string weight_to_string(py::object weight) {
 py::object py_sum(py::object o) {
 	py::object sum = py::module_::import("builtins").attr("sum");
 	return sum(o);
+}
+
+Graph_L graph_to_linkgraph(Graph &G, bool if_directed,std::string weight_key, bool is_deg){
+    int node_num = G.node.size();
+    const std::vector<graph_edge>& edges = G._get_edges();
+    int edges_num = edges.size();
+	// printf("edges_num:%d\n",edges_num);
+	// rintf("is_deg:%d\n",is_deg);
+    Graph_L G_l(node_num, if_directed, is_deg);
+	if(weight_key != ""){
+		for(register int i = 0; i < edges_num; i++){
+			graph_edge e = edges[i];
+			edge_attr_dict_factory& edge_attr = e.attr;
+
+			G_l.add_weighted_edge(e.u,e.v, edge_attr[weight_key]);
+			if (!if_directed){
+				G_l.add_weighted_edge(e.v, e.u, edge_attr[weight_key]);
+			} 
+    	}
+	}
+	else{
+		for(register int i = 0; i < edges_num; i++){
+			
+        	graph_edge e = edges[i];
+			G_l.add_unweighted_edge(e.u,e.v);
+			if (!if_directed){
+				G_l.add_unweighted_edge(e.v, e.u);
+			} 
+    	}
+	}
+    
+    return G_l;
+
 }

@@ -5,23 +5,7 @@
 #include "../../classes/linkgraph.h"
 #include<ext/pb_ds/priority_queue.hpp>
 
-Graph_L graph_to_linkgraph(Graph &G, bool if_directed, std::string weight_key){
-    int node_num = G.node.size();
-    const std::vector<graph_edge>& edges = G._get_edges();
-    int edges_num = edges.size();
-    Graph_L G_l(node_num, if_directed);
-    for(register int i = 0; i < edges_num; i++){
-        graph_edge e = edges[i];
-        edge_attr_dict_factory& edge_attr = e.attr;
-        G_l.add_edge(e.u,e.v, edge_attr[weight_key]);
-        if (!if_directed){
-            G_l.add_edge(e.v, e.u, edge_attr[weight_key]);
-        }
-            
-    }
-    return G_l;
 
-}
 
 std::vector<float> _dijkstra(Graph_L &G_l, int source, std::string weight, int target) {
     int N = G_l.n;
@@ -65,7 +49,7 @@ py::object _dijkstra_multisource(py::object G,py::object sources, py::object wei
     py::list sources_list = py::list(sources);
     int sources_list_len = py::len(sources_list);
     for(register int i = 0; i < sources_list_len; i++){
-        node_t source_id = sources_list[i].cast<node_t>();
+        node_t source_id = G_.node_to_id.attr("get")(sources_list[i]).cast<node_t>();
         const std::vector<float>& dis = _dijkstra(G_l,source_id,weight_key,target_id);
         py::list pydist = py::list();
         for(int i = 1;i<=N;i++){
@@ -82,7 +66,7 @@ py::object _spfa(py::object G, py::object source, py::object weight) {
     Graph& G_ = G.cast<Graph&>();
     bool is_directed = G.attr("is_directed")().cast<bool>();
     std::string weight_key = weight_to_string(weight);
-    Graph_L G_l = graph_to_linkgraph(G_, is_directed, weight_key);
+    Graph_L G_l = graph_to_linkgraph(G_, is_directed,weight_key, false);
     int N = G_.node.size();
 
     int Q[N+10];
