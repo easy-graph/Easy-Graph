@@ -24,6 +24,7 @@ def closeness_centrality_parallel(nodes, G, path_length):
 
 
 @not_implemented_for("multigraph")
+@hybrid("cpp_closeness_centrality")
 def closeness_centrality(G, weight=None, n_workers=None):
     r"""Compute closeness centrality for nodes.
 

@@ -2,16 +2,19 @@
 #include "../../classes/graph.h"
 #include "../../common/utils.h"
 #include "../../classes/linkgraph.h"
-#include<time.h>
+// #include<time.h>
 
 py::object core_decomposition(py::object G) {
     // reference:https://arxiv.org/pdf/cs/0310049.pdf
-    clock_t start_time = clock();
+    // clock_t start_time = clock();
     Graph& G_ = G.cast<Graph&>();
     int N = G_.node.size();
     bool is_directed = G.attr("is_directed")().cast<bool>();
-    Graph_L G_l = graph_to_linkgraph(G_, is_directed,"", true);
-    
+    // Graph_L G_l = graph_to_linkgraph(G_, is_directed,"", true);
+
+    const Graph_L& G_l = graph_to_linkgraph(G_, is_directed, "", true, false);
+
+
     std::vector<LinkEdge> edges = G_l.edges;
     int edges_num = edges.size();
     std::vector<int> deg = G_l.degree;
@@ -61,8 +64,8 @@ py::object core_decomposition(py::object G) {
             }
         }
     }
-    clock_t end_time = clock();
-    printf("cost:%2f\n",(double)(end_time-start_time)/CLOCKS_PER_SEC);
+    // clock_t end_time = clock();
+    // printf("cost:%2f\n",(double)(end_time-start_time)/CLOCKS_PER_SEC);
     py::list core_list = py::list();
     for(register int i = 1; i <= N; ++i){
         core_list.append(core[i]);

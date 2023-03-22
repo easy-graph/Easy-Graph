@@ -1,15 +1,18 @@
 #pragma once
 
 #include "../common/common.h"
+#include "linkgraph.h"
 
 // old version
 struct Graph {
     node_dict_factory node;
     adj_dict_factory adj;
+    Graph_L linkgraph_structure;
     py::kwargs node_to_id, id_to_node, graph;
     node_t id;
-    bool dirty_nodes, dirty_adj;
+    bool dirty_nodes, dirty_adj, linkgraph_dirty;
     py::object nodes_cache, adj_cache;
+    
 
     Graph();
     py::object get_nodes();
@@ -20,6 +23,8 @@ struct Graph {
     py::object get_edges();
     py::object get_node_index();
     std::vector<graph_edge> _get_edges();
+    bool is_linkgraph_dirty();
+    Graph_L _get_linkgraph_structure();
 };
 
 py::object Graph__init__(py::args args, py::kwargs kwargs);

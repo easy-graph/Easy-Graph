@@ -3,7 +3,6 @@
 #include "../../classes/graph.h"
 #include "../../common/utils.h"
 #include "../../classes/linkgraph.h"
-#include<ext/pb_ds/priority_queue.hpp>
 
 
 
@@ -44,7 +43,17 @@ py::object _dijkstra_multisource(py::object G,py::object sources, py::object wei
     bool is_directed = G.attr("is_directed")().cast<bool>();
     node_t target_id = G_.node_to_id.attr("get")(target, -1).cast<node_t>();
     std::string weight_key = weight_to_string(weight);
-    Graph_L G_l = graph_to_linkgraph(G_, is_directed, weight_key);
+    Graph_L G_l;
+    if(G_.linkgraph_dirty){
+        G_l = graph_to_linkgraph(G_, is_directed, weight_key);
+        G_.linkgraph_structure=G_l;
+        G_.linkgraph_dirty = false;
+    }
+    else{
+        G_l = G_.linkgraph_structure;
+    }
+    
+
     int N = G_l.n;
     py::list sources_list = py::list(sources);
     int sources_list_len = py::len(sources_list);
@@ -53,7 +62,7 @@ py::object _dijkstra_multisource(py::object G,py::object sources, py::object wei
         const std::vector<float>& dis = _dijkstra(G_l,source_id,weight_key,target_id);
         py::list pydist = py::list();
         for(int i = 1;i<=N;i++){
-            pydist.append(py::cast(dis[i]));
+            pydist.append(dis[i]);
         }
         res_lst.append(pydist);
     }
@@ -104,7 +113,7 @@ py::object _spfa(py::object G, py::object source, py::object weight) {
 	}
     py::list pydist = py::list();
     for(int i = 1; i <= N; i++){
-        pydist.append(dis[i]);
+        pydist.append(py::cast(dis[i]));
     }
     return pydist;
 }

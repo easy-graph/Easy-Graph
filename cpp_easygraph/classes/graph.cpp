@@ -2,10 +2,12 @@
 
 #include "../common/utils.h"
 
+
 Graph::Graph() {
     this->id = 0;
     this->dirty_nodes = true;
     this->dirty_adj = true;
+    this->linkgraph_dirty = true;
     this->node_to_id = py::dict();
     this->id_to_node = py::dict();
     this->graph = py::dict();
@@ -79,6 +81,7 @@ py::object Graph_add_node(py::args args, py::kwargs kwargs) {
     Graph& self = args[0].cast<Graph&>();
     self.dirty_nodes = true;
     self.dirty_adj = true;
+    self.linkgraph_dirty = true;
     py::object one_node_for_adding = args[1];
     py::dict node_attr = kwargs;
     _add_one_node(self, one_node_for_adding, node_attr);
@@ -88,6 +91,7 @@ py::object Graph_add_node(py::args args, py::kwargs kwargs) {
 py::object Graph_add_nodes(Graph& self, py::list nodes_for_adding, py::list nodes_attr) {
     self.dirty_nodes = true;
     self.dirty_adj = true;
+    self.linkgraph_dirty = true;
     if (py::len(nodes_attr) != 0) {
         if (py::len(nodes_for_adding) != py::len(nodes_attr)) {
             PyErr_Format(PyExc_AssertionError, "Nodes and Attributes lists must have same length.");
@@ -111,6 +115,7 @@ py::object Graph_add_nodes_from(py::args args, py::kwargs kwargs) {
     Graph& self = args[0].cast<Graph&>();
     self.dirty_nodes = true;
     self.dirty_adj = true;
+    self.linkgraph_dirty = true;
     py::list nodes_for_adding = py::list(args[1]);
     for (int i = 0; i < py::len(nodes_for_adding); i++) {
         bool newnode;
@@ -156,6 +161,7 @@ py::object Graph_add_nodes_from(py::args args, py::kwargs kwargs) {
 py::object Graph_remove_node(Graph& self, py::object node_to_remove) {
     self.dirty_nodes = true;
     self.dirty_adj = true;
+    self.linkgraph_dirty = true;
     if (!self.node_to_id.contains(node_to_remove)) {
         PyErr_Format(PyExc_KeyError, "No node %R in graph.", node_to_remove.ptr());
         return py::none();
@@ -176,6 +182,7 @@ py::object Graph_remove_nodes(py::object self, py::list nodes_to_remove) {
     Graph& self_ = self.cast<Graph&>();
     self_.dirty_nodes = true;
     self_.dirty_adj = true;
+    self_.linkgraph_dirty = true;
     for (int i = 0; i < py::len(nodes_to_remove); i++) {
         py::object node_to_remove = nodes_to_remove[i];
         if (!self_.node_to_id.contains(node_to_remove)) {
@@ -248,6 +255,7 @@ py::object Graph_add_edge(py::args args, py::kwargs kwargs) {
     Graph& self = args[0].cast<Graph&>();
     self.dirty_nodes = true;
     self.dirty_adj = true;
+    self.linkgraph_dirty = true;
     py::object u_of_edge = args[1], v_of_edge = args[2];
     py::dict edge_attr = kwargs;
     _add_one_edge(self, u_of_edge, v_of_edge, edge_attr);
@@ -257,6 +265,7 @@ py::object Graph_add_edge(py::args args, py::kwargs kwargs) {
 py::object Graph_add_edges(Graph& self, py::list edges_for_adding, py::list edges_attr) {
     self.dirty_nodes = true;
     self.dirty_adj = true;
+    self.linkgraph_dirty = true;
     if (py::len(edges_attr) != 0) {
         if (py::len(edges_for_adding) != py::len(edges_attr)) {
             PyErr_Format(PyExc_AssertionError, "Edges and Attributes lists must have same length.");
@@ -280,6 +289,7 @@ py::object Graph_add_edges_from(py::args args, py::kwargs attr) {
     Graph& self = args[0].cast<Graph&>();
     self.dirty_nodes = true;
     self.dirty_adj = true;
+    self.linkgraph_dirty = true;
     py::list ebunch_to_add = py::list(args[1]);
     for (int i = 0; i < len(ebunch_to_add); i++) {
         py::list e = py::list(ebunch_to_add[i]);
@@ -341,6 +351,7 @@ py::object Graph_add_edges_from(py::args args, py::kwargs attr) {
 py::object Graph_add_edges_from_file(Graph& self, py::str file, py::object weighted) {
     self.dirty_nodes = true;
     self.dirty_adj = true;
+    self.linkgraph_dirty = true;
     struct commactype : std::ctype<char> {
         commactype() : std::ctype<char>(get_table()) {}
         std::ctype_base::mask const* get_table() {
@@ -350,6 +361,7 @@ py::object Graph_add_edges_from_file(Graph& self, py::str file, py::object weigh
                 std::fill_n(rc, std::ctype<char>::table_size, std::ctype_base::mask());
                 rc[','] = std::ctype_base::space;
                 rc[' '] = std::ctype_base::space;
+                rc['	'] = std::ctype_base::space;
                 rc['\t'] = std::ctype_base::space;
                 rc['\n'] = std::ctype_base::space;
                 rc['\r'] = std::ctype_base::space;
@@ -402,6 +414,7 @@ py::object Graph_add_edges_from_file(Graph& self, py::str file, py::object weigh
 py::object Graph_add_weighted_edge(Graph& self, py::object u_of_edge, py::object v_of_edge, weight_t weight) {
     self.dirty_nodes = true;
     self.dirty_adj = true;
+    self.linkgraph_dirty = true;
     py::dict edge_attr;
     edge_attr["weight"] = weight;
     _add_one_edge(self, u_of_edge, v_of_edge, edge_attr);
@@ -411,6 +424,7 @@ py::object Graph_add_weighted_edge(Graph& self, py::object u_of_edge, py::object
 py::object Graph_remove_edge(Graph& self, py::object u, py::object v) {
     self.dirty_nodes = true;
     self.dirty_adj = true;
+    self.linkgraph_dirty = true;
     if (self.node_to_id.contains(u) && self.node_to_id.contains(v)) {
         node_t u_id = self.node_to_id[u].cast<node_t>();
         node_t v_id = self.node_to_id[v].cast<node_t>();
@@ -436,6 +450,7 @@ py::object Graph_remove_edges(py::object self, py::list edges_to_remove) {
     }
     self_.dirty_nodes = true;
     self_.dirty_adj = true;
+    self_.linkgraph_dirty = true;
     return py::none();
 }
 
@@ -626,7 +641,7 @@ py::object Graph::get_node_index() {
     py::dict node_index = py::dict();
     int len = py::len(this->node_to_id);
     for(int i = 1; i <= len; i++){
-        node_index[this->id_to_node[py::cast(i)]] = py::cast(i);
+        node_index[this->id_to_node[py::cast(i)]] = py::cast(i - 1);
     }
     return node_index;
 }
@@ -672,6 +687,12 @@ py::object Graph::get_edges() {
 }
 
 
+Graph_L Graph::_get_linkgraph_structure()  {
+    return this->linkgraph_structure;
+}
+bool Graph::is_linkgraph_dirty(){
+    return this->linkgraph_dirty;
+}
 std::vector<graph_edge> Graph::_get_edges() {
     std::vector<graph_edge> edges;
     std::set<std::pair<node_t, node_t> > seen;
