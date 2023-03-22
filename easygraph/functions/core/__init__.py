@@ -1,1 +1,1 @@
-from k_core import *
+from .k_core import *
