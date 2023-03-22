@@ -8,4 +8,4 @@ __all__ = [
 
 @hybrid("cpp_k_core")
 def k_core(G):
-    return
+    raise EasyGraphError("Please input GraphC or DiGraphC.")
