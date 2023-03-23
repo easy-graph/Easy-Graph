@@ -3,6 +3,7 @@
 #include "../common/utils.h"
 
 DiGraph::DiGraph() : Graph() {
+
 }
 
 py::object DiGraph__init__(py::args args, py::kwargs kwargs) {
@@ -575,3 +576,4 @@ py::object DiGraph::get_edges() {
     }
     return edges;
 }
+

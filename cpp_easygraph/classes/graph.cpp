@@ -693,7 +693,7 @@ Graph_L Graph::_get_linkgraph_structure()  {
 bool Graph::is_linkgraph_dirty(){
     return this->linkgraph_dirty;
 }
-std::vector<graph_edge> Graph::_get_edges() {
+std::vector<graph_edge> Graph::_get_edges(bool if_directed) {
     std::vector<graph_edge> edges;
     std::set<std::pair<node_t, node_t> > seen;
     for (const auto& ego_edges : this->adj) {
@@ -702,8 +702,12 @@ std::vector<graph_edge> Graph::_get_edges() {
             node_t v = edge_info.first;
             const auto& edge_attr = edge_info.second;
             if (seen.find(std::make_pair(u, v)) == seen.end()) {
+                
                 seen.insert(std::make_pair(u, v));
-                seen.insert(std::make_pair(v, u));
+                if(!if_directed){
+                    seen.insert(std::make_pair(v, u));
+                }
+                
                 edges.emplace_back(u, v, edge_attr);
             }
         }

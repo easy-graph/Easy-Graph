@@ -22,7 +22,7 @@ struct Graph {
     py::object get_adj();
     py::object get_edges();
     py::object get_node_index();
-    std::vector<graph_edge> _get_edges();
+    std::vector<graph_edge> _get_edges(bool if_directed=true);
     bool is_linkgraph_dirty();
     Graph_L _get_linkgraph_structure();
 };

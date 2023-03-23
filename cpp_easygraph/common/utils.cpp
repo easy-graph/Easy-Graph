@@ -29,7 +29,7 @@ py::object py_sum(py::object o) {
 
 Graph_L graph_to_linkgraph(Graph &G, bool if_directed, std::string weight_key, bool is_deg, bool is_reverse){
     int node_num = G.node.size();
-    const std::vector<graph_edge>& edges = G._get_edges();
+    const std::vector<graph_edge>& edges = G._get_edges(if_directed);
     int edges_num = edges.size();
     Graph_L G_l(node_num, if_directed, is_deg);
 	if(weight_key != ""){

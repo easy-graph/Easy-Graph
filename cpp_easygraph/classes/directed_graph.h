@@ -7,6 +7,7 @@ struct DiGraph : public Graph {
     adj_dict_factory pred;
     DiGraph();
     py::object get_edges();
+    // std::vector<graph_edge> _get_edges();
 };
 
 py::object DiGraph__init__(py::args args, py::kwargs kwargs);

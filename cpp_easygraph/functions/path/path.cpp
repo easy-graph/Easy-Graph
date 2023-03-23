@@ -39,8 +39,8 @@ std::vector<float> _dijkstra(Graph_L &G_l, int source, std::string weight, int t
 }
 py::object _dijkstra_multisource(py::object G,py::object sources, py::object weight, py::object target) {
     py::list res_lst = py::list();
-    Graph& G_ = G.cast<Graph&>();
     bool is_directed = G.attr("is_directed")().cast<bool>();
+    Graph& G_ = G.cast<Graph&>();
     node_t target_id = G_.node_to_id.attr("get")(target, -1).cast<node_t>();
     std::string weight_key = weight_to_string(weight);
     Graph_L G_l;
