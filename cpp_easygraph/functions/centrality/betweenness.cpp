@@ -10,14 +10,19 @@ void betweenness_dijkstra(const Graph_L& G_l, const int &S, std::vector<double>&
     __gnu_pbds::priority_queue<compare_node> q;
     std::vector<int> dis(N+1, INFINITY);
     std::vector<bool> vis(N+1, false);
-    std::vector<double> delta(N+1, 0);
-    std::vector<long long> count_path(N+1, 0);
-    std::vector<LinkEdge> E_path(N+1);
+    
+    
+    
     std::vector<int> head_path(N+1, 0);
-    std::vector<int> St(N+1, 0);
+    
     const std::vector<int>& head = G_l.head;
     const std::vector<LinkEdge>& E = G_l.edges;
     int edges_num = E.size();
+    std::vector<int> St(N+1, 0);
+    std::vector<long long> count_path(N+1, 0);
+    std::vector<double> delta(N+1, 0);
+    std::vector<LinkEdge> E_path(edges_num+1);
+    
     head_path[S] = 0;
     dis[S] = 0; 
     count_path[S] = 1; 

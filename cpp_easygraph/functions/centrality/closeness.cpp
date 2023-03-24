@@ -2,7 +2,7 @@
 #include "../../classes/graph.h"
 #include "../../common/utils.h"
 #include "../../classes/linkgraph.h"
-#include<time.h>
+// #include<time.h>
 
 double closeness_dijkstra(const Graph_L& G_l, const int &S){
     int N = G_l.n;
@@ -44,17 +44,17 @@ py::object closeness_centrality(py::object G, py::object weight) {
     int N = G_.node.size();
     bool is_directed = G.attr("is_directed")().cast<bool>();
     std::string weight_key = weight_to_string(weight);
-    clock_t start_time = clock();
+    // clock_t start_time = clock();
     const Graph_L& G_l = graph_to_linkgraph(G_, is_directed, weight_key, false, true);
-    clock_t end_time = clock();
-    printf("cost1:%2f\n",(double)(end_time-start_time)/CLOCKS_PER_SEC);
-    start_time = clock();
+    // clock_t end_time = clock();
+    // printf("cost1:%2f\n",(double)(end_time-start_time)/CLOCKS_PER_SEC);
+    // start_time = clock();
     py::list res_lst = py::list();
     for(register int i = 1; i <= N; i++){
         float res = closeness_dijkstra(G_l, i);
         res_lst.append(py::cast(res));
     }
-    end_time = clock();
-    printf("cost2:%2f\n",(double)(end_time-start_time)/CLOCKS_PER_SEC);
+    // end_time = clock();
+    // printf("cost2:%2f\n",(double)(end_time-start_time)/CLOCKS_PER_SEC);
     return res_lst;
 }

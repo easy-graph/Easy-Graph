@@ -32,8 +32,8 @@ Graph_L graph_to_linkgraph(Graph &G, bool if_directed, std::string weight_key, b
     const std::vector<graph_edge>& edges = G._get_edges(if_directed);
     int edges_num = edges.size();
     Graph_L G_l(node_num, if_directed, is_deg);
-	if(weight_key != ""){
-		for(register int i = 0; i < edges_num; i++){
+	
+	for(register int i = 0; i < edges_num; i++){
 			graph_edge e = edges[i];
 			edge_attr_dict_factory& edge_attr = e.attr;
 			weight_t edge_weight = edge_attr.find(weight_key) != edge_attr.end() ? edge_attr[weight_key] : 1;
@@ -43,21 +43,36 @@ Graph_L graph_to_linkgraph(Graph &G, bool if_directed, std::string weight_key, b
 			G_l.add_weighted_edge(e.u, e.v, edge_weight);
 			if (!if_directed){
 				G_l.add_weighted_edge(e.v, e.u, edge_weight);
-			} 
-    	}
+			}  
 	}
-	else{
-		for(register int i = 0; i < edges_num; i++){
-        	graph_edge e = edges[i];
-			if(is_reverse){
-				std::swap(e.u, e.v);
-			}
-			G_l.add_unweighted_edge(e.u,e.v);
-			if (!if_directed){
-				G_l.add_unweighted_edge(e.v, e.u);
-			} 
-    	}
-	}
+	
+
+	// if(weight_key != ""){
+	// 	for(register int i = 0; i < edges_num; i++){
+	// 		graph_edge e = edges[i];
+	// 		edge_attr_dict_factory& edge_attr = e.attr;
+	// 		weight_t edge_weight = edge_attr.find(weight_key) != edge_attr.end() ? edge_attr[weight_key] : 1;
+	// 		if(is_reverse){
+	// 			std::swap(e.u, e.v);
+	// 		}
+	// 		G_l.add_weighted_edge(e.u, e.v, edge_weight);
+	// 		if (!if_directed){
+	// 			G_l.add_weighted_edge(e.v, e.u, edge_weight);
+	// 		} 
+    // 	}
+	// }
+	// else{
+	// 	for(register int i = 0; i < edges_num; i++){
+    //     	graph_edge e = edges[i];
+	// 		if(is_reverse){
+	// 			std::swap(e.u, e.v);
+	// 		}
+	// 		G_l.add_unweighted_edge(e.u,e.v);
+	// 		if (!if_directed){
+	// 			G_l.add_unweighted_edge(e.v, e.u);
+	// 		} 
+    // 	}
+	// }
     
     return G_l;
 
