@@ -3,7 +3,7 @@ from easygraph.datasets.get_sample_graph import *
 
 try:
     from easygraph.datasets.gnn_benchmark import *
-    from easygraph.datasets.krate import *
+    from easygraph.datasets.karate import *
 
     from .citation_graph import CitationGraphDataset
     from .citation_graph import CiteseerGraphDataset
