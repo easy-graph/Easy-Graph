@@ -5,9 +5,7 @@ from .utils import _set_labels
 from .utils import tensor
 
 
-__all__ = [
-    "KarateClubDataset",
-]
+""" KarateClubDataset for inductive learning. """
 
 
 class KarateClubDataset(EasyGraphDataset):
