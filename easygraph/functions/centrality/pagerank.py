@@ -7,6 +7,7 @@ __all__ = ["pagerank"]
 
 
 @not_implemented_for("multigraph")
+@hybrid("cpp_pagerank")
 def pagerank(G, alpha=0.85):
     """
     Returns the PageRank value of each node in G.
