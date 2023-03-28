@@ -3,7 +3,11 @@
 #include <pybind11/stl.h>
 
 #include "../../classes/graph.h"
+#include "../../classes/directed_graph.h"
 #include "../../common/utils.h"
+#include "time.h"
+
+#define gmin(x, y) x = x < y? x: y
 
 py::object plain_bfs(py::object G, py::object source) {
     Graph& G_ = G.cast<Graph&>();
@@ -35,3 +39,120 @@ py::object plain_bfs(py::object G, py::object source) {
     }
     return res;
 }
+
+py::object connected_component_undirected(py::object G) {
+    Graph& G_ = G.cast<Graph&>();
+    bool is_directed = G.attr("is_directed")().cast<bool>();
+    if (is_directed == true) {
+        printf("connected_component_undirected is designed for undirected graphs.\n");
+        return py::dict();
+    }
+    int N = G_.node.size();
+    int M = G.attr("number_of_edges")().cast<int>();
+    int parent[N+5], rank_node[N+5], color[N+5];
+    bool has_edge[N+5];
+    memset(parent, 0, sizeof(int) * (N+5));
+    memset(rank_node, 0, sizeof(int) * (N+5));
+    memset(color, 0, sizeof(int) * (N+5));
+    memset(has_edge, false, sizeof(bool) * (N+5));
+
+    py::list nodes_list = py::list(G.attr("nodes"));
+    for (int i = 0;i < py::len(nodes_list);i++) {
+        node_t i_id = (G_.node_to_id[nodes_list[i]]).cast<node_t>();
+        parent[i_id] = i_id;
+    }
+
+    for (graph_edge& edge : G_._get_edges()) { // time consuming
+        node_t u = edge.u, v = edge.v;
+        has_edge[u] = true; has_edge[v] = true;
+        _union_node(u, v, parent, rank_node);
+    }
+
+    int count = 0;
+	for(int i = 1; i < N + 1; ++i) {
+        if (!has_edge[i])
+            continue;
+		int fx = _getfa(i, parent);
+		if(fx == i){
+			count++;
+			color[count] = fx;
+		}
+	}
+    return py::cast(count);
+}
+
+inline void _union_node(const int &u, const int &v, int *parent, int *rank_node) {
+    int x = _getfa(u, parent), y = _getfa(v, parent);    //先找到两个根节点
+    if (rank_node[x] <= rank_node[y])
+        parent[x] = y;
+    else
+        parent[y] = x;
+    if (rank_node[x] == rank_node[y] && x != y)
+        rank_node[y]++;                   //如果深度相同且根节点不同，则新的根节点的深度+1
+}
+
+int _getfa(const int & x, int *parent) {
+    int r,k,t;
+    r=x;
+    while(parent[r]!=r)
+        r=parent[r];
+    k=r;
+    r=x;
+    while(parent[r]!=k) {
+        t=parent[r];
+        parent[r]=k;
+        r=t;
+    }
+    return k;
+}
+
+py::object connected_component_directed(py::object G) {
+    bool is_directed = G.attr("is_directed")().cast<bool>();
+    if (is_directed == false) {
+        printf("connected_component_directed is designed for directed graphs.\n");
+        return py::dict();
+    }
+    DiGraph& G_ = G.cast<DiGraph&>();
+    int N = G_.node.size();
+    Graph_L G_l = graph_to_linkgraph(G_, is_directed, "", true);
+
+    std::vector<LinkEdge>& E = G_l.edges;
+    std::vector<int> outDegree = G_l.degree;
+    std::vector<int> head = G_l.head;
+
+    int Time = 0, cnt = 0, Tot = 0;
+    int dfn[N+5], low[N+5], st[N+5], color[N+5];
+    bool in_stack[N+5], has_edge[N+5];
+    memset(dfn, 0, sizeof(int) * (N+5));
+    memset(low, 0, sizeof(int) * (N+5));
+    memset(st, 0, sizeof(int) * (N+5));
+    memset(color, 0, sizeof(int) * (N+5));
+    memset(in_stack, false, sizeof(bool) * (N+5));
+    memset(has_edge, false, sizeof(bool) * (N+5));
+
+    for (graph_edge& edge : G_._get_edges()) {
+        node_t u = edge.u, v = edge.v;
+        has_edge[u] = true; has_edge[v] = true;
+    }
+    
+    for (int i = 1; i < N + 1; ++i)
+        if (!dfn[i] && has_edge[i])
+            _tarjan(i, &Time, &cnt, &Tot, E, head, dfn, low, st, color, in_stack);
+
+    return py::cast(Tot);
+}
+
+void _tarjan(const int &u, int *Time, int *cnt, int *Tot, std::vector<LinkEdge>& E, std::vector<int>& head, int *dfn, int *low, int *st, int *color, bool *in_stack) {
+    dfn[u] = low[u] = ++(*Time); st[++(*cnt)] = u; in_stack[u] = true;
+    for(int p = head[u]; p != -1; p = E[p].next){
+        int v = E[p].to;
+        if (!dfn[v]) _tarjan(v, Time, cnt, Tot, E, head, dfn, low, st, color, in_stack), gmin(low[u], low[v]); 
+        else if (in_stack[v]) gmin(low[u], dfn[v]);
+    }
+
+    if (dfn[u] == low[u]) {
+        for (++(*Tot); st[*cnt] != u; --(*cnt)) in_stack[st[*cnt]] = false, color[st[*cnt]] = *Tot;
+        in_stack[u] = false; color[u] = *Tot; --(*cnt);
+    }
+}
+

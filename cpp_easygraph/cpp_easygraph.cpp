@@ -91,4 +91,6 @@ PYBIND11_MODULE(cpp_easygraph, m) {
     m.def("cpp_plain_bfs", &plain_bfs, py::arg("G"), py::arg("source"));
     m.def("cpp_kruskal_mst_edges", &kruskal_mst_edges, py::arg("G"), py::arg("minimum") = true, py::arg("weight") = "weight", py::arg("data") = true, py::arg("ignore_nan") = false);
     m.def("cpp_prim_mst_edges", &prim_mst_edges, py::arg("G"), py::arg("minimum") = true, py::arg("weight") = "weight", py::arg("data") = true, py::arg("ignore_nan") = false);
+    m.def("cpp_connected_components_undirected", &connected_component_undirected, py::arg("G"));
+    m.def("cpp_connected_components_directed", &connected_component_directed, py::arg("G"));
 }
