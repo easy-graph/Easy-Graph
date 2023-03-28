@@ -80,6 +80,7 @@ def connected_components(G):
             seen.update(c)
             yield c
 
+
 @not_implemented_for("multigraph")
 @hybrid("cpp_connected_components_directed")
 def connected_components_directed(G):
@@ -104,7 +105,7 @@ def connected_components_directed(G):
             c = set(_plain_bfs(G, v))
             seen.update(c)
             yield c
-            
+
 
 def _generator_connected_components(G):
     seen = set()
