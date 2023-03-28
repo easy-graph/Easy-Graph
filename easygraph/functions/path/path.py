@@ -1,3 +1,4 @@
+from easygraph.utils import *
 from easygraph.utils.decorators import *
 
 
@@ -14,7 +15,7 @@ __all__ = [
 
 
 @hybrid("cpp_spfa")
-def Spfa(G, ndoe, weight="weight"):
+def Spfa(G, node, weight="weight"):
     raise EasyGraphError("Please input GraphC or DiGraphC.")
 
 
