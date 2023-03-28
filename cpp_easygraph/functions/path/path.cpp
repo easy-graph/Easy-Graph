@@ -29,8 +29,7 @@ std::vector<float> _dijkstra(Graph_L &G_l, int source, std::string weight, int t
             if (dis[v] > dis[u] + E[p].w) {
                 dis[v] = dis[u] + E[p].w;
                 q.push(compare_node(v, dis[v]));
-            }
-            
+            }   
         }
     }
     

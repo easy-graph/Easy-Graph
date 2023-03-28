@@ -18,10 +18,8 @@ py::object core_decomposition(py::object G) {
     std::vector<int> bin(N+1, 0);
     std::vector<int> pos(N+1, 0);
     std::vector<int> vert(N+1, 0);
-    // 基数排序
     for(int i = 1; i <= N; ++i)
         ++bin[deg[i]];
-     //此时bin[i]表示度数为i的点有多少个
     int start = 1;
     for(int i = 0; i <= max_deg; ++i){
         int num = bin[i];
@@ -33,7 +31,6 @@ py::object core_decomposition(py::object G) {
         vert[pos[i]] = i;
         ++bin[deg[i]];
     }
-    //此时bin[i]表示度数为i+1的第一个点，所以后面要进行左移操作
     for(int i = max_deg; i >= 1; --i){
         bin[i] = bin[i - 1];
     }

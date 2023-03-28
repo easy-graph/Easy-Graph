@@ -6,12 +6,18 @@ __all__ = [
     "Floyd",
     "Prim",
     "Kruskal",
+    "Spfa",
     "single_source_bfs",
     "single_source_dijkstra",
     "multi_source_dijkstra",
+    
 ]
 
 
+@hybrid("cpp_spfa")
+def Spfa(G, ndoe, weight="weight"):
+    raise EasyGraphError("Please input GraphC or DiGraphC.")
+    
 @not_implemented_for("multigraph")
 def Dijkstra(G, node, weight="weight"):
     """Returns the length of paths from the certain node to remaining nodes
