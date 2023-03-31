@@ -49,9 +49,16 @@ py::object connected_component_undirected(py::object G) {
     }
     int N = G_.node.size();
     int M = G.attr("number_of_edges")().cast<int>();
-    int parent[N+5], rank_node[N+5], color[N+5];
+    Edge_weighted E_res[N+5];
+    for(int i=0; i < N+5; i++) {
+        E_res[i].toward = 0;
+        E_res[i].next = 0;
+    }
+    int edge_number_res = 0;
+    int parent[N+5], rank_node[N+5], color[N+5], head_res[N+5];
     bool has_edge[N+5];
     memset(parent, 0, sizeof(int) * (N+5));
+    memset(head_res, 0, sizeof(int) * (N+5));
     memset(rank_node, 0, sizeof(int) * (N+5));
     memset(color, 0, sizeof(int) * (N+5));
     memset(has_edge, false, sizeof(bool) * (N+5));
@@ -62,23 +69,36 @@ py::object connected_component_undirected(py::object G) {
         parent[i_id] = i_id;
     }
 
-    for (graph_edge& edge : G_._get_edges()) { // time consuming
+    for (graph_edge& edge : G_._get_edges()) {
         node_t u = edge.u, v = edge.v;
         has_edge[u] = true; has_edge[v] = true;
         _union_node(u, v, parent, rank_node);
     }
 
-    int count = 0;
+    int Tot = 0;
 	for(int i = 1; i < N + 1; ++i) {
         if (!has_edge[i])
             continue;
 		int fx = _getfa(i, parent);
 		if(fx == i){
-			count++;
-			color[count] = fx;
+			color[++Tot] = fx;
 		}
 	}
-    return py::cast(count);
+
+    for (int i = 1; i < N + 1; ++i) {
+        int fx = _getfa(i, parent);
+        _add_edge_res(fx, i, E_res, head_res, &edge_number_res);
+    }
+
+    py::dict ret = py::dict();
+    for (int i = 1; i <= Tot; ++i) {
+        py::list tmp = py::list();
+        for(int p = head_res[color[i]]; p; p = E_res[p].next){
+            tmp.append(py::cast(E_res[p].toward));
+        }
+        ret[py::cast(i)] = tmp;
+    }
+    return ret;
 }
 
 inline void _union_node(const int &u, const int &v, int *parent, int *rank_node) {
@@ -120,13 +140,19 @@ py::object connected_component_directed(py::object G) {
     std::vector<int> outDegree = G_l.degree;
     std::vector<int> head = G_l.head;
 
-    int Time = 0, cnt = 0, Tot = 0;
-    int dfn[N+5], low[N+5], st[N+5], color[N+5];
+    int Time = 0, cnt = 0, Tot = 0, edge_number_res = 0;
+    int dfn[N+5], low[N+5], st[N+5], color[N+5], head_res[N+5];
     bool in_stack[N+5], has_edge[N+5];
+    Edge_weighted E_res[N+5];
+    for(int i=0; i < N+5; i++) {
+        E_res[i].toward = 0;
+        E_res[i].next = 0;
+    }
     memset(dfn, 0, sizeof(int) * (N+5));
     memset(low, 0, sizeof(int) * (N+5));
     memset(st, 0, sizeof(int) * (N+5));
     memset(color, 0, sizeof(int) * (N+5));
+    memset(head_res, 0, sizeof(int) * (N+5));
     memset(in_stack, false, sizeof(bool) * (N+5));
     memset(has_edge, false, sizeof(bool) * (N+5));
 
@@ -134,25 +160,41 @@ py::object connected_component_directed(py::object G) {
         node_t u = edge.u, v = edge.v;
         has_edge[u] = true; has_edge[v] = true;
     }
-    
+
     for (int i = 1; i < N + 1; ++i)
         if (!dfn[i] && has_edge[i])
-            _tarjan(i, &Time, &cnt, &Tot, E, head, dfn, low, st, color, in_stack);
+            _tarjan(i, &Time, &cnt, &Tot, E, head, dfn, low, st, color, in_stack, E_res, head_res, &edge_number_res);
 
-    return py::cast(Tot);
+    py::dict ret = py::dict();
+    for (int i = 1; i <= Tot; ++i) {
+        py::list tmp = py::list();
+        for(int p = head_res[i]; p; p = E_res[p].next)
+            tmp.append(py::cast(E_res[p].toward));
+        ret[py::cast(i)] = tmp;
+    }
+    return ret;
 }
 
-void _tarjan(const int &u, int *Time, int *cnt, int *Tot, std::vector<LinkEdge>& E, std::vector<int>& head, int *dfn, int *low, int *st, int *color, bool *in_stack) {
+void _add_edge_res(const int &u, const int &v, Edge_weighted *E_res, int *head_res, int *edge_number_res) {
+    E_res[++(*edge_number_res)].next = head_res[u];
+    E_res[*edge_number_res].toward = v;
+    head_res[u] = *edge_number_res;
+}
+
+void _tarjan(const int &u, int *Time, int *cnt, int *Tot, std::vector<LinkEdge>& E, std::vector<int>& head, int *dfn, int *low, int *st, int *color, bool *in_stack, Edge_weighted *E_res, int *head_res, int *edge_number_res) {
     dfn[u] = low[u] = ++(*Time); st[++(*cnt)] = u; in_stack[u] = true;
     for(int p = head[u]; p != -1; p = E[p].next){
         int v = E[p].to;
-        if (!dfn[v]) _tarjan(v, Time, cnt, Tot, E, head, dfn, low, st, color, in_stack), gmin(low[u], low[v]); 
+        if (!dfn[v]) _tarjan(v, Time, cnt, Tot, E, head, dfn, low, st, color, in_stack, E_res, head_res, edge_number_res), gmin(low[u], low[v]); 
         else if (in_stack[v]) gmin(low[u], dfn[v]);
     }
-
+    
     if (dfn[u] == low[u]) {
-        for (++(*Tot); st[*cnt] != u; --(*cnt)) in_stack[st[*cnt]] = false, color[st[*cnt]] = *Tot;
+        for (++(*Tot); st[*cnt] != u; --(*cnt)) {
+            _add_edge_res(*Tot, st[*cnt], E_res, head_res, edge_number_res);
+            in_stack[st[*cnt]] = false, color[st[*cnt]] = *Tot;
+        } 
+        _add_edge_res(*Tot, st[*cnt], E_res, head_res, edge_number_res);
         in_stack[u] = false; color[u] = *Tot; --(*cnt);
     }
 }
-
