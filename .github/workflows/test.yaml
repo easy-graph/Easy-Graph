@@ -37,6 +37,10 @@ jobs:
           ref: 'refs/tags/cpp-sanity-check-v1'
           path: 'easygraph-bench'
 
+      - name: Install dependencies for easygraph-bench
+        run: |
+          python3 -m pip install -r easygraph-bench/requirements.txt
+
       - name: 'C++ Sanity Check'
         shell: bash
         working-directory: easygraph-bench
