@@ -24,7 +24,7 @@ py::object DiGraph_remove_node(DiGraph& self, py::object node_to_remove);
 py::object DiGraph_remove_nodes(py::object self, py::list nodes_to_remove);
 py::object DiGraph_add_edge(py::args args, py::kwargs kwargs);
 py::object DiGraph_add_edges(DiGraph& self, py::list edges_for_adding, py::list edges_attr);
-py::object DiGraph_add_edges_from_file(DiGraph& self, py::str file, py::object weighted);
+py::object DiGraph_add_edges_from_file(DiGraph& self, py::str file, py::object weighted, py::object is_transform);
 py::object DiGraph_add_edges_from(py::args args, py::kwargs attr);
 py::object DiGraph_remove_edge(DiGraph& self, py::object u, py::object v);
 py::object DiGraph_remove_edges(py::object self, py::list edges_to_remove);

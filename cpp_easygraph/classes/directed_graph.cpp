@@ -394,9 +394,11 @@ py::object DiGraph_add_edges_from(py::args args, py::kwargs attr) {
     return py::none();
 }
 
-py::object DiGraph_add_edges_from_file(DiGraph& self, py::str file, py::object weighted) {
+py::object DiGraph_add_edges_from_file(DiGraph& self, py::str file, py::object weighted, py::object is_transform) {
     self.dirty_nodes = true;
     self.dirty_adj = true;
+    bool _is_transform = is_transform.cast<bool>();
+    std::cout<<_is_transform<<std::endl;
     struct commactype : std::ctype<char> {
         commactype() : std::ctype<char>(get_table()) {}
         std::ctype_base::mask const* get_table() {
@@ -449,6 +451,11 @@ py::object DiGraph_add_edges_from_file(DiGraph& self, py::str file, py::object w
                 self.pred[v][u] = node_attr_dict_factory();
             }
         }
+    }
+    if(_is_transform){
+        Graph_L g_l = graph_to_linkgraph(self,true, key, true, false);
+        self.linkgraph_structure = g_l;
+        self.linkgraph_dirty = false;
     }
     in.close();
     return py::none();

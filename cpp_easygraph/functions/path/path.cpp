@@ -44,7 +44,7 @@ py::object _dijkstra_multisource(py::object G,py::object sources, py::object wei
     std::string weight_key = weight_to_string(weight);
     Graph_L G_l;
     if(G_.linkgraph_dirty){
-        G_l = graph_to_linkgraph(G_, is_directed, weight_key);
+        G_l = graph_to_linkgraph(G_, is_directed, weight_key, true, false);
         G_.linkgraph_structure=G_l;
         G_.linkgraph_dirty = false;
     }
@@ -110,9 +110,13 @@ py::object _spfa(py::object G, py::object source, py::object weight) {
             }
         }
 	}
-    py::list pydist = py::list();
+    // py::list pydist = py::list();
+    // for(int i = 1; i <= N; i++){
+    //     pydist.append(py::cast(dis[i]));
+    // }
+    py::dict pydist = py::dict();
     for(int i = 1; i <= N; i++){
-        pydist.append(py::cast(dis[i]));
+        pydist[G_.id_to_node[py::cast(i)]] = dis[i];
     }
     return pydist;
 }

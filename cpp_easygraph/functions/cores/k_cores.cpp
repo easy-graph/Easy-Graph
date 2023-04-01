@@ -8,14 +8,21 @@ py::object core_decomposition(py::object G) {
     Graph& G_ = G.cast<Graph&>();
     int N = G_.node.size();
     bool is_directed = G.attr("is_directed")().cast<bool>();
-    const Graph_L& G_l = graph_to_linkgraph(G_, is_directed, "", true, false);
+    Graph_L G_l;
+    if(G_.linkgraph_dirty || G_.linkgraph_structure.max_deg == -1){
+        G_l = graph_to_linkgraph(G_, is_directed, "", true, false);
+        G_.linkgraph_dirty = false;
+    }
+    else{
+        G_l = G_.linkgraph_structure;
+    }
     std::vector<LinkEdge> edges = G_l.edges;
     int edges_num = edges.size();
     std::vector<int> deg = G_l.degree;
     std::vector<int> head = G_l.head;
     int max_deg = G_l.max_deg;
     std::vector<int> core(N+1, 0);
-    std::vector<int> bin(N+1, 0);
+    std::vector<int> bin(max_deg+1, 0);
     std::vector<int> pos(N+1, 0);
     std::vector<int> vert(N+1, 0);
     for(int i = 1; i <= N; ++i)
@@ -51,9 +58,10 @@ py::object core_decomposition(py::object G) {
             }
         }
     }
-    py::list core_list = py::list();
+
+    py::dict core_dict = py::dict();
     for(register int i = 1; i <= N; ++i){
-        core_list.append(core[i]);
+         core_dict[G_.id_to_node[py::cast(i)]] = core[i];
     }
-    return core_list;
+    return core_dict;
 }

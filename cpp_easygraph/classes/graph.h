@@ -43,7 +43,7 @@ py::object Graph_nbunch_iter(py::object self, py::object nbunch);
 py::object Graph_add_edge(py::args args, py::kwargs kwargs);
 py::object Graph_add_edges(Graph& self, py::list edges_for_adding, py::list edges_attr);
 py::object Graph_add_edges_from(py::args args, py::kwargs attr);
-py::object Graph_add_edges_from_file(Graph& self, py::str file, py::object weighted);
+py::object Graph_add_edges_from_file(Graph& self, py::str file, py::object weighted, py::object is_transform);
 py::object Graph_add_weighted_edge(Graph& self, py::object u_of_edge, py::object v_of_edge, weight_t weight);
 py::object Graph_remove_edge(Graph& self, py::object u, py::object v);
 py::object Graph_remove_edges(py::object self, py::list edges_to_remove);

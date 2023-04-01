@@ -18,7 +18,7 @@ struct Graph_L{
     std::vector<int> head;
     std::vector<LinkEdge> edges;
     std::vector<int> degree;
-    int max_deg = 0;
+    int max_deg = -1;
 
    
     Graph_L(int vetex_num = 0, bool directed = true, bool deg = false){
