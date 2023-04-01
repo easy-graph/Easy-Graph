@@ -30,33 +30,24 @@ jobs:
           install-lxml: 'true'
           extra-modules-to-install: 'optuna'
 
+      - name: 'Checkout tddschn/easygraph-bench (tag: cpp-sanity-check-v1)'
+        uses: actions/checkout@v3
+        with:
+          repository: 'tddschn/easygraph-bench'
+          ref: 'refs/tags/cpp-sanity-check-v1'
+          path: 'easygraph-bench'
+
+      - name: Install dependencies for easygraph-bench
+        run: |
+          python3 -m pip install -r easygraph-bench/requirements.txt
+
+      - name: 'C++ Sanity Check'
+        shell: bash
+        working-directory: easygraph-bench
+        run: |
+            ./profile_entrypoint_cpp-sanity-check.sh
+
       - uses: actions/checkout@v3
       - name: Test with pytest
         run: |
           pytest --disable-warnings
-  # pytest-conda:
-  #   name: Test with pytest in conda environment
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       python-version: ["3.10"]
-  #   steps:
-  #     - name: Set up Python ${{ matrix.python-version }} (conda)
-  #     - uses: conda-incubator/setup-miniconda@v2
-  #       with:
-  #         auto-activate-base: true
-  #         activate-environment: ""
-  #     - name: Install dependencies
-  #       run: |
-  #         conda install -y pytest
-  #         conda install -y numpy pandas matplotlib statsmodels
-  #         conda install -y tqdm joblib six scikit-learn tensorflow
-  #         conda install -y scipy progressbar progressbar33
-  #     - name: 'Build and install easygraph'
-  #       uses: tddschn/install-easygraph@master
-  #     - uses: actions/checkout@v3
-  #     - name: Test with pytest
-  #       run: |
-  #         conda install -y pytest
-  #         pytest --disable-warnings
