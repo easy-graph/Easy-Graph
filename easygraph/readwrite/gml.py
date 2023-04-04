@@ -312,7 +312,7 @@ def parse_gml_lines(lines, label, destringizer):
                     except Exception:
                         msg = (
                             "an int, float, string, '[' or string"
-                            + " convertable ASCII value for node id or label"
+                            + " convertible ASCII value for node id or label"
                         )
                         unexpected(curr_token, msg)
                 elif curr_token.value in {"NAN", "INF"}:

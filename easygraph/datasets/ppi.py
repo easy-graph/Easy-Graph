@@ -193,7 +193,7 @@ class LegacyPPIDataset(PPIDataset):
     def __getitem__(self, item):
         """Get the item^th sample.
 
-        Paramters
+        Parameters
         ---------
         idx : int
             The sample index.

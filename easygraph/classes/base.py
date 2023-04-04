@@ -49,7 +49,7 @@ class BaseHypergraph:
             same shape to ``e_list_e2v``. If set to ``None``, the value ``1`` is used for all connections. Defaults to ``None``.
         ``e_weight`` (``Union[float, List[float]]``, optional): A list of weights for hyperedges. If set to ``None``, the value ``1`` is used for all hyperedges. Defaults to ``None``.
         ``v_weight`` (``Union[float, List[float]]``, optional): Weights for vertices. If set to ``None``, the value ``1`` is used for all vertices. Defaults to ``None``.
-        ``device`` (``torch.device``, optional): The deivce to store the hypergraph. Defaults to ``torch.device('cpu')``.
+        ``device`` (``torch.device``, optional): The device to store the hypergraph. Defaults to ``torch.device('cpu')``.
     """
 
     def __init__(

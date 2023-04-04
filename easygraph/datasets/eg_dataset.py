@@ -30,7 +30,7 @@ class EasyGraphDataset(object):
       5. Call ``load()`` to load the processed dataset from disk.
       6. Done.
 
-    Users can overwite these functions with their
+    Users can overwrite these functions with their
     own data processing logic.
 
     Parameters
@@ -116,7 +116,7 @@ class EasyGraphDataset(object):
         self._load()
 
     def download(self):
-        r"""Overwite to realize your own logic of downloading data.
+        r"""Overwrite to realize your own logic of downloading data.
 
         It is recommended to download the to the :obj:`self.raw_dir`
         folder. Can be ignored if the dataset is
@@ -125,7 +125,7 @@ class EasyGraphDataset(object):
         pass
 
     def save(self):
-        r"""Overwite to realize your own logic of
+        r"""Overwrite to realize your own logic of
         saving the processed dataset into files.
 
         It is recommended to use ``dgl.data.utils.save_graphs``
@@ -136,7 +136,7 @@ class EasyGraphDataset(object):
         pass
 
     def load(self):
-        r"""Overwite to realize your own logic of
+        r"""Overwrite to realize your own logic of
         loading the saved dataset from files.
 
         It is recommended to use ``dgl.data.utils.load_graphs``
@@ -179,7 +179,7 @@ class EasyGraphDataset(object):
         If cache exists:
 
           - Load the dataset from saved dgl graph and information files.
-          - If loadin process fails, re-download and process the dataset.
+          - If loading process fails, re-download and process the dataset.
 
         else:
 

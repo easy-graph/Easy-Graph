@@ -1345,7 +1345,7 @@ class TestWriteGraphML(BaseGraphML):
                 ".//{http://graphml.graphdrawing.org/xmlns}edge"
             )
         ]
-        # verify edge id value is equal to sepcified attribute value
+        # verify edge id value is equal to specified attribute value
         assert sorted(edge_ids) == sorted(edge_attributes.values())
 
         # check graphml generated from generate_graphml()
@@ -1398,7 +1398,7 @@ class TestWriteGraphML(BaseGraphML):
                 ".//{http://graphml.graphdrawing.org/xmlns}edge"
             )
         ]
-        # verify edge id value is equal to sepcified attribute value
+        # verify edge id value is equal to specified attribute value
         assert sorted(edge_ids) == sorted(edge_attributes.values())
 
         # check graphml generated from generate_graphml()
