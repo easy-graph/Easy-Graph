@@ -21,22 +21,22 @@ struct Graph_L{
     int max_deg = -1;
 
    
-    Graph_L(int vetex_num = 0, bool directed = true, bool deg = false){
-        this->n = vetex_num;
+    Graph_L(int vertex_num = 0, bool directed = true, bool deg = false){
+        this->n = vertex_num;
         this->e = 0;
         this->is_deg = deg;
         this->is_directed = directed;
         if(n > 0){
-            head.resize(vetex_num + 1);
+            head.resize(vertex_num + 1);
             if(deg){
-                degree.resize(vetex_num + 1);
-                for(int i = 0; i < vetex_num+1; i++){
+                degree.resize(vertex_num + 1);
+                for(int i = 0; i < vertex_num+1; i++){
                     head[i] = -1;
                     degree[i] = 0;
                 }
             }
             else{
-                for(int i = 0; i < vetex_num+1; i++){
+                for(int i = 0; i < vertex_num+1; i++){
                     head[i] = -1;
                 }
             }   

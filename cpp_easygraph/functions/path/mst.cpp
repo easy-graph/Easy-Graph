@@ -58,16 +58,16 @@ struct mst_Edge {
     }
 };
 
-py::object kruskal_mst_edges(py::object G, py::object minium, py::object weight, py::object data, py::object ignore_nan) {
+py::object kruskal_mst_edges(py::object G, py::object minimum, py::object weight, py::object data, py::object ignore_nan) {
     UnionFind subtrees;
     Graph G_ = G.cast<Graph&>();
     std::string weight_key = weight_to_string(weight);
     std::vector<std::pair<weight_t, graph_edge>> edges;
-    int sign = minium.cast<py::bool_>().equal(py::cast(true)) ? 1 : -1;
+    int sign = minimum.cast<py::bool_>().equal(py::cast(true)) ? 1 : -1;
     for (graph_edge& edge : G_._get_edges()) {
         weight_t wt = (edge.attr.count(weight_key) ? edge.attr[weight_key] : 1) * sign;
         if (!ignore_nan.cast<py::bool_>() && isnan(wt)) {
-            PyErr_Format(PyExc_ValueError, "NaN found as an egde weight. Edge (%R, %R, %R)", G_.id_to_node[py::cast(edge.u)].ptr(), G_.id_to_node[py::cast(edge.v)].ptr(), attr_to_dict(edge.attr).ptr());
+            PyErr_Format(PyExc_ValueError, "NaN found as an edge weight. Edge (%R, %R, %R)", G_.id_to_node[py::cast(edge.u)].ptr(), G_.id_to_node[py::cast(edge.v)].ptr(), attr_to_dict(edge.attr).ptr());
             return py::none();
         }
         edges.emplace_back(wt, edge);

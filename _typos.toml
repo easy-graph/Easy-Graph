@@ -15,3 +15,9 @@
 l_2nd = 'l_2nd'
 loss_2nd = 'loss_2nd'
 nd = 'nd'
+
+[files]
+extend-exclude = [
+    "_typos.toml",
+    "easygraph/functions/graph_embedding/embedding-citeseer.ipynb",
+]
