@@ -49,7 +49,7 @@ jobs:
       #     python -m pip install pybind11 cibuildwheel
       - name: Build wheels (Linux)
         # if on linux
-        if: 'matrix.os == "ubuntu-latest"'
+        if: 'matrix.os == ubuntu-latest'
         uses: pypa/cibuildwheel@v2.8.1
         env:
           # CIBW_BEFORE_ALL: python -m pip install pybind11
@@ -60,7 +60,7 @@ jobs:
 
       - name: Build wheels (macOS)
         # if on linux
-        if: 'matrix.os == "macos-latest"'
+        if: 'matrix.os == macos-latest'
         uses: pypa/cibuildwheel@v2.8.1
         env:
           # CIBW_BEFORE_ALL: python -m pip install pybind11
