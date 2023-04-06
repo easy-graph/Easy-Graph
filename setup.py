@@ -24,7 +24,7 @@ CYTHON_STR = "Cython"
 
 setuptools.setup(
     name="Python-EasyGraph",
-    version="0.2a44",
+    version="0.2a45",
     author="Fudan MSN Group",
     author_email="easygraph@163.com",
     description="Easy Graph",
@@ -65,7 +65,7 @@ setuptools.setup(
     cmdclass={"build_ext": build_ext},
     ext_modules=[
         Pybind11Extension(
-            "cpp_easygraph", sources, optional=True, extra_compile_args=compileArgs,include_dirs=["/usr/local/Cellar/gcc/12.2.0/include/c++/12","/usr/local/Cellar/gcc/12.2.0/include/c++/12/x86_64-apple-darwin21"],
+            "cpp_easygraph", sources, optional=True, extra_compile_args=compileArgs,
             libraries=["stdc++"]
         )
     ],
