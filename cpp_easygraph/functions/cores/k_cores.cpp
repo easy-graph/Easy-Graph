@@ -59,9 +59,9 @@ py::object core_decomposition(py::object G) {
         }
     }
 
-    py::dict core_dict = py::dict();
+    py::list core_list = py::list();
     for(register int i = 1; i <= N; ++i){
-         core_dict[G_.id_to_node[py::cast(i)]] = core[i];
+         core_list.append(core[i]);
     }
-    return core_dict;
+    return core_list;
 }

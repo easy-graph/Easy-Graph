@@ -4,7 +4,7 @@
 #include "../../classes/linkgraph.h"
 // #include<time.h>
 
-double closeness_dijkstra(const Graph_L& G_l, const int &S){
+double closeness_dijkstra(const Graph_L& G_l, const int &S, double cutoff){
     int N = G_l.n;
     __gnu_pbds::priority_queue<compare_node> q;
     std::vector<int> dis(N+1, INFINITY);
@@ -20,12 +20,18 @@ double closeness_dijkstra(const Graph_L& G_l, const int &S){
         q.pop();
         if (vis[u]){
             continue;
+        }
+        if (cutoff >= 0 && dis[u] > cutoff){
+            continue;
         } 
         vis[u] = true;
         number_connected += 1;
         sum_dis += dis[u];
         for(register int p = head[u]; p != -1; p = E[p].next) {
             int v = E[p].to;
+            if(cutoff >= 0 && (dis[u] + E[p].w) > cutoff){
+                continue;
+            }
             if (dis[v] > dis[u] + E[p].w) {
                 dis[v] = dis[u] + E[p].w;
                 q.push(compare_node(v, dis[v]));
@@ -39,22 +45,20 @@ double closeness_dijkstra(const Graph_L& G_l, const int &S){
     
 }
 
-py::object closeness_centrality(py::object G, py::object weight) {
+py::object closeness_centrality(py::object G, py::object weight, py::object cutoff) {
     Graph& G_ = G.cast<Graph&>();
     int N = G_.node.size();
     bool is_directed = G.attr("is_directed")().cast<bool>();
     std::string weight_key = weight_to_string(weight);
-    // clock_t start_time = clock();
     const Graph_L& G_l = graph_to_linkgraph(G_, is_directed, weight_key, false, true);
-    // clock_t end_time = clock();
-    // printf("cost1:%2f\n",(double)(end_time-start_time)/CLOCKS_PER_SEC);
-    // start_time = clock();
+    double cutoff_ = -1;
+    if (!cutoff.is_none()){
+        cutoff_ = cutoff.cast<double>();
+    }
     py::list res_lst = py::list();
     for(register int i = 1; i <= N; i++){
-        float res = closeness_dijkstra(G_l, i);
+        float res = closeness_dijkstra(G_l, i, cutoff_);
         res_lst.append(py::cast(res));
     }
-    // end_time = clock();
-    // printf("cost2:%2f\n",(double)(end_time-start_time)/CLOCKS_PER_SEC);
     return res_lst;
 }
