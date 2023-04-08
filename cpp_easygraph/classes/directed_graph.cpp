@@ -398,7 +398,6 @@ py::object DiGraph_add_edges_from_file(DiGraph& self, py::str file, py::object w
     self.dirty_nodes = true;
     self.dirty_adj = true;
     bool _is_transform = is_transform.cast<bool>();
-    std::cout<<_is_transform<<std::endl;
     struct commactype : std::ctype<char> {
         commactype() : std::ctype<char>(get_table()) {}
         std::ctype_base::mask const* get_table() {
