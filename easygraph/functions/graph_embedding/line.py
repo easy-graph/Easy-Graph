@@ -1,276 +1,259 @@
-import math
-import random
-
+import torch
 import numpy as np
+import argparse
+from torch.utils import data
+import torch.nn.functional as F
+from torch.nn.parameter import Parameter
+from torch.nn.modules.module import Module
+import time
+import torch.nn as nn
+import warnings
+import pandas as pd
+from easygraph.functions.graph_embedding import *
+from cogdl.utils import alias_draw, alias_setup
+from tqdm import tqdm
+from sklearn import preprocessing
+warnings.filterwarnings('ignore')
+# import easygraph as eg
 
-from easygraph.utils import *
-from easygraph.utils.alias import alias_sample
-from easygraph.utils.alias import create_alias_table
-from easygraph.utils.index_of_node import get_relation_of_index_and_node
+class LINE(nn.Module):
+    """Graph embedding via LINE.
 
-
-def line_loss(y_true, y_pred):
-    try:
-        import tensorflow as tf
-    except ImportWarning:
-        print("tensorflow not found, please install")
-        pass
-    from tensorflow.python.keras import backend as K
-
-    y = K.sigmoid(y_true * y_pred)
-    # Avoid Nan in the result of 'K.log'
-    return -K.mean(K.log(tf.clip_by_value(y, 1e-8, tf.reduce_max(y))))
-
-
-def create_model(numNodes, embedding_size, order="second"):
-    try:
-        import tensorflow as tf
-    except ImportWarning:
-        print("tensorflow not found, please install")
-        pass
-    from tensorflow.python.keras.layers import Embedding
-    from tensorflow.python.keras.layers import Input
-    from tensorflow.python.keras.layers import Lambda
-    from tensorflow.python.keras.models import Model
-
-    v_i = Input(shape=(1,))
-    v_j = Input(shape=(1,))
-
-    first_emb = Embedding(numNodes, embedding_size, name="first_emb")
-    second_emb = Embedding(numNodes, embedding_size, name="second_emb")
-    context_emb = Embedding(numNodes, embedding_size, name="context_emb")
-
-    v_i_emb = first_emb(v_i)
-    v_j_emb = first_emb(v_j)
-
-    v_i_emb_second = second_emb(v_i)
-    v_j_context_emb = context_emb(v_j)
-
-    first = Lambda(
-        lambda x: tf.reduce_sum(x[0] * x[1], axis=-1, keepdims=False),
-        name="first_order",
-    )([v_i_emb, v_j_emb])
-    second = Lambda(
-        lambda x: tf.reduce_sum(x[0] * x[1], axis=-1, keepdims=False),
-        name="second_order",
-    )([v_i_emb_second, v_j_context_emb])
-
-    if order == "first":
-        output_list = [first]
-    elif order == "second":
-        output_list = [second]
-    else:
-        output_list = [first, second]
-
-    model = Model(inputs=[v_i, v_j], outputs=output_list)
-
-    return model, {"first": first_emb, "second": second_emb}
+    Parameters
+    ----------
+    G : easygraph.Graph or easygraph.DiGraph
 
 
-class LINE:
-    @not_implemented_for("multigraph")
-    def __init__(
-        self,
-        graph,
-        embedding_size=8,
-        negative_ratio=5,
-        order="all",
-    ):
-        """Graph embedding via SDNE.
+    dimension: int
 
-        Parameters
-        ----------
-        graph : easygraph.Graph or easygraph.DiGraph
+    walk_length: int
+    
+    walk_num: int
+    
+    negative: int
 
-        embedding_size : int, optional (default : 8)
+    batch_size: int
+    
+    init_alpha: float
 
-        negative_ratio : int, optional (default : 5)
+    order: int
 
-        order : string, optional (default : 'all')
-            'first','second','all'
+    Returns
+    -------
+    embedding_vector : dict
+        The embedding vector of each node
 
-        Examples
-        --------
+    Examples
+    --------
 
-        >>> model = LINE(G,
-        ...              embedding_size=16,
-        ...              order='all') # The order of model LINE. 'first'，'second' or 'all'.
-        >>> model.train(batch_size=1024, epochs=1, verbose=2)
-        >>> embeddings = model.get_embeddings() # Returns the graph embedding results.
+    >>> model = LINE(
+    ...          dimension=128, 
+    ...          walk_length=80, 
+    ...          walk_num=20, 
+    ...          negative=5, 
+    ...          batch_size=128, 
+    ...          init_alpha=0.025, 
+    ...          order=3 # )
+    >>> model.train()
+    >>> emb = model(g, return_dict=True) # g: easygraph.Graph or easygraph.DiGraph
 
-        References
-        ----------
-        .. [1] Tang J, Qu M, Wang M, et al.
-           Line: Large-scale information network embedding[C]
-           //Proceedings of the 24th international conference on World Wide Web. 2015: 1067-1077
+    References
+    ----------
+    .. [1] https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/frp0228-Tang.pdf
 
-        """
-        if order not in ["first", "second", "all"]:
-            raise ValueError("mode must be first,second,or all")
+    """
+    @staticmethod
+    def add_args(parser):
+        """Add model-specific arguments to the parser."""
+        parser.add_argument("--walk-length", type=int, default=80,
+                            help="Length of walk per source. Default is 80.")
+        parser.add_argument("--walk-num", type=int, default=20,
+                            help="Number of walks per source. Default is 20.")
+        parser.add_argument("--negative", type=int, default=5,
+                            help="Number of negative node in sampling. Default is 5.")
+        parser.add_argument("--batch-size", type=int, default=1000,
+                            help="Batch size in SGD training process. Default is 1000.")
+        parser.add_argument("--alpha", type=float, default=0.025,
+                            help="Initial learning rate of SGD. Default is 0.025.")
+        parser.add_argument("--order", type=int, default=3,
+                            help="Order of proximity in LINE. Default is 3 for 1+2.")
+        parser.add_argument("--hidden-size", type=int, default=128)
 
-        self.graph = graph
-        self.idx2node, self.node2idx = get_relation_of_index_and_node(graph)
-        self.use_alias = True
-
-        self.rep_size = embedding_size
-        self.order = order
-
-        self._embeddings = {}
-        self.negative_ratio = negative_ratio
-        self.order = order
-
-        self.node_size = graph.number_of_nodes()
-        self.edge_size = graph.number_of_edges()
-        self.samples_per_epoch = self.edge_size * (1 + negative_ratio)
-
-        self._gen_sampling_table()
-        self.reset_model()
-
-    def reset_training_config(self, batch_size, times):
+        
+        
+    @classmethod
+    def build_model_from_args(cls, args):
+        return cls(
+            args.hidden_size, args.walk_length, args.walk_num, args.negative, args.batch_size, args.alpha, args.order,
+        )
+        
+    
+    def __init__(self, dimension=128, walk_length=80, walk_num=20, negative=5, batch_size=128, init_alpha=0.025, order=3):
+        super(LINE, self).__init__()
+        self.dimension = dimension
+        self.walk_length = walk_length
+        self.walk_num = walk_num
+        self.negative = negative
         self.batch_size = batch_size
-        self.steps_per_epoch = (
-            (self.samples_per_epoch - 1) // self.batch_size + 1
-        ) * times
+        self.init_alpha = init_alpha
+        self.order = order
+        
+    def forward(self, g, return_dict=True):
+        # run LINE algorithm, 1-order, 2-order or 3(1-order + 2-order)
+        
+        self.G = g
+        self.is_directed = g.is_directed()
+        self.num_node = g.size()
+        self.num_edge = g.number_of_edges()
+        self.num_sampling_edge = self.walk_length * self.walk_num * self.num_node
 
-    def reset_model(self, opt="adam"):
-        self.model, self.embedding_dict = create_model(
-            self.node_size, self.rep_size, self.order
-        )
-        self.model.compile(opt, line_loss)
-        self.batch_it = self.batch_iter(self.node2idx)
+        
+        node2id = dict([(node, vid) for vid, node in enumerate(g.nodes)])
+        self.edges = [[node2id[e[0]], node2id[e[1]]] for e in self.G.edges]
+        
+        
+        
+        self.edges_prob = np.asarray([1.0 for e in g.edges])
+        self.edges_prob /= np.sum(self.edges_prob)
+        self.edges_table, self.edges_prob = alias_setup(self.edges_prob)
 
-    def _gen_sampling_table(self):
-        # create sampling table for vertex
-        power = 0.75
-        numNodes = self.node_size
-        node_degree = np.zeros(numNodes)  # out degree
-        node2idx = self.node2idx
+        degree_weight = np.asarray([0] * self.num_node)
+        degree_weight = np.array(list(g.degree(node2id[u] for u in g.nodes).values()))
+        # for u,v in g.edges:
+            
+        #     degree_weight[node2id[u]] += 1.0
+        #     if not self.is_directed:
+        #         degree_weight[node2id[v]] += 1.0
+        self.node_prob = np.power(degree_weight, 0.75)
+        self.node_prob /= np.sum(self.node_prob)
+        self.node_table, self.node_prob = alias_setup(self.node_prob)
 
-        for edge in self.graph.edges:
-            node_degree[node2idx[edge[0]]] += self.graph[edge[0]][edge[1]].get(
-                "weight", 1.0
-            )
+        if self.order == 3:
+            self.dimension = int(self.dimension / 2)
+        if self.order == 1 or self.order == 3:
+            print("train line with 1-order")
+            print(type(self.dimension))
+            self.emb_vertex = (np.random.random((self.num_node, self.dimension)) - 0.5) / self.dimension
+            self._train_line(order=1)
+            embedding1 = preprocessing.normalize(self.emb_vertex, "l2")
 
-        total_sum = sum(math.pow(node_degree[i], power) for i in range(numNodes))
-        norm_prob = [
-            float(math.pow(node_degree[j], power)) / total_sum for j in range(numNodes)
-        ]
+        if self.order == 2 or self.order == 3:
+            print("train line with 2-order")
+            self.emb_vertex = (np.random.random((self.num_node, self.dimension)) - 0.5) / self.dimension
+            self.emb_context = self.emb_vertex
+            self._train_line(order=2)
+            embedding2 = preprocessing.normalize(self.emb_vertex, "l2")
 
-        self.node_accept, self.node_alias = create_alias_table(norm_prob)
-
-        # create sampling table for edge
-        numEdges = self.graph.number_of_edges()
-        total_sum = sum(
-            self.graph[edge[0]][edge[1]].get("weight", 1.0) for edge in self.graph.edges
-        )
-        norm_prob = [
-            self.graph[edge[0]][edge[1]].get("weight", 1.0) * numEdges / total_sum
-            for edge in self.graph.edges
-        ]
-
-        self.edge_accept, self.edge_alias = create_alias_table(norm_prob)
-
-    def batch_iter(self, node2idx):
-        edges = [(node2idx[x[0]], node2idx[x[1]]) for x in self.graph.edges]
-
-        data_size = self.graph.number_of_edges()
-        shuffle_indices = np.random.permutation(np.arange(data_size))
-        # positive or negative mod
-        mod = 0
-        mod_size = 1 + self.negative_ratio
-        h = []
-        t = []
-        sign = 0
-        count = 0
-        start_index = 0
-        end_index = min(start_index + self.batch_size, data_size)
-        while True:
-            if mod == 0:
-                h = []
-                t = []
-                for i in range(start_index, end_index):
-                    if random.random() >= self.edge_accept[shuffle_indices[i]]:
-                        shuffle_indices[i] = self.edge_alias[shuffle_indices[i]]
-                    cur_h = edges[shuffle_indices[i]][0]
-                    cur_t = edges[shuffle_indices[i]][1]
-                    h.append(cur_h)
-                    t.append(cur_t)
-                sign = np.ones(len(h))
-            else:
-                sign = np.ones(len(h)) * -1
-                t = []
-                for i in range(len(h)):
-                    t.append(alias_sample(self.node_accept, self.node_alias))
-
-            if self.order == "all":
-                yield ([np.array(h), np.array(t)], [sign, sign])
-            else:
-                yield ([np.array(h), np.array(t)], [sign])
-            mod += 1
-            mod %= mod_size
-            if mod == 0:
-                start_index = end_index
-                end_index = min(start_index + self.batch_size, data_size)
-
-            if start_index >= data_size:
-                count += 1
-                mod = 0
-                h = []
-                shuffle_indices = np.random.permutation(np.arange(data_size))
-                start_index = 0
-                end_index = min(start_index + self.batch_size, data_size)
-
-    def get_embeddings(
-        self,
-    ):
-        """Returns the embedding of each node.
-
-        Returns
-        -------
-        get_embeddings : dict
-            The graph embedding result of each node.
-
-        """
-        self._embeddings = {}
-        if self.order == "first":
-            embeddings = self.embedding_dict["first"].get_weights()[0]
-        elif self.order == "second":
-            embeddings = self.embedding_dict["second"].get_weights()[0]
+        if self.order == 1:
+            embeddings = embedding1
+        elif self.order == 2:
+            embeddings = embedding2
         else:
-            embeddings = np.hstack(
-                (
-                    self.embedding_dict["first"].get_weights()[0],
-                    self.embedding_dict["second"].get_weights()[0],
+            print("concatenate two embedding...")
+            embeddings = np.hstack((embedding1, embedding2))
+
+        if return_dict:
+            features_matrix = dict()
+            for vid, node in enumerate(g.nodes):
+                features_matrix[node] = embeddings[vid]
+        else:
+            features_matrix = np.zeros((g.num_nodes, embeddings.shape[1]))
+            nx_nodes = g.nodes()
+            features_matrix[nx_nodes] = embeddings[np.arange(g.num_nodes)]
+        return features_matrix
+    
+    
+    def _update(self, vec_u, vec_v, vec_error, label):
+        # update vetex embedding and vec_error
+        f = 1 / (1 + np.exp(-np.sum(vec_u * vec_v, axis=1)))
+        g = (self.alpha * (label - f)).reshape((len(label), 1))
+        vec_error += g * vec_v
+        vec_v += g * vec_u
+
+    def _train_line(self, order):
+        # train Line model with order
+        self.alpha = self.init_alpha
+        batch_size = self.batch_size
+        t0 = time.time()
+        num_batch = int(self.num_sampling_edge / batch_size)
+        epoch_iter = tqdm(range(num_batch))
+        for b in epoch_iter:
+            if b % 100 == 0:
+                epoch_iter.set_description(
+                    f"Progress: {b *1.0/num_batch * 100:.4f}%, alpha: {self.alpha:.6f}, time: {time.time() - t0:.4f}"
                 )
-            )
-        idx2node = self.idx2node
-        for i, embedding in enumerate(embeddings):
-            self._embeddings[idx2node[i]] = embedding
+                self.alpha = self.init_alpha * max((1 - b * 1.0 / num_batch), 0.0001)
+            u, v = [0] * batch_size, [0] * batch_size
+            for i in range(batch_size):
+                edge_id = alias_draw(self.edges_table, self.edges_prob)
+                u[i], v[i] = self.edges[edge_id]
+                if not self.is_directed and np.random.rand() > 0.5:
+                    v[i], u[i] = self.edges[edge_id]
 
-        return self._embeddings
+            vec_error = np.zeros((batch_size, self.dimension))
+            label, target = np.asarray([1 for i in range(batch_size)]), np.asarray(v)
+            for j in range(1 + self.negative):
+                if j != 0:
+                    label = np.asarray([0 for i in range(batch_size)])
+                    for i in range(batch_size):
+                        target[i] = alias_draw(self.node_table, self.node_prob)
+                if order == 1:
+                    self._update(self.emb_vertex[u], self.emb_vertex[target], vec_error, label)
+                else:
+                    self._update(self.emb_vertex[u], self.emb_context[target], vec_error, label)
+            self.emb_vertex[u] += vec_error   
 
-    def train(self, batch_size=1024, epochs=2, initial_epoch=0, verbose=1, times=1):
-        """Train LINE model.
 
-        Parameters
-        ----------
-        batch_size : int, optional (default : 1024)
+    
 
-        epochs : int, optional (default : 2)
 
-        initial_epoch : int, optional (default : 0)
+if __name__ == '__main__':
+    dataset = eg.CiteseerGraphDataset(force_reload=True) # Download CiteseerGraphDataset contained in EasyGraph
+    num_classes = dataset.num_classes
+    g = dataset[0]
+    labels = g.ndata['label']
+    edge_list = []
+    for i in g.edges:
+        edge_list.append((i[0],i[1]))
+    g1 = eg.Graph()
+    g1.add_edges_from(edge_list)
+    # print(g.edges)
+    # print(g.__dir__())
+    
+    
+    model = LINE(dimension=128, walk_length=80, walk_num=20, negative=5, batch_size=128, init_alpha=0.025, order=3)
+    print(model)
+    
+    
+    model.train()
+    out = model(g1, return_dict=True)
+    
+#     keylist = sorted(out)
+#     tmp = torch.cat((torch.unsqueeze(torch.tensor(out[keylist[0]]),-2), torch.unsqueeze(torch.tensor(out[keylist[1]]),-2)),0)
+    
+#     for i in range(2, len(keylist)):
+#         tmp = torch.cat((tmp, torch.unsqueeze(torch.tensor(out[keylist[i]]),-2)),0)
+#     torch.save(tmp, 'line.emb')
+#     print(tmp, tmp.shape)
 
-        verbose : int, optional (default : 1)
+    
+#     line_emb = []
+#     for i in range(0, len(tmp)):
+#         line_emb.append(list(tmp[i]))
+#     line_emb = np.array(line_emb)
+    
 
-        times : int, optional (default : 1)
 
-        """
-        self.reset_training_config(batch_size, times)
-        hist = self.model.fit(
-            self.batch_it,
-            epochs=epochs,
-            initial_epoch=initial_epoch,
-            steps_per_epoch=self.steps_per_epoch,
-            verbose=verbose,
-        )
-        return hist
+#     tsne = TSNE(n_components=2) 
+#     z = tsne.fit_transform(line_emb) 
+#     z_data = np.vstack((z.T, labels)).T 
+#     df_tsne = pd.DataFrame(z_data, columns=['Dim1', 'Dim2', 'class']) 
+#     df_tsne['class'] = df_tsne['class'].astype(int)
+#     df_tsne.head()
+    
+#     plt.figure(figsize=(8, 8)) 
+#     sns.scatterplot(data=df_tsne, hue='class', x='Dim1', y='Dim2', palette=['green','orange','brown','red', 'blue','black']) 
+#     plt.savefig('torch_line_citeseer.pdf', bbox_inches='tight')
+#     plt.show()
+
+    
