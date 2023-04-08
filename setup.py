@@ -65,7 +65,7 @@ setuptools.setup(
     cmdclass={"build_ext": build_ext},
     ext_modules=[
         Pybind11Extension(
-            "cpp_easygraph", sources, optional=True, extra_compile_args=compileArgs,
+            "cpp_easygraph", sources, optional=True, extra_compile_args=compileArgs,include_dirs=["/usr/local/Cellar/gcc/12.2.0/include/c++/12","/usr/local/Cellar/gcc/12.2.0/include/c++/12/x86_64-apple-darwin21"],
             libraries=["stdc++"]
         )
     ],
