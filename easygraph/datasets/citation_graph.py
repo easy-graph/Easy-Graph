@@ -222,7 +222,7 @@ class CitationGraphDataset(EasyGraphBuiltinDataset):
     #     info = load_info(str(info_path))
     #     graph = graphs[0]
     #     self._g = graph
-    #     # for compatability
+    #     # for compatibility
     #     graph = graph.clone()
     #     graph.ndata.pop('train_mask')
     #     graph.ndata.pop('val_mask')
@@ -235,7 +235,7 @@ class CitationGraphDataset(EasyGraphBuiltinDataset):
     #     self._g.ndata['train_mask'] = generate_mask_tensor(F.asnumpy(self._g.ndata['train_mask']))
     #     self._g.ndata['val_mask'] = generate_mask_tensor(F.asnumpy(self._g.ndata['val_mask']))
     #     self._g.ndata['test_mask'] = generate_mask_tensor(F.asnumpy(self._g.ndata['test_mask']))
-    #     # hack for mxnet compatability
+    #     # hack for mxnet compatibility
     #
     #     if self.verbose:
     #         print('  NumNodes: {}'.format(self._g.number_of_nodes()))
@@ -273,7 +273,7 @@ class CitationGraphDataset(EasyGraphBuiltinDataset):
         return self._num_classes
 
     """ Citation graph is used in many examples
-        We preserve these properties for compatability.
+        We preserve these properties for compatibility.
     """
 
     @property

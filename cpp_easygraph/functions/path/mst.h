@@ -14,5 +14,5 @@ class UnionFind {
     std::unordered_map<node_t, unsigned int> weights;
 };
 
-py::object kruskal_mst_edges(py::object G, py::object minium, py::object weight, py::object data, py::object ignore_nan);
+py::object kruskal_mst_edges(py::object G, py::object minimum, py::object weight, py::object data, py::object ignore_nan);
 py::object prim_mst_edges(py::object G, py::object minimum, py::object weight, py::object data, py::object ignore_nan);

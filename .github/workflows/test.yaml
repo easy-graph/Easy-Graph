@@ -31,6 +31,8 @@ jobs:
           extra-modules-to-install: 'optuna'
 
       - name: 'Checkout tddschn/easygraph-bench (tag: cpp-sanity-check-v1)'
+        # if python >= 3.10
+        if: ${{ matrix.python-version == '3.10' }}
         uses: actions/checkout@v3
         with:
           repository: 'tddschn/easygraph-bench'
@@ -38,10 +40,12 @@ jobs:
           path: 'easygraph-bench'
 
       - name: Install dependencies for easygraph-bench
+        if: ${{ matrix.python-version == '3.10' }}
         run: |
           python3 -m pip install -r easygraph-bench/requirements.txt
 
       - name: 'C++ Sanity Check'
+        if: ${{ matrix.python-version == '3.10' }}
         shell: bash
         working-directory: easygraph-bench
         run: |

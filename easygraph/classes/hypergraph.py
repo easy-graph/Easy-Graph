@@ -28,7 +28,7 @@ class Hypergraph(BaseHypergraph):
         ``e_list`` (``Union[List[int], List[List[int]]]``, optional): A list of hyperedges describes how the vertices point to the hyperedges. Defaults to ``None``.
         ``e_weight`` (``Union[float, List[float]]``, optional): A list of weights for hyperedges. If set to ``None``, the value ``1`` is used for all hyperedges. Defaults to ``None``.
         ``merge_op`` (``str``): The operation to merge those conflicting hyperedges in the same hyperedge group, which can be ``'mean'``, ``'sum'`` or ``'max'``. Defaults to ``'mean'``.
-        ``device`` (``torch.device``, optional): The deivce to store the hypergraph. Defaults to ``torch.device('cpu')``.
+        ``device`` (``torch.device``, optional): The device to store the hypergraph. Defaults to ``torch.device('cpu')``.
     """
 
     def __init__(
@@ -426,7 +426,7 @@ class Hypergraph(BaseHypergraph):
             _hg = Hypergraph.from_state_dict(state_dict)
             _hg = _hg.to(self.device)
         else:
-            raise ValueError(f"Unkonwn drop order: {ord}.")
+            raise ValueError(f"Unknown drop order: {ord}.")
         return _hg
 
     def drop_hyperedges_of_group(
@@ -457,7 +457,7 @@ class Hypergraph(BaseHypergraph):
             _hg = Hypergraph.from_state_dict(state_dict)
             _hg = _hg.to(self.device)
         else:
-            raise ValueError(f"Unkonwn drop order: {ord}.")
+            raise ValueError(f"Unknown drop order: {ord}.")
         return _hg
 
     # =====================================================================================
