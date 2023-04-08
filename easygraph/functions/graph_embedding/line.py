@@ -207,26 +207,26 @@ class LINE(nn.Module):
     
 
 
-if __name__ == '__main__':
-    dataset = eg.CiteseerGraphDataset(force_reload=True) # Download CiteseerGraphDataset contained in EasyGraph
-    num_classes = dataset.num_classes
-    g = dataset[0]
-    labels = g.ndata['label']
-    edge_list = []
-    for i in g.edges:
-        edge_list.append((i[0],i[1]))
-    g1 = eg.Graph()
-    g1.add_edges_from(edge_list)
-    # print(g.edges)
-    # print(g.__dir__())
+# if __name__ == '__main__':
+#     dataset = eg.CiteseerGraphDataset(force_reload=True) # Download CiteseerGraphDataset contained in EasyGraph
+#     num_classes = dataset.num_classes
+#     g = dataset[0]
+#     labels = g.ndata['label']
+#     edge_list = []
+#     for i in g.edges:
+#         edge_list.append((i[0],i[1]))
+#     g1 = eg.Graph()
+#     g1.add_edges_from(edge_list)
+#     # print(g.edges)
+#     # print(g.__dir__())
     
     
-    model = LINE(dimension=128, walk_length=80, walk_num=20, negative=5, batch_size=128, init_alpha=0.025, order=3)
-    print(model)
+#     model = LINE(dimension=128, walk_length=80, walk_num=20, negative=5, batch_size=128, init_alpha=0.025, order=3)
+#     print(model)
     
     
-    model.train()
-    out = model(g1, return_dict=True)
+#     model.train()
+#     out = model(g1, return_dict=True)
     
 #     keylist = sorted(out)
 #     tmp = torch.cat((torch.unsqueeze(torch.tensor(out[keylist[0]]),-2), torch.unsqueeze(torch.tensor(out[keylist[1]]),-2)),0)
