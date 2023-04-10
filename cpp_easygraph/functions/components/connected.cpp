@@ -130,7 +130,7 @@ py::object connected_component_directed(py::object G) {
     bool is_directed = G.attr("is_directed")().cast<bool>();
     if (is_directed == false) {
         printf("connected_component_directed is designed for directed graphs.\n");
-        return py::dict();
+        return py::list();
     }
     DiGraph& G_ = G.cast<DiGraph&>();
     int N = G_.node.size();
@@ -165,12 +165,12 @@ py::object connected_component_directed(py::object G) {
         if (!dfn[i] && has_edge[i])
             _tarjan(i, &Time, &cnt, &Tot, E, head, dfn, low, st, color, in_stack, E_res, head_res, &edge_number_res);
 
-    py::dict ret = py::dict();
+    py::list ret = py::list();
     for (int i = 1; i <= Tot; ++i) {
-        py::list tmp = py::list();
+        py::set tmp;
         for(int p = head_res[i]; p; p = E_res[p].next)
-            tmp.append(py::cast(E_res[p].toward));
-        ret[py::cast(i)] = tmp;
+            tmp.add(G_.id_to_node.attr("get")(E_res[p].toward));
+        ret.append(tmp);
     }
     return ret;
 }

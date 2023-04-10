@@ -1,8 +1,26 @@
 #include "strongly_connected.h"
+#include "connected.h"
 
 #include "../../classes/directed_graph.h"
 
+#define MAX_NODES_NUM4RECURSION_METHOD 100000
+
 py::object strongly_connected_components(py::object G) {
+    bool is_directed = G.attr("is_directed")().cast<bool>();
+    if (is_directed == false) {
+        printf("connected_component_directed is designed for directed graphs.\n");
+        return py::list();
+    }
+    
+    int N = G.attr("number_of_nodes")().cast<int>();
+    if(N < MAX_NODES_NUM4RECURSION_METHOD){
+        return connected_component_directed(G);
+    }
+
+    return strongly_connected_components_iteration_impl(G);
+}
+
+py::object strongly_connected_components_iteration_impl(py::object G) {
     py::list res = py::list();
     DiGraph& G_ = py::cast<DiGraph&>(G);
     adj_dict_factory& adj = G_.adj;
