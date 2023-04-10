@@ -134,8 +134,14 @@ py::object connected_component_directed(py::object G) {
     }
     DiGraph& G_ = G.cast<DiGraph&>();
     int N = G_.node.size();
-    Graph_L G_l = graph_to_linkgraph(G_, is_directed, "", true);
-
+    Graph_L G_l;
+    if(G_.linkgraph_dirty || G_.linkgraph_structure.max_deg == -1){
+        G_l = graph_to_linkgraph(G_, is_directed, "", true, false);
+        G_.linkgraph_dirty = false;
+    }
+    else{
+        G_l = G_.linkgraph_structure;
+    }
     std::vector<LinkEdge>& E = G_l.edges;
     std::vector<int> outDegree = G_l.degree;
     std::vector<int> head = G_l.head;
