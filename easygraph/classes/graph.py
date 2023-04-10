@@ -67,7 +67,7 @@ class Graph:
     adjlist_outer_dict_factory = dict
     adjlist_inner_dict_factory = dict
     edge_attr_dict_factory = dict
-    node_index_dict  = dict
+    node_index_dict = dict
 
     def __init__(self, incoming_graph_data=None, extra_selfloop=False, **graph_attr):
         self.graph = self.graph_attr_dict_factory()
@@ -113,9 +113,11 @@ class Graph:
     def nodes(self):
         return self._node
         # return [node for node in self._node]
+
     @property
     def node_index(self):
         return self._node_index
+
     @property
     def node_index(self):
         return self._node_index
