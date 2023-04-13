@@ -24,12 +24,12 @@ class LINE(nn.Module):
     G : easygraph.Graph or easygraph.DiGraph
     dimension: int
     walk_length: int
-    
+
     walk_num: int
-    
+
     negative: int
     batch_size: int
-    
+
     init_alpha: float
     order: int
     Returns
@@ -39,12 +39,12 @@ class LINE(nn.Module):
     Examples
     --------
     >>> model = LINE(
-    ...          dimension=128, 
-    ...          walk_length=80, 
-    ...          walk_num=20, 
-    ...          negative=5, 
-    ...          batch_size=128, 
-    ...          init_alpha=0.025, 
+    ...          dimension=128,
+    ...          walk_length=80,
+    ...          walk_num=20,
+    ...          negative=5,
+    ...          batch_size=128,
+    ...          init_alpha=0.025,
     ...          order=3  )
     >>> model.train()
     >>> emb = model(g, return_dict=True) # g: easygraph.Graph or easygraph.DiGraph
@@ -53,7 +53,7 @@ class LINE(nn.Module):
     ----------
 
     .. [1] Tang, J., Qu, M., Wang, M., Zhang, M., Yan, J., & Mei, Q. (2015, May). Line: Large-scale information network embedding. In Proceedings of the 24th international conference on world wide web (pp. 1067-1077).
-    
+
     https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/frp0228-Tang.pdf
 
     """
@@ -212,7 +212,7 @@ class LINE(nn.Module):
         for b in epoch_iter:
             if b % 100 == 0:
                 epoch_iter.set_description(
-                #    f"Progress: {b * 1.0 / num_batch * 100:.4f}, alpha: {self.alpha:.6f}, time: {time.time() - t0:.4f}"
+                    #    f"Progress: {b * 1.0 / num_batch * 100:.4f}, alpha: {self.alpha:.6f}, time: {time.time() - t0:.4f}"
                 )
                 self.alpha = self.init_alpha * max((1 - b * 1.0 / num_batch), 0.0001)
             u, v = [0] * batch_size, [0] * batch_size

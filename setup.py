@@ -1,13 +1,16 @@
 import os
 import platform
+
 from distutils import sysconfig
 from pathlib import Path
 
 import setuptools
+
 # print(setuptools.__file__)
 # Available at setup time due to pyproject.toml
 from pybind11.setup_helpers import Pybind11Extension
 from pybind11.setup_helpers import build_ext
+
 
 with open("README.rst") as fh:
     long_description = fh.read()

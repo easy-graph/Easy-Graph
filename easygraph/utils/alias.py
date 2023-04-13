@@ -68,8 +68,10 @@ def alias_sample(accept, alias):
     else:
         return alias[i]
 
+
 def alias_draw(J, q):
     import numpy as np
+
     """
     Draw sample from a non-uniform discrete distribution using alias sampling.
     """
@@ -80,9 +82,11 @@ def alias_draw(J, q):
         return kk
     else:
         return J[kk]
-    
+
+
 def alias_setup(probs):
     import numpy as np
+
     """
     Compute utility lists for non-uniform sampling from discrete distributions.
     Refer to https://hips.seas.harvard.edu/blog/2013/03/03/the-alias-method-efficient-sampling-with-many-discrete-outcomes/

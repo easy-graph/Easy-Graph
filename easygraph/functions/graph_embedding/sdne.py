@@ -119,7 +119,7 @@ class SDNE(nn.Module):
         nhid0, nhid1: Two dimensions of two hiddenlayers, default: 128, 64
 
         dropout: One parameter for regularization, default: 0.025
-        
+
         alpha, beta:  Twe parameters
         graph=g: : easygraph.Graph or easygraph.DiGraph
 
@@ -162,9 +162,9 @@ class SDNE(nn.Module):
         https://www.kdd.org/kdd2016/papers/files/rfp0191-wangAemb.pdf
     """
 
-
-    
-    def __init__(self, graph, node_size, nhid0, nhid1, dropout=0.06, alpha=2e-2, beta=10.0):
+    def __init__(
+        self, graph, node_size, nhid0, nhid1, dropout=0.06, alpha=2e-2, beta=10.0
+    ):
         super(SDNE, self).__init__()
         self.encode0 = nn.Linear(node_size, nhid0)
         self.encode1 = nn.Linear(nhid0, nhid1)
@@ -193,7 +193,19 @@ class SDNE(nn.Module):
         L_2nd = torch.sum(((adj_batch - t0) * b_mat) * ((adj_batch - t0) * b_mat))
         return L_1st, self.alpha * L_2nd, L_1st + self.alpha * L_2nd
 
-    def train(self, model, epochs=100, lr=0.006, bs=100, step_size=10, gamma=0.9, nu1=1e-5, nu2=1e-4, device="cpu", output="out.emb"):
+    def train(
+        self,
+        model,
+        epochs=100,
+        lr=0.006,
+        bs=100,
+        step_size=10,
+        gamma=0.9,
+        nu1=1e-5,
+        nu2=1e-4,
+        device="cpu",
+        output="out.emb",
+    ):
         Adj, Node = get_adj(self.graph)
         model = model.to(device)
 
@@ -220,9 +232,9 @@ class SDNE(nn.Module):
                 L_1st, L_2nd, L_all = model(adj_batch, adj_mat, b_mat)
                 L_reg = 0
                 for param in model.parameters():
-                    L_reg += nu1 * torch.sum(
-                        torch.abs(param)
-                    ) + nu2 * torch.sum(param * param)
+                    L_reg += nu1 * torch.sum(torch.abs(param)) + nu2 * torch.sum(
+                        param * param
+                    )
                 Loss = L_all + L_reg
                 Loss.backward()
                 opt.step()
