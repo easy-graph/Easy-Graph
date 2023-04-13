@@ -173,3 +173,4 @@ x64/
 *.vcxproj.user
 
 workspace/
+.DS_Store

@@ -1,5 +1,5 @@
 import easygraph as eg
-import progressbar
+# import progressbar
 
 
 __all__ = [

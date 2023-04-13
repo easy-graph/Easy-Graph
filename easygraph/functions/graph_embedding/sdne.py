@@ -107,14 +107,72 @@ def get_adj(g):
 
 
 class SDNE(nn.Module):
-    def __init__(self, node_size, nhid0, nhid1, droput, alpha, graph):
+    """
+    Graph embedding via SDNE.
+
+        Parameters
+        ----------
+        graph : easygraph.Graph or easygraph.DiGraph
+
+        node: Size of nodes
+
+        nhid0, nhid1: Two dimensions of two hiddenlayers, default: 128, 64
+
+        dropout: One parameter for regularization, default: 0.025
+        
+        alpha, beta:  Twe parameters
+        graph=g: : easygraph.Graph or easygraph.DiGraph
+
+    Examples
+    --------
+    >>> import easygraph as eg
+    >>> model = eg.SDNE(graph=g, node_size= len(g.nodes), nhid0=128, nhid1=64, dropout=0.025, alpha=2e-2, beta=10)
+    >>> emb = model.train(model, epochs, lr, bs, step_size, gamma, nu1, nu2, device, output)
+
+
+    epochs,  "--epochs", default=400, type=int, help="The training epochs of SDNE"
+
+    alpha,   "--alpha", default=2e-2, type=float, help="alhpa is a hyperparameter in SDNE"
+
+    beta, "--beta", default=10.0, type=float, help="beta is a hyperparameter in SDNE"
+
+    lr, "--lr", default=0.006, type=float, help="learning rate"
+
+    bs, "--bs", default=100, type=int, help="batch size of SDNE"
+
+    step_size,  "--step_size", default=10, type=int, help="The step size for lr"
+
+    gamma, # "--gamma", default=0.9, type=int, help="The gamma for lr"
+
+    step_size, "--step_size", default=10, type=int, help="The step size for lr"
+
+    nu1, # "--nu1", default=1e-5, type=float, help="nu1 is a hyperparameter in SDNE"
+
+    nu2,  "--nu2", default=1e-4, type=float, help="nu2 is a hyperparameter in SDNE"
+
+    device, "-- device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") "
+
+    output  "--output", default="node.emb", help="Output representation file"
+
+
+    Reference
+        ----------
+        .. [1] Wang, D., Cui, P., & Zhu, W. (2016, August). Structural deep network embedding. In Proceedings of the 22nd ACM SIGKDD international conference on Knowledge discovery and data mining (pp. 1225-1234).
+
+        https://www.kdd.org/kdd2016/papers/files/rfp0191-wangAemb.pdf
+    """
+
+
+    
+    def __init__(self, graph, node_size, nhid0, nhid1, dropout=0.06, alpha=2e-2, beta=10.0):
         super(SDNE, self).__init__()
         self.encode0 = nn.Linear(node_size, nhid0)
         self.encode1 = nn.Linear(nhid0, nhid1)
         self.decode0 = nn.Linear(nhid1, nhid0)
         self.decode1 = nn.Linear(nhid0, node_size)
-        self.droput = droput
+        self.droput = dropout
         self.alpha = alpha
+        self.beta = beta
         self.graph = graph
 
     def forward(self, adj_batch, adj_mat, b_mat):
@@ -135,37 +193,36 @@ class SDNE(nn.Module):
         L_2nd = torch.sum(((adj_batch - t0) * b_mat) * ((adj_batch - t0) * b_mat))
         return L_1st, self.alpha * L_2nd, L_1st + self.alpha * L_2nd
 
-    def train(self, args, device):
+    def train(self, model, epochs=100, lr=0.006, bs=100, step_size=10, gamma=0.9, nu1=1e-5, nu2=1e-4, device="cpu", output="out.emb"):
         Adj, Node = get_adj(self.graph)
-        model = SDNE(Node, args.nhid0, args.nhid1, args.dropout, args.alpha, self.graph)
         model = model.to(device)
 
-        opt = optim.Adam(model.parameters(), lr=args.lr)
+        opt = optim.Adam(model.parameters(), lr=lr)
         scheduler = torch.optim.lr_scheduler.StepLR(
-            opt, step_size=args.step_size, gamma=args.gamma
+            opt, step_size=step_size, gamma=gamma
         )
         Data = Dataload(Adj, Node)
         Data = DataLoader(
             Data,
-            batch_size=args.bs,
+            batch_size=bs,
             shuffle=True,
         )
 
-        for epoch in range(1, args.epochs + 1):
+        for epoch in range(1, epochs + 1):
             loss_sum, loss_L1, loss_L2, loss_reg = 0, 0, 0, 0
             for index in Data:
                 adj_batch = Adj[index]
                 adj_mat = adj_batch[:, index]
                 b_mat = torch.ones_like(adj_batch)
-                b_mat[adj_batch != 0] = args.beta
+                b_mat[adj_batch != 0] = self.beta
 
                 opt.zero_grad()
                 L_1st, L_2nd, L_all = model(adj_batch, adj_mat, b_mat)
                 L_reg = 0
                 for param in model.parameters():
-                    L_reg += args.nu1 * torch.sum(
+                    L_reg += nu1 * torch.sum(
                         torch.abs(param)
-                    ) + args.nu2 * torch.sum(param * param)
+                    ) + nu2 * torch.sum(param * param)
                 Loss = L_all + L_reg
                 Loss.backward()
                 opt.step()
@@ -184,7 +241,7 @@ class SDNE(nn.Module):
         # model.eval()
         embedding = model.savector(Adj)
         outVec = embedding.detach().numpy()
-        np.savetxt(args.output, outVec)
+        np.savetxt(output, outVec)
 
         return outVec
 
