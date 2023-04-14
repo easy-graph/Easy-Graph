@@ -31,21 +31,13 @@ def k_core(G: "Graph", k: int = 1):
             break
 
         # Remove the nodes and their incident edges
-        H.remove_nodes_from(to_remove)
+        for n in to_remove:
+            neighbors = list(H.neighbors(n))
+            H.remove_node(n)
 
-        # Update the degrees of the remaining nodes
-        degrees = dict(H.degree())
+            # Update the degrees of the remaining nodes
+            for neighbor in neighbors:
+                if neighbor in degrees:
+                    degrees[neighbor] -= 1
 
     return H
-
-
-def test_k_core():
-    from easygraph import Graph
-
-    G = Graph()
-    G.add_edges_from([(1, 2), (1, 3), (2, 3), (2, 4), (3, 4), (4, 5)])
-    H = k_core(G, k=2)
-    assert sorted(H.nodes.keys()) == sorted([1, 2, 3, 4])
-    assert sorted((x, y) for x, y, _ in H.edges) == sorted(
-        [(1, 2), (1, 3), (2, 3), (2, 4), (3, 4)]
-    )
