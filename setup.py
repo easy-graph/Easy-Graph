@@ -1,10 +1,12 @@
 import os
 import platform
 
+from distutils import sysconfig
 from pathlib import Path
 
 import setuptools
 
+# print(setuptools.__file__)
 # Available at setup time due to pyproject.toml
 from pybind11.setup_helpers import Pybind11Extension
 from pybind11.setup_helpers import build_ext
@@ -17,13 +19,15 @@ cpp_source_dir = Path(__file__).parent / "cpp_easygraph"
 sources = list(str(x) for x in cpp_source_dir.rglob("*.cpp"))
 
 uname = platform.uname()
+
+
 compileArgs = []
 if uname[0] == "Darwin" or uname[0] == "Linux":
     compileArgs = []
 CYTHON_STR = "Cython"
 setuptools.setup(
     name="Python-EasyGraph",
-    version="0.2a42",
+    version="0.2a46",
     author="Fudan MSN Group",
     author_email="easygraph@163.com",
     description="Easy Graph",
@@ -57,7 +61,6 @@ setuptools.setup(
         "nose>=0.10.1",
         "pandas>=1.0.1, <=1.1.5; python_version<='3.7'",
         "matplotlib",
-        "cogdl>=0.5.3"
     ],
     setup_requires=[CYTHON_STR],
     test_suite="nose.collector",
@@ -66,8 +69,9 @@ setuptools.setup(
     ext_modules=[
         Pybind11Extension(
             "cpp_easygraph", sources, optional=True, extra_compile_args=compileArgs,
-            include_dirs=["/usr/local/Cellar/gcc/12.2.0/include/c++/12","/usr/local/Cellar/gcc/12.2.0/include/c++/12/x86_64-apple-darwin21"],
+            include_dirs=["/opt/homebrew/Cellar/gcc/12.2.0/include/c++/12","/opt/homebrew/Cellar/gcc/12.2.0/include/c++/12/aarch64-apple-darwin21"],
             libraries=['stdc++']
+
         )
     ],
 )
