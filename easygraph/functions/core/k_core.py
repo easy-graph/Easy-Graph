@@ -7,6 +7,8 @@ __all__ = [
 
 
 from typing import TYPE_CHECKING
+from typing import List
+from typing import Union
 
 
 if TYPE_CHECKING:
@@ -14,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @hybrid("cpp_k_core")
-def k_core(G: "Graph", k: int = 1, return_graph: bool = False):
+def k_core(G: "Graph", k: int = 1, return_graph: bool = False) -> Union["Graph", List]:
     """
     Returns the k-core of G.
 
