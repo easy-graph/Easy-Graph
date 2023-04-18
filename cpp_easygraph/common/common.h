@@ -17,8 +17,7 @@
 #include <vector>
 #include <thread>
 #include <inttypes.h>
-#include<ext/pb_ds/priority_queue.hpp>
-
+#include <limits>
 namespace py = pybind11;
 
 typedef int node_t;

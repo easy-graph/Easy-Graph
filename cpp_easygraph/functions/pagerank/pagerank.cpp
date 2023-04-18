@@ -15,7 +15,6 @@ struct Page {
 // get_edge_from_node
 
 py::object _pagerank(py::object G, double alpha=0.85, int max_iterator=500, double threshold=1e-6) {
-    // clock_t start, end;
 
     bool is_directed = G.attr("is_directed")().cast<bool>();
     if (is_directed == false) {
@@ -39,7 +38,7 @@ py::object _pagerank(py::object G, double alpha=0.85, int max_iterator=500, doub
     std::vector<int> outDegree = G_l.degree;
     std::vector<int> head = G_l.head;
 
-    Page page[N+1];
+    std::vector<Page>page(N+1);
     for (int i = 1; i < N + 1; ++i) {
         page[i] = Page(0, 1.0/N);
     }
@@ -48,8 +47,6 @@ py::object _pagerank(py::object G, double alpha=0.85, int max_iterator=500, doub
 	int shouldStop = 0; //根据oldPR与newPR的差值 判断是否停止迭代
 
 
-    // 开始迭代
-    // start = clock();
     while(!shouldStop)
     {
         shouldStop = 1;
@@ -80,13 +77,11 @@ py::object _pagerank(py::object G, double alpha=0.85, int max_iterator=500, doub
         if (cnt >= max_iterator)
             break;
     }
-    // end = clock();
     
     py::list res_lst = py::list();
     for(int i = 1;i < N + 1;i++){
         res_lst.append(page[i].oldPR);
     }
-    // printf("process: %f\n", double(end-start)/CLOCKS_PER_SEC);
 
     return res_lst;
 }
