@@ -10,7 +10,7 @@ std::vector<float> _dijkstra(Graph_L &G_l, int source, std::string weight, int t
     const int dis_inf = 0x3f3f3f3f;
     int N = G_l.n;
     std::vector<float> dis(N+1,INFINITY);
-    Segment_tree_zkw segment_tree_zkw;
+    Segment_tree_zkw segment_tree_zkw(N);
     segment_tree_zkw.init(N);
     segment_tree_zkw.change(source, 0);
     dis[source] = 0;

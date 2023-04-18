@@ -9,7 +9,7 @@ void betweenness_dijkstra(const Graph_L& G_l, const int &S, std::vector<double>&
     const int dis_inf = 0x3f3f3f3f;
     int N = G_l.n;
     int edge_number_path = 0;
-    Segment_tree_zkw segment_tree_zkw;
+    Segment_tree_zkw segment_tree_zkw(N);
     segment_tree_zkw.init(N);
     std::vector<int> dis(N+1, INT_MAX);
     std::vector<int> head_path(N+1, 0);

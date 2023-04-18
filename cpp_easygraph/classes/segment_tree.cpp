@@ -6,10 +6,12 @@ class Segment_tree_zkw {
     public:
         std::vector<int> t;
         std::vector<int> num;
-
+        Segment_tree_zkw(int N){
+            int size = (N+1)<<2;
+            t.reserve(size);
+            num.reserve(size);
+        }
         void init(int N) {
-            t.resize((N + 1)<<2);
-            num.resize((N + 1)<<2);
             int len = (N+1)<<2;
             for(int i = 0; i <= len; i++){
                 t[i] = INT_MAX;
@@ -18,8 +20,8 @@ class Segment_tree_zkw {
             tn = 1;
             while(tn < N) tn <<= 1;
             --tn;
-            for (int i = 1; i <= N; ++i) 
-                num[i + tn] = i;
+            for (int i = 1; i <= N; ++i)
+                this->num[i + tn] = i;
         }
 
         void change(int p, const int &k) {
