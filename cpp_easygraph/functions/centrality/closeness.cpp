@@ -9,7 +9,7 @@ double closeness_dijkstra(const Graph_L& G_l, const int &S, double cutoff){
     int N = G_l.n;
     Segment_tree_zkw segment_tree_zkw;
     segment_tree_zkw.init(N);
-    std::vector<int> dis(N+1, INFINITY);
+    std::vector<int> dis(N+1, INT_MAX);
     const std::vector<LinkEdge>& E = G_l.edges;
     const std::vector<int>& head = G_l.head;
     int number_connected = 0;

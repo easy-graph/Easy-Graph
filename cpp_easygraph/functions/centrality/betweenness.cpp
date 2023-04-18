@@ -11,7 +11,7 @@ void betweenness_dijkstra(const Graph_L& G_l, const int &S, std::vector<double>&
     int edge_number_path = 0;
     Segment_tree_zkw segment_tree_zkw;
     segment_tree_zkw.init(N);
-    std::vector<int> dis(N+1, INFINITY);
+    std::vector<int> dis(N+1, INT_MAX);
     std::vector<int> head_path(N+1, 0);
     const std::vector<int>& head = G_l.head;
     const std::vector<LinkEdge>& E = G_l.edges;
@@ -27,6 +27,7 @@ void betweenness_dijkstra(const Graph_L& G_l, const int &S, std::vector<double>&
     int cnt_St = 0;
     while(segment_tree_zkw.t[1] != dis_inf) {
         int u = segment_tree_zkw.num[1];
+        if(u==0) break;
         segment_tree_zkw.change(u, dis_inf);
         if (cutoff >= 0 && dis[u] > cutoff){
             continue;

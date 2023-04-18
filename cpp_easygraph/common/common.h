@@ -17,7 +17,7 @@
 #include <vector>
 #include <thread>
 #include <inttypes.h>
-
+#include <limits>
 namespace py = pybind11;
 
 typedef int node_t;
