@@ -2,29 +2,26 @@
 #include "../../classes/graph.h"
 #include "../../common/utils.h"
 #include "../../classes/linkgraph.h"
-
+#include "../../classes/segment_tree.cpp"
 
 double closeness_dijkstra(const Graph_L& G_l, const int &S, double cutoff){
+    const int dis_inf = 0x3f3f3f3f;
     int N = G_l.n;
-    __gnu_pbds::priority_queue<compare_node> q;
+    Segment_tree_zkw segment_tree_zkw;
+    segment_tree_zkw.init(N);
     std::vector<int> dis(N+1, INFINITY);
-    std::vector<bool> vis(N+1, false);
     const std::vector<LinkEdge>& E = G_l.edges;
     const std::vector<int>& head = G_l.head;
     int number_connected = 0;
     long long sum_dis = 0;
     dis[S] = 0; 
-    q.push(compare_node(S, 0));
-    while(!q.empty()) {
-        int u=q.top().x;
-        q.pop();
-        if (vis[u]){
-            continue;
-        }
+    segment_tree_zkw.change(S, 0);
+    while(segment_tree_zkw.t[1] != dis_inf) {
+        int u = segment_tree_zkw.num[1];
+        segment_tree_zkw.change(u, dis_inf);
         if (cutoff >= 0 && dis[u] > cutoff){
             continue;
         } 
-        vis[u] = true;
         number_connected += 1;
         sum_dis += dis[u];
         for(register int p = head[u]; p != -1; p = E[p].next) {
@@ -34,7 +31,7 @@ double closeness_dijkstra(const Graph_L& G_l, const int &S, double cutoff){
             }
             if (dis[v] > dis[u] + E[p].w) {
                 dis[v] = dis[u] + E[p].w;
-                q.push(compare_node(v, dis[v]));
+                segment_tree_zkw.change(v, dis[v]);  
             }
         }
     }

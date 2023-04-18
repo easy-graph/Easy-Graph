@@ -3,24 +3,22 @@
 #include "../../classes/graph.h"
 #include "../../common/utils.h"
 #include "../../classes/linkgraph.h"
-
+#include "../../classes/segment_tree.cpp"
 
 
 std::vector<float> _dijkstra(Graph_L &G_l, int source, std::string weight, int target) {
+    const int dis_inf = 0x3f3f3f3f;
     int N = G_l.n;
     std::vector<float> dis(N+1,INFINITY);
-    std::vector<bool> vis(N+1,false);
-    __gnu_pbds::priority_queue<compare_node> q;
+    Segment_tree_zkw segment_tree_zkw;
+    segment_tree_zkw.init(N);
+    segment_tree_zkw.change(source, 0);
     dis[source] = 0;
-    q.push(compare_node(source, dis[source]));
     std::vector<LinkEdge>& E = G_l.edges;
     std::vector<int>& head = G_l.head;
-    while(!q.empty()) {
-        int u=q.top().x;
-        q.pop();
-        if (vis[u]) 
-            continue;
-        vis[u] = true;
+    while(segment_tree_zkw.t[1] != dis_inf) {
+        int u = segment_tree_zkw.num[1];
+        segment_tree_zkw.change(u, dis_inf);
         if(u == target){
             break;
         }
@@ -28,7 +26,7 @@ std::vector<float> _dijkstra(Graph_L &G_l, int source, std::string weight, int t
             int v = E[p].to;
             if (dis[v] > dis[u] + E[p].w) {
                 dis[v] = dis[u] + E[p].w;
-                q.push(compare_node(v, dis[v]));
+                segment_tree_zkw.change(v, dis[v]);  
             }   
         }
     }
@@ -110,126 +108,17 @@ py::object _spfa(py::object G, py::object source, py::object weight) {
             }
         }
 	}
-    // py::list pydist = py::list();
-    // for(int i = 1; i <= N; i++){
-    //     pydist.append(py::cast(dis[i]));
-    // }
-    py::dict pydist = py::dict();
+    py::list pydist = py::list();
     for(int i = 1; i <= N; i++){
-        pydist[G_.id_to_node[py::cast(i)]] = dis[i];
+        pydist.append(py::cast(dis[i]));
     }
+    // py::dict pydist = py::dict();
+    // for(int i = 1; i <= N; i++){
+    //     pydist[G_.id_to_node[py::cast(i)]] = dis[i];
+    // }
     return pydist;
 }
 
-// py::object _dijkstra(py::object G,py::object sources, py::object weight, py::object target) {
-//     Graph& G_ = G.cast<Graph&>();
-//     bool is_directed = G.attr("is_directed")().cast<bool>();
-//  //   std::cout<<"is_directed:"<<is_directed<<std::endl;
-//     node_t target_id = G_.node_to_id.attr("get")(target, -1).cast<node_t>();
-//  //   printf("target_id%d\n",target_id);
-//     std::string weight_key = weight_to_string(weight);
-//     Graph_L G_l = graph_to_linkgraph(G_, is_directed, weight_key);
-//     int N = G_.node.size();
-//  //   printf("N:%d\n",N);
-//     std::vector<double> dis(N+1,INFINITY);
-//     std::vector<bool> vis(N+1,false);
-    
-//     __gnu_pbds::priority_queue<compare_node> q;
-    
-//     py::list sources_list = py::list(sources);
-//     int sources_list_len = py::len(sources_list);
-//     for (register int i = 0; i < sources_list_len; i++) {
-//         node_t source = G_.node_to_id[sources_list[i]].cast<node_t>();
-//       //  printf("source_id%d\n",source);
-//         dis[source] = 0;
-//         q.push(compare_node(source, dis[source]));
-//     //    printf("dis[source]:%2f\n",dis[source]);
-//     }
-
-//     std::vector<LinkEdge>& E = G_l.edges;
-//    // printf("E_len:%d\n",E.size());
-//     std::vector<int>& head = G_l.head;
-//     while(!q.empty()) {
-//         // printf("enter\n");
-//         int u=q.top().x;
-//         // printf("u:%d\n",u);
-//         q.pop();
-//         if (vis[u]) 
-//             continue;
-//         vis[u] = true;
-//         if(u == target_id){
-//             break;
-//         }
-//         for(register int p = head[u]; p != -1; p = E[p].next) {
-//             int v = E[p].to;
-//             // printf("v:%d p:%d\n",v,p);
-//             if (dis[v] > dis[u] + E[p].w) {
-//                 // printf("enter2\n");
-//                 dis[v] = dis[u] + E[p].w;
-//                 q.push(compare_node(v, dis[v]));
-//                 // printf("enter3\n");
-//             }
-            
-//         }
-//     }
-//     // printf("finish_first\n");
-//     py::dict pydist = py::dict();
-//     for(int i = 1; i <= N; i++){
-//         pydist[G_.id_to_node[py::cast(i)]] = dis[i];
-//     }
-//     return pydist;
-
-// }
-
-// py::object _dijkstra_multisource(py::object G, py::object sources, py::object weight, py::object target) {
-//     Graph& G_ = G.cast<Graph&>();
-//     std::string weight_key = weight_to_string(weight);
-//     node_t target_id = G_.node_to_id.attr("get")(target, -1).cast<node_t>();
-//     std::map<node_t, weight_t> dist, seen;
-//     std::priority_queue<std::pair<weight_t, node_t>, std::vector<std::pair<weight_t, node_t>>, std::greater<std::pair<weight_t, node_t>>> Q;
-//     py::list sources_list = py::list(sources);
-//     int sources_list_len = py::len(sources_list);
-//     for (int i = 0; i < sources_list_len; i++) {
-//         node_t source = G_.node_to_id[sources_list[i]].cast<node_t>();
-//         seen[source] = 0;
-//         Q.push(std::make_pair(0, source));
-//     }
-//     while (!Q.empty()) {
-//         std::pair<weight_t, node_t> node = Q.top();
-//         Q.pop();
-//         weight_t d = node.first;
-//         node_t v = node.second;
-//         if (dist.count(v)) {
-//             continue;
-//         }
-//         dist[v] = d;
-//         if (v == target_id) {
-//             break;
-//         }
-//         adj_dict_factory& adj = G_.adj;
-//         for (auto& neighbor_info : adj[v]) {
-//             node_t u = neighbor_info.first;
-//             weight_t cost = neighbor_info.second.count(weight_key) ? neighbor_info.second[weight_key] : 1;
-//             weight_t vu_dist = dist[v] + cost;
-//             if (dist.count(u)) {
-//                 if (vu_dist < dist[u]) {
-//                     PyErr_Format(PyExc_ValueError, "Contradictory paths found: negative weights?");
-//                     return py::none();
-//                 }
-//             } else if (!seen.count(u) || vu_dist < seen[u]) {
-//                 seen[u] = vu_dist;
-//                 Q.push(std::make_pair(vu_dist, u));
-//             } else {
-//                 continue;
-//             }
-//         }
-//     }
-//     py::dict pydist = py::dict();
-//     for (const auto& kv : dist) {
-//         pydist[G_.id_to_node[py::cast(kv.first)]] = kv.second;
-//     }
-//     return pydist;
-// }
 
 py::object Prim(py::object G, py::object weight) {
     std::unordered_map<node_t, std::unordered_map<node_t, weight_t>> res_dict;
