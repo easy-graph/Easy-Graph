@@ -49,19 +49,18 @@ py::object connected_component_undirected(py::object G) {
     }
     int N = G_.node.size();
     int M = G.attr("number_of_edges")().cast<int>();
-    Edge_weighted E_res[N+5];
+    std::vector<Edge_weighted> E_res(N+5);
     for(int i=0; i < N+5; i++) {
         E_res[i].toward = 0;
         E_res[i].next = 0;
     }
     int edge_number_res = 0;
-    int parent[N+5], rank_node[N+5], color[N+5], head_res[N+5];
-    bool has_edge[N+5];
-    memset(parent, 0, sizeof(int) * (N+5));
-    memset(head_res, 0, sizeof(int) * (N+5));
-    memset(rank_node, 0, sizeof(int) * (N+5));
-    memset(color, 0, sizeof(int) * (N+5));
-    memset(has_edge, false, sizeof(bool) * (N+5));
+    std::vector<int> parent(N+5, 0);
+    std::vector<int> rank_node(N+5, 0);
+    std::vector<int> color(N+5, 0);
+    std::vector<int> head_res(N+5, 0);
+    std::vector<bool> has_edge(N+5, false);
+
 
     py::list nodes_list = py::list(G.attr("nodes"));
     for (int i = 0;i < py::len(nodes_list);i++) {
@@ -101,7 +100,7 @@ py::object connected_component_undirected(py::object G) {
     return ret;
 }
 
-inline void _union_node(const int &u, const int &v, int *parent, int *rank_node) {
+inline void _union_node(const int &u, const int &v, std::vector<int> &parent, std::vector<int> &rank_node) {
     int x = _getfa(u, parent), y = _getfa(v, parent);    //先找到两个根节点
     if (rank_node[x] <= rank_node[y])
         parent[x] = y;
@@ -111,7 +110,7 @@ inline void _union_node(const int &u, const int &v, int *parent, int *rank_node)
         rank_node[y]++;                   //如果深度相同且根节点不同，则新的根节点的深度+1
 }
 
-int _getfa(const int & x, int *parent) {
+int _getfa(const int & x, std::vector<int> &parent) {
     int r,k,t;
     r=x;
     while(parent[r]!=r)
@@ -147,20 +146,20 @@ py::object connected_component_directed(py::object G) {
     std::vector<int> head = G_l.head;
 
     int Time = 0, cnt = 0, Tot = 0, edge_number_res = 0;
-    int dfn[N+5], low[N+5], st[N+5], color[N+5], head_res[N+5];
-    bool in_stack[N+5], has_edge[N+5];
-    Edge_weighted E_res[N+5];
+
+    std::vector<int> dfn(N+5, 0);
+    std::vector<int> low(N+5, 0);
+    std::vector<int> st(N+5, 0);
+    std::vector<int> color(N+5, 0);
+    std::vector<int> head_res(N+5, 0);
+    std::vector<bool> in_stack(N+5, false);
+    std::vector<bool> has_edge(N+5, false);
+
+    std::vector<Edge_weighted> E_res(N+5);
     for(int i=0; i < N+5; i++) {
         E_res[i].toward = 0;
         E_res[i].next = 0;
     }
-    memset(dfn, 0, sizeof(int) * (N+5));
-    memset(low, 0, sizeof(int) * (N+5));
-    memset(st, 0, sizeof(int) * (N+5));
-    memset(color, 0, sizeof(int) * (N+5));
-    memset(head_res, 0, sizeof(int) * (N+5));
-    memset(in_stack, false, sizeof(bool) * (N+5));
-    memset(has_edge, false, sizeof(bool) * (N+5));
 
     for (graph_edge& edge : G_._get_edges()) {
         node_t u = edge.u, v = edge.v;
@@ -181,13 +180,13 @@ py::object connected_component_directed(py::object G) {
     return ret;
 }
 
-void _add_edge_res(const int &u, const int &v, Edge_weighted *E_res, int *head_res, int *edge_number_res) {
+void _add_edge_res(const int &u, const int &v, std::vector<Edge_weighted> &E_res, std::vector<int> &head_res, int *edge_number_res) {
     E_res[++(*edge_number_res)].next = head_res[u];
     E_res[*edge_number_res].toward = v;
     head_res[u] = *edge_number_res;
 }
 
-void _tarjan(const int &u, int *Time, int *cnt, int *Tot, std::vector<LinkEdge>& E, std::vector<int>& head, int *dfn, int *low, int *st, int *color, bool *in_stack, Edge_weighted *E_res, int *head_res, int *edge_number_res) {
+void _tarjan(const int &u, int *Time, int *cnt, int *Tot, std::vector<LinkEdge>& E, std::vector<int>& head, std::vector<int> &dfn, std::vector<int> &low, std::vector<int> &st, std::vector<int> &color, std::vector<bool> &in_stack, std::vector<Edge_weighted> &E_res, std::vector<int> &head_res, int *edge_number_res) {
     dfn[u] = low[u] = ++(*Time); st[++(*cnt)] = u; in_stack[u] = true;
     for(int p = head[u]; p != -1; p = E[p].next){
         int v = E[p].to;

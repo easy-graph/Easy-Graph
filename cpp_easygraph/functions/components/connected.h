@@ -9,8 +9,8 @@ struct Edge_weighted{
 
 py::object plain_bfs(py::object G, py::object source);
 py::object connected_component_undirected(py::object G);
-inline void _union_node(const int &u, const int &v, int *parent, int *rank_node);
-int _getfa(const int & x, int *parent);
+inline void _union_node(const int &u, const int &v, std::vector<int>& parent, std::vector<int> &rank_node);
+int _getfa(const int & x, std::vector<int> &parent);
 py::object connected_component_directed(py::object G);
-void _tarjan(const int &u, int *Time, int *cnt, int *Tot, std::vector<LinkEdge>& E, std::vector<int>& head, int *dfn, int *low, int *st, int *color, bool *in_stack, Edge_weighted *E_res, int *head_res, int *edge_number_res);
-void _add_edge_res(const int &u, const int &v, Edge_weighted *E_res, int *head_res, int *edge_number_res);
+void _tarjan(const int &u, int *Time, int *cnt, int *Tot, std::vector<LinkEdge>& E, std::vector<int>& head, std::vector<int> &dfn, std::vector<int> &low, std::vector<int> &st, std::vector<int> &color, std::vector<bool> &in_stack, std::vector<Edge_weighted> &E_res, std::vector<int> &head_res, int *edge_number_res);
+void _add_edge_res(const int &u, const int &v, std::vector<Edge_weighted> &E_res, std::vector<int> &head_res, int *edge_number_res);
