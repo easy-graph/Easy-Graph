@@ -76,8 +76,7 @@ py::object _spfa(py::object G, py::object source, py::object weight) {
     Graph_L G_l = graph_to_linkgraph(G_, is_directed,weight_key, false);
     int N = G_.node.size();
 
-    int Q[N+10];
-    memset(Q, 0, sizeof(int) * (N+10));
+    std::vector<int> Q(N+10,0);
     std::vector<double> dis(N+1,INFINITY);
     std::vector<bool> vis(N+1,false);
 

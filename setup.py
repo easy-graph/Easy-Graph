@@ -23,7 +23,7 @@ uname = platform.uname()
 
 compileArgs = []
 if uname[0] == "Darwin" or uname[0] == "Linux":
-    compileArgs = []
+    compileArgs = ["-std=c++11"]
 CYTHON_STR = "Cython"
 setuptools.setup(
     name="Python-EasyGraph",
@@ -69,9 +69,6 @@ setuptools.setup(
     ext_modules=[
         Pybind11Extension(
             "cpp_easygraph", sources, optional=True, extra_compile_args=compileArgs,
-            include_dirs=["/opt/homebrew/Cellar/gcc/12.2.0/include/c++/12","/opt/homebrew/Cellar/gcc/12.2.0/include/c++/12/aarch64-apple-darwin21"],
-            libraries=['stdc++']
-
         )
     ],
 )
