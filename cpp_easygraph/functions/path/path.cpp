@@ -18,6 +18,7 @@ std::vector<float> _dijkstra(Graph_L &G_l, int source, std::string weight, int t
     std::vector<int>& head = G_l.head;
     while(segment_tree_zkw.t[1] != dis_inf) {
         int u = segment_tree_zkw.num[1];
+        if(u == 0) break;
         segment_tree_zkw.change(u, dis_inf);
         if(u == target){
             break;
@@ -112,10 +113,6 @@ py::object _spfa(py::object G, py::object source, py::object weight) {
     for(int i = 1; i <= N; i++){
         pydist.append(py::cast(dis[i]));
     }
-    // py::dict pydist = py::dict();
-    // for(int i = 1; i <= N; i++){
-    //     pydist[G_.id_to_node[py::cast(i)]] = dis[i];
-    // }
     return pydist;
 }
 

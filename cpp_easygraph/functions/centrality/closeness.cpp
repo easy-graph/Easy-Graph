@@ -18,6 +18,7 @@ double closeness_dijkstra(const Graph_L& G_l, const int &S, double cutoff){
     segment_tree_zkw.change(S, 0);
     while(segment_tree_zkw.t[1] != dis_inf) {
         int u = segment_tree_zkw.num[1];
+        if(u == 0) break;
         segment_tree_zkw.change(u, dis_inf);
         if (cutoff >= 0 && dis[u] > cutoff){
             continue;

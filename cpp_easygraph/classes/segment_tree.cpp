@@ -8,16 +8,11 @@ class Segment_tree_zkw {
         std::vector<int> num;
 
         void init(int N) {
-            // printf("N:%d\n",N);
             t.resize((N + 1)<<2);
             num.resize((N + 1)<<2);
-            // printf("t.size:%d\n",t.size());
-            // printf("num.size:%d\n",num.size());
             int len = (N+1)<<2;
-            // printf("len:%d\n",len);
             for(int i = 0; i <= len; i++){
                 t[i] = INFINITY;
-                // num[i] = 0;
             }
             tn = 1;
             while(tn < N) tn <<= 1;
