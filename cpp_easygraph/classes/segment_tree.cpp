@@ -9,7 +9,7 @@ class Segment_tree_zkw {
         Segment_tree_zkw(int N){
             int size = (N+1)<<2;
             t.reserve(size);
-            num.reserve(size);
+            num.resize(size);
         }
         void init(int N) {
             int len = (N+1)<<2;
