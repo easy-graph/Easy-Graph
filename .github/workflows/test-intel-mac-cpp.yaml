@@ -4,7 +4,7 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   pytest:
-    name: Test with pytest
+    name: Test if C++ extension is functioning on Intel Mac
     runs-on: macos-latest
     strategy:
       fail-fast: false

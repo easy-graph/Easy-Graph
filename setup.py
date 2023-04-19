@@ -36,6 +36,15 @@ if uname[0] == "Darwin" or uname[0] == "Linux":
     compileArgs = ["-std=c++11"]
 CYTHON_STR = "Cython"
 
+pybind11_ext_kwargs = {}
+PYBIND11_EXT_INCLUDE_DIRS = parse_list_env_var('PYBIND11_EXT_INCLUDE_DIRS')
+if PYBIND11_EXT_INCLUDE_DIRS:
+    pybind11_ext_kwargs['include_dirs'] = PYBIND11_EXT_INCLUDE_DIRS
+
+PYBIND11_EXT_LIBRARIES = parse_list_env_var('PYBIND11_EXT_LIBRARIES')
+if PYBIND11_EXT_LIBRARIES:
+    pybind11_ext_kwargs['libraries'] = PYBIND11_EXT_LIBRARIES
+
 setuptools.setup(
     name="Python-EasyGraph",
     version="0.2a46",
@@ -77,21 +86,13 @@ setuptools.setup(
     test_suite="nose.collector",
     tests_require=[],
     cmdclass={"build_ext": build_ext},
-    pybind11_ext_kwargs = {}
-    PYBIND11_EXT_INCLUDE_DIRS = parse_list_env_var('PYBIND11_EXT_INCLUDE_DIRS')
-    if PYBIND11_EXT_INCLUDE_DIRS:
-        pybind11_ext_kwargs['include_dirs'] = PYBIND11_EXT_INCLUDE_DIRS
-
-    PYBIND11_EXT_LIBRARIES = parse_list_env_var('PYBIND11_EXT_LIBRARIES')
-    if PYBIND11_EXT_LIBRARIES:
-        pybind11_ext_kwargs['libraries'] = PYBIND11_EXT_LIBRARIES
     ext_modules=[
         Pybind11Extension(
             "cpp_easygraph",
             sources,
             optional=True,
             extra_compile_args=compileArgs,
-            **pybind11_ext_kwargs
+            **pybind11_ext_kwargs,
         )
     ],
 )
