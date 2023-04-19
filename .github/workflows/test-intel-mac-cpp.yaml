@@ -1,0 +1,57 @@
+name: Test if C++ extension is functioning on Intel Mac
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  pytest:
+    name: Test with pytest
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # ubuntu 22.04 has deprecated python 3.6
+        python-version: ["3.10"]
+    steps:
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 'Build and install easygraph'
+        # still investigating issues, use the dummy workflow for now
+        # uses: tddschn/install-easygraph@master
+        uses: tddschn/install-easygraph/intel-mac-py310@master
+        with:
+          # use current repo
+          repository: '${{ github.repository }}'
+          # use current branch
+          ref: '${{ github.ref }}'
+          install-pytorch: 'true'
+          install-lxml: 'true'
+          extra-modules-to-install: 'optuna'
+
+      - name: 'Checkout tddschn/easygraph-bench (tag: cpp-sanity-check-v1)'
+        # if python >= 3.10
+        if: ${{ matrix.python-version == '3.10' }}
+        uses: actions/checkout@v3
+        with:
+          repository: 'tddschn/easygraph-bench'
+          ref: 'refs/tags/cpp-sanity-check-v1'
+          path: 'easygraph-bench'
+
+      - name: Install dependencies for easygraph-bench
+        if: ${{ matrix.python-version == '3.10' }}
+        run: |
+          python3 -m pip install -r easygraph-bench/requirements.txt
+
+      - name: 'C++ Sanity Check'
+        if: ${{ matrix.python-version == '3.10' }}
+        shell: bash
+        working-directory: easygraph-bench
+        run: |
+            ./profile_entrypoint_cpp-sanity-check.sh
+
+    #   - uses: actions/checkout@v3
+    #   - name: Test with pytest
+    #     run: |
+    #       pytest --disable-warnings

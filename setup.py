@@ -4,7 +4,9 @@ import sysconfig
 
 from distutils import sysconfig
 from pathlib import Path
+from typing import List
 
+import pybind11
 import setuptools
 
 # print(setuptools.__file__)
@@ -19,6 +21,14 @@ with open("README.rst") as fh:
 cpp_source_dir = Path(__file__).parent / "cpp_easygraph"
 sources = list(str(x) for x in cpp_source_dir.rglob("*.cpp"))
 uname = platform.uname()
+
+
+def parse_list_env_var(env_var_name: str) -> List[str]:
+    """Parse a list of strings from an environment variable."""
+    env_var = os.getenv(env_var_name)
+    if env_var is None:
+        return []
+    return env_var.split(os.pathsep)
 
 
 compileArgs = []
@@ -67,17 +77,21 @@ setuptools.setup(
     test_suite="nose.collector",
     tests_require=[],
     cmdclass={"build_ext": build_ext},
+    pybind11_ext_kwargs = {}
+    PYBIND11_EXT_INCLUDE_DIRS = parse_list_env_var('PYBIND11_EXT_INCLUDE_DIRS')
+    if PYBIND11_EXT_INCLUDE_DIRS:
+        pybind11_ext_kwargs['include_dirs'] = PYBIND11_EXT_INCLUDE_DIRS
+
+    PYBIND11_EXT_LIBRARIES = parse_list_env_var('PYBIND11_EXT_LIBRARIES')
+    if PYBIND11_EXT_LIBRARIES:
+        pybind11_ext_kwargs['libraries'] = PYBIND11_EXT_LIBRARIES
     ext_modules=[
         Pybind11Extension(
             "cpp_easygraph",
             sources,
             optional=True,
             extra_compile_args=compileArgs,
-            include_dirs=[
-                "/usr/local/Cellar/gcc/12.2.0/include/c++/12",
-                "/usr/local/Cellar/gcc/12.2.0/include/c++/12/x86_64-apple-darwin21",
-            ],
-            libraries=["stdc++"],
+            **pybind11_ext_kwargs
         )
     ],
 )
