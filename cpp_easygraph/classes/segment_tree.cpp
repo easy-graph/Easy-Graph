@@ -8,15 +8,15 @@ class Segment_tree_zkw {
         std::vector<int> num;
         Segment_tree_zkw(int N){
             int size = (N+1)<<2;
-            t.reserve(size);
-            num.resize(size);
+            t.resize(size+1,INT_MAX);
+            num.resize(size+1,0);
         }
         void init(int N) {
-            int len = (N+1)<<2;
-            for(int i = 0; i <= len; i++){
-                t[i] = INT_MAX;
-                num[i] = 0;
-            }
+//             int len = (N+1)<<2;
+//             for(int i = 0; i <= len; i++){
+//                 t[i] = INT_MAX;
+//                 num[i] = 0;
+//             }
             tn = 1;
             while(tn < N) tn <<= 1;
             --tn;
