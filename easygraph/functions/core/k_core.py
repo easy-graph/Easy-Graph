@@ -7,6 +7,8 @@ __all__ = [
 
 
 from typing import TYPE_CHECKING
+from typing import List
+from typing import Union
 
 
 if TYPE_CHECKING:
@@ -14,7 +16,26 @@ if TYPE_CHECKING:
 
 
 @hybrid("cpp_k_core")
-def k_core(G: "Graph", k: int = 1):
+def k_core(G: "Graph", k: int = 1, return_graph: bool = False) -> Union["Graph", List]:
+    """
+    Returns the k-core of G.
+
+    A k-core is a maximal subgraph that contains nodes of degree k or more.
+
+    Parameters
+    ----------
+    G : EasyGraph graph
+      A graph or directed graph
+    k : int, optional
+      The order of the core.  If not specified return the main core.
+    return_graph : bool, optional
+        If True, return the k-core as a graph.  If False, return a list of nodes.
+
+    Returns
+    -------
+    G : EasyGraph graph, if return_graph is True, else a list of nodes
+      The k-core subgraph
+    """
     # Create a shallow copy of the input graph
     H = G.copy()
 
@@ -32,7 +53,7 @@ def k_core(G: "Graph", k: int = 1):
 
         # Remove the nodes and their incident edges
         for n in to_remove:
-            neighbors = list(H.neighbors(n))
+            neighbors = list(H.neighbors(n))  # type: ignore
             H.remove_node(n)
 
             # Update the degrees of the remaining nodes
@@ -40,4 +61,7 @@ def k_core(G: "Graph", k: int = 1):
                 if neighbor in degrees:
                     degrees[neighbor] -= 1
 
-    return H
+    if return_graph:
+        return H
+    else:
+        return list(H.nodes.keys())

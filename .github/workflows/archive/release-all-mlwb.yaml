@@ -8,7 +8,7 @@ on:
   #     - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
 jobs:
   Linux-build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
       TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
