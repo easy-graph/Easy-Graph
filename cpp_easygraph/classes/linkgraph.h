@@ -26,6 +26,10 @@ struct Graph_L{
         this->e = 0;
         this->is_deg = deg;
         this->is_directed = directed;
+        LinkEdge le;
+        le.to = -1;
+        le.next = -1;
+        edges.emplace_back(le);
         if(n > 0){
             head.resize(vertex_num + 1);
             if(deg){
@@ -57,13 +61,17 @@ struct Graph_L{
     }
 
     void add_weighted_edge(const int &u, const int &v, const double &w) {
+        // printf("u:%d,v:%d w:%.2f\n",u,v,w);
         LinkEdge le;
+        this->e += 1; 
         le.to = v;
         le.w = w;
         le.next = head[u];
+        // printf("next:%d\n",this->head[u]);
         this->edges.emplace_back(le);  
         this->head[u] = this->e;
-        this->e += 1;
+        // printf("head:%d\n",this->head[u]);
+         
         if(this->is_deg){
             this->degree[u]++;
             this->max_deg = std::max(this->max_deg, this->degree[u]);

@@ -34,9 +34,12 @@ Graph_L graph_to_linkgraph(Graph &G, bool if_directed, std::string weight_key, b
     Graph_L G_l(node_num, if_directed, is_deg);
 	for(register int i = 0; i < edges_num; i++){
 			graph_edge e = edges[i];
+			// printf("e:%d %d\n",e.u,e.v);
 			edge_attr_dict_factory& edge_attr = e.attr;
 			weight_t edge_weight = edge_attr.find(weight_key) != edge_attr.end() ? edge_attr[weight_key] : 1;
+			// printf("edge_weight:%.2f\n",edge_weight);
 			if(is_reverse){
+				// printf("reverse!\n");
 				std::swap(e.u, e.v);
 			}
 			G_l.add_weighted_edge(e.u, e.v, edge_weight);
