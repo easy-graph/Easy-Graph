@@ -93,7 +93,7 @@ def get_adj(g):
     else:
         Node = max_node
 
-    Adj = np.zeros([Node, Node], dtype=np.int32)
+    Adj = np.zeros([Node, Node], dtype=int)
     for i in range(edges.shape[0]):
         g.add_edge(edges[i][0], edges[i][1])
         if min_node == 0:
