@@ -8,8 +8,9 @@ class Segment_tree_zkw {
         std::vector<int> num;
         Segment_tree_zkw(int N){
             int size = (N+1)<<2;
-            t.resize(size+1, INT_MAX);
-            num.resize(size+1, 0);
+            this->t = std::vector<int>(size+1 , INT_MAX);
+            this->num = std::vector<int>(size+1 , 0);
+            // std::vector<int> num(size+1 ,0);
         }
         void init(int N) {
             tn = 1;
@@ -20,15 +21,15 @@ class Segment_tree_zkw {
         }
 
         void change(int p, const int &k) {
-            p += tn; t[p] = k; p >>= 1;
+            p += tn; this->t[p] = k; p >>= 1;
             while (p) {
-                if (t[p<<1] < t[p<<1|1]) {
-                    t[p] = t[p<<1];
-                    num[p] = num[p<<1];
+                if (this->t[p<<1] < this->t[p<<1|1]) {
+                    this->t[p] = this->t[p<<1];
+                    this->num[p] = this->num[p<<1];
                 }
                 else {
-                    t[p] = t[p<<1|1];
-                    num[p] = num[p<<1|1];
+                    this->t[p] = this->t[p<<1|1];
+                    this->num[p] = this->num[p<<1|1];
                 }
                 p >>= 1;
             }

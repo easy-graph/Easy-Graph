@@ -68,7 +68,7 @@ void betweenness_dijkstra(const Graph_L& G_l, const int &S, std::vector<double>&
     }
 }
 
-py::object betweenness_centrality(py::object G, py::object weight, py::object cutoff){
+py::object betweenness_centrality(py::object G, py::object weight, py::object cutoff, py::object sources){
     Graph& G_ = G.cast<Graph&>();
     double cutoff_ = -1;
     if (!cutoff.is_none()){
@@ -89,15 +89,38 @@ py::object betweenness_centrality(py::object G, py::object weight, py::object cu
 
     std::vector<double> bc(N+1, 0);
     py::list res_lst = py::list();
-    for (int i = 1; i <= N; ++i){
-        betweenness_dijkstra(G_l, i, bc, cutoff_);
+    if(!sources.is_none()){
+        py::list sources_list = py::list(sources);
+        int sources_list_len = py::len(sources_list);
+        for(register int i = 0; i < sources_list_len; i++){
+            if(G_.node_to_id.attr("get")(sources_list[i],py::none()).is_none()){
+                printf("The node should exist in the graph!");
+                return py::none();
+            }
+            py::list res_lst = py::list();
+            node_t source_id = G_.node_to_id.attr("get")(sources_list[i]).cast<node_t>();
+            betweenness_dijkstra(G_l, source_id, bc, cutoff_);
+        }
+        double scale = 1.0;
+        if(!is_directed){
+            scale = 0.5;
+        }
+        for(int i = 1; i <= N; i++){
+            // node_t source_id = G_.node_to_id.attr("get")(sources_list[i]).cast<node_t>();
+            res_lst.append(scale * bc[i]);
+        }
     }
-    double scale = 1.0;
-    if(!is_directed){
-        scale = 0.5;
-    }
-    for(int i = 1; i <= N; i++){
-        res_lst.append(scale * bc[i]);
+    else{
+        for (int i = 1; i <= N; ++i){
+            betweenness_dijkstra(G_l, i, bc, cutoff_);
+        }
+        double scale = 1.0;
+        if(!is_directed){
+            scale = 0.5;
+        }
+        for(int i = 1; i <= N; i++){
+            res_lst.append(scale * bc[i]);
+        }
     }
     return res_lst;
 }
