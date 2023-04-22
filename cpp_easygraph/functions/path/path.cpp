@@ -56,6 +56,10 @@ py::object _dijkstra_multisource(py::object G,py::object sources, py::object wei
     py::list sources_list = py::list(sources);
     int sources_list_len = py::len(sources_list);
     for(register int i = 0; i < sources_list_len; i++){
+        if(G_.node_to_id.attr("get")(sources_list[i],py::none()) == py::none()){
+            printf("The node should exist in the graph!");
+            return py::none();
+        }
         node_t source_id = G_.node_to_id.attr("get")(sources_list[i]).cast<node_t>();
         const std::vector<float>& dis = _dijkstra(G_l,source_id,weight_key,target_id);
         py::list pydist = py::list();

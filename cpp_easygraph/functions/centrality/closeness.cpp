@@ -43,7 +43,7 @@ double closeness_dijkstra(const Graph_L& G_l, const int &S, double cutoff){
     
 }
 
-py::object closeness_centrality(py::object G, py::object weight, py::object cutoff) {
+py::object closeness_centrality(py::object G, py::object weight, py::object cutoff, py::object sources) {
     Graph& G_ = G.cast<Graph&>();
     int N = G_.node.size();
     bool is_directed = G.attr("is_directed")().cast<bool>();
@@ -53,10 +53,29 @@ py::object closeness_centrality(py::object G, py::object weight, py::object cuto
     if (!cutoff.is_none()){
         cutoff_ = cutoff.cast<double>();
     }
-    py::list res_lst = py::list();
-    for(register int i = 1; i <= N; i++){
-        float res = closeness_dijkstra(G_l, i, cutoff_);
-        res_lst.append(py::cast(res));
+    
+    py::list total_res_lst = py::list();
+    if(!sources.is_none()){
+        py::list sources_list = py::list(sources);
+        int sources_list_len = py::len(sources_list);
+        for(register int i = 0; i < sources_list_len; i++){
+            if(G_.node_to_id.attr("get")(sources_list[i],py::none()).is_none()){
+                printf("The node should exist in the graph!");
+                return py::none();
+            }
+            py::list res_lst = py::list();
+            node_t source_id = G_.node_to_id.attr("get")(sources_list[i]).cast<node_t>();
+            float res = closeness_dijkstra(G_l, source_id, cutoff_);
+            res_lst.append(py::cast(res));
+            total_res_lst.append(res);
+        }
     }
-    return res_lst;
+    else{
+        for(register int i = 1; i <= N; i++){
+            float res = closeness_dijkstra(G_l, i, cutoff_);
+            total_res_lst.append(py::cast(res));
+        }
+    }
+    return total_res_lst;
+    
 }
