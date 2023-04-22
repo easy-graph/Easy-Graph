@@ -25,7 +25,7 @@ def closeness_centrality_parallel(nodes, G, path_length):
 
 @not_implemented_for("multigraph")
 @hybrid("cpp_closeness_centrality")
-def closeness_centrality(G, weight=None, n_workers=None):
+def closeness_centrality(G, weight=None, sources=None, n_workers=None):
     r"""Compute closeness centrality for nodes.
 
     .. math::
@@ -44,6 +44,8 @@ def closeness_centrality(G, weight=None, n_workers=None):
     weight : None or string, optional (default=None)
       If None, all edge weights are considered equal.
       Otherwise holds the name of the edge attribute used as weight.
+    
+    sources : the set of source vertices to consider when calculating shortest paths.
 
     Returns
     -------
@@ -52,7 +54,10 @@ def closeness_centrality(G, weight=None, n_workers=None):
 
     """
     closeness = dict()
-    nodes = G.nodes
+    if sources is not None:
+        nodes = sources
+    else:
+        nodes = G.nodes
     length = len(nodes)
     import functools
 
