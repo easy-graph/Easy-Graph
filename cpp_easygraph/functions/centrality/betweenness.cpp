@@ -5,11 +5,10 @@
 #include "../../classes/segment_tree.cpp"
 
 
-void betweenness_dijkstra(const Graph_L& G_l, const int &S, std::vector<double>& bc, double cutoff) {
+void betweenness_dijkstra(const Graph_L& G_l, const int &S, std::vector<double>& bc, double cutoff, Segment_tree_zkw& segment_tree_zkw) {
     const int dis_inf = 0x3f3f3f3f;
     int N = G_l.n;
     int edge_number_path = 0;
-    Segment_tree_zkw segment_tree_zkw(N);
     segment_tree_zkw.init(N);
     std::vector<int> dis(N+1, INT_MAX);
     std::vector<int> head_path(N+1, 0);
@@ -25,6 +24,7 @@ void betweenness_dijkstra(const Graph_L& G_l, const int &S, std::vector<double>&
     count_path[S] = 1; 
     segment_tree_zkw.change(S, 0);
     int cnt_St = 0;
+   
     while(segment_tree_zkw.t[1] != dis_inf) {
         int u = segment_tree_zkw.num[1];
         if(u==0) break;
@@ -66,13 +66,14 @@ void betweenness_dijkstra(const Graph_L& G_l, const int &S, std::vector<double>&
         if (u != S)
             bc[u] += delta[u];
     }
+
 }
 
 py::object betweenness_centrality(py::object G, py::object weight, py::object cutoff, py::object sources){
     Graph& G_ = G.cast<Graph&>();
-    double cutoff_ = -1;
+    int cutoff_ = -1;
     if (!cutoff.is_none()){
-        cutoff_ = cutoff.cast<double>();
+        cutoff_ = cutoff.cast<int>();
     }
     int N = G_.node.size();
     bool is_directed = G.attr("is_directed")().cast<bool>();
@@ -86,7 +87,7 @@ py::object betweenness_centrality(py::object G, py::object weight, py::object cu
     else{
         G_l = G_.linkgraph_structure;
     }
-
+    Segment_tree_zkw segment_tree_zkw(N);
     std::vector<double> bc(N+1, 0);
     py::list res_lst = py::list();
     if(!sources.is_none()){
@@ -99,20 +100,19 @@ py::object betweenness_centrality(py::object G, py::object weight, py::object cu
             }
             py::list res_lst = py::list();
             node_t source_id = G_.node_to_id.attr("get")(sources_list[i]).cast<node_t>();
-            betweenness_dijkstra(G_l, source_id, bc, cutoff_);
+            betweenness_dijkstra(G_l, source_id, bc, cutoff_, segment_tree_zkw);
         }
         double scale = 1.0;
         if(!is_directed){
             scale = 0.5;
         }
         for(int i = 1; i <= N; i++){
-            // node_t source_id = G_.node_to_id.attr("get")(sources_list[i]).cast<node_t>();
             res_lst.append(scale * bc[i]);
         }
     }
     else{
         for (int i = 1; i <= N; ++i){
-            betweenness_dijkstra(G_l, i, bc, cutoff_);
+            betweenness_dijkstra(G_l, i, bc, cutoff_,segment_tree_zkw);
         }
         double scale = 1.0;
         if(!is_directed){

@@ -3,16 +3,21 @@
 class Segment_tree_zkw {
     private:
         int tn;
+        int size;
     public:
         std::vector<int> t;
         std::vector<int> num;
         Segment_tree_zkw(int N){
-            int size = (N+1)<<2;
+            size = (N+1)<<2;
             this->t = std::vector<int>(size+1 , INT_MAX);
             this->num = std::vector<int>(size+1 , 0);
-            // std::vector<int> num(size+1 ,0);
         }
         void init(int N) {
+            for(int i = 0; i < size; i++){
+                this->t[i] = INT_MAX;
+                this->num[i] = 0;
+            }
+            
             tn = 1;
             while(tn < N) tn <<= 1;
             --tn;

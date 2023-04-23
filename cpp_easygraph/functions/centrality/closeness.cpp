@@ -4,10 +4,9 @@
 #include "../../classes/linkgraph.h"
 #include "../../classes/segment_tree.cpp"
 
-double closeness_dijkstra(const Graph_L& G_l, const int &S, double cutoff){
+double closeness_dijkstra(const Graph_L& G_l, const int &S, int cutoff, Segment_tree_zkw& segment_tree_zkw){
     const int dis_inf = 0x3f3f3f3f;
     int N = G_l.n;
-    Segment_tree_zkw segment_tree_zkw(N);
     segment_tree_zkw.init(N);
     std::vector<int> dis(N+1, INT_MAX);
     const std::vector<LinkEdge>& E = G_l.edges;
@@ -49,11 +48,11 @@ py::object closeness_centrality(py::object G, py::object weight, py::object cuto
     bool is_directed = G.attr("is_directed")().cast<bool>();
     std::string weight_key = weight_to_string(weight);
     const Graph_L& G_l = graph_to_linkgraph(G_, is_directed, weight_key, false, true);
-    double cutoff_ = -1;
+    int cutoff_ = -1;
     if (!cutoff.is_none()){
-        cutoff_ = cutoff.cast<double>();
+        cutoff_ = cutoff.cast<int>();
     }
-    
+    Segment_tree_zkw segment_tree_zkw(N);
     py::list total_res_lst = py::list();
     if(!sources.is_none()){
         py::list sources_list = py::list(sources);
@@ -65,14 +64,14 @@ py::object closeness_centrality(py::object G, py::object weight, py::object cuto
             }
             py::list res_lst = py::list();
             node_t source_id = G_.node_to_id.attr("get")(sources_list[i]).cast<node_t>();
-            float res = closeness_dijkstra(G_l, source_id, cutoff_);
+            float res = closeness_dijkstra(G_l, source_id, cutoff_,segment_tree_zkw);
             res_lst.append(py::cast(res));
             total_res_lst.append(res);
         }
     }
     else{
         for(register int i = 1; i <= N; i++){
-            float res = closeness_dijkstra(G_l, i, cutoff_);
+            float res = closeness_dijkstra(G_l, i, cutoff_,segment_tree_zkw);
             total_res_lst.append(py::cast(res));
         }
     }
