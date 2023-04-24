@@ -44,8 +44,10 @@ def closeness_centrality(G, weight=None, sources=None, n_workers=None):
     weight : None or string, optional (default=None)
       If None, all edge weights are considered equal.
       Otherwise holds the name of the edge attribute used as weight.
-    
-    sources : the set of source vertices to consider when calculating shortest paths.
+
+    sources : None or nodes list, optional (default=None)
+    If None, all nodes are returned
+    Otherwise,the set of source vertices to creturn.
 
     Returns
     -------
