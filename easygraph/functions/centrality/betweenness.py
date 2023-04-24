@@ -51,7 +51,7 @@ def betweenness_centrality(
     weight : None or string, optional (default=None)
       If None, all edge weights are considered equal.
       Otherwise holds the name of the edge attribute used as weight.
-      
+
     sources : None or nodes list, optional (default=None)
     If None, all nodes are considered
     Otherwise,the set of source vertices to consider when calculating shortest paths.
@@ -81,7 +81,7 @@ def betweenness_centrality(
         accumulate = functools.partial(_accumulate_endpoints)
     else:
         accumulate = functools.partial(_accumulate_basic)
-    
+
     if sources is not None:
         nodes = sources
     else:
