@@ -52,7 +52,9 @@ def betweenness_centrality(
       If None, all edge weights are considered equal.
       Otherwise holds the name of the edge attribute used as weight.
       
-    sources : the set of source vertices to consider when calculating shortest paths.
+    sources : None or nodes list, optional (default=None)
+    If None, all nodes are considered
+    Otherwise,the set of source vertices to consider when calculating shortest paths.
 
     normalized : bool, optional
       If True the betweenness values are normalized by `2/((n-1)(n-2))`
