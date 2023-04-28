@@ -562,7 +562,7 @@ py::object DiGraph_py(py::object self) {
     G.attr("graph").attr("update")(self.attr("graph"));
     G.attr("adj").attr("update")(self.attr("adj"));
     G.attr("nodes").attr("update")(self.attr("nodes"));
-    G.attr("_pred").attr("update")(self.attr("predecessors"));
+    G.attr("pred").attr("update")(self.attr("pred"));
 //    G.attr("succ").attr("update")(self.attr("succ"));
     return G;
 }
