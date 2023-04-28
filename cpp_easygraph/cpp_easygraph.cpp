@@ -70,7 +70,8 @@ PYBIND11_MODULE(cpp_easygraph, m) {
         .def("nodes_subgraph", &DiGraph_nodes_subgraph, py::arg("from_nodes"))
         .def("is_directed", &DiGraph_is_directed)
         .def("py", &DiGraph_py)
-        .def_property("edges", &DiGraph::get_edges, nullptr);
+        .def_property("edges", &DiGraph::get_edges, nullptr)
+        .def_property("predecessors", &DiGraph::get_pred,nullptr);
     
     m.def("cpp_closeness_centrality", &closeness_centrality, py::arg("G"), py::arg("weight") = "weight", py::arg("cutoff") = py::none(), py::arg("sources") = py::none());
     m.def("cpp_betweenness_centrality", &betweenness_centrality, py::arg("G"), py::arg("weight") = "weight", py::arg("cutoff") = py::none(),py::arg("sources") = py::none());

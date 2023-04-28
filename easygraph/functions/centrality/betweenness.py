@@ -53,8 +53,8 @@ def betweenness_centrality(
       Otherwise holds the name of the edge attribute used as weight.
 
     sources : None or nodes list, optional (default=None)
-    If None, all nodes are considered
-    Otherwise,the set of source vertices to consider when calculating shortest paths.
+      If None, all nodes are considered.
+      Otherwise,the set of source vertices to consider when calculating shortest paths.
 
     normalized : bool, optional
       If True the betweenness values are normalized by `2/((n-1)(n-2))`
@@ -66,8 +66,11 @@ def betweenness_centrality(
 
     Returns
     -------
+
     nodes : dictionary
        Dictionary of nodes with betweenness centrality as the value.
+
+    >>> betweenness_centrality(G,weight="weight")
     """
 
     import functools

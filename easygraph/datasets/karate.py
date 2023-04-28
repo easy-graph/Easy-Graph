@@ -9,7 +9,7 @@ from .utils import tensor
 
 
 class KarateClubDataset(EasyGraphDataset):
-    r"""Karate Club dataset for Node Classification
+    """Karate Club dataset for Node Classification
 
     Zachary's karate club is a social network of a university
     karate club, described in the paper "An Information Flow
