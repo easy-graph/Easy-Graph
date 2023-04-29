@@ -1194,6 +1194,7 @@ class DiGraph(Graph):
             G.add_node(u, **attr)
         for u, v, attr in self.edges:
             G.add_edge(u, v, **attr)
+        G.generate_linkgraph()
         return G
 
 

@@ -536,6 +536,15 @@ py::object Graph_neighbors(py::object self, py::object node) {
     }
 }
 
+py::object Graph_generate_linkgraph(py::object self, py::object weight){
+    Graph& G_ = self.cast<Graph&>();
+    std::string w = weight_to_string(weight);
+    Graph_L g_l = graph_to_linkgraph(G_, false, w, true, false);
+    G_.linkgraph_dirty = false;
+    G_.linkgraph_structure = g_l;
+    return py::none();
+}
+
 py::object Graph_nodes_subgraph(py::object self, py::list from_nodes) {
     py::object G = self.attr("__class__")();
     Graph& self_ = self.cast<Graph&>();
