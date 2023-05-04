@@ -47,7 +47,7 @@ if PYBIND11_EXT_LIBRARIES:
 
 setuptools.setup(
     name="Python-EasyGraph",
-    version="0.2a46",
+    version="0.2a47",
     author="Fudan MSN Group",
     author_email="easygraph@163.com",
     description="Easy Graph",
