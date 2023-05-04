@@ -42,7 +42,8 @@ PYBIND11_MODULE(cpp_easygraph, m) {
         .def_property("name", &Graph::get_name, &Graph::set_name)
         .def_property("adj", &Graph::get_adj, nullptr)
         .def_property("edges", &Graph::get_edges, nullptr)
-        .def_property("node_index", &Graph::get_node_index, nullptr);
+        .def_property("node_index", &Graph::get_node_index, nullptr)
+        .def("generate_linkgraph", &Graph_generate_linkgraph,py::arg("weight") = "weight");
 
     py::class_<DiGraph, Graph>(m, "DiGraph")
         .def(py::init<>())
@@ -70,8 +71,10 @@ PYBIND11_MODULE(cpp_easygraph, m) {
         .def("nodes_subgraph", &DiGraph_nodes_subgraph, py::arg("from_nodes"))
         .def("is_directed", &DiGraph_is_directed)
         .def("py", &DiGraph_py)
-        .def_property("edges", &DiGraph::get_edges, nullptr);
-    
+        .def_property("edges", &DiGraph::get_edges, nullptr)
+        .def_property("pred", &DiGraph::get_pred,nullptr)
+        .def("generate_linkgraph", &DiGraph_generate_linkgraph,py::arg("weight") = "weight");
+
     m.def("cpp_closeness_centrality", &closeness_centrality, py::arg("G"), py::arg("weight") = "weight", py::arg("cutoff") = py::none(), py::arg("sources") = py::none());
     m.def("cpp_betweenness_centrality", &betweenness_centrality, py::arg("G"), py::arg("weight") = "weight", py::arg("cutoff") = py::none(),py::arg("sources") = py::none());
     m.def("cpp_k_core", &core_decomposition, py::arg("G"));

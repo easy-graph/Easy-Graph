@@ -540,6 +540,15 @@ py::object DiGraph_nodes_subgraph(py::object self, py::list from_nodes) {
     return G;
 }
 
+py::object DiGraph_generate_linkgraph(py::object self, py::object weight){
+    DiGraph& G_ = self.cast<DiGraph&>();
+    std::string w = weight_to_string(weight);
+    Graph_L g_l = graph_to_linkgraph(G_, true, w, true, false);
+    G_.linkgraph_dirty = false;
+    G_.linkgraph_structure = g_l;
+    return py::none();
+}
+
 py::object DiGraph_copy(py::object self) {
     DiGraph& self_ = self.cast<DiGraph&>();
     py::object G = self.attr("__class__")();
@@ -562,7 +571,26 @@ py::object DiGraph_py(py::object self) {
     G.attr("graph").attr("update")(self.attr("graph"));
     G.attr("adj").attr("update")(self.attr("adj"));
     G.attr("nodes").attr("update")(self.attr("nodes"));
+    G.attr("pred").attr("update")(self.attr("pred"));
+//    G.attr("succ").attr("update")(self.attr("succ"));
     return G;
+}
+
+py::object DiGraph::get_pred() {
+    adj_dict_factory pred = this->pred;
+    py::dict predecessors = py::dict();
+    for (const auto& ego_edges : this->pred) {
+        node_t start_point = ego_edges.first;
+        py::dict ego_edges_dict = py::dict();
+        for (const auto& edge_info : ego_edges.second) {
+            node_t end_point = edge_info.first;
+            const auto& edge_attr = edge_info.second;
+            ego_edges_dict[this->id_to_node[py::cast(end_point)]] = attr_to_dict(edge_attr);
+        }
+        predecessors[this->id_to_node[py::cast(start_point)]] = ego_edges_dict;
+    }
+
+    return predecessors;
 }
 
 py::object DiGraph::get_edges() {

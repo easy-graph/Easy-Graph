@@ -26,7 +26,8 @@ def closeness_centrality_parallel(nodes, G, path_length):
 @not_implemented_for("multigraph")
 @hybrid("cpp_closeness_centrality")
 def closeness_centrality(G, weight=None, sources=None, n_workers=None):
-    r"""Compute closeness centrality for nodes.
+    r"""
+    Compute closeness centrality for nodes.
 
     .. math::
 
@@ -46,14 +47,13 @@ def closeness_centrality(G, weight=None, sources=None, n_workers=None):
       Otherwise holds the name of the edge attribute used as weight.
 
     sources : None or nodes list, optional (default=None)
-    If None, all nodes are returned
-    Otherwise,the set of source vertices to creturn.
+      If None, all nodes are returned
+      Otherwise,the set of source vertices to creturn.
 
     Returns
     -------
     nodes : dictionary
       Dictionary of nodes with closeness centrality as the value.
-
     """
     closeness = dict()
     if sources is not None:

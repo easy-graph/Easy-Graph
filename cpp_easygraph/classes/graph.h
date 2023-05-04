@@ -25,6 +25,7 @@ struct Graph {
     std::vector<graph_edge> _get_edges(bool if_directed=true);
     bool is_linkgraph_dirty();
     Graph_L _get_linkgraph_structure();
+
 };
 
 py::object Graph__init__(py::args args, py::kwargs kwargs);
@@ -58,5 +59,5 @@ py::object Graph_size(py::object self, py::object weight);
 py::object Graph_is_directed(py::object self);
 py::object Graph_is_multigraph(py::object self);
 py::object Graph_to_index_node_graph(py::object self, py::object begin_index);
-
+py::object Graph_generate_linkgraph(py::object self, py::object weight);
 py::object Graph_py(py::object self);
