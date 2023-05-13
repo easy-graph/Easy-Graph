@@ -51,6 +51,14 @@ If prebuilt `easygraph` wheels are not supported for your platform (OS / CPU arc
     pip install pybind11
     python3 setup.py install
 
+.. hint::
+
+    EasyGraph uses  1.12.1 <= `PyTorch <https://pytorch.org/get-started/locally/>`_ < 2.0 for machine
+    learning functions.
+    Note that this does not prevent your from running non-machine learning functions normally,
+    if there is no PyTorch in your environment.
+    But you will receive some warnings which remind you some unavailable modules when they  depend on it.
+
 Simple Example
 --------------
 
