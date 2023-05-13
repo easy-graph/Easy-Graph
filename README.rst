@@ -49,6 +49,7 @@ If prebuilt `easygraph` wheels are not supported for your platform (OS / CPU arc
 
     git clone https://github.com/easy-graph/Easy-Graph && cd Easy-Graph && git checkout pybind11
     pip install pybind11
+    python3 setup.py build_ext
     python3 setup.py install
 
 .. hint::
