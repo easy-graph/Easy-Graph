@@ -29,7 +29,9 @@ Install
 
 .. In the meantime, here's a work around you can try to install the latest version of easygraph on your machine:
 
+Prerequisites
 
+`3.9 <= python <= 3.10` is required.
 
 .. Installation with ``pip`` (outdated)
 
