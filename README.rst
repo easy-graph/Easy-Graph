@@ -29,7 +29,9 @@ Install
 
 .. In the meantime, here's a work around you can try to install the latest version of easygraph on your machine:
 
+Prerequisites
 
+`3.9 <= Python <= 3.10` is required.
 
 .. Installation with ``pip`` (outdated)
 
@@ -41,9 +43,9 @@ Installation with ``pip``
 
 The conda package is no longer updated or maintained.
 
-If you've installed `easygraph` this way before, please uninstall it with `conda` and install it with `pip`.
+If you've installed `EasyGraph` this way before, please uninstall it with `conda` and install it with `pip`.
 
-If prebuilt `easygraph` wheels are not supported for your platform (OS / CPU arch, check `here <https://pypi.org/simple/python-easygraph/>`_), you can build it locally this way:
+If prebuilt `EasyGraph` wheels are not supported for your platform (OS / CPU arch, check `here <https://pypi.org/simple/python-easygraph/>`_), you can build it locally this way:
 
 .. code:: bash
 
