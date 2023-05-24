@@ -2,25 +2,34 @@ name: Build and download wheel
 on: workflow_dispatch
 jobs:
   buildwheel:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ macos-latest, windows-latest ]
+        python-version: [ 3.8, 3.9, 3.10 ]
+
     steps:
       - uses: actions/checkout@v2
-      - id: build
-        uses: OpenAstronomy/build-python-dist@v1
+      - name: Set up python
+        uses: actions/setup-python@v2
         with:
-          python-version: '3.9'
-
-  upload_artifact:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - run: mkdir -p path/to/artifact
-
-      - run: echo hello > path/to/artifact/world.txt
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: my-artifact
-          path: path/to/artifact/ # or path/to/artifact
+          python-version: ${{ matrix.python-version }}
+      - name: build wheel
+        run: |
+          ls
+          mkdir -p path/to/artifact
+          python setup.py bdist_wheel
+#  upload_artifact:
+#    runs-on: windows-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#
+#      - run: mkdir -p path/to/artifact
+#
+#      - run: echo hello > path/to/artifact/world.txt
+#
+#      - uses: actions/upload-artifact@v3
+#        with:
+#          name: my-artifact
+#          path: path/to/artifact/ # or path/to/artifact
 
