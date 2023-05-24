@@ -1,0 +1,38 @@
+name: Build and download wheel
+on: workflow_dispatch
+jobs:
+  buildwheel:
+    steps:
+      - uses: actions/checkout@v2
+      - id: build
+        uses: OpenAstronomy/build-python-dist@v1
+        with:
+          python-version: ['3.8','3.9','3.10']
+
+  upload_artifact:
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: mkdir -p path/to/artifact
+
+      - run: echo hello > path/to/artifact/world.txt
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: my-artifact
+          path: path/to/artifact/ # or path/to/artifact
+
+  download_artifact:
+    runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v3
+
+
+    - uses: actions/download-artifact@v3
+      with:
+        name: my-artifact
+        path: path/to/artifact
+
+    - name: Display structure of downloaded files
+      run: ls -R
+      working-directory: path/to/artifact
