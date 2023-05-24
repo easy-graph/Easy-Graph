@@ -3,11 +3,7 @@ on: workflow_dispatch
 
 
 jobs:
-  Linux-build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: build and upload manylinux wheels
-        uses: Niraj-Kamdar/manylinux-wheel-builder@master
+
 
   build-wheel:
     runs-on: ${{ matrix.os }}
