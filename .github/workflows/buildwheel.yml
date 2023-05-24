@@ -16,17 +16,21 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: build wheel
         run: |
-          ls
+          
           mkdir -p path/to/artifact
           pip install pybind11
           pip install wheel
           python setup.py build_ext
           python setup.py install
           python setup.py bdist_wheel
+          ls
       - uses: actions/upload-artifact@v3
+        
         with:
            name: my-artifact
-           path: path/to/artifact/ # or path/to/artifact
+           path: dist/ # or path/to/artifact
+           
+        
           
 #       - name: upload_artifact
 #       - uses: actions/checkout@v3
