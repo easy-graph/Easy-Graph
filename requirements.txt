@@ -1,5 +1,4 @@
 numpy>=1.24.3
-zlib>=1.2.13
 setuptools>=66.0.0
 scipy>=1.10.1
 matplotlib>=3.7.1
