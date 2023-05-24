@@ -19,6 +19,9 @@ jobs:
           ls
           mkdir -p path/to/artifact
           pip install pybind11
+          pip install wheel
+          python setup.py build_ext
+          python setup.py install
           python setup.py bdist_wheel
 #  upload_artifact:
 #    runs-on: windows-latest
