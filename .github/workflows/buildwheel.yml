@@ -21,10 +21,10 @@ jobs:
           pip install --upgrade pip
           python -m pip install -r requirements.txt
           pip install --upgrade setuptools
+          
           pip install pybind11
           pip install wheel
           python setup.py build_ext
-          python setup.py install
           python setup.py bdist_wheel
           ls
       - uses: actions/upload-artifact@v3
