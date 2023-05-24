@@ -6,7 +6,7 @@ jobs:
     strategy:
       matrix:
         os: [ macos-latest, windows-latest ]
-        python-version: [ 3.8, 3.9, 3.10 ]
+        python-version: [ 3.8, 3.9 ]
 
     steps:
       - uses: actions/checkout@v2
@@ -18,6 +18,7 @@ jobs:
         run: |
           ls
           mkdir -p path/to/artifact
+          pip install pybind11
           python setup.py bdist_wheel
 #  upload_artifact:
 #    runs-on: windows-latest
