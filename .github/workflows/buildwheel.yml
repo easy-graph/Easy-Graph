@@ -23,29 +23,34 @@ jobs:
           python setup.py build_ext
           python setup.py install
           python setup.py bdist_wheel
-      - name: upload_artifact
-      - uses: actions/checkout@v3
+          
+#       - name: upload_artifact
+#       - uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: my-artifact
-          path: path/to/artifact
+#       - uses: actions/download-artifact@v3
+#         with:
+#           name: my-artifact
+#           path: path/to/artifact
     
-      - name: Display structure of downloaded files
-        run: ls -R
-        working-directory: path/to/artifact
+#       - name: Display structure of downloaded files
+#         run: ls -R
+#         working-directory: path/to/artifact
         
-#  upload_artifact:
-#    runs-on: windows-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#
-#      - run: mkdir -p path/to/artifact
-#
-#      - run: echo hello > path/to/artifact/world.txt
-#
-#      - uses: actions/upload-artifact@v3
-#        with:
-#          name: my-artifact
-#          path: path/to/artifact/ # or path/to/artifact
+  upload_artifact:
+   runs-on: ${{ matrix.os }}
+   strategy:
+      matrix:
+        os: [ windows-latest ]
+        python-version: [ 3.8, 3.9 ]
+   steps:
+     - uses: actions/checkout@v3
+
+     - run: mkdir -p path/to/artifact
+
+     - run: echo hello > path/to/artifact/world.txt
+
+     - uses: actions/upload-artifact@v3
+       with:
+         name: my-artifact
+         path: path/to/artifact/ # or path/to/artifact
 
