@@ -18,8 +18,8 @@ jobs:
         run: |
           
           mkdir -p path/to/artifact
-          python -m pip install -r requirements.txt
           pip install --upgrade pip
+          python -m pip install -r requirements.txt
           pip install --upgrade setuptools
           pip install pybind11
           pip install wheel
