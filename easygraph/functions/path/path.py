@@ -194,6 +194,7 @@ def single_source_bfs(G, source, target=None):
     nextlevel = {source: 0}
     return dict(_single_source_bfs(G.adj, nextlevel, target=target))
 
+
 def _single_source_bfs(adj, firstlevel, target=None):
     seen = {}
     level = 0
