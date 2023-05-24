@@ -1,7 +1,15 @@
 name: Build and download wheel
 on: workflow_dispatch
+
+
 jobs:
-  buildwheel:
+  Linux-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: build and upload manylinux wheels
+        uses: Niraj-Kamdar/manylinux-wheel-builder@master
+
+  build-wheel:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -24,11 +32,10 @@ jobs:
           python setup.py bdist_wheel
           ls
       - uses: actions/upload-artifact@v3
-        
         with:
            name: my-artifact
            path: dist/ # or path/to/artifact
-           
+
         
           
 #       - name: upload_artifact
