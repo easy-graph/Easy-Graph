@@ -16,15 +16,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: build wheel
         run: |
-          
           mkdir -p path/to/artifact
           pip install --upgrade pip
-          python -m pip install -r requirements.txt
           pip install --upgrade setuptools
-          
           pip install pybind11
           pip install wheel
-          python setup.py build_ext
           python setup.py bdist_wheel
           ls
       - uses: actions/upload-artifact@v3
