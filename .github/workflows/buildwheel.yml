@@ -22,8 +22,8 @@ jobs:
           pip install --upgrade setuptools
           pip install pybind11
           pip install wheel
-#          python setup.py build_ext
-#          python setup.py install
+          python setup.py build_ext
+          python setup.py install
           python setup.py bdist_wheel
           ls
       - uses: actions/upload-artifact@v3
