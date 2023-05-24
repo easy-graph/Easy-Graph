@@ -23,6 +23,18 @@ jobs:
           python setup.py build_ext
           python setup.py install
           python setup.py bdist_wheel
+      - name: upload_artifact
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: my-artifact
+          path: path/to/artifact
+    
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: path/to/artifact
+        
 #  upload_artifact:
 #    runs-on: windows-latest
 #    steps:
