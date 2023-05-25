@@ -142,14 +142,14 @@ jobs:
           name: artifact
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.4.2
-        with:
-          user: __token__
-          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-          # To test: repository_url: https://test.pypi.org/legacy/
-          repository_url: https://test.pypi.org/legacy/
-          verbose: true
-          # print_hash: true
+#      - uses: pypa/gh-action-pypi-publish@v1.4.2
+#        with:
+#          user: __token__
+#          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+#          # To test: repository_url: https://test.pypi.org/legacy/
+#          repository_url: https://test.pypi.org/legacy/
+#          verbose: true
+#          # print_hash: true
 
   upload_pypi:
     # name: Upload to PyPI if the latest release on Test PyPI passes the checks
@@ -169,10 +169,10 @@ jobs:
           name: artifact
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.4.2
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          # To test: repository_url: https://test.pypi.org/legacy/
-          verbose: true
-          # print_hash: true
+#      - uses: pypa/gh-action-pypi-publish@v1.4.2
+#        with:
+#          user: __token__
+#          password: ${{ secrets.PYPI_API_TOKEN }}
+#          # To test: repository_url: https://test.pypi.org/legacy/
+#          verbose: true
+#          # print_hash: true
