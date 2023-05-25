@@ -47,6 +47,7 @@ class TestConvertPandas:
         mdf = pd.DataFrame([[4, 16, "A", "D"]], columns=["weight", "cost", 0, "b"])
         # self.mdf = df.append(mdf)
         self.mdf = pd.concat([df, mdf])
+
     def assert_equal(self, G1, G2):
         assert nodes_equal(G1.nodes, G2.nodes)
         assert edges_equal(G1.edges, G2.edges, need_data=False)
