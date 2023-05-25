@@ -60,8 +60,11 @@ def k_core(G: "Graph", k: int = 1, return_graph: bool = False) -> Union["Graph",
             for neighbor in neighbors:
                 if neighbor in degrees:
                     degrees[neighbor] -= 1
+    res = []
+    for node in G.nodes:
+        res.append(degrees[node])
 
     if return_graph:
         return H
     else:
-        return list(H.nodes.keys())
+        return res
