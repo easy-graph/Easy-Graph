@@ -50,7 +50,7 @@ jobs:
       #     python -m pip install pybind11 cibuildwheel
       - name: Build wheels (Linux)
         # if on linux
-        if: 'matrix.os == ''ubuntu-20.04'''
+        if: matrix.os == 'ubuntu-20.04'
         uses: pypa/cibuildwheel@v2.8.1
         env:
           # CIBW_BEFORE_ALL: python -m pip install pybind11
