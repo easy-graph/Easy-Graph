@@ -1,9 +1,12 @@
+import os
 import platform
 
+from distutils import sysconfig
 from pathlib import Path
 
 import setuptools
 
+# print(setuptools.__file__)
 # Available at setup time due to pyproject.toml
 from pybind11.setup_helpers import Pybind11Extension
 from pybind11.setup_helpers import build_ext
@@ -16,14 +19,15 @@ cpp_source_dir = Path(__file__).parent / "cpp_easygraph"
 sources = list(str(x) for x in cpp_source_dir.rglob("*.cpp"))
 
 uname = platform.uname()
+
+
 compileArgs = []
 if uname[0] == "Darwin" or uname[0] == "Linux":
     compileArgs = ["-std=c++11"]
 CYTHON_STR = "Cython"
-
 setuptools.setup(
     name="Python-EasyGraph",
-    version="0.2a42",
+    version="0.2a48",
     author="Fudan MSN Group",
     author_email="easygraph@163.com",
     description="Easy Graph",
@@ -64,7 +68,7 @@ setuptools.setup(
     cmdclass={"build_ext": build_ext},
     ext_modules=[
         Pybind11Extension(
-            "cpp_easygraph", sources, optional=True, extra_compile_args=compileArgs
+            "cpp_easygraph", sources, optional=True, extra_compile_args=compileArgs,
         )
     ],
 )

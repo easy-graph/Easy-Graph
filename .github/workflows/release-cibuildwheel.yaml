@@ -37,15 +37,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+         os: [ubuntu-20.04, windows-latest, macos-latest]
+#        os: [ubuntu-20.04]
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
 
       # - name: Install build dependencies
       #   run: |
       #     python -m pip install pybind11 cibuildwheel
-      - name: Build wheels
+      - name: Build wheels (Linux)
+        # if on linux
         uses: pypa/cibuildwheel@v2.8.1
         env:
           # CIBW_BEFORE_ALL: python -m pip install pybind11
@@ -54,6 +58,16 @@ jobs:
         # run: |
         #   cibuildwheel
 
+    #   - name: Build wheels (macOS)
+    #     # if on linux
+    #     if: 'matrix.os == ''macos-latest'''
+    #     uses: pypa/cibuildwheel@v2.8.1
+    #     env:
+    #       # CIBW_BEFORE_ALL: python -m pip install pybind11
+    #       CIBW_TEST_SKIP: "*"
+    #       CC: 'gcc-12'
+    #       CXX: 'g++-12'
+
       - uses: actions/upload-artifact@v2
         with:
           path: ./wheelhouse/*.whl
@@ -61,9 +75,11 @@ jobs:
   build_sdist:
     name: Build source distribution
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
 
       - name: Build sdist
         run: |
@@ -85,7 +101,7 @@ jobs:
   #   runs-on: ${{ matrix.os }}
   #   strategy:
   #     matrix:
-  #       os: [ubuntu-latest, windows-latest, macos-latest]
+  #       os: [ubuntu-20.04, windows-latest, macos-latest]
   #       python-version: ["3.6", "3.7", "3.8", "3.9"]
   #       # python-version: ["3.8", "3.9"]
 
@@ -114,7 +130,7 @@ jobs:
     name: Upload to Test PyPI
     if: inputs.upload == 'test_pypi'
     needs: [build_wheels, build_sdist]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     # upload to PyPI on every tag starting with 'v'
     # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
     # if: startsWith(github.event.ref, 'refs/tags/v')
@@ -126,14 +142,14 @@ jobs:
           name: artifact
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.4.2
-        with:
-          user: __token__
-          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-          # To test: repository_url: https://test.pypi.org/legacy/
-          repository_url: https://test.pypi.org/legacy/
-          verbose: true
-          # print_hash: true
+#      - uses: pypa/gh-action-pypi-publish@v1.4.2
+#        with:
+#          user: __token__
+#          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+#          # To test: repository_url: https://test.pypi.org/legacy/
+#          repository_url: https://test.pypi.org/legacy/
+#          verbose: true
+#          # print_hash: true
 
   upload_pypi:
     # name: Upload to PyPI if the latest release on Test PyPI passes the checks
@@ -141,7 +157,7 @@ jobs:
     if: inputs.upload == 'pypi'
     # needs: [build_wheels, build_sdist, upload_test_pypi, verify_installation]
     needs: [build_wheels, build_sdist]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     # upload to PyPI on every tag starting with 'v'
     # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
     # if: startsWith(github.event.ref, 'refs/tags/v')
@@ -153,10 +169,10 @@ jobs:
           name: artifact
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.4.2
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          # To test: repository_url: https://test.pypi.org/legacy/
-          verbose: true
-          # print_hash: true
+#      - uses: pypa/gh-action-pypi-publish@v1.4.2
+#        with:
+#          user: __token__
+#          password: ${{ secrets.PYPI_API_TOKEN }}
+#          # To test: repository_url: https://test.pypi.org/legacy/
+#          verbose: true
+#          # print_hash: true

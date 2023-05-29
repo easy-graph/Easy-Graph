@@ -5,6 +5,7 @@ __all__ = [
     "is_connected",
     "number_connected_components",
     "connected_components",
+    "connected_components_directed",
     "connected_component_of_node",
 ]
 
@@ -55,12 +56,39 @@ def number_connected_components(G):
 
 
 @not_implemented_for("multigraph")
+@hybrid("cpp_connected_components_undirected")
 def connected_components(G):
     """Returns a list of connected components, each of which denotes the edges set of a connected component.
 
     Parameters
     ----------
-    G : easygraph.Graph or easygraph.DiGraph
+    G : easygraph.Graph
+    Returns
+    -------
+    connected_components : list of list
+        Each element list is the edges set of a connected component.
+
+    Examples
+    --------
+    >>> connected_components(G)
+
+    """
+    seen = set()
+    for v in G:
+        if v not in seen:
+            c = set(_plain_bfs(G, v))
+            seen.update(c)
+            yield c
+
+
+@not_implemented_for("multigraph")
+@hybrid("cpp_connected_components_directed")
+def connected_components_directed(G):
+    """Returns a list of connected components, each of which denotes the edges set of a connected component.
+
+    Parameters
+    ----------
+    G :  easygraph.DiGraph
     Returns
     -------
     connected_components : list of list

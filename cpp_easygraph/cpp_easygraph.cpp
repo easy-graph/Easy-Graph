@@ -1,7 +1,7 @@
 #include "classes/__init__.h"
 #include "functions/__init__.h"
-
 PYBIND11_MODULE(cpp_easygraph, m) {
+
     py::class_<Graph>(m, "Graph")
         .def(py::init<>())
         .def("__init__", &Graph__init__)
@@ -20,7 +20,7 @@ PYBIND11_MODULE(cpp_easygraph, m) {
         .def("add_edge", &Graph_add_edge)
         .def("add_edges", &Graph_add_edges, py::arg("edges_for_adding"), py::arg("edges_attr") = py::list())
         .def("add_edges_from", &Graph_add_edges_from)
-        .def("add_edges_from_file", &Graph_add_edges_from_file, py::arg("file"), py::arg("weighted") = false)
+        .def("add_edges_from_file", &Graph_add_edges_from_file, py::arg("file"), py::arg("weighted") = false, py::arg("is_transform") = false)
         .def("add_weighted_edge", &Graph_add_weighted_edge, py::arg("u_of_edge"), py::arg("v_of_edge"), py::arg("weight"))
         .def("remove_edge", &Graph_remove_edge, py::arg("u"), py::arg("v"))
         .def("remove_edges", &Graph_remove_edges, py::arg("edges_to_remove"))
@@ -41,7 +41,9 @@ PYBIND11_MODULE(cpp_easygraph, m) {
         .def_property("nodes", &Graph::get_nodes, nullptr)
         .def_property("name", &Graph::get_name, &Graph::set_name)
         .def_property("adj", &Graph::get_adj, nullptr)
-        .def_property("edges", &Graph::get_edges, nullptr);
+        .def_property("edges", &Graph::get_edges, nullptr)
+        .def_property("node_index", &Graph::get_node_index, nullptr)
+        .def("generate_linkgraph", &Graph_generate_linkgraph,py::arg("weight") = "weight");
 
     py::class_<DiGraph, Graph>(m, "DiGraph")
         .def(py::init<>())
@@ -61,7 +63,7 @@ PYBIND11_MODULE(cpp_easygraph, m) {
         .def("add_edge", &DiGraph_add_edge)
         .def("add_edges", &DiGraph_add_edges, py::arg("edges_for_adding"), py::arg("edges_attr") = py::list())
         .def("add_edges_from", &DiGraph_add_edges_from)
-        .def("add_edges_from_file", &DiGraph_add_edges_from_file, py::arg("file"), py::arg("weighted") = false)
+        .def("add_edges_from_file", &DiGraph_add_edges_from_file, py::arg("file"), py::arg("weighted") = false, py::arg("is_transform") = false)
         .def("add_weighted_edge", &DiGraph_add_weighted_edge, py::arg("u_of_edge"), py::arg("v_of_edge"), py::arg("weight"))
         .def("remove_edge", &DiGraph_remove_edge, py::arg("u"), py::arg("v"))
         .def("remove_edges", &DiGraph_remove_edges, py::arg("edges_to_remove"))
@@ -69,13 +71,20 @@ PYBIND11_MODULE(cpp_easygraph, m) {
         .def("nodes_subgraph", &DiGraph_nodes_subgraph, py::arg("from_nodes"))
         .def("is_directed", &DiGraph_is_directed)
         .def("py", &DiGraph_py)
-        .def_property("edges", &DiGraph::get_edges, nullptr);
+        .def_property("edges", &DiGraph::get_edges, nullptr)
+        .def_property("pred", &DiGraph::get_pred,nullptr)
+        .def("generate_linkgraph", &DiGraph_generate_linkgraph,py::arg("weight") = "weight");
 
+    m.def("cpp_closeness_centrality", &closeness_centrality, py::arg("G"), py::arg("weight") = "weight", py::arg("cutoff") = py::none(), py::arg("sources") = py::none());
+    m.def("cpp_betweenness_centrality", &betweenness_centrality, py::arg("G"), py::arg("weight") = "weight", py::arg("cutoff") = py::none(),py::arg("sources") = py::none());
+    m.def("cpp_k_core", &core_decomposition, py::arg("G"));
     m.def("cpp_density", &density, py::arg("G"));
     m.def("cpp_constraint", &constraint, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
     m.def("cpp_effective_size", &effective_size, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
     m.def("cpp_hierarchy", &hierarchy, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
-    m.def("cpp_dijkstra_multisource", &_dijkstra_multisource, py::arg("G"), py::arg("sources"), py::arg("weight") = "weight", py::arg("target") = py::none());
+    m.def("cpp_pagerank", &_pagerank, py::arg("G"), py::arg("alpha") = 0.85, py::arg("max_iterator") = 500, py::arg("threshold") = 1e-6);
+    m.def("cpp_dijkstra_multisource", &_dijkstra_multisource, py::arg("G"), py::arg("sources"), py::arg("weight") = "weight", py::arg("target") = py::none());    
+    m.def("cpp_spfa", &_spfa, py::arg("G"), py::arg("source"), py::arg("weight") = "weight");
     m.def("cpp_clustering", &clustering, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none());
     m.def("cpp_biconnected_dfs_record_edges", &_biconnected_dfs_record_edges, py::arg("G"), py::arg("need_components") = true);
     m.def("cpp_strongly_connected_components",&strongly_connected_components,py::arg("G"));
@@ -85,4 +94,6 @@ PYBIND11_MODULE(cpp_easygraph, m) {
     m.def("cpp_plain_bfs", &plain_bfs, py::arg("G"), py::arg("source"));
     m.def("cpp_kruskal_mst_edges", &kruskal_mst_edges, py::arg("G"), py::arg("minimum") = true, py::arg("weight") = "weight", py::arg("data") = true, py::arg("ignore_nan") = false);
     m.def("cpp_prim_mst_edges", &prim_mst_edges, py::arg("G"), py::arg("minimum") = true, py::arg("weight") = "weight", py::arg("data") = true, py::arg("ignore_nan") = false);
+    m.def("cpp_connected_components_undirected", &connected_component_undirected, py::arg("G"));
+    m.def("cpp_connected_components_directed", &connected_component_directed, py::arg("G"));
 }

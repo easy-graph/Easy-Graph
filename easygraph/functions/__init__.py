@@ -2,6 +2,7 @@ from easygraph.functions.basic import *
 from easygraph.functions.centrality import *
 from easygraph.functions.community import *
 from easygraph.functions.components import *
+from easygraph.functions.core import *
 from easygraph.functions.drawing import *
 from easygraph.functions.graph_embedding import *
 from easygraph.functions.graph_generator import *

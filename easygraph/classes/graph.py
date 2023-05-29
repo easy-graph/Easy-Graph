@@ -67,6 +67,7 @@ class Graph:
     adjlist_outer_dict_factory = dict
     adjlist_inner_dict_factory = dict
     edge_attr_dict_factory = dict
+    node_index_dict = dict
 
     def __init__(self, incoming_graph_data=None, extra_selfloop=False, **graph_attr):
         self.graph = self.graph_attr_dict_factory()
@@ -76,7 +77,9 @@ class Graph:
         self.extra_selfloop = extra_selfloop
         self._ndata = self.gnn_data_dict_factory()
         self.cache = {}
+        self._node_index = self.node_index_dict()
         self.cflag = 0
+        self._id = 0
         self.device = "cpu"
         if incoming_graph_data is not None:
             convert.to_easygraph_graph(incoming_graph_data, create_using=self)
@@ -115,6 +118,14 @@ class Graph:
         return [node for node in self._node]
         """
         return self._node
+
+    @property
+    def node_index(self):
+        return self._node_index
+
+    @property
+    def node_index(self):
+        return self._node_index
 
     @property
     def edges(self):
@@ -816,6 +827,8 @@ class Graph:
     def _add_one_node(self, one_node_for_adding, node_attr: dict = {}):
         node = one_node_for_adding
         if node not in self._node:
+            self._node_index[node] = self._id
+            self._id += 1
             self._adj[node] = self.adjlist_inner_dict_factory()
             attr_dict = self._node[node] = self.node_attr_dict_factory()
             attr_dict.update(node_attr)
@@ -1548,6 +1561,7 @@ class Graph:
             G.add_node(u, **attr)
         for u, v, attr in self.edges:
             G.add_edge(u, v, **attr)
+        G.generate_linkgraph()
         return G
 
 

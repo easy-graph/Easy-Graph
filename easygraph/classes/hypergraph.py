@@ -26,6 +26,7 @@ __all__ = ["Hypergraph"]
 
 
 class Hypergraph(BaseHypergraph):
+
     """
     The ``Hypergraph`` class is developed for hypergraph structures.
 
@@ -437,7 +438,7 @@ class Hypergraph(BaseHypergraph):
             _hg = Hypergraph.from_state_dict(state_dict)
             _hg = _hg.to(self.device)
         else:
-            raise ValueError(f"Unkonwn drop order: {ord}.")
+            raise ValueError(f"Unknown drop order: {ord}.")
         return _hg
 
     def drop_hyperedges_of_group(
@@ -468,7 +469,7 @@ class Hypergraph(BaseHypergraph):
             _hg = Hypergraph.from_state_dict(state_dict)
             _hg = _hg.to(self.device)
         else:
-            raise ValueError(f"Unkonwn drop order: {ord}.")
+            raise ValueError(f"Unknown drop order: {ord}.")
         return _hg
 
     # =====================================================================================

@@ -1,3 +1,4 @@
+from easygraph.utils import *
 from easygraph.utils.decorators import *
 
 
@@ -6,10 +7,16 @@ __all__ = [
     "Floyd",
     "Prim",
     "Kruskal",
+    "Spfa",
     "single_source_bfs",
     "single_source_dijkstra",
     "multi_source_dijkstra",
 ]
+
+
+@hybrid("cpp_spfa")
+def Spfa(G, node, weight="weight"):
+    raise EasyGraphError("Please input GraphC or DiGraphC.")
 
 
 @not_implemented_for("multigraph")

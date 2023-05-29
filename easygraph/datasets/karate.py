@@ -5,13 +5,11 @@ from .utils import _set_labels
 from .utils import tensor
 
 
-__all__ = [
-    "KarateClubDataset",
-]
+""" KarateClubDataset for inductive learning. """
 
 
 class KarateClubDataset(EasyGraphDataset):
-    r"""Karate Club dataset for Node Classification
+    """Karate Club dataset for Node Classification
 
     Zachary's karate club is a social network of a university
     karate club, described in the paper "An Information Flow

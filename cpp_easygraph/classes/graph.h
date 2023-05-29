@@ -1,14 +1,18 @@
 #pragma once
 
 #include "../common/common.h"
+#include "linkgraph.h"
 
+// old version
 struct Graph {
     node_dict_factory node;
     adj_dict_factory adj;
+    Graph_L linkgraph_structure;
     py::kwargs node_to_id, id_to_node, graph;
     node_t id;
-    bool dirty_nodes, dirty_adj;
+    bool dirty_nodes, dirty_adj, linkgraph_dirty;
     py::object nodes_cache, adj_cache;
+    
 
     Graph();
     py::object get_nodes();
@@ -17,8 +21,11 @@ struct Graph {
     py::object get_graph();
     py::object get_adj();
     py::object get_edges();
+    py::object get_node_index();
+    std::vector<graph_edge> _get_edges(bool if_directed=true);
+    bool is_linkgraph_dirty();
+    Graph_L _get_linkgraph_structure();
 
-    std::vector<graph_edge> _get_edges();
 };
 
 py::object Graph__init__(py::args args, py::kwargs kwargs);
@@ -37,7 +44,7 @@ py::object Graph_nbunch_iter(py::object self, py::object nbunch);
 py::object Graph_add_edge(py::args args, py::kwargs kwargs);
 py::object Graph_add_edges(Graph& self, py::list edges_for_adding, py::list edges_attr);
 py::object Graph_add_edges_from(py::args args, py::kwargs attr);
-py::object Graph_add_edges_from_file(Graph& self, py::str file, py::object weighted);
+py::object Graph_add_edges_from_file(Graph& self, py::str file, py::object weighted, py::object is_transform);
 py::object Graph_add_weighted_edge(Graph& self, py::object u_of_edge, py::object v_of_edge, weight_t weight);
 py::object Graph_remove_edge(Graph& self, py::object u, py::object v);
 py::object Graph_remove_edges(py::object self, py::list edges_to_remove);
@@ -52,5 +59,5 @@ py::object Graph_size(py::object self, py::object weight);
 py::object Graph_is_directed(py::object self);
 py::object Graph_is_multigraph(py::object self);
 py::object Graph_to_index_node_graph(py::object self, py::object begin_index);
-
+py::object Graph_generate_linkgraph(py::object self, py::object weight);
 py::object Graph_py(py::object self);

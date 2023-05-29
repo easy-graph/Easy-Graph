@@ -3,6 +3,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <iostream>
+#include <stdio.h>
 #include <fstream>
 #include <map>
 #include <unordered_map>
@@ -15,7 +16,8 @@
 #include <queue>
 #include <vector>
 #include <thread>
-
+#include <inttypes.h>
+#include <limits>
 namespace py = pybind11;
 
 typedef int node_t;
@@ -30,3 +32,4 @@ struct graph_edge {
 	edge_attr_dict_factory attr;
 	graph_edge(node_t, node_t, edge_attr_dict_factory);
 };
+
