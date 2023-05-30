@@ -1,5 +1,5 @@
-
 __all__ = ["hyepergraph_degree_centrality"]
+
 
 def hyepergraph_degree_centrality(G):
     """

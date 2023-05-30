@@ -39,25 +39,25 @@ def load_structure(file_path: Union[str, Path]):
 class BaseHypergraph:
     r"""The ``BaseHypergraph`` class is the base class for all hypergraph structures.
 
-    Args:
-<<<<<<< HEAD
-        ``num_v`` (``int``): The number of vertices.
-        ``e_list`` (``Union[List[int], List[List[int]]], optional``): Edge list. Defaults to ``None``.
-        ``e_weight`` (``Union[float, List[float]], optional``): A list of weights for edges. Defaults to ``None``.
-        ``extra_selfloop`` (``bool``, optional): Whether to add extra self-loop to the graph. Defaults to ``False``.
-        ``device`` (``torch.device``, optional): The device to store the graph. Defaults to ``torch.device('cpu')``.
-=======
-        ``num_v`` (``int``): The number of vertices in the hypergraph.
-        ``e_list_v2e`` (``Union[List[int], List[List[int]]]``, optional): A list of hyperedges describes how the vertices point to the hyperedges. Defaults to ``None``.
-        ``e_list_e2v`` (``Union[List[int], List[List[int]]]``, optional): A list of hyperedges describes how the hyperedges point to the vertices. Defaults to ``None``.
-        ``w_list_v2e`` (``Union[List[float], List[List[float]]]``, optional): The weights are attached to the connections from vertices to hyperedges, which has the same shape
-            as ``e_list_v2e``. If set to ``None``, the value ``1`` is used for all connections. Defaults to ``None``.
-        ``w_list_e2v`` (``Union[List[float], List[List[float]]]``, optional): The weights are attached to the connections from the hyperedges to the vertices, which has the
-            same shape to ``e_list_e2v``. If set to ``None``, the value ``1`` is used for all connections. Defaults to ``None``.
-        ``e_weight`` (``Union[float, List[float]]``, optional): A list of weights for hyperedges. If set to ``None``, the value ``1`` is used for all hyperedges. Defaults to ``None``.
-        ``v_weight`` (``Union[float, List[float]]``, optional): Weights for vertices. If set to ``None``, the value ``1`` is used for all vertices. Defaults to ``None``.
-        ``device`` (``torch.device``, optional): The device to store the hypergraph. Defaults to ``torch.device('cpu')``.
->>>>>>> 622d76c2ce75db856dfd2eb6540dea6c9a7fe225
+        Args:
+    <<<<<<< HEAD
+            ``num_v`` (``int``): The number of vertices.
+            ``e_list`` (``Union[List[int], List[List[int]]], optional``): Edge list. Defaults to ``None``.
+            ``e_weight`` (``Union[float, List[float]], optional``): A list of weights for edges. Defaults to ``None``.
+            ``extra_selfloop`` (``bool``, optional): Whether to add extra self-loop to the graph. Defaults to ``False``.
+            ``device`` (``torch.device``, optional): The device to store the graph. Defaults to ``torch.device('cpu')``.
+    =======
+            ``num_v`` (``int``): The number of vertices in the hypergraph.
+            ``e_list_v2e`` (``Union[List[int], List[List[int]]]``, optional): A list of hyperedges describes how the vertices point to the hyperedges. Defaults to ``None``.
+            ``e_list_e2v`` (``Union[List[int], List[List[int]]]``, optional): A list of hyperedges describes how the hyperedges point to the vertices. Defaults to ``None``.
+            ``w_list_v2e`` (``Union[List[float], List[List[float]]]``, optional): The weights are attached to the connections from vertices to hyperedges, which has the same shape
+                as ``e_list_v2e``. If set to ``None``, the value ``1`` is used for all connections. Defaults to ``None``.
+            ``w_list_e2v`` (``Union[List[float], List[List[float]]]``, optional): The weights are attached to the connections from the hyperedges to the vertices, which has the
+                same shape to ``e_list_e2v``. If set to ``None``, the value ``1`` is used for all connections. Defaults to ``None``.
+            ``e_weight`` (``Union[float, List[float]]``, optional): A list of weights for hyperedges. If set to ``None``, the value ``1`` is used for all hyperedges. Defaults to ``None``.
+            ``v_weight`` (``Union[float, List[float]]``, optional): Weights for vertices. If set to ``None``, the value ``1`` is used for all vertices. Defaults to ``None``.
+            ``device`` (``torch.device``, optional): The device to store the hypergraph. Defaults to ``torch.device('cpu')``.
+    >>>>>>> 622d76c2ce75db856dfd2eb6540dea6c9a7fe225
     """
 
     def __init__(

@@ -1,1 +1,1 @@
-from  .degree import *
+from .degree import *
