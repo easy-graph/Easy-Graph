@@ -3,89 +3,7 @@ from argparse import ArgumentParser
 
 import easygraph as eg
 import numpy as np
-<<<<<<< HEAD
-import tensorflow as tf
 
-from easygraph.utils import *
-
-
-def get_relation_of_index_and_node(graph):
-    node2idx = {}
-    idx2node = []
-    node_size = 0
-    for node in graph.nodes:
-        node2idx[node] = node_size
-        idx2node.append(node)
-        node_size += 1
-    return idx2node, node2idx
-
-
-def l_2nd(beta):
-    try:
-        pass
-    except ImportWarning:
-        print("tensorflow not found, please install")
-    from tensorflow.python.keras import backend as K
-
-    def loss_2nd(y_true, y_pred):
-        y_true_numpy = y_true.numpy()
-        b_ = np.ones_like(y_true.numpy())
-        b_[y_true_numpy != 0] = beta
-        y_true = tf.cast(y_true, tf.int64)
-        y_pred = tf.cast(y_pred, tf.int64)
-        x = K.square((y_true - y_pred) * tf.cast(b_, tf.int64))
-        t = K.sum(
-            x,
-            axis=-1,
-        )
-        return K.mean(t)
-
-    return loss_2nd
-
-
-def l_1st(alpha):
-    try:
-        import tensorflow as tf
-    except ImportWarning:
-        print("tensorflow not found, please install")
-    from tensorflow.python.keras import backend as K
-
-    def loss_1st(y_true, y_pred):
-        L = y_true
-        Y = y_pred
-        batch_size = tf.cast(K.shape(L)[0], dtype=tf.float32)
-        return (
-            alpha
-            * 2
-            * tf.linalg.trace(tf.matmul(tf.matmul(Y, L, transpose_a=True), Y))
-            / batch_size
-        )
-
-    return loss_1st
-
-
-def create_model(node_size, hidden_size=[256, 128], l1=1e-5, l2=1e-4):
-    try:
-        pass
-    except ImportWarning:
-        print("tensorflow not found, please install")
-    from tensorflow.python.keras.layers import Dense
-    from tensorflow.python.keras.layers import Input
-    from tensorflow.python.keras.models import Model
-    from tensorflow.python.keras.regularizers import l1_l2
-
-    A = Input(shape=(node_size,))
-    L = Input(shape=(None,))
-    fc = A
-    for i in range(len(hidden_size)):
-        if i == len(hidden_size) - 1:
-            fc = Dense(
-                hidden_size[i],
-                activation="relu",
-                kernel_regularizer=l1_l2(l1, l2),
-                name="1st",
-            )(fc)
-=======
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -182,7 +100,7 @@ def get_adj(g):
         if min_node == 0:
             Adj[edges[i][0], edges[i][1]] = 1
             Adj[edges[i][1], edges[i][0]] = 1
->>>>>>> 622d76c2ce75db856dfd2eb6540dea6c9a7fe225
+
         else:
             Adj[edges[i][0] - 1, edges[i][1] - 1] = 1
             Adj[edges[i][1] - 1, edges[i][0] - 1] = 1

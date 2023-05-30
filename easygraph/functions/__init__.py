@@ -9,3 +9,4 @@ from easygraph.functions.graph_generator import *
 from easygraph.functions.isolate import *
 from easygraph.functions.path import *
 from easygraph.functions.structural_holes import *
+from easygraph.functions.hypergraph import *
