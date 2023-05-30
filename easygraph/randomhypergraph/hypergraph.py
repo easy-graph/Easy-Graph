@@ -14,8 +14,8 @@ def graph_Gnm(num_v: int, num_e: int):
         ``num_e`` (``int``): The Number of edges.
 
     Examples:
-        >>> import easygraph.random as random
-        >>> g = random.graph_Gnm(4, 5)
+        >>> import easygraph.randomhypergraph as rh
+        >>> g = rh.graph_Gnm(4, 5)
         >>> g.e
         ([(1, 2), (0, 3), (2, 3), (0, 2), (1, 3)], [1.0, 1.0, 1.0, 1.0, 1.0])
     """
