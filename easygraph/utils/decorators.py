@@ -136,18 +136,22 @@ def not_implemented_for(*graph_types):
     return argmap(_not_implemented_for, 0)
 
 
+import functools
+
+import cpp_easygraph
+
+
 def hybrid(cpp_method_name):
     def _hybrid(py_method):
+        @functools.wraps(py_method)
         def method(*args, **kwargs):
             G = args[0]
             if G.cflag and cpp_method_name is not None:
-                import cpp_easygraph
-
                 try:
                     cpp_method = getattr(cpp_easygraph, cpp_method_name)
                     return cpp_method(*args, **kwargs)
                 except AttributeError as e:
-                    print(f"Warning: {e}. use python method instead.")
+                    print(f"Warning: {e}. Use python method instead.")
             return py_method(*args, **kwargs)
 
         return method

@@ -7,7 +7,7 @@ import easygraph.functions
 import easygraph.ml_metrics
 import easygraph.model
 import easygraph.nn
-import easygraph.random
+import easygraph.randomhypergraph
 import easygraph.readwrite
 import easygraph.utils
 
@@ -20,7 +20,7 @@ from easygraph.functions import *
 from easygraph.ml_metrics import *
 from easygraph.model import *
 from easygraph.nn import *
-from easygraph.random import *
+from easygraph.randomhypergraph import *
 from easygraph.readwrite import *
 from easygraph.utils import *
 
