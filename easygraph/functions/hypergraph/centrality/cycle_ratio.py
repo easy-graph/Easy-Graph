@@ -1,7 +1,8 @@
 import easygraph as eg
 import time
 import itertools
-from easygraph.functions.basic.predecessor_path import predecessor
+# print(eg.__file__)
+from easygraph.functions.basic.predecessor_path_based import predecessor
 import networkx as nx
 
 __all__ = ["my_all_shortest_paths, getandJudgeSimpleCircle, getSmallestCycles, StatisticsAndCalculateIndicators, cycle_ratio_centrality"]
@@ -19,7 +20,7 @@ SmallestCyclesOfNodes = {} #
 
 
 def my_all_shortest_paths(G, source, target):
-    pred = nx.predecessor(G, source)
+    pred = predecessor(G, source)
     if target not in pred:
         raise nx.NetworkXNoPath(
             f"Target {target} cannot be reached" f"from given sources"
@@ -164,3 +165,15 @@ def cycle_ratio_centrality(G):
     cycles = getSmallestCycles(G)
     cycle_ratio = StatisticsAndCalculateIndicators(cycles)
     return cycle_ratio
+
+
+def main():
+    G = eg.Graph()
+    G.add_edges([(1,2),(1,3),(1,4),(2,3),(2,4),(3,4),(1,5),(2,5)])
+    print(G)
+    res = cycle_ratio_centrality(G)
+    print(res)
+
+
+if __name__=='__main__':
+    main()
