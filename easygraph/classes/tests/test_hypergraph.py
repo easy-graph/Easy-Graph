@@ -20,6 +20,14 @@ def g2():
     g = eg.Hypergraph(5, e_list, e_weight)
     return g
 
+def test_property(g1, g2):
+    print(g1.edge_adjacency_matrix)
+    print(g1.adjacency_matrix)
+    assert g1.adjacency_matrix != None
+    assert g1.edge_adjacency_matrix != None
+    assert g2.adjacency_matrix !=None
+    assert g2.edge_adjacency_matrix != None
+
 
 def test_save(g1, tmp_path):
     from easygraph import load_structure

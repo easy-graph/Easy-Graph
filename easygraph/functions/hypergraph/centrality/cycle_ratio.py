@@ -4,8 +4,8 @@ import itertools
 # print(eg.__file__)
 from easygraph.functions.basic.predecessor_path_based import predecessor
 import networkx as nx
-
-__all__ = ["my_all_shortest_paths, getandJudgeSimpleCircle, getSmallestCycles, StatisticsAndCalculateIndicators, cycle_ratio_centrality"]
+__all__ = ["my_all_shortest_paths", "getandJudgeSimpleCircle", "getSmallestCycles",
+           "StatisticsAndCalculateIndicators", "cycle_ratio_centrality"]
 
 
 

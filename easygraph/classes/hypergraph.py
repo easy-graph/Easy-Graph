@@ -13,7 +13,8 @@ from typing import Union
 
 import easygraph as eg
 import torch
-
+import numpy as np
+from scipy.sparse import csr_matrix
 from easygraph.classes.base import BaseHypergraph
 from easygraph.functions.drawing.drawing import draw_hypergraph
 from easygraph.utils.sparse import sparse_dropout
@@ -299,7 +300,6 @@ class Hypergraph(BaseHypergraph):
         r"""Add hyperedges to the hypergraph. If the ``group_name`` is not specified, the hyperedges will be added to the default ``main`` hyperedge group.
 
         Parameters:
-            ``num_v`` (``int``): The number of vertices in the hypergraph.
             ``e_list`` (``Union[List[int], List[List[int]]]``): A list of hyperedges describes how the vertices point to the hyperedges.
             ``e_weight`` (``Union[float, List[float]]``, optional): A list of weights for hyperedges. If set to ``None``, the value ``1`` is used for all hyperedges. Defaults to ``None``.
             ``merge_op`` (``str``): The merge operation for the conflicting hyperedges. The possible values are ``"mean"``, ``"sum"``, and ``"max"``. Defaults to ``"mean"``.
@@ -759,6 +759,48 @@ class Hypergraph(BaseHypergraph):
         if self.cache.get("H") is None:
             self.cache["H"] = self.H_v2e
         return self.cache["H"]
+    @property
+    def adjacency_matrix(self, s = 1):
+        r"""
+        The :term:`s-adjacency matrix` for the dual hypergraph.
+
+        Parameters
+        ----------
+        s : int, optional, default 1
+
+        Returns
+        -------
+        adjacency_matrix : scipy.sparse.csr.csr_matrix
+
+        """
+
+
+        tmp_H = self.H.to_dense().numpy()
+        A = tmp_H @ (tmp_H.T)
+        A[np.diag_indices_from(A)] = 0
+        A = (A >= s) * 1
+        return csr_matrix(A)
+
+    @property
+    def edge_adjacency_matrix(self, s = 1):
+        r"""
+        The :term:`s-adjacency matrix` for the dual hypergraph.
+
+        Parameters
+        ----------
+        s : int, optional, default 1
+
+        Returns
+        -------
+        adjacency_matrix : scipy.sparse.csr.csr_matrix
+
+        """
+        tmp_H = self.H.to_dense().numpy()
+        A = (tmp_H.T) @ (tmp_H)
+        A[np.diag_indices_from(A)] = 0
+        A = (A >= s) * 1
+        return csr_matrix(A)
+        # return torch.tensor(A)
 
     def H_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the hypergraph incidence matrix :math:`\mathbf{H}` of the specified hyperedge group with ``torch.Tensor`` format.
