@@ -12,12 +12,13 @@ from typing import Tuple
 from typing import Union
 
 import easygraph as eg
-import torch
 import numpy as np
-from scipy.sparse import csr_matrix
+import torch
+
 from easygraph.classes.base import BaseHypergraph
 from easygraph.functions.drawing.drawing import draw_hypergraph
 from easygraph.utils.sparse import sparse_dropout
+from scipy.sparse import csr_matrix
 
 
 if TYPE_CHECKING:
@@ -759,8 +760,9 @@ class Hypergraph(BaseHypergraph):
         if self.cache.get("H") is None:
             self.cache["H"] = self.H_v2e
         return self.cache["H"]
+
     @property
-    def adjacency_matrix(self, s = 1):
+    def adjacency_matrix(self, s=1):
         r"""
         The :term:`s-adjacency matrix` for the dual hypergraph.
 
@@ -774,7 +776,6 @@ class Hypergraph(BaseHypergraph):
 
         """
 
-
         tmp_H = self.H.to_dense().numpy()
         A = tmp_H @ (tmp_H.T)
         A[np.diag_indices_from(A)] = 0
@@ -782,7 +783,7 @@ class Hypergraph(BaseHypergraph):
         return csr_matrix(A)
 
     @property
-    def edge_adjacency_matrix(self, s = 1):
+    def edge_adjacency_matrix(self, s=1):
         r"""
         The :term:`s-adjacency matrix` for the dual hypergraph.
 

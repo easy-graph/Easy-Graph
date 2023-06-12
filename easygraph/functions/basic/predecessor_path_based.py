@@ -1,6 +1,9 @@
 import easygraph as eg
 import networkx as nx
+
 from easygraph.convert import to_networkx
+
+
 __all__ = [
     "predecessor",
 ]

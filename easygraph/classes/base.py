@@ -39,12 +39,12 @@ def load_structure(file_path: Union[str, Path]):
 class BaseHypergraph:
     r"""The ``BaseHypergraph`` class is the base class for all hypergraph structures.
 
-        Args:
-            ``num_v`` (``int``): The number of vertices.
-            ``e_list`` (``Union[List[int], List[List[int]]], optional``): Edge list. Defaults to ``None``.
-            ``e_weight`` (``Union[float, List[float]], optional``): A list of weights for edges. Defaults to ``None``.
-            ``extra_selfloop`` (``bool``, optional): Whether to add extra self-loop to the graph. Defaults to ``False``.
-            ``device`` (``torch.device``, optional): The device to store the graph. Defaults to ``torch.device('cpu')``.
+    Args:
+        ``num_v`` (``int``): The number of vertices.
+        ``e_list`` (``Union[List[int], List[List[int]]], optional``): Edge list. Defaults to ``None``.
+        ``e_weight`` (``Union[float, List[float]], optional``): A list of weights for edges. Defaults to ``None``.
+        ``extra_selfloop`` (``bool``, optional): Whether to add extra self-loop to the graph. Defaults to ``False``.
+        ``device`` (``torch.device``, optional): The device to store the graph. Defaults to ``torch.device('cpu')``.
 
     """
 

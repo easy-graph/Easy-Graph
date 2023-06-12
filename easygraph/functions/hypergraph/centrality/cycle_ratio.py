@@ -1,13 +1,20 @@
-import easygraph as eg
-import time
 import itertools
+import time
+
+import easygraph as eg
+import networkx as nx
+
 # print(eg.__file__)
 from easygraph.functions.basic.predecessor_path_based import predecessor
-import networkx as nx
-__all__ = ["my_all_shortest_paths", "getandJudgeSimpleCircle", "getSmallestCycles",
-           "StatisticsAndCalculateIndicators", "cycle_ratio_centrality"]
 
 
+__all__ = [
+    "my_all_shortest_paths",
+    "getandJudgeSimpleCircle",
+    "getSmallestCycles",
+    "StatisticsAndCalculateIndicators",
+    "cycle_ratio_centrality",
+]
 
 
 SmallestCycles = set()
@@ -16,15 +23,13 @@ NumSmallCycles = 0
 CycLenDict = dict()
 CycleRatio = {}
 
-SmallestCyclesOfNodes = {} #
+SmallestCyclesOfNodes = {}  #
 
 
 def my_all_shortest_paths(G, source, target):
     pred = predecessor(G, source)
     if target not in pred:
-        raise nx.NetworkXNoPath(
-            f"Target {target} cannot be reached" f"from given sources"
-        )
+        raise nx.NetworkXNoPath(f"Target {target} cannot be reachedfrom given sources")
     sources = {source}
     seen = {target}
     stack = [[target, 0]]
@@ -49,7 +54,8 @@ def my_all_shortest_paths(G, source, target):
             seen.discard(node)
             top -= 1
 
-def getandJudgeSimpleCircle(objectList):#
+
+def getandJudgeSimpleCircle(objectList):  #
     numEdge = 0
     for eleArr in list(itertools.combinations(objectList, 2)):
         if G.has_edge(eleArr[0], eleArr[1]):
@@ -59,29 +65,30 @@ def getandJudgeSimpleCircle(objectList):#
     else:
         return True
 
+
 def getSmallestCycles(G):
     NodeNum = G.number_of_nodes()
-    DEF_IMPOSSLEN = NodeNum + 1 #Impossible simple cycle length
+    DEF_IMPOSSLEN = NodeNum + 1  # Impossible simple cycle length
     Coreness = nx.core_number(G)
     NodeList = list(G.nodes())
     NodeList.sort()
-    #setp 1
+    # setp 1
     curCyc = list()
-    for ix in NodeList[:-2]:  #v1
+    for ix in NodeList[:-2]:  # v1
         if NodeGirth[ix] == 0:
             continue
         curCyc.append(ix)
-        for jx in NodeList[NodeList.index(ix) + 1 : -1]:  #v2
+        for jx in NodeList[NodeList.index(ix) + 1 : -1]:  # v2
             if NodeGirth[jx] == 0:
                 continue
             curCyc.append(jx)
-            if G.has_edge(ix,jx):
-                for kx in NodeList[NodeList.index(jx) + 1:]:      #v3
+            if G.has_edge(ix, jx):
+                for kx in NodeList[NodeList.index(jx) + 1 :]:  # v3
                     if NodeGirth[kx] == 0:
                         continue
-                    if G.has_edge(kx,ix):
+                    if G.has_edge(kx, ix):
                         curCyc.append(kx)
-                        if G.has_edge(kx,jx):
+                        if G.has_edge(kx, jx):
                             SmallestCycles.add(tuple(curCyc))
                             for i in curCyc:
                                 NodeGirth[i] = 3
@@ -96,7 +103,7 @@ def getSmallestCycles(G):
     if len(ResiNodeList) == 0:
         return
     else:
-        visitedNodes = dict.fromkeys(ResiNodeList,set())
+        visitedNodes = dict.fromkeys(ResiNodeList, set())
         for nod in ResiNodeList:
             if Coreness[nod] == 2 and NodeGirth[nod] < DEF_IMPOSSLEN:
                 continue
@@ -123,7 +130,8 @@ def getSmallestCycles(G):
                     G.add_edge(nod, nei)
     return SmallestCycles
 
-def StatisticsAndCalculateIndicators(SmallestCycles): #
+
+def StatisticsAndCalculateIndicators(SmallestCycles):  #
     global NumSmallCycles
     NumSmallCycles = len(SmallestCycles)
     for cyc in SmallestCycles:
@@ -131,7 +139,7 @@ def StatisticsAndCalculateIndicators(SmallestCycles): #
         CycLenDict[lenCyc] += 1
         for nod in cyc:
             SmallestCyclesOfNodes[nod].add(cyc)
-    for objNode,SmaCycs in SmallestCyclesOfNodes.items():
+    for objNode, SmaCycs in SmallestCyclesOfNodes.items():
         if len(SmaCycs) == 0:
             continue
         cycleNeighbors = set()
@@ -149,6 +157,7 @@ def StatisticsAndCalculateIndicators(SmallestCycles): #
         for nei in cycleNeighbors:
             sum += float(NeiOccurTimes[nei]) / len(SmallestCyclesOfNodes[nei])
         CycleRatio[objNode] = sum + 1
+
 
 def cycle_ratio_centrality(G):
     """
@@ -169,11 +178,11 @@ def cycle_ratio_centrality(G):
 
 def main():
     G = eg.Graph()
-    G.add_edges([(1,2),(1,3),(1,4),(2,3),(2,4),(3,4),(1,5),(2,5)])
+    G.add_edges([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4), (1, 5), (2, 5)])
     print(G)
     res = cycle_ratio_centrality(G)
     print(res)
 
 
-if __name__=='__main__':
+if __name__ == "__main__":
     main()
