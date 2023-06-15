@@ -96,8 +96,3 @@ using the `HIS <https://keg.cs.tsinghua.edu.cn/jietang/publications/WWW13-Lou&Ta
    5: {0: 1.519976806640625},
    6: {0: 0.83595703125}
   }
-
-
-Citation
---------------
-Cite the code [![DOI](https://zenodo.org/badge/653974411.svg)](https://zenodo.org/badge/latestdoi/653974411)
