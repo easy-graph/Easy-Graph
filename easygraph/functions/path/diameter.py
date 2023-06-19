@@ -1,5 +1,7 @@
 import easygraph as eg
 import easygraph.functions.path
+
+
 def eccentricity(G, v=None, sp=None):
     """Returns the eccentricity of nodes in G.
 
@@ -58,7 +60,7 @@ def eccentricity(G, v=None, sp=None):
                     " strongly connected"
                 )
             else:
-                msg = "Found infinite path length because the graph is not" " connected"
+                msg = "Found infinite path length because the graph is not connected"
             raise eg.EasyGraphError(msg)
 
         e[n] = max(length.values())
