@@ -766,7 +766,8 @@ class Hypergraph(BaseHypergraph):
     def incidence_matrix(self):
         H = self.H.to_dense().numpy()
         return H
-    def adjacency_matrix(self, s=1, weight = False):
+
+    def adjacency_matrix(self, s=1, weight=False):
         r"""
         The :term:`s-adjacency matrix` for the dual hypergraph.
 
@@ -787,7 +788,7 @@ class Hypergraph(BaseHypergraph):
             A = (A >= s) * 1
         return csr_matrix(A)
 
-    def edge_adjacency_matrix(self, s=1, weight = False):
+    def edge_adjacency_matrix(self, s=1, weight=False):
         r"""
         The :term:`s-adjacency matrix` for the dual hypergraph.
 
@@ -820,7 +821,6 @@ class Hypergraph(BaseHypergraph):
         if self.group_cache[group_name].get("H") is None:
             self.group_cache[group_name]["H"] = self.H_v2e_of_group(group_name)
         return self.group_cache[group_name]["H"]
-
 
     def edge_distance(self, source, target, s=1):
         """
@@ -1977,7 +1977,7 @@ class Hypergraph(BaseHypergraph):
         )
         return X
 
-    def get_linegraph(self, s=1, edge=True, weight = False) -> "Graph":
+    def get_linegraph(self, s=1, edge=True, weight=False) -> "Graph":
         """
         Get the linegraph of the hypergraph.
         If edges=True (default)then the edges will be the vertices of the line
@@ -2006,11 +2006,11 @@ class Hypergraph(BaseHypergraph):
         """
 
         if edge:
-            edge_adjacency = self.edge_adjacency_matrix(s = s, weight = weight)
+            edge_adjacency = self.edge_adjacency_matrix(s=s, weight=weight)
             linegraph = eg.from_scipy_sparse_matrix(edge_adjacency)
 
         else:
-            node_adjacency = self.adjacency_matrix(s = s, weight= weight)
+            node_adjacency = self.adjacency_matrix(s=s, weight=weight)
             linegraph = eg.from_scipy_sparse_matrix(node_adjacency)
 
         return linegraph
