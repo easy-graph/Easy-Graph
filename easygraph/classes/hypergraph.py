@@ -762,7 +762,11 @@ class Hypergraph(BaseHypergraph):
             self.cache["H"] = self.H_v2e
         return self.cache["H"]
 
-    def adjacency_matrix(self, s=1):
+    @property
+    def incidence_matrix(self):
+        H = self.H.to_dense().numpy()
+        return H
+    def adjacency_matrix(self, s=1, weight = False):
         r"""
         The :term:`s-adjacency matrix` for the dual hypergraph.
 
@@ -779,10 +783,11 @@ class Hypergraph(BaseHypergraph):
         tmp_H = self.H.to_dense().numpy()
         A = tmp_H @ (tmp_H.T)
         A[np.diag_indices_from(A)] = 0
-        A = (A >= s) * 1
+        if not weight:
+            A = (A >= s) * 1
         return csr_matrix(A)
 
-    def edge_adjacency_matrix(self, s=1):
+    def edge_adjacency_matrix(self, s=1, weight = False):
         r"""
         The :term:`s-adjacency matrix` for the dual hypergraph.
 
@@ -798,8 +803,10 @@ class Hypergraph(BaseHypergraph):
         tmp_H = self.H.to_dense().numpy()
         A = (tmp_H.T) @ (tmp_H)
         A[np.diag_indices_from(A)] = 0
-        A = (A >= s) * 1
+        if not weight:
+            A = (A >= s) * 1
         return csr_matrix(A)
+        # return A
 
     def H_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the hypergraph incidence matrix :math:`\mathbf{H}` of the specified hyperedge group with ``torch.Tensor`` format.
@@ -813,6 +820,37 @@ class Hypergraph(BaseHypergraph):
         if self.group_cache[group_name].get("H") is None:
             self.group_cache[group_name]["H"] = self.H_v2e_of_group(group_name)
         return self.group_cache[group_name]["H"]
+
+
+    def edge_distance(self, source, target, s=1):
+        """
+
+        Parameters
+        ----------
+        source
+        target
+        s
+
+        Returns
+        -------
+        s- walk distance : the shortest s-walk edge distance
+
+        Notes
+        -----
+            The s-distance is the shortest s-walk length between the edges.
+            An s-walk between edges is a sequence of edges such that
+            consecutive pairwise edges intersect in at least s nodes. The
+            length of the shortest s-walk is 1 less than the number of edges
+            in the path sequence.
+
+        """
+        l_graph = self.get_linegraph(s=s, edge=True)
+        if source not in l_graph.nodes:
+            raise EasyGraphError("Please make sure source exist!")
+        dist = eg.Dijkstra(l_graph, source)
+        if target in dist:
+            return dist[target]
+        raise EasyGraphError("Please make sure target exist!")
 
     def distance(self, source, target, s=1):
         """
@@ -1939,8 +1977,9 @@ class Hypergraph(BaseHypergraph):
         )
         return X
 
-    def get_linegraph(self, s=1, edge=True) -> "Graph":
-        r"""Get the linegraph of the hypergraph.
+    def get_linegraph(self, s=1, edge=True, weight = False) -> "Graph":
+        """
+        Get the linegraph of the hypergraph.
         If edges=True (default)then the edges will be the vertices of the line
         graph. Two vertices are connected by an s-line-graph edge if the
         corresponding hypergraph edges intersect in at least s hypergraph nodes.
@@ -1948,27 +1987,44 @@ class Hypergraph(BaseHypergraph):
         graph. Two vertices are connected if the nodes they correspond to share
         at least s incident hyper edges.
         Returns:
-            ``Graph``: The linegraph of the hypergraph.
+
+        Parameters
+        ----------
+        s : Two vertices are connected if the nodes they correspond to share
+        at least s incident hyper edges.
+        edge : If edges=True (default)then the edges will be the vertices of the line
+        graph. Two vertices are connected by an s-line-graph edge if the
+        corresponding hypergraph edges intersect in at least s hypergraph nodes.
+        If edges=False, the hypergraph nodes will be the vertices of the line
+        graph.
+        weight :
+
+        Returns
+        -------
+            Graph: The linegraph of the hypergraph.
+
         """
-        linegraph = eg.Graph()
+
         if edge:
-            edge_adjacency = self.edge_adjacency_matrix(s=s)
+            edge_adjacency = self.edge_adjacency_matrix(s = s, weight = weight)
             linegraph = eg.from_scipy_sparse_matrix(edge_adjacency)
-            # for e_idx, e in enumerate(self.e[0]):
-            #     hyperedge_nodes[e_idx] = set(e)
-            #     print("e:",e)
-            #     linegraph.add_node(e_idx, hyperedge=hyperedge_nodes[e_idx])
-            # for e_idx1, nodes1 in hyperedge_nodes.items():
-            #     for e_idx2, nodes2 in hyperedge_nodes.items():
-            #         if e_idx1 >= e_idx2:
-            #             continue
-            #         common_nodes = nodes1.intersection(nodes2)
-            #         if len(common_nodes) > 0:
-            #             linegraph.add_edge(
-            #                 e_idx1, e_idx2, hyperedge_intersection=common_nodes
-            #             )
+
         else:
-            node_adjacency = self.adjacency_matrix(s=s)
+            node_adjacency = self.adjacency_matrix(s = s, weight= weight)
             linegraph = eg.from_scipy_sparse_matrix(node_adjacency)
 
         return linegraph
+
+    # for e_idx, e in enumerate(self.e[0]):
+    #     hyperedge_nodes[e_idx] = set(e)
+    #     print("e:",e)
+    #     linegraph.add_node(e_idx, hyperedge=hyperedge_nodes[e_idx])
+    # for e_idx1, nodes1 in hyperedge_nodes.items():
+    #     for e_idx2, nodes2 in hyperedge_nodes.items():
+    #         if e_idx1 >= e_idx2:
+    #             continue
+    #         common_nodes = nodes1.intersection(nodes2)
+    #         if len(common_nodes) > 0:
+    #             linegraph.add_edge(
+    #                 e_idx1, e_idx2, hyperedge_intersection=common_nodes
+    #             )
