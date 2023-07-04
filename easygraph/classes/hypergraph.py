@@ -767,6 +767,26 @@ class Hypergraph(BaseHypergraph):
         H = self.H.to_dense().numpy()
         return H
 
+    def get_star_expeansion(self):
+        star_expansion_graph = eg.Graph()
+        for node in self.v:
+            star_expansion_graph.add_node(node, type="node")
+        e_index = len(self.v)
+        hyperedge_weight_list = self.e[1]
+        hyperedge_edge_list = self.e[0]
+        for hyperedge_index, e in enumerate(hyperedge_edge_list):
+            hyperedge_weight = hyperedge_weight_list[hyperedge_index]
+            star_expansion_graph.add_node(e_index, type="hyperedge")
+            for index, node in enumerate(e):
+                star_expansion_graph.add_edge(
+                    e_index,
+                    node,
+                    weight=hyperedge_weight / len(e),
+                    hyperedge_index=hyperedge_index,
+                )
+            e_index = e_index + 1
+        return star_expansion_graph
+
     def adjacency_matrix(self, s=1, weight=False):
         r"""
         The :term:`s-adjacency matrix` for the dual hypergraph.
@@ -1977,7 +1997,7 @@ class Hypergraph(BaseHypergraph):
         )
         return X
 
-    def get_linegraph(self, s=1, edge=True, weight=False) -> "Graph":
+    def get_linegraph(self, s=1, edge=True, weight=True) -> "Graph":
         """
         Get the linegraph of the hypergraph.
         If edges=True (default)then the edges will be the vertices of the line
