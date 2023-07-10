@@ -36,7 +36,7 @@ class PPIDataset(EasyGraphBuiltinDataset):
         Default: 'train'
     raw_dir : str
         Raw file directory to download/contains the input data directory.
-        Default: ~/.dgl/
+        Default: ~/.eg/
     force_reload : bool
         Whether to reload the dataset.
         Default: False
@@ -44,8 +44,8 @@ class PPIDataset(EasyGraphBuiltinDataset):
         Whether to print out progress information.
         Default: True.
     transform : callable, optional
-        A transform that takes in a :class:`~dgl.DGLGraph` object and returns
-        a transformed version. The :class:`~dgl.DGLGraph` object will be
+        A transform that takes in a :class:`~eg.DGLGraph` object and returns
+        a transformed version. The :class:`~eg.DGLGraph` object will be
         transformed before every access.
 
     Attributes
@@ -126,9 +126,9 @@ class PPIDataset(EasyGraphBuiltinDataset):
 
     def has_cache(self):
         graph_list_path = os.path.join(
-            self.save_path, "{}_dgl_graph_list.bin".format(self.mode)
+            self.save_path, "{}_eg_graph_list.bin".format(self.mode)
         )
-        g_path = os.path.join(self.save_path, "{}_dgl_graph.bin".format(self.mode))
+        g_path = os.path.join(self.save_path, "{}_eg_graph.bin".format(self.mode))
         info_path = os.path.join(self.save_path, "{}_info.pkl".format(self.mode))
         return (
             os.path.exists(graph_list_path)
@@ -138,17 +138,17 @@ class PPIDataset(EasyGraphBuiltinDataset):
 
     def save(self):
         graph_list_path = os.path.join(
-            self.save_path, "{}_dgl_graph_list.bin".format(self.mode)
+            self.save_path, "{}_eg_graph_list.bin".format(self.mode)
         )
-        g_path = os.path.join(self.save_path, "{}_dgl_graph.bin".format(self.mode))
+        g_path = os.path.join(self.save_path, "{}_eg_graph.bin".format(self.mode))
         info_path = os.path.join(self.save_path, "{}_info.pkl".format(self.mode))
         # save_graphs(graph_list_path, self.graphs)
         # save_graphs(g_path, self.graph)
         # save_info(info_path, {'labels': self._labels, 'feats': self._feats})
 
     # def load(self):
-    #     graph_list_path = os.path.join(self.save_path, '{}_dgl_graph_list.bin'.format(self.mode))
-    #     g_path = os.path.join(self.save_path, '{}_dgl_graph.bin'.format(self.mode))
+    #     graph_list_path = os.path.join(self.save_path, '{}_eg_graph_list.bin'.format(self.mode))
+    #     g_path = os.path.join(self.save_path, '{}_eg_graph.bin'.format(self.mode))
     #     info_path = os.path.join(self.save_path, '{}_info.pkl'.format(self.mode))
     #     self.graphs = load_graphs(graph_list_path)[0]
     #     g, _ = load_graphs(g_path)
@@ -175,7 +175,7 @@ class PPIDataset(EasyGraphBuiltinDataset):
 
         Returns
         -------
-        :class:`dgl.DGLGraph`
+        :class:`eg.Graph`
             graph structure, node features and node labels.
 
             - ``ndata['feat']``: node features
@@ -200,7 +200,7 @@ class LegacyPPIDataset(PPIDataset):
 
         Returns
         -------
-        (dgl.DGLGraph, Tensor, Tensor)
+        (eg.DGLGraph, Tensor, Tensor)
             The graph, features and its label.
         """
         if self._transform is None:
