@@ -1,5 +1,7 @@
 from easygraph.datasets.get_sample_graph import *
 
+from .hypergraph import *
+
 
 try:
     from easygraph.datasets.gnn_benchmark import *

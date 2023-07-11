@@ -12,6 +12,8 @@ from typing import Union
 import numpy as np
 import torch
 
+from easygraph.utils.exception import EasyGraphError
+
 
 __all__ = ["load_structure", "BaseHypergraph"]
 
@@ -51,6 +53,7 @@ class BaseHypergraph:
     def __init__(
         self,
         num_v: int,
+        v_property: Optional[Union[Dict, List[Dict]]] = None,
         e_list: Optional[Union[List[int], List[List[int]]]] = None,
         e_weight: Optional[Union[float, List[float]]] = None,
         extra_selfloop: bool = False,
@@ -62,6 +65,13 @@ class BaseHypergraph:
         self.clear()
         self._num_v = num_v
         self.device = device
+        print("v_property:", v_property)
+        if v_property == None:
+            self._v_property = [{} for i in range(num_v)]
+        else:
+            v_property = self._format_v_property_list(num_v, v_property)
+            self._v_property = v_property
+
         self._has_extra_selfloop = extra_selfloop
 
     @abc.abstractmethod
@@ -191,6 +201,25 @@ class BaseHypergraph:
         for _idx in range(len(e_list)):
             e_list[_idx] = tuple(sorted(e_list[_idx]))
         return e_list
+
+    def _format_v_property_list(self, v_num, v_property_list: Union[Dict, List[Dict]]):
+        r"""Format the property list.
+
+        Args:
+            ``e_list`` (``Dict`` or ``List[Dict]``): The property list.
+        """
+        if type(v_property_list) == dict:
+            return [v_property_list]
+        elif type(v_property_list) == list and len(v_property_list) != v_num:
+            raise EasyGraphError(
+                "The length of property list must be equal to node number"
+            )
+        elif type(v_property_list) == list:
+            pass
+        else:
+            raise TypeError("v_property_list must be Dict or List[Dict].")
+
+        return v_property_list
 
     @staticmethod
     def _format_e_list_and_w_on_them(
@@ -374,6 +403,8 @@ class BaseHypergraph:
         else:
             if hyperedge_code not in self._raw_groups[group_name]:
                 self._raw_groups[group_name][hyperedge_code] = content
+
+            # print("content:",self._raw_groups[group_name][hyperedge_code])
             else:
                 self._raw_groups[group_name][hyperedge_code] = self._merge_hyperedges(
                     self._raw_groups[group_name][hyperedge_code], content, merge_op
@@ -469,6 +500,10 @@ class BaseHypergraph:
         Args:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
+
+    @property
+    def v_property(self):
+        return self._v_property
 
     @property
     def num_v(self) -> int:

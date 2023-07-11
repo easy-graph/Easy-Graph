@@ -47,14 +47,21 @@ class Hypergraph(BaseHypergraph):
     def __init__(
         self,
         num_v: int,
+        v_property: Optional[Union[Dict, List[Dict]]] = None,
         e_list: Optional[Union[List[int], List[List[int]]]] = None,
         e_weight: Optional[Union[float, List[float]]] = None,
+        e_property: Optional[Union[Dict, List[Dict]]] = None,
         merge_op: str = "mean",
         device: torch.device = torch.device("cpu"),
     ):
-        super().__init__(num_v, device=device)
+        super().__init__(num_v, v_property=v_property, device=device)
         if e_list is not None:
-            self.add_hyperedges(e_list, e_weight, merge_op=merge_op)
+            self.add_hyperedges(
+                e_list=e_list,
+                e_weight=e_weight,
+                e_property=e_property,
+                merge_op=merge_op,
+            )
 
     def __repr__(self) -> str:
         r"""Print the hypergraph information."""
@@ -63,7 +70,11 @@ class Hypergraph(BaseHypergraph):
     @property
     def state_dict(self) -> Dict[str, Any]:
         r"""Get the state dict of the hypergraph."""
-        return {"num_v": self.num_v, "raw_groups": self._raw_groups}
+        return {
+            "num_v": self.num_v,
+            "v_property": self.v_property,
+            "raw_groups": self._raw_groups,
+        }
 
     def save(self, file_path: Union[str, Path]):
         r"""Save the EasyGraph's hypergraph structure a file.
@@ -296,7 +307,8 @@ class Hypergraph(BaseHypergraph):
         self,
         e_list: Union[List[int], List[List[int]]],
         e_weight: Optional[Union[float, List[float]]] = None,
-        merge_op: str = "mean",
+        e_property: Optional[Union[Dict, List[Dict]]] = None,
+        merge_op: str = "sum",
         group_name: str = "main",
     ):
         r"""Add hyperedges to the hypergraph. If the ``group_name`` is not specified, the hyperedges will be added to the default ``main`` hyperedge group.
@@ -323,13 +335,33 @@ class Hypergraph(BaseHypergraph):
             e_weight
         ), "The number of hyperedges and the number of weights are not equal."
 
+        if type(e_property) == dict:
+            e_property = [e_property]
+
+        # print("e_property:",e_property)
         for _idx in range(len(e_list)):
-            self._add_hyperedge(
-                self._hyperedge_code(e_list[_idx], e_list[_idx]),
-                {"w_e": float(e_weight[_idx])},
-                merge_op,
-                group_name,
-            )
+            if e_property != None:
+                e_property[_idx].update({"w_e": float(e_weight[_idx])})
+
+                self._add_hyperedge(
+                    self._hyperedge_code(e_list[_idx], e_list[_idx]),
+                    e_property[_idx],
+                    merge_op,
+                    group_name,
+                )
+            else:
+                self._add_hyperedge(
+                    self._hyperedge_code(e_list[_idx], e_list[_idx]),
+                    {"w_e": float(e_weight[_idx])},
+                    merge_op,
+                    group_name,
+                )
+            # self._add_hyperedge(
+            #     self._hyperedge_code(e_list[_idx], e_list[_idx]),
+            #     {"w_e": float(e_weight[_idx])},
+            #     merge_op,
+            #     group_name,
+            # )
         self._clear_cache(group_name)
 
     def add_hyperedges_from_feature_kNN(
@@ -504,6 +536,7 @@ class Hypergraph(BaseHypergraph):
         ), f"The specified {group_name} is not in existing hyperedge groups."
         if self.group_cache[group_name].get("e", None) is None:
             e_list = [e_code[0] for e_code in self._raw_groups[group_name].keys()]
+            # print("self._raw_groups[group_name].values()",self._raw_groups[group_name].values())
             e_weight = [
                 e_content["w_e"] for e_content in self._raw_groups[group_name].values()
             ]

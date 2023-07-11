@@ -21,6 +21,23 @@ def g2():
     return g
 
 
+@pytest.fixture()
+def g3():
+    e_list = [[0, 1], [0, 1, 2], [2, 3, 4]]
+    e_weight = [1, 1, 1]
+    g = eg.Hypergraph(5, e_list=e_list, e_weight=e_weight)
+    return g
+
+
+def test_expansion(g3):
+    star_expansion_graph = g3.get_star_expeansion()
+    node_clique_expansion_graph = g3.get_linegraph(edge=False)
+    edge_clique_expansion_graph = g3.get_linegraph()
+    print(star_expansion_graph.edges)
+    print(node_clique_expansion_graph.edges)
+    print(edge_clique_expansion_graph.edges)
+
+
 def test_property(g1, g2):
     print(g1.edge_adjacency_matrix)
     print(g1.adjacency_matrix)
