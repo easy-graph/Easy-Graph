@@ -12,7 +12,7 @@ Copyright (C) <2020-2022> by Mobile Systems and Networking Group, Fudan Universi
 .. image:: https://img.shields.io/pypi/l/Python-EasyGraph
    :target: https://github.com/easy-graph/Easy-Graph/blob/master/LICENSE
 
-.. image:: https://img.shields.io/pypi/dm/python-easygraph
+.. image:: https://static.pepy.tech/personalized-badge/python-easygraph?period=total&units=international_system&left_color=brightgreen&right_color=yellowgreen&left_text=Downloads
    :target: https://pypi.org/project/Python-EasyGraph/
 
 - **Documentation:** https://easy-graph.github.io/
