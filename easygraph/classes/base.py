@@ -65,7 +65,6 @@ class BaseHypergraph:
         self.clear()
         self._num_v = num_v
         self.device = device
-        print("v_property:", v_property)
         if v_property == None:
             self._v_property = [{} for i in range(num_v)]
         else:
@@ -403,8 +402,6 @@ class BaseHypergraph:
         else:
             if hyperedge_code not in self._raw_groups[group_name]:
                 self._raw_groups[group_name][hyperedge_code] = content
-
-            # print("content:",self._raw_groups[group_name][hyperedge_code])
             else:
                 self._raw_groups[group_name][hyperedge_code] = self._merge_hyperedges(
                     self._raw_groups[group_name][hyperedge_code], content, merge_op
