@@ -1,6 +1,8 @@
 import itertools
 
-from easygraph.classes.hypergraph import Hypergraph
+import easygraph as eg
+
+# from easygraph.classes.hypergraph import Hypergraph
 from easygraph.utils.exception import EasyGraphError
 
 
@@ -19,14 +21,14 @@ def empty_hypergraph(N=1):
     A eg.Hypergraph with n_num node, without any hyperedge.
 
     """
-    return Hypergraph(N)
+    return eg.Hypergraph(N)
 
 
 def complete_hypergraph(n, include_singleton=False):
     if n == 0:
         raise EasyGraphError("The number of nodes in a Hypergraph can not be zero")
     # init
-    hypergraph = Hypergraph(n)
+    hypergraph = eg.Hypergraph(n)
     total_hyperedegs = []
     if n > 1:
         start = 1 if include_singleton else 2

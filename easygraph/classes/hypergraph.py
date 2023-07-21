@@ -16,7 +16,7 @@ import numpy as np
 import torch
 
 from easygraph.classes.base import BaseHypergraph
-from easygraph.functions.drawing.drawing import draw_hypergraph
+from easygraph.functions.drawing import draw_hypergraph
 from easygraph.utils.exception import EasyGraphError
 from easygraph.utils.sparse import sparse_dropout
 from scipy.sparse import csr_matrix
@@ -44,6 +44,8 @@ class Hypergraph(BaseHypergraph):
 
     """
 
+    gnn_data_dict_factory = dict
+
     def __init__(
         self,
         num_v: int,
@@ -55,6 +57,7 @@ class Hypergraph(BaseHypergraph):
         device: torch.device = torch.device("cpu"),
     ):
         super().__init__(num_v, v_property=v_property, device=device)
+        self._ndata = self.gnn_data_dict_factory()
         if e_list is not None:
             self.add_hyperedges(
                 e_list=e_list,
@@ -66,6 +69,10 @@ class Hypergraph(BaseHypergraph):
     def __repr__(self) -> str:
         r"""Print the hypergraph information."""
         return f"Hypergraph(num_vertex={self.num_v}, num_hyperedge={self.num_e})"
+
+    @property
+    def ndata(self):
+        return self._ndata
 
     @property
     def state_dict(self) -> Dict[str, Any]:

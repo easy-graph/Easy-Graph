@@ -6,9 +6,9 @@ import warnings
 
 from functools import reduce
 
+import easygraph as eg
 import numpy as np
 
-from easygraph.classes.hypergraph import Hypergraph
 from easygraph.utils.exception import EasyGraphError
 
 
@@ -88,7 +88,7 @@ def uniform_hypergraph_configuration_model(k, m, seed=None):
     for id in k:
         stubs.extend([id] * int(k[id]))
 
-    H = Hypergraph(num_v=len(k))
+    H = eg.Hypergraph(num_v=len(k))
 
     while len(stubs) != 0:
         u = random.sample(range(len(stubs)), m)
@@ -163,7 +163,7 @@ def uniform_HSBM(n, m, p, sizes, seed=None):
         np.random.seed(seed)
 
     node_labels = range(n)
-    H = Hypergraph(num_v=n)
+    H = eg.Hypergraph(num_v=n)
 
     block_range = range(len(sizes))
     # Split node labels in a partition (list of sets).
@@ -293,7 +293,7 @@ def uniform_erdos_renyi_hypergraph(n, m, p, p_type="degree", seed=None):
         np.random.seed(seed)
 
     node_labels = range(n)
-    H = Hypergraph(num_v=n)
+    H = eg.Hypergraph(num_v=n)
 
     if p_type == "degree":
         q = p / (m * n ** (m - 1))  # wiring probability

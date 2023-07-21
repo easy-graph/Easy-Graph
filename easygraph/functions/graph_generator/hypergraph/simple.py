@@ -1,6 +1,7 @@
 from itertools import combinations
 
-from easygraph.classes.hypergraph import Hypergraph
+import easygraph as eg
+
 from easygraph.utils.exception import EasyGraphError
 
 
@@ -56,7 +57,7 @@ def star_clique(n_star, n_clique, d_max):
     nodes_clique = range(n_star, n_star + n_clique)
     nodes = list(nodes_star) + list(nodes_clique)
 
-    H = Hypergraph(num_v=len(nodes))
+    H = eg.Hypergraph(num_v=len(nodes))
 
     # add star edges (center of the star is 0-th node)
     H.add_hyperedges([[nodes_star[0], nodes_star[i]] for i in range(1, n_star)])
@@ -107,7 +108,7 @@ def sunflower(l, c, m):
 
     core_nodes = list(range(c))
 
-    H = Hypergraph(num_v=len(core_nodes))
+    H = eg.Hypergraph(num_v=len(core_nodes))
     start_label = c
     while start_label + (m - c) <= c + (m - c) * l:
         H.add_hyperedges(core_nodes + [start_label + i for i in range(m - c)])

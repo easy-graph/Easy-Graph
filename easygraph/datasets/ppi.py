@@ -89,11 +89,17 @@ class PPIDataset(EasyGraphBuiltinDataset):
         )
 
     def process(self):
-        graph_file = os.path.join(self.save_path, "{}_graph.json".format(self.mode))
-        label_file = os.path.join(self.save_path, "{}_labels.npy".format(self.mode))
-        feat_file = os.path.join(self.save_path, "{}_feats.npy".format(self.mode))
+        graph_file = os.path.join(
+            self.save_path, "ppi", "{}_graph.json".format(self.mode)
+        )
+        label_file = os.path.join(
+            self.save_path, "ppi", "{}_labels.npy".format(self.mode)
+        )
+        feat_file = os.path.join(
+            self.save_path, "ppi", "{}_feats.npy".format(self.mode)
+        )
         graph_id_file = os.path.join(
-            self.save_path, "{}_graph_id.npy".format(self.mode)
+            self.save_path, "ppi", "{}_graph_id.npy".format(self.mode)
         )
 
         g_data = json.load(open(graph_file))

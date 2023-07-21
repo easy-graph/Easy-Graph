@@ -1,5 +1,6 @@
 from easygraph.datasets.get_sample_graph import *
 
+from .email_enron import Email_Enron
 from .hypergraph import *
 
 

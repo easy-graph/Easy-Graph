@@ -15,7 +15,7 @@ def norm_ft(X: torch.Tensor, ord: Optional[Union[int, float]] = None) -> torch.T
         ``ord`` (``Union[int, float]``, optional): The order of the norm can be either an ``int``, ``float``. If ``ord`` is ``None``, the norm is computed with the 2-norm. Defaults to ``None``.
 
     Examples:
-        >>> import dhg.datapipe as dd
+        >>> import easygraph.datapipe as dd
         >>> import torch
         >>> X = torch.tensor([
                     [0.1, 0.2, 0.5],
@@ -51,7 +51,7 @@ def min_max_scaler(X: torch.Tensor, ft_min: float, ft_max: float) -> torch.Tenso
         ``ft_max`` (``float``): The maximum value of the output feature.
 
     Examples:
-        >>> import dhg.datapipe as dd
+        >>> import easygraph.datapipe as dd
         >>> import torch
         >>> X = torch.tensor([
                     [0.1, 0.2, 0.5],

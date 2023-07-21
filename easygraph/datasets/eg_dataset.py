@@ -43,7 +43,7 @@ class EasyGraphDataset(object):
         Specifying the directory that will store the
         downloaded data or the directory that
         already stores the input data.
-        Default: ~/.dgl/
+        Default: ~/.EasyGraphData/
     save_dir : str
         Directory to save the processed dataset.
         Default: same as raw_dir
@@ -102,7 +102,7 @@ class EasyGraphDataset(object):
         self._hash = self._get_hash()
         self._transform = transform
 
-        # if no dir is provided, the default dgl download dir is used.
+        # if no dir is provided, the default EasyGraph download dir is used.
         if raw_dir is None:
             self._raw_dir = get_download_dir()
         else:
@@ -112,7 +112,6 @@ class EasyGraphDataset(object):
             self._save_dir = self._raw_dir
         else:
             self._save_dir = save_dir
-
         self._load()
 
     def download(self):
@@ -167,6 +166,7 @@ class EasyGraphDataset(object):
         By default ``self.raw_path = os.path.join(self.raw_dir, self.name)``
         One can overwrite ``raw_path()`` function to change the path.
         """
+
         if os.path.exists(self.raw_path):  # pragma: no cover
             return
 
@@ -187,11 +187,12 @@ class EasyGraphDataset(object):
           - Process the dataset and build the dgl graph.
           - Save the processed dataset into files.
         """
+
         load_flag = not self._force_reload and self.has_cache()
         if load_flag:
             try:
                 self.load()
-
+                self.process()
                 if self.verbose:
                     print("Done loading data from cached files.")
             except KeyboardInterrupt:
@@ -254,7 +255,7 @@ class EasyGraphDataset(object):
     @property
     def save_path(self):
         r"""Path to save the processed dataset."""
-        return os.path.join(self._save_dir, self.name)
+        return os.path.join(self._save_dir)
 
     @property
     def verbose(self):
@@ -317,13 +318,13 @@ class EasyGraphBuiltinDataset(EasyGraphDataset):
         force_reload=False,
         verbose=True,
         transform=None,
+        save_dir=None,
     ):
-        print("buildin url:", url)
         super(EasyGraphBuiltinDataset, self).__init__(
             name,
             url=url,
             raw_dir=raw_dir,
-            save_dir=None,
+            save_dir=save_dir,
             hash_key=hash_key,
             force_reload=force_reload,
             verbose=verbose,
@@ -332,7 +333,6 @@ class EasyGraphBuiltinDataset(EasyGraphDataset):
 
     def download(self):
         r"""Automatically download data and extract it."""
-        print("dd")
         if self.url is not None:
             zip_file_path = os.path.join(self.raw_dir, self.name + ".zip")
             download(self.url, path=zip_file_path)

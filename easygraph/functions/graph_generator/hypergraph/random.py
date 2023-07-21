@@ -5,9 +5,9 @@ import warnings
 from collections import defaultdict
 from itertools import combinations
 
+import easygraph as eg
 import numpy as np
 
-from easygraph.classes.hypergraph import Hypergraph
 from easygraph.utils.exception import EasyGraphError
 from scipy.special import comb
 
@@ -267,7 +267,7 @@ def chung_lu_hypergraph(k1, k2, seed=None):
 
     S = sum(k1.values())
 
-    H = Hypergraph(len(node_labels))
+    H = eg.Hypergraph(len(node_labels))
 
     tmp_hyperedges = []
     for u in node_labels:
@@ -363,7 +363,7 @@ def random_hypergraph(N, ps, order=None, seed=None):
 
         hyperedges += edges_to_add
 
-    H = Hypergraph(num_v=N)
+    H = eg.Hypergraph(num_v=N)
     H.add_hyperedges(hyperedges)
 
     return H

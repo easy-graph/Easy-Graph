@@ -8,6 +8,10 @@ from .multigraph import MultiGraph
 from .operation import *
 
 
+# from .base import BaseHypergraph
+# from .base import load_structure
+# from .hypergraph import Hypergraph
+
 try:
     from .base import BaseHypergraph
     from .base import load_structure

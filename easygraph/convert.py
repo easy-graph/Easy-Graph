@@ -534,6 +534,7 @@ def dict_to_hypergraph(data, max_order=None, is_dynamic=False):
 
     """
 
+    timestamp_lst = list()
     node_data = data["node-data"]
     node_num = len(node_data)
     G = eg.Hypergraph(num_v=node_num)
@@ -545,6 +546,7 @@ def dict_to_hypergraph(data, max_order=None, is_dynamic=False):
         raise EasyGraphError("Failed to import node attributes.")
 
     # try:
+
     e_property_dict = data["edge-data"]
     for id, edge in data["edge-dict"].items():
         # print("id:",id)
@@ -564,15 +566,13 @@ def dict_to_hypergraph(data, max_order=None, is_dynamic=False):
         except ValueError as e:
             raise TypeError(f"Failed to convert nodes to type int.") from e
         if is_dynamic:
-            # print("e_property_dict[str(id)][timestamp]:",e_property_dict[str(id)]["timestamp"])
-            # if e_property_dict[str(id)]["timestamp"] in G.group_names and edge in G.e[0]:
-            # print("repeat!")
             G.add_hyperedges(
                 e_list=edge,
                 e_property=e_property_dict[str(id)],
                 group_name=e_property_dict[str(id)]["timestamp"],
             )
+            timestamp_lst.append(e_property_dict[str(id)]["timestamp"])
         else:
             G.add_hyperedges(e_list=edge, e_property=e_property_dict[str(id)])
 
-    return G
+    return G, timestamp_lst

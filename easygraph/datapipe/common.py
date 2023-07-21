@@ -17,7 +17,7 @@ def to_tensor(
         ``X`` (``Union[List, np.ndarray, torch.Tensor, scipy.sparse.csr_matrix]``): Input.
 
     Examples:
-        >>> import dhg.datapipe as dd
+        >>> import easygraph.datapipe as dd
         >>> X = [[0.1, 0.2, 0.5],
                  [0.5, 0.2, 0.3],
                  [0.3, 0.2, 0]]
@@ -48,7 +48,7 @@ def to_bool_tensor(X: Union[List, np.ndarray, torch.Tensor]) -> torch.BoolTensor
         ``X`` (``Union[List, np.ndarray, torch.Tensor]``): Input.
 
     Examples:
-        >>> import dhg.datapipe as dd
+        >>> import easygraph.datapipe as dd
         >>> X = [[0.1, 0.2, 0.5],
                  [0.5, 0.2, 0.3],
                  [0.3, 0.2, 0]]
@@ -73,7 +73,7 @@ def to_long_tensor(X: Union[List, np.ndarray, torch.Tensor]) -> torch.LongTensor
         ``X`` (``Union[List, np.ndarray, torch.Tensor]``): Input.
 
     Examples:
-        >>> import dhg.datapipe as dd
+        >>> import easygraph.datapipe as dd
         >>> X = [[1, 2, 5],
                  [5, 2, 3],
                  [3, 2, 0]]
