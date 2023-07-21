@@ -83,6 +83,54 @@ class Hypergraph(BaseHypergraph):
             "raw_groups": self._raw_groups,
         }
 
+    def unique_edge_sizes(self):
+        """A function that returns the unique edge sizes.
+
+        Returns
+        -------
+        list()
+            The unique edge sizes in ascending order by size.
+        """
+        edge_size_set = set()
+        edge_lst = self.e[0]
+        for e in edge_lst:
+            edge_size_set.add(len(e))
+
+        return sorted(edge_size_set)
+
+    def is_uniform(self):
+        """Order of uniformity if the hypergraph is uniform, or False.
+
+        A hypergraph is uniform if all its edges have the same order.
+
+        Returns d if the hypergraph is d-uniform, that is if all edges
+        in the hypergraph (excluding singletons) have the same degree d.
+        Returns False if not uniform.
+
+        Returns
+        -------
+        d : int or False
+            If the hypergraph is d-uniform, return d, or False otherwise.
+
+        Examples
+        --------
+        This function can be used as a boolean check:
+
+        >>> import easygraph as eg
+        >>> H = eg.Hypergraph([(0, 1, 2), (1, 2, 3), (2, 3, 4)])
+        >>> H.is_uniform()
+        2
+        """
+        edge_sizes = self.unique_edge_sizes()
+        if 1 in edge_sizes:
+            edge_sizes.remove(1)
+
+        if edge_sizes is None or len(edge_sizes) != 1:
+            return False
+
+        # order of all edges
+        return edge_sizes.pop() - 1
+
     def save(self, file_path: Union[str, Path]):
         r"""Save the EasyGraph's hypergraph structure a file.
 
