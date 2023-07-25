@@ -9,9 +9,6 @@ Base exceptions and errors for EasyGraph.
 __all__ = [
     "HasACycle",
     "NodeNotFound",
-    "PowerIterationFailedConvergence",
-    "ExceededMaxIterations",
-    "AmbiguousSolution",
     "EasyGraphAlgorithmError",
     "EasyGraphException",
     "EasyGraphError",

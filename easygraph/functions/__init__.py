@@ -10,3 +10,4 @@ from easygraph.functions.hypergraph import *
 from easygraph.functions.isolate import *
 from easygraph.functions.path import *
 from easygraph.functions.structural_holes import *
+from easygraph.exception import *
