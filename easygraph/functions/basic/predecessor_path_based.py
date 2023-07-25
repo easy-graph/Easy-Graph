@@ -1,7 +1,4 @@
 import easygraph as eg
-import networkx as nx
-
-from easygraph.convert import to_networkx
 
 
 __all__ = [
@@ -14,7 +11,7 @@ def predecessor(G, source, target=None, cutoff=None, return_seen=None):
 
     Parameters
     ----------
-    G : NetworkX graph
+    G : EasyGraph graph
 
     source : node label
        Starting node for path
@@ -46,21 +43,18 @@ def predecessor(G, source, target=None, cutoff=None, return_seen=None):
     Examples
     --------
     >>> G = eg.path_graph(4)
-    >>> G = to_networkx(G)
     >>> list(G)
     [0, 1, 2, 3]
-    >>> nx.predecessor(G, 0)
+    >>> eg.predecessor(G, 0)
     {0: [], 1: [0], 2: [1], 3: [2]}
-    >>> nx.predecessor(G, 0, return_seen=True)
+    >>> eg.predecessor(G, 0, return_seen=True)
     ({0: [], 1: [0], 2: [1], 3: [2]}, {0: 0, 1: 1, 2: 2, 3: 3})
 
 
     """
-    G = to_networkx(G)
 
     if source not in G:
-        raise nx.NodeNotFound(f"Source {source} not in G")
-
+        raise eg.NodeNotFound(f"Source {source} not in G")
     level = 0  # the current level
     nextlevel = [source]  # list of nodes to check at next level
     seen = {source: level}  # level (number of hops) when seen in BFS
@@ -70,7 +64,7 @@ def predecessor(G, source, target=None, cutoff=None, return_seen=None):
         thislevel = nextlevel
         nextlevel = []
         for v in thislevel:
-            for w in G[v]:
+            for w in list(G.neighbors(v)):
                 if w not in seen:
                     pred[w] = [v]
                     seen[w] = level
@@ -94,3 +88,14 @@ def predecessor(G, source, target=None, cutoff=None, return_seen=None):
             return (pred, seen)
         else:
             return pred
+
+
+# def main():
+#     G = eg.path_graph(4)
+#     print(G.edges())
+    
+#     print(predecessor(G, 0))
+
+
+# if __name__ == "__main__":
+#     main()
