@@ -92,7 +92,7 @@ def predecessor(G, source, target=None, cutoff=None, return_seen=None):
 
 # def main():
 #     G = eg.path_graph(4)
-#     print(G.edges())
+#     print(G.edges)
     
 #     print(predecessor(G, 0))
 
