@@ -1,11 +1,11 @@
 import itertools
-import time
+# import time
 
 import easygraph as eg
-import networkx as nx
+import copy
 
 # print(eg.__file__)
-from easygraph.functions.basic.predecessor_path_based import predecessor
+# from easygraph.functions.basic.predecessor_path_based import predecessor
 
 
 __all__ = [
@@ -18,18 +18,13 @@ __all__ = [
 
 
 SmallestCycles = set()
-NodeGirth = dict()
-NumSmallCycles = 0
-CycLenDict = dict()
 CycleRatio = {}
-
-SmallestCyclesOfNodes = {}  #
 
 
 def my_all_shortest_paths(G, source, target):
-    pred = predecessor(G, source)
+    pred = eg.predecessor(G, source)
     if target not in pred:
-        raise nx.NetworkXNoPath(f"Target {target} cannot be reachedfrom given sources")
+        raise eg.EasyGraphNoPath(f"Target {target} cannot be reached from given sources")
     sources = {source}
     seen = {target}
     stack = [[target, 0]]
@@ -66,11 +61,10 @@ def getandJudgeSimpleCircle(objectList):  #
         return True
 
 
-def getSmallestCycles(G):
-    NodeNum = G.number_of_nodes()
-    DEF_IMPOSSLEN = NodeNum + 1  # Impossible simple cycle length
-    Coreness = nx.core_number(G)
-    NodeList = list(G.nodes())
+def getSmallestCycles(G, NodeGirth, Coreness, DEF_IMPOSSLEN):
+    
+    NodeList = list(G.nodes)
+    # print(NodeList)
     NodeList.sort()
     # setp 1
     curCyc = list()
@@ -95,6 +89,7 @@ def getSmallestCycles(G):
                         curCyc.pop()
             curCyc.pop()
         curCyc.pop()
+    
     # setp 2
     ResiNodeList = []  # Residual Node List
     for nod in NodeList:
@@ -119,7 +114,7 @@ def getSmallestCycles(G):
                     if Coreness[nei] == 2 and NodeGirth[nei] < DEF_IMPOSSLEN:
                         continue
                     G.remove_edge(nod, nei)
-                    if nx.has_path(G, nod, nei):
+                    if eg.single_source_dijkstra(G, nod, nei):
                         for path in my_all_shortest_paths(G, nod, nei):
                             lenPath = len(path)
                             path.sort()
@@ -128,10 +123,11 @@ def getSmallestCycles(G):
                                 if NodeGirth[i] > lenPath:
                                     NodeGirth[i] = lenPath
                     G.add_edge(nod, nei)
+    
     return SmallestCycles
 
 
-def StatisticsAndCalculateIndicators(SmallestCycles):  #
+def StatisticsAndCalculateIndicators(SmallestCyclesOfNodes, CycLenDict):  #
     global NumSmallCycles
     NumSmallCycles = len(SmallestCycles)
     for cyc in SmallestCycles:
@@ -157,6 +153,7 @@ def StatisticsAndCalculateIndicators(SmallestCycles):  #
         for nei in cycleNeighbors:
             sum += float(NeiOccurTimes[nei]) / len(SmallestCyclesOfNodes[nei])
         CycleRatio[objNode] = sum + 1
+    return CycleRatio
 
 
 def cycle_ratio_centrality(G):
@@ -171,15 +168,42 @@ def cycle_ratio_centrality(G):
     cycle ratio centrality of each node in G : dict
 
     """
-    cycles = getSmallestCycles(G)
-    cycle_ratio = StatisticsAndCalculateIndicators(cycles)
+    CycLenDict = dict()
+    NumNode = G.number_of_nodes()  #update
+    DEF_IMPOSSLEN = NumNode + 1  # Impossible simple cycle length
+    NodeGirth = dict()
+    CycLenDict = dict()
+    
+    SmallestCyclesOfNodes = {} #
+    removeNodes =set()
+    Coreness = dict(zip(list(G.nodes),eg.k_core(G)))
+    for i in list(G.nodes):  #
+        SmallestCyclesOfNodes[i] = set()
+        CycleRatio[i] = 0
+        if G.degree()[i] <= 1 or Coreness[i] <= 1:
+            NodeGirth[i] = 0
+            removeNodes.add(i)
+        else:
+            NodeGirth[i] = DEF_IMPOSSLEN
+    # print('NodeGirth:', NodeGirth)
+
+    G.remove_nodes_from(removeNodes)
+     
+    NodeNum = G.number_of_nodes()
+    for i in range(3, NodeNum+2):
+        CycLenDict[i] = 0
+
+    
+    getSmallestCycles(G, NodeGirth, Coreness, DEF_IMPOSSLEN)
+    # print('CycLenDict:', CycLenDict)
+    cycle_ratio = StatisticsAndCalculateIndicators(SmallestCyclesOfNodes, CycLenDict)
     return cycle_ratio
 
 
 def main():
     G = eg.Graph()
     G.add_edges([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4), (1, 5), (2, 5)])
-    print(G)
+
     res = cycle_ratio_centrality(G)
     print(res)
 

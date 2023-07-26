@@ -7,7 +7,7 @@ __all__ = ["graph_Gnm"]
 
 
 def graph_Gnm(num_v: int, num_e: int):
-    r"""Return a random graph with ``num_v`` verteices and ``num_e`` edges. Edges are drawn uniformly from the set of possible edges.
+    r"""Return a random graph with ``num_v`` vertices and ``num_e`` edges. Edges are drawn uniformly from the set of possible edges.
 
     Args:
         ``num_v`` (``int``): The Number of vertices.
