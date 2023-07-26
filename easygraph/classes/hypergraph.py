@@ -2087,7 +2087,7 @@ class Hypergraph(BaseHypergraph):
 
     def get_linegraph(self, s=1, edge=True, weight=True) -> "Graph":
         """
-        Get the linegraph of the hypergraph.
+        Get the linegraph of the hypergraph based on the clique expansion.
         If edges=True (default)then the edges will be the vertices of the line
         graph. Two vertices are connected by an s-line-graph edge if the
         corresponding hypergraph edges intersect in at least s hypergraph nodes.
