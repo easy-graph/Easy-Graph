@@ -2,9 +2,9 @@ import easygraph as eg
 import pytest
 
 class TestPredecessor:
-    @classmethod
-    def setup_class(self):
-        pytest.importskip("numpy")
+    # @classmethod
+    # def setup_class(self):
+    #     pytest.importskip("numpy")
 
     def test_predecessor(self):
         G = eg.path_graph(4)

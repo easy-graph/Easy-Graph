@@ -2,7 +2,6 @@ import itertools
 
 import easygraph as eg
 
-# from easygraph.classes.hypergraph import Hypergraph
 from easygraph.utils.exception import EasyGraphError
 
 
@@ -28,6 +27,7 @@ def complete_hypergraph(n, include_singleton=False):
     if n == 0:
         raise EasyGraphError("The number of nodes in a Hypergraph can not be zero")
     # init
+    # print("easygraph:",eg)
     hypergraph = eg.Hypergraph(n)
     total_hyperedegs = []
     if n > 1:

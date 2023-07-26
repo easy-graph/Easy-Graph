@@ -7,7 +7,7 @@ from itertools import combinations
 
 import easygraph as eg
 import numpy as np
-
+# from easygraph.classes.hypergraph import Hypergraph
 from easygraph.utils.exception import EasyGraphError
 from scipy.special import comb
 
@@ -118,7 +118,7 @@ def dcsbm_hypergraph(k1, k2, g1, g2, omega, seed=None):
         group = g2[label]
         community2_nodes[group].append(label)
 
-    H = Hypergraph(num_v=len(node_labels))
+    H = eg.Hypergraph(num_v=len(node_labels))
 
     kappa1 = defaultdict(lambda: 0)
     kappa2 = defaultdict(lambda: 0)

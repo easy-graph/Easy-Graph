@@ -11,11 +11,11 @@ from .operation import *
 # from .base import BaseHypergraph
 # from .base import load_structure
 # from .hypergraph import Hypergraph
-
+from .hypergraph import Hypergraph
 try:
     from .base import BaseHypergraph
     from .base import load_structure
-    from .hypergraph import Hypergraph
+
 except:
     print(
         "Warning raise in module:classes. Please install Pytorch before you use"

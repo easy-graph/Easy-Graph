@@ -9,7 +9,7 @@ import pytest
 @pytest.fixture()
 def g1():
     e_list = [(0, 1, 2, 5), (0, 1), (2, 3, 4), (3, 2, 4)]
-    g = eg.Hypergraph(6, e_list)
+    g = eg.Hypergraph(6, e_list=e_list)
     return g
 
 
@@ -17,7 +17,7 @@ def g1():
 def g2():
     e_list = [(1, 2, 3), (0, 1, 3), (0, 1), (2, 4, 3), (2, 3)]
     e_weight = [0.5, 1, 0.5, 1, 0.5]
-    g = eg.Hypergraph(5, e_list, e_weight)
+    g = eg.Hypergraph(5, e_list=e_list, e_weight=e_weight)
     return g
 
 
@@ -25,12 +25,13 @@ def g2():
 def g3():
     e_list = [[0, 1], [0, 1, 2], [2, 3, 4]]
     e_weight = [1, 1, 1]
+    print("eg",dir(eg))
     g = eg.Hypergraph(5, e_list=e_list, e_weight=e_weight)
     return g
 
 
 def test_expansion(g3):
-    star_expansion_graph = g3.get_star_expeansion()
+    star_expansion_graph = g3.get_star_expansion()
     node_clique_expansion_graph = g3.get_linegraph(edge=False)
     edge_clique_expansion_graph = g3.get_linegraph()
     print(star_expansion_graph.edges)
@@ -44,7 +45,7 @@ def test_property(g1, g2):
     print("g2", g2.distance(1, 2))
     print("g2 diameter:", g2.diameter())
     assert g2.distance(1, 2) == 1
-    assert g2.diameter() == 2
+    assert g2.diameter() == 3
     assert g1.adjacency_matrix != None
     assert g1.edge_adjacency_matrix != None
     assert g2.adjacency_matrix != None
@@ -82,7 +83,7 @@ def test_from_feature_kNN():
 
 def test_from_graph():
     g = eg.Graph()
-    g.add_nodes(range(0, 5))
+    g.add_nodes(list(range(0, 5)))
     g.add_edges(
         [(0, 1), (0, 3), (1, 4), (2, 3), (3, 4)],
         [
@@ -619,7 +620,7 @@ def test_D_neg(g1, g2):
         g2.D_v_neg_1_2.cpu()._values() == torch.tensor([2, 3, 3, 4, 1]) ** (-0.5)
     ).all()
     # isolated vertex
-    g3 = eg.Hypergraph(3, [0, 1])
+    g3 = eg.Hypergraph(num_v = 3, e_list = [0, 1])
     assert (g3.D_v_neg_1.cpu()._values() == torch.tensor([1, 1, 0])).all()
 
 

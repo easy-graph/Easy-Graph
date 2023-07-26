@@ -283,7 +283,7 @@ class Hypergraph(BaseHypergraph):
             ``device`` (``torch.device``, optional): The device to store the hypergraph. Defaults to ``torch.device('cpu')``.
         """
         e_list = Hypergraph._e_list_from_feature_kNN(features, k)
-        hg = Hypergraph(features.shape[0], e_list, device=device)
+        hg = Hypergraph(num_v = features.shape[0], e_list = e_list, device=device)
         return hg
 
     @staticmethod
@@ -298,7 +298,7 @@ class Hypergraph(BaseHypergraph):
             ``device`` (``torch.device``, optional): The device to store the hypergraph. Defaults to ``torch.device('cpu')``.
         """
         e_list, e_weight = graph.e
-        hg = Hypergraph(len(graph.nodes), e_list, e_weight=e_weight, device=device)
+        hg = Hypergraph(num_v = len(graph.nodes), e_list = e_list, e_weight=e_weight, device=device)
         return hg
 
     @staticmethod
@@ -355,7 +355,7 @@ class Hypergraph(BaseHypergraph):
             ``device`` (``torch.device``, optional): The device to store the hypergraph. Defaults to ``torch.device('cpu')``.
         """
         e_list = Hypergraph._e_list_from_graph_kHop(graph, k, only_kHop)
-        hg = Hypergraph(len(graph.nodes), e_list, device=device)
+        hg = Hypergraph(num_v = len(graph.nodes), e_list = e_list, device=device)
         return hg
 
     def add_hyperedges(

@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @hybrid("cpp_k_core")
-def k_core(G: "Graph", k: int = None, return_graph: bool = False) -> Union["Graph", List]:
+def k_core(G: "Graph") -> Union["Graph", List]:
     """
     Returns the k-core of G.
 
