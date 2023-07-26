@@ -875,6 +875,18 @@ class Hypergraph(BaseHypergraph):
             e_index = e_index + 1
         return star_expansion_graph
 
+    def neighbor_of_node(self, node):
+        neighbor_lst = []
+        node_adj = self.adjacency_matrix()
+        for i in range(node_adj.shape[0]):
+            start = node_adj.indptr[i]
+            end = node_adj.indptr[i + 1]
+            if i == node:
+                for j in range(start, end):
+                    neighbor_lst.append(node_adj.indices[j])
+                break
+        return neighbor_lst
+
     def adjacency_matrix(self, s=1, weight=False):
         r"""
         The :term:`s-adjacency matrix` for the dual hypergraph.
