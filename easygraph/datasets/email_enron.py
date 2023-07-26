@@ -13,8 +13,9 @@ from .utils import tensor
 
 class Email_Enron(EasyGraphDataset):
     _urls = {
-        "email-enron": "easygraph-data-email-enron/-/raw/main/email-enron.json?inline=false"
-        ,
+        "email-enron": (
+            "easygraph-data-email-enron/-/raw/main/email-enron.json?inline=false"
+        ),
         "email-eu": "easygraph-data-email-eu/-/raw/main/email-eu.json?inline=false",
     }
 
@@ -89,7 +90,9 @@ class Email_Enron(EasyGraphDataset):
         self._g, edge_feature_list = dict_to_hypergraph(self.load_data, is_dynamic=True)
 
         # self._g.ndata["node_feature"] = tensor()
-        self._g.ndata["hyperedge_feature"] = tensor(range(1, len(edge_feature_list)+1))
+        self._g.ndata["hyperedge_feature"] = tensor(
+            range(1, len(edge_feature_list) + 1)
+        )
         print(self._g.ndata["hyperedge_feature"])
         # self._g.ndata["feat"] =
 

@@ -82,4 +82,3 @@ class EasyGraphNotImplemented(EasyGraphException):
 
 class NodeNotFound(EasyGraphException):
     """Exception raised if requested node is not present in the graph"""
-

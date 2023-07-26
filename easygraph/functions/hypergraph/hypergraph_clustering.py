@@ -3,6 +3,8 @@
 import numpy as np
 
 from easygraph.utils.exception import EasyGraphError
+
+
 # from ..linalg import adjacency_matrix
 
 __all__ = [
@@ -60,7 +62,7 @@ def hypergraph_clustering_coefficient(H):
     {0: 1.0, 1: 1.0, 2: 1.0}
     """
     adj = H.adjacency_matrix()
-    k = np.array(adj.sum(axis = 1))
+    k = np.array(adj.sum(axis=1))
     l = []
     for i in k:
         l.append(i[0])
@@ -70,7 +72,7 @@ def hypergraph_clustering_coefficient(H):
     with np.errstate(divide="ignore", invalid="ignore"):
         result = np.nan_to_num(0.5 * mat.diagonal() / denom)
     r = {}
-    for i in range(0,len(H.v)):
+    for i in range(0, len(H.v)):
         r[i] = result[i]
     return r
 
@@ -129,7 +131,7 @@ def hypergraph_local_clustering_coefficient(H):
     memberships = []
     for n in H.v:
         tmp = set()
-        for index,e  in enumerate(H.e[0]):
+        for index, e in enumerate(H.e[0]):
             if n in e:
                 tmp.add(index)
         memberships.append(tmp)

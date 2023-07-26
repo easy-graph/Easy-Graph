@@ -7,6 +7,7 @@ from itertools import combinations
 
 import easygraph as eg
 import numpy as np
+
 # from easygraph.classes.hypergraph import Hypergraph
 from easygraph.utils.exception import EasyGraphError
 from scipy.special import comb

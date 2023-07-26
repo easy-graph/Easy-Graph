@@ -1,5 +1,7 @@
-from easygraph.utils import *
 import easygraph as eg
+
+from easygraph.utils import *
+
 
 __all__ = [
     "k_core",
@@ -66,7 +68,6 @@ def k_core(G: "Graph") -> Union["Graph", List]:
                 core[u] -= 1
     return list(core.values())
 
-
     # Initialize a dictionary to store the degrees of the nodes
     # degrees = dict(H.degree())
     # k = min(degrees.values())
@@ -89,7 +90,7 @@ def k_core(G: "Graph") -> Union["Graph", List]:
     #         for neighbor in neighbors:
     #             if neighbor in degrees:
     #                 degrees[neighbor] -= 1
-    
+
     # # check if the minimum degree is now less than k
     # if min(degrees.values()) > k:
     #     # k = min(degrees.values())

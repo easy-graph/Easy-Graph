@@ -1,8 +1,11 @@
+import copy
 import itertools
-# import time
 
 import easygraph as eg
-import copy
+
+
+# import time
+
 
 # print(eg.__file__)
 # from easygraph.functions.basic.predecessor_path_based import predecessor
@@ -24,7 +27,9 @@ CycleRatio = {}
 def my_all_shortest_paths(G, source, target):
     pred = eg.predecessor(G, source)
     if target not in pred:
-        raise eg.EasyGraphNoPath(f"Target {target} cannot be reached from given sources")
+        raise eg.EasyGraphNoPath(
+            f"Target {target} cannot be reached from given sources"
+        )
     sources = {source}
     seen = {target}
     stack = [[target, 0]]
@@ -62,7 +67,6 @@ def getandJudgeSimpleCircle(objectList):  #
 
 
 def getSmallestCycles(G, NodeGirth, Coreness, DEF_IMPOSSLEN):
-    
     NodeList = list(G.nodes)
     # print(NodeList)
     NodeList.sort()
@@ -89,7 +93,7 @@ def getSmallestCycles(G, NodeGirth, Coreness, DEF_IMPOSSLEN):
                         curCyc.pop()
             curCyc.pop()
         curCyc.pop()
-    
+
     # setp 2
     ResiNodeList = []  # Residual Node List
     for nod in NodeList:
@@ -123,7 +127,7 @@ def getSmallestCycles(G, NodeGirth, Coreness, DEF_IMPOSSLEN):
                                 if NodeGirth[i] > lenPath:
                                     NodeGirth[i] = lenPath
                     G.add_edge(nod, nei)
-    
+
     return SmallestCycles
 
 
@@ -169,14 +173,14 @@ def cycle_ratio_centrality(G):
 
     """
     CycLenDict = dict()
-    NumNode = G.number_of_nodes()  #update
+    NumNode = G.number_of_nodes()  # update
     DEF_IMPOSSLEN = NumNode + 1  # Impossible simple cycle length
     NodeGirth = dict()
     CycLenDict = dict()
-    
-    SmallestCyclesOfNodes = {} #
-    removeNodes =set()
-    Coreness = dict(zip(list(G.nodes),eg.k_core(G)))
+
+    SmallestCyclesOfNodes = {}  #
+    removeNodes = set()
+    Coreness = dict(zip(list(G.nodes), eg.k_core(G)))
     for i in list(G.nodes):  #
         SmallestCyclesOfNodes[i] = set()
         CycleRatio[i] = 0
@@ -188,12 +192,11 @@ def cycle_ratio_centrality(G):
     # print('NodeGirth:', NodeGirth)
 
     G.remove_nodes_from(removeNodes)
-     
+
     NodeNum = G.number_of_nodes()
-    for i in range(3, NodeNum+2):
+    for i in range(3, NodeNum + 2):
         CycLenDict[i] = 0
 
-    
     getSmallestCycles(G, NodeGirth, Coreness, DEF_IMPOSSLEN)
     # print('CycLenDict:', CycLenDict)
     cycle_ratio = StatisticsAndCalculateIndicators(SmallestCyclesOfNodes, CycLenDict)

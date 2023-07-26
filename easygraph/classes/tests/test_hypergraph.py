@@ -25,7 +25,7 @@ def g2():
 def g3():
     e_list = [[0, 1], [0, 1, 2], [2, 3, 4]]
     e_weight = [1, 1, 1]
-    print("eg",dir(eg))
+    print("eg", dir(eg))
     g = eg.Hypergraph(5, e_list=e_list, e_weight=e_weight)
     return g
 
@@ -620,7 +620,7 @@ def test_D_neg(g1, g2):
         g2.D_v_neg_1_2.cpu()._values() == torch.tensor([2, 3, 3, 4, 1]) ** (-0.5)
     ).all()
     # isolated vertex
-    g3 = eg.Hypergraph(num_v = 3, e_list = [0, 1])
+    g3 = eg.Hypergraph(num_v=3, e_list=[0, 1])
     assert (g3.D_v_neg_1.cpu()._values() == torch.tensor([1, 1, 0])).all()
 
 
