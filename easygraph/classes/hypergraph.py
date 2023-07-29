@@ -56,7 +56,13 @@ class Hypergraph(BaseHypergraph):
         merge_op: str = "mean",
         device: torch.device = torch.device("cpu"),
     ):
-        super().__init__(num_v, e_list = e_list, v_property=v_property, e_property = e_property, device=device)
+        super().__init__(
+            num_v,
+            e_list=e_list,
+            v_property=v_property,
+            e_property=e_property,
+            device=device,
+        )
         self._ndata = self.gnn_data_dict_factory()
         if e_list is not None:
             self.add_hyperedges(

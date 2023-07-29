@@ -75,10 +75,9 @@ class BaseHypergraph:
         if e_property == None and e_list != None:
             self._e_property = [{} for i in range(len(e_list))]
         elif e_property != None and e_list != None:
-            print("e_list:",e_list)
+            print("e_list:", e_list)
             e_property = self._format_e_property_list(len(e_list), e_property)
             self._e_property = e_property
-
 
         self._has_extra_selfloop = extra_selfloop
 

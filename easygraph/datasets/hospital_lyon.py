@@ -2,6 +2,7 @@ import json
 import os
 
 import torch
+
 from easygraph.classes.hypergraph import Hypergraph
 from easygraph.convert import dict_to_hypergraph
 
@@ -27,7 +28,7 @@ class Hospital_Lyon(EasyGraphDataset):
         name = "hospital_lyon"
         self.url = _get_eg_url(self._urls[name])
         super(Hospital_Lyon, self).__init__(
-            name = name,
+            name=name,
             url=self.url,
             raw_dir=raw_dir,
             force_reload=force_reload,
@@ -35,7 +36,8 @@ class Hospital_Lyon(EasyGraphDataset):
             transform=transform,
             save_dir=save_dir,
         )
-    def preprocess(self,data, max_order=None, is_dynamic=False):
+
+    def preprocess(self, data, max_order=None, is_dynamic=False):
         # The index of the nodes in this dataset are not continuous and therefore require special processing
         timestamp_lst = list()
         node_data = data["node-data"]
@@ -96,7 +98,6 @@ class Hospital_Lyon(EasyGraphDataset):
         with open(graph_path, "r") as f:
             self.load_data = json.load(f)
 
-
     def has_cache(self):
         graph_path = os.path.join(self.save_path, self.save_name + ".json")
         if os.path.exists(graph_path):
@@ -124,7 +125,6 @@ class Hospital_Lyon(EasyGraphDataset):
             range(1, len(edge_feature_list) + 1)
         )
         # print(self._g.ndata["hyperedge_feature"])
-
 
     @url.setter
     def url(self, value):

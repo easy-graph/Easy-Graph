@@ -27,7 +27,7 @@ class Email_Eu(EasyGraphDataset):
         name = "email-eu"
         self.url = _get_eg_url(self._urls[name])
         super(Email_Eu, self).__init__(
-            name = name,
+            name=name,
             url=self.url,
             raw_dir=raw_dir,
             force_reload=force_reload,
@@ -55,7 +55,6 @@ class Email_Eu(EasyGraphDataset):
         graph_path = os.path.join(self.save_path, self.save_name + ".json")
         with open(graph_path, "r") as f:
             self.load_data = json.load(f)
-
 
     def has_cache(self):
         graph_path = os.path.join(self.save_path, self.save_name + ".json")

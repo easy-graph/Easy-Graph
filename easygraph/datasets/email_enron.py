@@ -13,8 +13,9 @@ from .utils import tensor
 
 class Email_Enron(EasyGraphDataset):
     _urls = {
-        "email-enron":
-            "easygraph-data-email-enron/-/raw/main/email-enron.json?inline=false",
+        "email-enron": (
+            "easygraph-data-email-enron/-/raw/main/email-enron.json?inline=false"
+        ),
         "email-eu": "easygraph-data-email-eu/-/raw/main/email-eu.json?inline=false",
     }
 
@@ -29,7 +30,7 @@ class Email_Enron(EasyGraphDataset):
         name = "email-enron"
         self.url = _get_eg_url(self._urls[name])
         super(Email_Enron, self).__init__(
-            name= name,
+            name=name,
             url=self.url,
             raw_dir=raw_dir,
             force_reload=force_reload,
@@ -57,7 +58,6 @@ class Email_Enron(EasyGraphDataset):
         graph_path = os.path.join(self.save_path, self.save_name + ".json")
         with open(graph_path, "r") as f:
             self.load_data = json.load(f)
-
 
     def has_cache(self):
         graph_path = os.path.join(self.save_path, self.save_name + ".json")
