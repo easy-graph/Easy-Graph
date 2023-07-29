@@ -55,6 +55,7 @@ class BaseHypergraph:
         num_v: int,
         v_property: Optional[Union[Dict, List[Dict]]] = None,
         e_list: Optional[Union[List[int], List[List[int]]]] = None,
+        e_property: Optional[Union[Dict, List[Dict]]] = None,
         e_weight: Optional[Union[float, List[float]]] = None,
         extra_selfloop: bool = False,
         device: torch.device = torch.device("cpu"),
@@ -70,6 +71,14 @@ class BaseHypergraph:
         else:
             v_property = self._format_v_property_list(num_v, v_property)
             self._v_property = v_property
+
+        if e_property == None and e_list != None:
+            self._e_property = [{} for i in range(len(e_list))]
+        elif e_property != None and e_list != None:
+            print("e_list:",e_list)
+            e_property = self._format_e_property_list(len(e_list), e_property)
+            self._e_property = e_property
+
 
         self._has_extra_selfloop = extra_selfloop
 
@@ -200,6 +209,25 @@ class BaseHypergraph:
         for _idx in range(len(e_list)):
             e_list[_idx] = tuple(sorted(e_list[_idx]))
         return e_list
+
+    def _format_e_property_list(self, e_num, e_property_list: Union[Dict, List[Dict]]):
+        r"""Format the property list.
+
+        Args:
+            ``e_list`` (``Dict`` or ``List[Dict]``): The property list.
+        """
+        if type(e_property_list) == dict:
+            return [e_property_list]
+        elif type(e_property_list) == list and len(e_property_list) != e_num:
+            raise EasyGraphError(
+                "The length of property list must be equal to edge number"
+            )
+        elif type(e_property_list) == list:
+            pass
+        else:
+            raise TypeError("e_property_list must be Dict or List[Dict].")
+
+        return e_property_list
 
     def _format_v_property_list(self, v_num, v_property_list: Union[Dict, List[Dict]]):
         r"""Format the property list.
@@ -502,6 +530,13 @@ class BaseHypergraph:
     def v_property(self):
         return self._v_property
 
+    # @property
+    # def e_property(self):
+    #     group_e_property = {}
+    #     for group in self._raw_groups:
+    #         print("group:",group)
+    #         group_e_property[group] = list(group.values())
+    #     return group_e_property
     @property
     def num_v(self) -> int:
         r"""Return the number of vertices in the hypergraph."""

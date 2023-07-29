@@ -11,10 +11,8 @@ from .utils import _get_eg_url
 from .utils import tensor
 
 
-class Email_Enron(EasyGraphDataset):
+class Email_Eu(EasyGraphDataset):
     _urls = {
-        "email-enron":
-            "easygraph-data-email-enron/-/raw/main/email-enron.json?inline=false",
         "email-eu": "easygraph-data-email-eu/-/raw/main/email-eu.json?inline=false",
     }
 
@@ -26,10 +24,10 @@ class Email_Enron(EasyGraphDataset):
         transform=None,
         save_dir="./",
     ):
-        name = "email-enron"
+        name = "email-eu"
         self.url = _get_eg_url(self._urls[name])
-        super(Email_Enron, self).__init__(
-            name= name,
+        super(Email_Eu, self).__init__(
+            name = name,
             url=self.url,
             raw_dir=raw_dir,
             force_reload=force_reload,

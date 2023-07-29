@@ -7,7 +7,9 @@ from .hypergraph import *
 try:
     from easygraph.datasets.gnn_benchmark import *
     from easygraph.datasets.karate import KarateClubDataset
-
+    from .email_enron import Email_Enron
+    from .email_eu import Email_Eu
+    from .hospital_lyon import Hospital_Lyon
     from .citation_graph import CitationGraphDataset
     from .citation_graph import CiteseerGraphDataset
     from .citation_graph import CoraBinary
