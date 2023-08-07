@@ -4,13 +4,6 @@ import itertools
 import easygraph as eg
 
 
-# import time
-
-
-# print(eg.__file__)
-# from easygraph.functions.basic.predecessor_path_based import predecessor
-
-
 __all__ = [
     "my_all_shortest_paths",
     "getandJudgeSimpleCircle",
@@ -162,7 +155,6 @@ def StatisticsAndCalculateIndicators(SmallestCyclesOfNodes, CycLenDict):  #
 
 def cycle_ratio_centrality(G):
     """
-
     Parameters
     ----------
     G :   eg.Graph
@@ -170,6 +162,13 @@ def cycle_ratio_centrality(G):
     Returns
     -------
     cycle ratio centrality of each node in G : dict
+
+    Example
+    -------
+    >>> G = eg.Graph()
+    >>> G.add_edges([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4), (1, 5), (2, 5)])
+    >>> cycle_ratio_centrality(G)
+    {1: 4.083333333333333, 2: 4.083333333333333, 3: 2.6666666666666665, 4: 2.6666666666666665, 5: 1.5}
 
     """
     CycLenDict = dict()
@@ -198,18 +197,5 @@ def cycle_ratio_centrality(G):
         CycLenDict[i] = 0
 
     getSmallestCycles(G, NodeGirth, Coreness, DEF_IMPOSSLEN)
-    # print('CycLenDict:', CycLenDict)
     cycle_ratio = StatisticsAndCalculateIndicators(SmallestCyclesOfNodes, CycLenDict)
     return cycle_ratio
-
-
-def main():
-    G = eg.Graph()
-    G.add_edges([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4), (1, 5), (2, 5)])
-
-    res = cycle_ratio_centrality(G)
-    print(res)
-
-
-if __name__ == "__main__":
-    main()

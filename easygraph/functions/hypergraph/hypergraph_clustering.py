@@ -5,8 +5,6 @@ import numpy as np
 from easygraph.utils.exception import EasyGraphError
 
 
-# from ..linalg import adjacency_matrix
-
 __all__ = [
     "hypergraph_clustering_coefficient",
     "hypergraph_local_clustering_coefficient",
