@@ -1,7 +1,7 @@
 EasyGraph
 ==================
 
-Copyright (C) <2020-2022> by DataNET Group, Fudan University
+Copyright (C) <2020-2023> by DataNET Group, Fudan University
 
 .. image:: https://img.shields.io/pypi/v/Python-EasyGraph.svg
   :target: https://pypi.org/project/Python-EasyGraph/
