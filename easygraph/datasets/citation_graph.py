@@ -52,11 +52,11 @@ class CitationGraphDataset(EasyGraphBuiltinDataset):
     reverse_edge : bool
         Whether to add reverse edges in graph. Default: True.
     transform : callable, optional
-        A transform that takes in a :class:`~dgl.DGLGraph` object and returns
-        a transformed version. The :class:`~dgl.DGLGraph` object will be
+        A transform that takes in a :class:`~eg.Graph` object and returns
+        a transformed version. The :class:`~eg.Graph` object will be
         transformed before every access.
     reorder : bool
-        Whether to reorder the graph using :func:`~dgl.reorder_graph`. Default: False.
+        Whether to reorder the graph using :func:`~eg.reorder_graph`. Default: False.
     """
     _urls = {
         "cora_v2": "dataset/cora_v2.zip",

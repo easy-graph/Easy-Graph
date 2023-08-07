@@ -12,15 +12,17 @@ from typing import Union
 import numpy as np
 import torch
 
+from easygraph.utils.exception import EasyGraphError
+
 
 __all__ = ["load_structure", "BaseHypergraph"]
 
 
 def load_structure(file_path: Union[str, Path]):
-    r"""Load a DHG's structure from a file. The supported structure includes: ``Graph``, ``DiGraph``, ``BiGraph``, ``Hypergraph``.
+    r"""Load a EasyGraph's high-order network structure from a file. The supported structure ``Hypergraph``.
 
     Args:
-        ``file_path`` (``Union[str, Path]``): The file path to load the DHG's structure.
+        ``file_path`` (``Union[str, Path]``): The file path to load the EasyGraph's structure.
     """
     import pickle as pkl
 
@@ -40,27 +42,22 @@ class BaseHypergraph:
     r"""The ``BaseHypergraph`` class is the base class for all hypergraph structures.
 
     Args:
-        ``num_v`` (``int``): The number of vertices in the hypergraph.
-        ``e_list_v2e`` (``Union[List[int], List[List[int]]]``, optional): A list of hyperedges describes how the vertices point to the hyperedges. Defaults to ``None``.
-        ``e_list_e2v`` (``Union[List[int], List[List[int]]]``, optional): A list of hyperedges describes how the hyperedges point to the vertices. Defaults to ``None``.
-        ``w_list_v2e`` (``Union[List[float], List[List[float]]]``, optional): The weights are attached to the connections from vertices to hyperedges, which has the same shape
-            as ``e_list_v2e``. If set to ``None``, the value ``1`` is used for all connections. Defaults to ``None``.
-        ``w_list_e2v`` (``Union[List[float], List[List[float]]]``, optional): The weights are attached to the connections from the hyperedges to the vertices, which has the
-            same shape to ``e_list_e2v``. If set to ``None``, the value ``1`` is used for all connections. Defaults to ``None``.
-        ``e_weight`` (``Union[float, List[float]]``, optional): A list of weights for hyperedges. If set to ``None``, the value ``1`` is used for all hyperedges. Defaults to ``None``.
-        ``v_weight`` (``Union[float, List[float]]``, optional): Weights for vertices. If set to ``None``, the value ``1`` is used for all vertices. Defaults to ``None``.
-        ``device`` (``torch.device``, optional): The device to store the hypergraph. Defaults to ``torch.device('cpu')``.
+        ``num_v`` (``int``): The number of vertices.
+        ``e_list`` (``Union[List[int], List[List[int]]], optional``): Edge list. Defaults to ``None``.
+        ``e_weight`` (``Union[float, List[float]], optional``): A list of weights for edges. Defaults to ``None``.
+        ``extra_selfloop`` (``bool``, optional): Whether to add extra self-loop to the graph. Defaults to ``False``.
+        ``device`` (``torch.device``, optional): The device to store the graph. Defaults to ``torch.device('cpu')``.
+
     """
 
     def __init__(
         self,
         num_v: int,
-        e_list_v2e: Optional[Union[List[int], List[List[int]]]] = None,
-        e_list_e2v: Optional[Union[List[int], List[List[int]]]] = None,
-        w_list_v2e: Optional[Union[List[float], List[List[float]]]] = None,
-        w_list_e2v: Optional[Union[List[float], List[List[float]]]] = None,
+        v_property: Optional[Union[Dict, List[Dict]]] = None,
+        e_list: Optional[Union[List[int], List[List[int]]]] = None,
+        e_property: Optional[Union[Dict, List[Dict]]] = None,
         e_weight: Optional[Union[float, List[float]]] = None,
-        v_weight: Optional[List[float]] = None,
+        extra_selfloop: bool = False,
         device: torch.device = torch.device("cpu"),
     ):
         assert (
@@ -69,6 +66,20 @@ class BaseHypergraph:
         self.clear()
         self._num_v = num_v
         self.device = device
+        if v_property == None:
+            self._v_property = [{} for i in range(num_v)]
+        else:
+            v_property = self._format_v_property_list(num_v, v_property)
+            self._v_property = v_property
+
+        if e_property == None and e_list != None:
+            self._e_property = [{} for i in range(len(e_list))]
+        elif e_property != None and e_list != None:
+            print("e_list:", e_list)
+            e_property = self._format_e_property_list(len(e_list), e_property)
+            self._e_property = e_property
+
+        self._has_extra_selfloop = extra_selfloop
 
     @abc.abstractmethod
     def __repr__(self) -> str:
@@ -81,28 +92,28 @@ class BaseHypergraph:
 
     @abc.abstractmethod
     def save(self, file_path: Union[str, Path]):
-        r"""Save the DHG's hypergraph structure to a file.
+        r"""Save the EasyGraph's hypergraph structure to a file.
 
         Args:
-            ``file_path`` (``str``): The file_path to store the DHG's hypergraph structure.
+            ``file_path`` (``str``): The file_path to store the EasyGraph's hypergraph structure.
         """
 
     @staticmethod
     @abc.abstractmethod
     def load(file_path: Union[str, Path]):
-        r"""Load the DHG's hypergraph structure from a file.
+        r"""Load the EasyGraph's hypergraph structure from a file.
 
         Args:
-            ``file_path`` (``str``): The file path to load the DHG's hypergraph structure.
+            ``file_path`` (``str``): The file path to load the DEasyGraph's hypergraph structure.
         """
 
     @staticmethod
     @abc.abstractmethod
     def from_state_dict(state_dict: dict):
-        r"""Load the DHG's hypergraph structure from the state dict.
+        r"""Load the EasyGraph's hypergraph structure from the state dict.
 
         Args:
-            ``state_dict`` (``dict``): The state dict to load the DHG's hypergraph.
+            ``state_dict`` (``dict``): The state dict to load the EasyGraph's hypergraph.
         """
 
     @abc.abstractmethod
@@ -119,6 +130,7 @@ class BaseHypergraph:
         self._raw_groups = {}
 
     def _clear_cache(self, group_name: Optional[str] = None):
+        r"""Clear the cache."""
         self.cache = {}
         if group_name is None:
             self.group_cache = defaultdict(dict)
@@ -196,6 +208,44 @@ class BaseHypergraph:
         for _idx in range(len(e_list)):
             e_list[_idx] = tuple(sorted(e_list[_idx]))
         return e_list
+
+    def _format_e_property_list(self, e_num, e_property_list: Union[Dict, List[Dict]]):
+        r"""Format the property list.
+
+        Args:
+            ``e_list`` (``Dict`` or ``List[Dict]``): The property list.
+        """
+        if type(e_property_list) == dict:
+            return [e_property_list]
+        elif type(e_property_list) == list and len(e_property_list) != e_num:
+            raise EasyGraphError(
+                "The length of property list must be equal to edge number"
+            )
+        elif type(e_property_list) == list:
+            pass
+        else:
+            raise TypeError("e_property_list must be Dict or List[Dict].")
+
+        return e_property_list
+
+    def _format_v_property_list(self, v_num, v_property_list: Union[Dict, List[Dict]]):
+        r"""Format the property list.
+
+        Args:
+            ``e_list`` (``Dict`` or ``List[Dict]``): The property list.
+        """
+        if type(v_property_list) == dict:
+            return [v_property_list]
+        elif type(v_property_list) == list and len(v_property_list) != v_num:
+            raise EasyGraphError(
+                "The length of property list must be equal to node number"
+            )
+        elif type(v_property_list) == list:
+            pass
+        else:
+            raise TypeError("v_property_list must be Dict or List[Dict].")
+
+        return v_property_list
 
     @staticmethod
     def _format_e_list_and_w_on_them(
@@ -475,6 +525,17 @@ class BaseHypergraph:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
 
+    @property
+    def v_property(self):
+        return self._v_property
+
+    # @property
+    # def e_property(self):
+    #     group_e_property = {}
+    #     for group in self._raw_groups:
+    #         print("group:",group)
+    #         group_e_property[group] = list(group.values())
+    #     return group_e_property
     @property
     def num_v(self) -> int:
         r"""Return the number of vertices in the hypergraph."""

@@ -15,6 +15,7 @@ class TestClustering:
         G.add_edge("3", "4", weight=23)
         G.add_edge("3", "5", weight=16)
         G.add_edge("4", "2", weight=20)
+        print("clustering" in dir(eg))
         assert eg.clustering(G) == {
             "1": 0,
             "2": 0.3333333333333333,

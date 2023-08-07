@@ -7,7 +7,7 @@ from easygraph.nn import HGNNConv
 class HGNN(nn.Module):
     r"""The HGNN model proposed in `Hypergraph Neural Networks <https://arxiv.org/pdf/1809.09401>`_ paper (AAAI 2019).
 
-    Args:
+    Parameters:
         ``in_channels`` (``int``): :math:`C_{in}` is the number of input channels.
         ``hid_channels`` (``int``): :math:`C_{hid}` is the number of hidden channels.
         ``num_classes`` (``int``): The Number of class of the classification task.
@@ -35,7 +35,7 @@ class HGNN(nn.Module):
     def forward(self, X: torch.Tensor, hg: "Hypergraph") -> torch.Tensor:
         r"""The forward function.
 
-        Args:
+        Parameters:
             ``X`` (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
             ``hg`` (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
         """

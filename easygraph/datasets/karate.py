@@ -27,8 +27,8 @@ class KarateClubDataset(EasyGraphDataset):
     Parameters
     ----------
     transform : callable, optional
-        A transform that takes in a :class:`~dgl.DGLGraph` object and returns
-        a transformed version. The :class:`~dgl.DGLGraph` object will be
+        A transform that takes in a :class:`~eg.Graph` object and returns
+        a transformed version. The :class:`~eg.Graph` object will be
         transformed before every access.
 
     Attributes
@@ -76,7 +76,7 @@ class KarateClubDataset(EasyGraphDataset):
 
         Returns
         -------
-        :class:`dgl.DGLGraph`
+        :class:`eg.Graph`
 
             graph structure and labels.
 

@@ -3,6 +3,7 @@ import random
 
 from copy import deepcopy
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Dict
 from typing import List
@@ -10,53 +11,138 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
+import easygraph as eg
+import numpy as np
 import torch
 
 from easygraph.classes.base import BaseHypergraph
-from easygraph.functions.drawing.drawing import draw_hypergraph
+from easygraph.functions.drawing import draw_hypergraph
+from easygraph.utils.exception import EasyGraphError
 from easygraph.utils.sparse import sparse_dropout
+from scipy.sparse import csr_matrix
 
+
+if TYPE_CHECKING:
+    from easygraph import Graph
 
 __all__ = ["Hypergraph"]
 
 
 class Hypergraph(BaseHypergraph):
-    r"""The ``Hypergraph`` class is developed for hypergraph structures.
 
-    Args:
-        ``num_v`` (``int``): The number of vertices in the hypergraph.
-        ``e_list`` (``Union[List[int], List[List[int]]]``, optional): A list of hyperedges describes how the vertices point to the hyperedges. Defaults to ``None``.
-        ``e_weight`` (``Union[float, List[float]]``, optional): A list of weights for hyperedges. If set to ``None``, the value ``1`` is used for all hyperedges. Defaults to ``None``.
-        ``merge_op`` (``str``): The operation to merge those conflicting hyperedges in the same hyperedge group, which can be ``'mean'``, ``'sum'`` or ``'max'``. Defaults to ``'mean'``.
-        ``device`` (``torch.device``, optional): The device to store the hypergraph. Defaults to ``torch.device('cpu')``.
     """
+    The ``Hypergraph`` class is developed for hypergraph structures.
+
+    Parameters
+    ----------
+        num_v  : (int) The number of vertices in the hypergraph
+        e_list : (Union[List[int], List[List[int]]], optional) A list of hyperedges describes how the vertices point to the hyperedges. Defaults to ``None``
+        e_weight : (Union[float, List[float]], optional)  A list of weights for hyperedges. If set to None, the value ``1`` is used for all hyperedges. Defaults to None
+        merge_op : (str) The operation to merge those conflicting hyperedges in the same hyperedge group, which can be ``'mean'``, ``'sum'`` or ``'max'``. Defaults to ``'mean'``
+        device : (torch.device, optional) The device to store the hypergraph. Defaults to torch.device('cpu')
+
+
+    """
+
+    gnn_data_dict_factory = dict
 
     def __init__(
         self,
         num_v: int,
+        v_property: Optional[Union[Dict, List[Dict]]] = None,
         e_list: Optional[Union[List[int], List[List[int]]]] = None,
         e_weight: Optional[Union[float, List[float]]] = None,
+        e_property: Optional[Union[Dict, List[Dict]]] = None,
         merge_op: str = "mean",
         device: torch.device = torch.device("cpu"),
     ):
-        super().__init__(num_v, device=device)
+        super().__init__(
+            num_v,
+            e_list=e_list,
+            v_property=v_property,
+            e_property=e_property,
+            device=device,
+        )
+        self._ndata = self.gnn_data_dict_factory()
         if e_list is not None:
-            self.add_hyperedges(e_list, e_weight, merge_op=merge_op)
+            self.add_hyperedges(
+                e_list=e_list,
+                e_weight=e_weight,
+                e_property=e_property,
+                merge_op=merge_op,
+            )
 
     def __repr__(self) -> str:
         r"""Print the hypergraph information."""
         return f"Hypergraph(num_vertex={self.num_v}, num_hyperedge={self.num_e})"
 
     @property
+    def ndata(self):
+        return self._ndata
+
+    @property
     def state_dict(self) -> Dict[str, Any]:
         r"""Get the state dict of the hypergraph."""
-        return {"num_v": self.num_v, "raw_groups": self._raw_groups}
+        return {
+            "num_v": self.num_v,
+            "v_property": self.v_property,
+            # "e_property":self.e_property,
+            "raw_groups": self._raw_groups,
+        }
+
+    def unique_edge_sizes(self):
+        """A function that returns the unique edge sizes.
+
+        Returns
+        -------
+        list()
+            The unique edge sizes in ascending order by size.
+        """
+        edge_size_set = set()
+        edge_lst = self.e[0]
+        for e in edge_lst:
+            edge_size_set.add(len(e))
+
+        return sorted(edge_size_set)
+
+    def is_uniform(self):
+        """Order of uniformity if the hypergraph is uniform, or False.
+
+        A hypergraph is uniform if all its edges have the same order.
+
+        Returns d if the hypergraph is d-uniform, that is if all edges
+        in the hypergraph (excluding singletons) have the same degree d.
+        Returns False if not uniform.
+
+        Returns
+        -------
+        d : int or False
+            If the hypergraph is d-uniform, return d, or False otherwise.
+
+        Examples
+        --------
+        This function can be used as a boolean check:
+
+        >>> import easygraph as eg
+        >>> H = eg.Hypergraph([(0, 1, 2), (1, 2, 3), (2, 3, 4)])
+        >>> H.is_uniform()
+        2
+        """
+        edge_sizes = self.unique_edge_sizes()
+        if 1 in edge_sizes:
+            edge_sizes.remove(1)
+
+        if edge_sizes is None or len(edge_sizes) != 1:
+            return False
+
+        # order of all edges
+        return edge_sizes.pop() - 1
 
     def save(self, file_path: Union[str, Path]):
-        r"""Save the DHG's hypergraph structure a file.
+        r"""Save the EasyGraph's hypergraph structure a file.
 
-        Args:
-            ``file_path`` (``Union[str, Path]``): The file path to store the DHG's hypergraph structure.
+        Parameters:
+            ``file_path`` (``Union[str, Path]``): The file path to store the EasyGraph's hypergraph structure.
         """
         file_path = Path(file_path)
         assert file_path.parent.exists(), "The directory does not exist."
@@ -69,16 +155,18 @@ class Hypergraph(BaseHypergraph):
 
     @staticmethod
     def load(file_path: Union[str, Path]):
-        r"""Load the DHG's hypergraph structure from a file.
+        r"""Load the EasyGraph's hypergraph structure from a file.
 
-        Args:
-            ``file_path`` (``Union[str, Path]``): The file path to load the DHG's hypergraph structure.
+        Parameters:
+            ``file_path`` (``Union[str, Path]``): The file path to load the EasyGraph's hypergraph structure.
         """
         file_path = Path(file_path)
         assert file_path.exists(), "The file does not exist."
         with open(file_path, "rb") as fp:
             data = pickle.load(fp)
-        assert data["class"] == "Hypergraph", "The file is not a DHG's hypergraph file."
+        assert (
+            data["class"] == "Hypergraph"
+        ), "The file is not a EasyGraph's hypergraph file."
         return Hypergraph.from_state_dict(data["state_dict"])
 
     def draw(
@@ -100,7 +188,7 @@ class Hypergraph(BaseHypergraph):
     ):
         r"""Draw the hypergraph structure.
 
-        Args:
+        Parameters:
             ``e_style`` (``str``): The style of hyperedges. The available styles are only ``'circle'``. Defaults to ``'circle'``.
             ``v_label`` (``list``): The labels of vertices. Defaults to ``None``.
             ``v_size`` (``float`` or ``list``): The size of vertices. Defaults to ``1.0``.
@@ -149,7 +237,7 @@ class Hypergraph(BaseHypergraph):
     def to(self, device: torch.device):
         r"""Move the hypergraph to the specified device.
 
-        Args:
+        Parameters:
             ``device`` (``torch.device``): The target device.
         """
         return super().to(device)
@@ -160,7 +248,7 @@ class Hypergraph(BaseHypergraph):
     def from_state_dict(state_dict: dict):
         r"""Load the hypergraph from the state dict.
 
-        Args:
+        Parameters:
             ``state_dict`` (``dict``): The state dict to load the hypergraph.
         """
         _hg = Hypergraph(state_dict["num_v"])
@@ -173,7 +261,7 @@ class Hypergraph(BaseHypergraph):
 
         r"""Construct hyperedges from the feature matrix. Each hyperedge in the hypergraph is constructed by the central vertex ans its :math:`k-1` neighbor vertices.
 
-        Args:
+        Parameters:
             ``features`` (``torch.Tensor``): The feature matrix.
             ``k`` (``int``): The number of nearest neighbors.
         """
@@ -196,13 +284,13 @@ class Hypergraph(BaseHypergraph):
         .. note::
             The constructed hypergraph is a k-uniform hypergraph. If the feature matrix has the size :math:`N \times C`, the number of vertices and hyperedges of the constructed hypergraph are both :math:`N`.
 
-        Args:
+        Parameters:
             ``features`` (``torch.Tensor``): The feature matrix.
             ``k`` (``int``): The number of nearest neighbors.
             ``device`` (``torch.device``, optional): The device to store the hypergraph. Defaults to ``torch.device('cpu')``.
         """
         e_list = Hypergraph._e_list_from_feature_kNN(features, k)
-        hg = Hypergraph(features.shape[0], e_list, device=device)
+        hg = Hypergraph(num_v=features.shape[0], e_list=e_list, device=device)
         return hg
 
     @staticmethod
@@ -210,14 +298,16 @@ class Hypergraph(BaseHypergraph):
         r"""Construct the hypergraph from the graph. Each edge in the graph is treated as a hyperedge in the constructed hypergraph.
 
         .. note::
-            The construsted hypergraph is a 2-uniform hypergraph, and has the same number of vertices and edges/hyperedges as the graph.
+            The constructed hypergraph is a 2-uniform hypergraph, and has the same number of vertices and edges/hyperedges as the graph.
 
-        Args:
+        Parameters:
             ``graph`` (``eg.Graph``): The graph to construct the hypergraph.
             ``device`` (``torch.device``, optional): The device to store the hypergraph. Defaults to ``torch.device('cpu')``.
         """
         e_list, e_weight = graph.e
-        hg = Hypergraph(len(graph.nodes), e_list, e_weight=e_weight, device=device)
+        hg = Hypergraph(
+            num_v=len(graph.nodes), e_list=e_list, e_weight=e_weight, device=device
+        )
         return hg
 
     @staticmethod
@@ -231,7 +321,7 @@ class Hypergraph(BaseHypergraph):
         .. note::
             If the graph have :math:`|\mathcal{V}|` vertices, the constructed hypergraph will have :math:`|\mathcal{V}|` vertices and equal to or less than :math:`|\mathcal{V}|` hyperedges.
 
-        Args:
+        Parameters:
             ``graph`` (``eg.Graph``): The graph to construct the hypergraph.
             ``k`` (``int``): The number of hop neighbors.
             ``only_kHop`` (``bool``, optional): If set to ``True``, only the central vertex and its :math:`k`-th Hop neighbors are used to construct the hyperedges. By default, the constructed hyperedge will include the central vertex and its [ :math:`1`-th, :math:`2`-th, :math:`\cdots`, :math:`k`-th ] Hop neighbors. Defaults to ``False``.
@@ -267,27 +357,27 @@ class Hypergraph(BaseHypergraph):
         .. note::
             If the graph have :math:`|\mathcal{V}|` vertices, the constructed hypergraph will have :math:`|\mathcal{V}|` vertices and equal to or less than :math:`|\mathcal{V}|` hyperedges.
 
-        Args:
+        Parameters:
             ``graph`` (``eg.Graph``): The graph to construct the hypergraph.
             ``k`` (``int``): The number of hop neighbors.
             ``only_kHop`` (``bool``): If set to ``True``, only the central vertex and its :math:`k`-th Hop neighbors are used to construct the hyperedges. By default, the constructed hyperedge will include the central vertex and its [ :math:`1`-th, :math:`2`-th, :math:`\cdots`, :math:`k`-th ] Hop neighbors. Defaults to ``False``.
             ``device`` (``torch.device``, optional): The device to store the hypergraph. Defaults to ``torch.device('cpu')``.
         """
         e_list = Hypergraph._e_list_from_graph_kHop(graph, k, only_kHop)
-        hg = Hypergraph(len(graph.nodes), e_list, device=device)
+        hg = Hypergraph(num_v=len(graph.nodes), e_list=e_list, device=device)
         return hg
 
     def add_hyperedges(
         self,
         e_list: Union[List[int], List[List[int]]],
         e_weight: Optional[Union[float, List[float]]] = None,
-        merge_op: str = "mean",
+        e_property: Optional[Union[Dict, List[Dict]]] = None,
+        merge_op: str = "sum",
         group_name: str = "main",
     ):
         r"""Add hyperedges to the hypergraph. If the ``group_name`` is not specified, the hyperedges will be added to the default ``main`` hyperedge group.
 
-        Args:
-            ``num_v`` (``int``): The number of vertices in the hypergraph.
+        Parameters:
             ``e_list`` (``Union[List[int], List[List[int]]]``): A list of hyperedges describes how the vertices point to the hyperedges.
             ``e_weight`` (``Union[float, List[float]]``, optional): A list of weights for hyperedges. If set to ``None``, the value ``1`` is used for all hyperedges. Defaults to ``None``.
             ``merge_op`` (``str``): The merge operation for the conflicting hyperedges. The possible values are ``"mean"``, ``"sum"``, and ``"max"``. Defaults to ``"mean"``.
@@ -309,13 +399,33 @@ class Hypergraph(BaseHypergraph):
             e_weight
         ), "The number of hyperedges and the number of weights are not equal."
 
+        if type(e_property) == dict:
+            e_property = [e_property]
+
+        # print("e_property:",e_property)
         for _idx in range(len(e_list)):
-            self._add_hyperedge(
-                self._hyperedge_code(e_list[_idx], e_list[_idx]),
-                {"w_e": float(e_weight[_idx])},
-                merge_op,
-                group_name,
-            )
+            if e_property != None:
+                e_property[_idx].update({"w_e": float(e_weight[_idx])})
+
+                self._add_hyperedge(
+                    self._hyperedge_code(e_list[_idx], e_list[_idx]),
+                    e_property[_idx],
+                    merge_op,
+                    group_name,
+                )
+            else:
+                self._add_hyperedge(
+                    self._hyperedge_code(e_list[_idx], e_list[_idx]),
+                    {"w_e": float(e_weight[_idx])},
+                    merge_op,
+                    group_name,
+                )
+            # self._add_hyperedge(
+            #     self._hyperedge_code(e_list[_idx], e_list[_idx]),
+            #     {"w_e": float(e_weight[_idx])},
+            #     merge_op,
+            #     group_name,
+            # )
         self._clear_cache(group_name)
 
     def add_hyperedges_from_feature_kNN(
@@ -323,7 +433,7 @@ class Hypergraph(BaseHypergraph):
     ):
         r"""Add hyperedges from the feature matrix by k-NN. Each hyperedge is constructed by the central vertex and its :math:`k`-Nearest Neighbor vertices.
 
-        Args:
+        Parameters:
             ``features`` (``torch.Tensor``): The feature matrix.
             ``k`` (``int``): The number of nearest neighbors.
             ``group_name`` (``str``, optional): The target hyperedge group to add these hyperedges. Defaults to the ``main`` hyperedge group.
@@ -338,7 +448,7 @@ class Hypergraph(BaseHypergraph):
     def add_hyperedges_from_graph(self, graph, group_name: str = "main"):
         r"""Add hyperedges from edges in the graph. Each edge in the graph is treated as a hyperedge.
 
-        Args:
+        Parameters:
             ``graph`` (``eg.Graph``): The graph to join the hypergraph.
             ``group_name`` (``str``, optional): The target hyperedge group to add these hyperedges. Defaults to the ``main`` hyperedge group.
         """
@@ -356,7 +466,7 @@ class Hypergraph(BaseHypergraph):
         .. note::
             If the graph have :math:`|\mathcal{V}|` vertices, the constructed hypergraph will have :math:`|\mathcal{V}|` vertices and equal to or less than :math:`|\mathcal{V}|` hyperedges.
 
-        Args:
+        Parameters:
             ``graph`` (``eg.Graph``): The graph to join the hypergraph.
             ``k`` (``int``): The number of hop neighbors.
             ``only_kHop`` (``bool``): If set to ``True``, only the central vertex and its :math:`k`-th Hop neighbors are used to construct the hyperedges. By default, the constructed hyperedge will include the central vertex and its [ :math:`1`-th, :math:`2`-th, :math:`\cdots`, :math:`k`-th ] Hop neighbors. Defaults to ``False``.
@@ -375,7 +485,7 @@ class Hypergraph(BaseHypergraph):
     ):
         r"""Remove the specified hyperedges from the hypergraph.
 
-        Args:
+        Parameters:
             ``e_list`` (``Union[List[int], List[List[int]]]``): A list of hyperedges describes how the vertices point to the hyperedges.
             ``group_name`` (``str``, optional): Remove these hyperedges from the specified hyperedge group. If not specified, the function will
                 remove those hyperedges from all hyperedge groups. Defaults to the ``None``.
@@ -398,7 +508,7 @@ class Hypergraph(BaseHypergraph):
     def remove_group(self, group_name: str):
         r"""Remove the specified hyperedge group from the hypergraph.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the hyperedge group to remove.
         """
         self._raw_groups.pop(group_name, None)
@@ -407,7 +517,7 @@ class Hypergraph(BaseHypergraph):
     def drop_hyperedges(self, drop_rate: float, ord="uniform"):
         r"""Randomly drop hyperedges from the hypergraph. This function will return a new hypergraph with non-dropped hyperedges.
 
-        Args:
+        Parameters:
             ``drop_rate`` (``float``): The drop rate of hyperedges.
             ``ord`` (``str``): The order of dropping edges. Currently, only ``'uniform'`` is supported. Defaults to ``uniform``.
         """
@@ -434,7 +544,7 @@ class Hypergraph(BaseHypergraph):
     ):
         r"""Randomly drop hyperedges from the specified hyperedge group. This function will return a new hypergraph with non-dropped hyperedges.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the hyperedge group.
             ``drop_rate`` (``float``): The drop rate of hyperedges.
             ``ord`` (``str``): The order of dropping edges. Currently, only ``'uniform'`` is supported. Defaults to ``uniform``.
@@ -482,7 +592,7 @@ class Hypergraph(BaseHypergraph):
     def e_of_group(self, group_name: str) -> Tuple[List[List[int]], List[float]]:
         r"""Return all hyperedges and weights of the specified hyperedge group.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -490,6 +600,7 @@ class Hypergraph(BaseHypergraph):
         ), f"The specified {group_name} is not in existing hyperedge groups."
         if self.group_cache[group_name].get("e", None) is None:
             e_list = [e_code[0] for e_code in self._raw_groups[group_name].keys()]
+            # print("self._raw_groups[group_name].values()",self._raw_groups[group_name].values())
             e_weight = [
                 e_content["w_e"] for e_content in self._raw_groups[group_name].values()
             ]
@@ -509,7 +620,7 @@ class Hypergraph(BaseHypergraph):
     def num_e_of_group(self, group_name: str) -> int:
         r"""Return the number of hyperedges of the specified hyperedge group.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         return super().num_e_of_group(group_name)
@@ -522,7 +633,7 @@ class Hypergraph(BaseHypergraph):
     def deg_v_of_group(self, group_name: str) -> List[int]:
         r"""Return the degree list of each vertex of the specified hyperedge group.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -538,7 +649,7 @@ class Hypergraph(BaseHypergraph):
     def deg_e_of_group(self, group_name: str) -> List[int]:
         r"""Return the degree list of each hyperedge of the specified hyperedge group.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -549,7 +660,7 @@ class Hypergraph(BaseHypergraph):
     def nbr_e(self, v_idx: int) -> List[int]:
         r"""Return the neighbor hyperedge list of the specified vertex.
 
-        Args:
+        Parameters:
             ``v_idx`` (``int``): The index of the vertex.
         """
         return self.N_e(v_idx).cpu().numpy().tolist()
@@ -557,7 +668,7 @@ class Hypergraph(BaseHypergraph):
     def nbr_e_of_group(self, v_idx: int, group_name: str) -> List[int]:
         r"""Return the neighbor hyperedge list of the specified vertex of the specified hyperedge group.
 
-        Args:
+        Parameters:
             ``v_idx`` (``int``): The index of the vertex.
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
@@ -569,7 +680,7 @@ class Hypergraph(BaseHypergraph):
     def nbr_v(self, e_idx: int) -> List[int]:
         r"""Return the neighbor vertex list of the specified hyperedge.
 
-        Args:
+        Parameters:
             ``e_idx`` (``int``): The index of the hyperedge.
         """
         return self.N_v(e_idx).cpu().numpy().tolist()
@@ -577,7 +688,7 @@ class Hypergraph(BaseHypergraph):
     def nbr_v_of_group(self, e_idx: int, group_name: str) -> List[int]:
         r"""Return the neighbor vertex list of the specified hyperedge of the specified hyperedge group.
 
-        Args:
+        Parameters:
             ``e_idx`` (``int``): The index of the hyperedge.
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
@@ -647,7 +758,7 @@ class Hypergraph(BaseHypergraph):
     def v2e_src_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the source vertex index vector :math:`\overrightarrow{v2e}_{src}` of the connections (vertices point to hyperedges) in the specified hyperedge group.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -664,7 +775,7 @@ class Hypergraph(BaseHypergraph):
     def v2e_dst_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the destination hyperedge index vector :math:`\overrightarrow{v2e}_{dst}` of the connections (vertices point to hyperedges) in the specified hyperedge group.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -681,7 +792,7 @@ class Hypergraph(BaseHypergraph):
     def v2e_weight_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the weight vector :math:`\overrightarrow{v2e}_{weight}` of the connections (vertices point to hyperedges) in the specified hyperedge group.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -698,7 +809,7 @@ class Hypergraph(BaseHypergraph):
     def e2v_src_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the source hyperedge index vector :math:`\overrightarrow{e2v}_{src}` of the connections (hyperedges point to vertices) in the specified hyperedge group.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -715,7 +826,7 @@ class Hypergraph(BaseHypergraph):
     def e2v_dst_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the destination vertex index vector :math:`\overrightarrow{e2v}_{dst}` of the connections (hyperedges point to vertices) in the specified hyperedge group.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -732,7 +843,7 @@ class Hypergraph(BaseHypergraph):
     def e2v_weight_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the weight vector :math:`\overrightarrow{e2v}_{weight}` of the connections (hyperedges point to vertices) in the specified hyperedge group.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -748,10 +859,89 @@ class Hypergraph(BaseHypergraph):
             self.cache["H"] = self.H_v2e
         return self.cache["H"]
 
+    @property
+    def incidence_matrix(self):
+        H = self.H.to_dense().numpy()
+        return H
+
+    def get_star_expansion(self):
+        star_expansion_graph = eg.Graph()
+        for node in self.v:
+            star_expansion_graph.add_node(node, type="node")
+        e_index = len(self.v)
+        hyperedge_weight_list = self.e[1]
+        hyperedge_edge_list = self.e[0]
+        for hyperedge_index, e in enumerate(hyperedge_edge_list):
+            hyperedge_weight = hyperedge_weight_list[hyperedge_index]
+            star_expansion_graph.add_node(e_index, type="hyperedge")
+            for index, node in enumerate(e):
+                star_expansion_graph.add_edge(
+                    e_index,
+                    node,
+                    weight=hyperedge_weight / len(e),
+                    hyperedge_index=hyperedge_index,
+                )
+            e_index = e_index + 1
+        return star_expansion_graph
+
+    def neighbor_of_node(self, node):
+        neighbor_lst = []
+        node_adj = self.adjacency_matrix()
+        for i in range(node_adj.shape[0]):
+            start = node_adj.indptr[i]
+            end = node_adj.indptr[i + 1]
+            if i == node:
+                for j in range(start, end):
+                    neighbor_lst.append(node_adj.indices[j])
+                break
+        return neighbor_lst
+
+    def adjacency_matrix(self, s=1, weight=False):
+        r"""
+        The :term:`s-adjacency matrix` for the dual hypergraph.
+
+        Parameters
+        ----------
+        s : int, optional, default 1
+
+        Returns
+        -------
+        adjacency_matrix : scipy.sparse.csr.csr_matrix
+
+        """
+
+        tmp_H = self.H.to_dense().numpy()
+        A = tmp_H @ (tmp_H.T)
+        A[np.diag_indices_from(A)] = 0
+        if not weight:
+            A = (A >= s) * 1
+        return csr_matrix(A)
+
+    def edge_adjacency_matrix(self, s=1, weight=False):
+        r"""
+        The :term:`s-adjacency matrix` for the dual hypergraph.
+
+        Parameters
+        ----------
+        s : int, optional, default 1
+
+        Returns
+        -------
+        adjacency_matrix : scipy.sparse.csr.csr_matrix
+
+        """
+        tmp_H = self.H.to_dense().numpy()
+        A = (tmp_H.T) @ (tmp_H)
+        A[np.diag_indices_from(A)] = 0
+        if not weight:
+            A = (A >= s) * 1
+        return csr_matrix(A)
+        # return A
+
     def H_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the hypergraph incidence matrix :math:`\mathbf{H}` of the specified hyperedge group with ``torch.Tensor`` format.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -760,6 +950,131 @@ class Hypergraph(BaseHypergraph):
         if self.group_cache[group_name].get("H") is None:
             self.group_cache[group_name]["H"] = self.H_v2e_of_group(group_name)
         return self.group_cache[group_name]["H"]
+
+    def edge_distance(self, source, target, s=1):
+        """
+
+        Parameters
+        ----------
+        source
+        target
+        s
+
+        Returns
+        -------
+        s- walk distance : the shortest s-walk edge distance
+
+        Notes
+        -----
+            The s-distance is the shortest s-walk length between the edges.
+            An s-walk between edges is a sequence of edges such that
+            consecutive pairwise edges intersect in at least s nodes. The
+            length of the shortest s-walk is 1 less than the number of edges
+            in the path sequence.
+
+        """
+        l_graph = self.get_linegraph(s=s, edge=True)
+        if source not in l_graph.nodes:
+            raise EasyGraphError("Please make sure source exist!")
+        dist = eg.Dijkstra(l_graph, source)
+        if target in dist:
+            return dist[target]
+        raise EasyGraphError("Please make sure target exist!")
+
+    def distance(self, source, target, s=1):
+        """
+
+        Parameters
+        ----------
+        source : node in the hypergraph
+        target : node in the hypergraph
+        s : positive integer
+            the number of edges
+
+        Returns
+        -------
+        s-walk distance : int
+
+        Notes
+        -----
+        The s-distance is the shortest s-walk length between the nodes.
+        An s-walk between nodes is a sequence of nodes that pairwise share
+        at least s edges. The length of the shortest s-walk is 1 less than
+        the number of nodes in the path sequence.
+
+        Uses the EasyGraph's Dijkstra method on the graph
+        generated by the s-adjacency matrix.
+
+        """
+        l_graph = self.get_linegraph(s=s, edge=False)
+        if source not in l_graph.nodes:
+            raise EasyGraphError("Please make sure source exist!")
+        dist = eg.Dijkstra(l_graph, source)
+        if target in dist:
+            return dist[target]
+        raise EasyGraphError("Please make sure target exist!")
+
+    def edge_diameter(self, s=1):
+        """
+        Returns the length of the longest shortest s-walk between edges in
+        hypergraph
+
+        Parameters
+        ----------
+        s : int, optional, default 1
+
+        Return
+        ------
+        edge_diameter : int
+
+        Raises
+        ------
+        EasyGraphXError
+            If hypergraph is not s-edge-connected
+
+        Notes
+        -----
+        Two edges are s-adjacent if they share s nodes.
+        Two nodes e_start and e_end are s-walk connected if there is a
+        sequence of edges e_start, e_1, e_2, ... e_n-1, e_end such that
+        consecutive edges are s-adjacent. If the graph is not connected, an
+        error will be raised.
+
+        """
+        l_graph = self.get_linegraph(s=s, edge=True)
+        if eg.is_connected(l_graph):
+            return eg.diameter(l_graph)
+        raise EasyGraphError(f"Hypergraph is not s-connected. s={s}")
+
+    def diameter(self, s=1):
+        """
+        Returns the length of the longest shortest s-walk between nodes in
+        hypergraph
+
+        Parameters
+        ----------
+        s : int, optional, default 1
+
+        Returns
+        -------
+        diameter : int
+        Raises
+        ------
+        EasyGraphError
+            If hypergraph is not s-edge-connected
+
+        Notes
+        -----
+        Two nodes are s-adjacent if they share s edges.
+        Two nodes v_start and v_end are s-walk connected if there is a
+        sequence of nodes v_start, v_1, v_2, ... v_n-1, v_end such that
+        consecutive nodes are s-adjacent. If the graph is not connected,
+        an error will be raised.
+        """
+        l_graph = self.get_linegraph(s=s, edge=False)
+        if eg.is_connected(l_graph):
+            return eg.diameter(l_graph)
+        raise EasyGraphError(f"Hypergraph is not s-connected. s={s}")
 
     @property
     def H_T(self) -> torch.Tensor:
@@ -772,7 +1087,7 @@ class Hypergraph(BaseHypergraph):
     def H_T_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the transpose of the hypergraph incidence matrix :math:`\mathbf{H}^\top` of the specified hyperedge group with ``torch.Tensor`` format.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -803,7 +1118,7 @@ class Hypergraph(BaseHypergraph):
     def W_e_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the weight matrix :math:`\mathbf{W}_e` of hyperedges of the specified hyperedge group with ``torch.Tensor`` format.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -840,7 +1155,7 @@ class Hypergraph(BaseHypergraph):
     def D_v_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the vertex degree matrix :math:`\mathbf{D}_v` of the specified hyperedge group with ``torch.sparse_coo_tensor`` format.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -878,7 +1193,7 @@ class Hypergraph(BaseHypergraph):
     def D_v_neg_1_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the vertex degree matrix :math:`\mathbf{D}_v^{-1}` of the specified hyperedge group with ``torch.sparse_coo_tensor`` format.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -909,7 +1224,7 @@ class Hypergraph(BaseHypergraph):
     def D_v_neg_1_2_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the vertex degree matrix :math:`\mathbf{D}_v^{-\frac{1}{2}}` of the specified hyperedge group with ``torch.sparse_coo_tensor`` format.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -945,7 +1260,7 @@ class Hypergraph(BaseHypergraph):
     def D_e_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the hyperedge degree matrix :math:`\mathbf{D}_e` of the specified hyperedge group with ``torch.sparse_coo_tensor`` format.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -983,7 +1298,7 @@ class Hypergraph(BaseHypergraph):
     def D_e_neg_1_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the hyperedge degree matrix :math:`\mathbf{D}_e^{-1}` of the specified hyperedge group with ``torch.sparse_coo_tensor`` format.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -1004,7 +1319,7 @@ class Hypergraph(BaseHypergraph):
         .. note::
             The ``v_idx`` must be in the range of [0, :attr:`num_v`).
 
-        Args:
+        Parameters:
             ``v_idx`` (``int``): The index of the vertex.
         """
         assert v_idx < self.num_v
@@ -1020,7 +1335,7 @@ class Hypergraph(BaseHypergraph):
         .. note::
             The ``v_idx`` must be in the range of [0, :attr:`num_v`).
 
-        Args:
+        Parameters:
             ``v_idx`` (``int``): The index of the vertex.
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
@@ -1037,7 +1352,7 @@ class Hypergraph(BaseHypergraph):
         .. note::
             The ``e_idx`` must be in the range of [0, :attr:`num_e`).
 
-        Args:
+        Parameters:
             ``e_idx`` (``int``): The index of the hyperedge.
         """
         assert e_idx < self.num_e
@@ -1053,7 +1368,7 @@ class Hypergraph(BaseHypergraph):
         .. note::
             The ``e_idx`` must be in the range of [0, :func:`num_e_of_group`).
 
-        Args:
+        Parameters:
             ``e_idx`` (``int``): The index of the hyperedge.
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
@@ -1097,7 +1412,7 @@ class Hypergraph(BaseHypergraph):
         .. math::
             \mathcal{L}_{sym} = \mathbf{I} - \mathbf{D}_v^{-\frac{1}{2}} \mathbf{H} \mathbf{W}_e \mathbf{D}_e^{-1} \mathbf{H}^\top \mathbf{D}_v^{-\frac{1}{2}}
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -1152,7 +1467,7 @@ class Hypergraph(BaseHypergraph):
         .. math::
             \mathcal{L}_{rw} = \mathbf{I} - \mathbf{D}_v^{-1} \mathbf{H} \mathbf{W}_e \mathbf{D}_e^{-1} \mathbf{H}^\top
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -1216,7 +1531,7 @@ class Hypergraph(BaseHypergraph):
         .. math::
             \mathcal{L}_{HGNN} = \mathbf{D}_v^{-\frac{1}{2}} \mathbf{H} \mathbf{W}_e \mathbf{D}_e^{-1} \mathbf{H}^\top \mathbf{D}_v^{-\frac{1}{2}}
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
         """
         assert (
@@ -1248,7 +1563,7 @@ class Hypergraph(BaseHypergraph):
             .. math::
                 \mathbf{X} = \mathbf{D}_v^{-\frac{1}{2}} \mathbf{H} \mathbf{W}_e \mathbf{D}_e^{-1} \mathbf{H}^\top \mathbf{D}_v^{-\frac{1}{2}} \mathbf{X}
 
-        Args:
+        Parameters:
             ``X`` (``torch.Tensor``): The feature matrix. Size :math:`(|\mathcal{V}|, C)`.
             ``drop_rate`` (``float``): Dropout rate. Randomly dropout the connections in incidence matrix with probability ``drop_rate``. Default: ``0.0``.
         """
@@ -1268,7 +1583,7 @@ class Hypergraph(BaseHypergraph):
             .. math::
                 \mathbf{X} = \mathbf{D}_v^{-\frac{1}{2}} \mathbf{H} \mathbf{W}_e \mathbf{D}_e^{-1} \mathbf{H}^\top \mathbf{D}_v^{-\frac{1}{2}} \mathbf{X}
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The name of the specified hyperedge group.
             ``X`` (``torch.Tensor``): The feature matrix. Size :math:`(|\mathcal{V}|, C)`.
             ``drop_rate`` (``float``): Dropout rate. Randomly dropout the connections in incidence matrix with probability ``drop_rate``. Default: ``0.0``.
@@ -1294,12 +1609,12 @@ class Hypergraph(BaseHypergraph):
         v2e_weight: Optional[torch.Tensor] = None,
         drop_rate: float = 0.0,
     ):
-        r"""Message aggretation step of ``vertices to hyperedges``.
+        r"""Message aggregation step of ``vertices to hyperedges``.
 
-        Args:
+        Parameters:
             ``X`` (``torch.Tensor``): Vertex feature matrix. Size :math:`(|\mathcal{V}|, C)`.
             ``aggr`` (``str``): The aggregation method. Can be ``'mean'``, ``'sum'`` and ``'softmax_then_sum'``.
-            ``v2e_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (vertices point to hyepredges). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
+            ``v2e_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (vertices point to hyperedges). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
             ``drop_rate`` (``float``): Dropout rate. Randomly dropout the connections in incidence matrix with probability ``drop_rate``. Default: ``0.0``.
         """
         assert aggr in ["mean", "sum", "softmax_then_sum"]
@@ -1355,11 +1670,11 @@ class Hypergraph(BaseHypergraph):
     ):
         r"""Message aggregation step of ``vertices to hyperedges`` in specified hyperedge group.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The specified hyperedge group.
             ``X`` (``torch.Tensor``): Vertex feature matrix. Size :math:`(|\mathcal{V}|, C)`.
             ``aggr`` (``str``): The aggregation method. Can be ``'mean'``, ``'sum'`` and ``'softmax_then_sum'``.
-            ``v2e_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (vertices point to hyepredges). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
+            ``v2e_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (vertices point to hyperedges). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
             ``drop_rate`` (``float``): Dropout rate. Randomly dropout the connections in incidence matrix with probability ``drop_rate``. Default: ``0.0``.
         """
         assert (
@@ -1417,7 +1732,7 @@ class Hypergraph(BaseHypergraph):
     def v2e_update(self, X: torch.Tensor, e_weight: Optional[torch.Tensor] = None):
         r"""Message update step of ``vertices to hyperedges``.
 
-        Args:
+        Parameters:
             ``X`` (``torch.Tensor``): Hyperedge feature matrix. Size :math:`(|\mathcal{E}|, C)`.
             ``e_weight`` (``torch.Tensor``, optional): The hyperedge weight vector. If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
         """
@@ -1438,7 +1753,7 @@ class Hypergraph(BaseHypergraph):
     ):
         r"""Message update step of ``vertices to hyperedges`` in specified hyperedge group.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The specified hyperedge group.
             ``X`` (``torch.Tensor``): Hyperedge feature matrix. Size :math:`(|\mathcal{E}|, C)`.
             ``e_weight`` (``torch.Tensor``, optional): The hyperedge weight vector. If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
@@ -1469,10 +1784,10 @@ class Hypergraph(BaseHypergraph):
     ):
         r"""Message passing of ``vertices to hyperedges``. The combination of ``v2e_aggregation`` and ``v2e_update``.
 
-        Args:
+        Parameters:
             ``X`` (``torch.Tensor``): Vertex feature matrix. Size :math:`(|\mathcal{V}|, C)`.
             ``aggr`` (``str``): The aggregation method. Can be ``'mean'``, ``'sum'`` and ``'softmax_then_sum'``.
-            ``v2e_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (vertices point to hyepredges). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
+            ``v2e_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (vertices point to hyperedges). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
             ``e_weight`` (``torch.Tensor``, optional): The hyperedge weight vector. If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
             ``drop_rate`` (``float``): Dropout rate. Randomly dropout the connections in incidence matrix with probability ``drop_rate``. Default: ``0.0``.
         """
@@ -1491,11 +1806,11 @@ class Hypergraph(BaseHypergraph):
     ):
         r"""Message passing of ``vertices to hyperedges`` in specified hyperedge group. The combination of ``e2v_aggregation_of_group`` and ``e2v_update_of_group``.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The specified hyperedge group.
             ``X`` (``torch.Tensor``): Vertex feature matrix. Size :math:`(|\mathcal{V}|, C)`.
             ``aggr`` (``str``): The aggregation method. Can be ``'mean'``, ``'sum'`` and ``'softmax_then_sum'``.
-            ``v2e_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (vertices point to hyepredges). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
+            ``v2e_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (vertices point to hyperedges). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
             ``e_weight`` (``torch.Tensor``, optional): The hyperedge weight vector. If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
             ``drop_rate`` (``float``): Dropout rate. Randomly dropout the connections in incidence matrix with probability ``drop_rate``. Default: ``0.0``.
         """
@@ -1517,7 +1832,7 @@ class Hypergraph(BaseHypergraph):
     ):
         r"""Message aggregation step of ``hyperedges to vertices``.
 
-        Args:
+        Parameters:
             ``X`` (``torch.Tensor``): Hyperedge feature matrix. Size :math:`(|\mathcal{E}|, C)`.
             ``aggr`` (``str``): The aggregation method. Can be ``'mean'``, ``'sum'`` and ``'softmax_then_sum'``.
             ``e2v_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (hyperedges point to vertices). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
@@ -1576,7 +1891,7 @@ class Hypergraph(BaseHypergraph):
     ):
         r"""Message aggregation step of ``hyperedges to vertices`` in specified hyperedge group.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The specified hyperedge group.
             ``X`` (``torch.Tensor``): Hyperedge feature matrix. Size :math:`(|\mathcal{E}|, C)`.
             ``aggr`` (``str``): The aggregation method. Can be ``'mean'``, ``'sum'`` and ``'softmax_then_sum'``.
@@ -1638,7 +1953,7 @@ class Hypergraph(BaseHypergraph):
     def e2v_update(self, X: torch.Tensor):
         r"""Message update step of ``hyperedges to vertices``.
 
-        Args:
+        Parameters:
             ``X`` (``torch.Tensor``): Vertex feature matrix. Size :math:`(|\mathcal{V}|, C)`.
         """
         if self.device != X.device:
@@ -1648,7 +1963,7 @@ class Hypergraph(BaseHypergraph):
     def e2v_update_of_group(self, group_name: str, X: torch.Tensor):
         r"""Message update step of ``hyperedges to vertices`` in specified hyperedge group.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The specified hyperedge group.
             ``X`` (``torch.Tensor``): Vertex feature matrix. Size :math:`(|\mathcal{V}|, C)`.
         """
@@ -1668,7 +1983,7 @@ class Hypergraph(BaseHypergraph):
     ):
         r"""Message passing of ``hyperedges to vertices``. The combination of ``e2v_aggregation`` and ``e2v_update``.
 
-        Args:
+        Parameters:
             ``X`` (``torch.Tensor``): Hyperedge feature matrix. Size :math:`(|\mathcal{E}|, C)`.
             ``aggr`` (``str``): The aggregation method. Can be ``'mean'``, ``'sum'`` and ``'softmax_then_sum'``.
             ``e2v_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (hyperedges point to vertices). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
@@ -1688,7 +2003,7 @@ class Hypergraph(BaseHypergraph):
     ):
         r"""Message passing of ``hyperedges to vertices`` in specified hyperedge group. The combination of ``e2v_aggregation_of_group`` and ``e2v_update_of_group``.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The specified hyperedge group.
             ``X`` (``torch.Tensor``): Hyperedge feature matrix. Size :math:`(|\mathcal{E}|, C)`.
             ``aggr`` (``str``): The aggregation method. Can be ``'mean'``, ``'sum'`` and ``'softmax_then_sum'``.
@@ -1719,12 +2034,12 @@ class Hypergraph(BaseHypergraph):
     ):
         r"""Message passing of ``vertices to vertices``. The combination of ``v2e`` and ``e2v``.
 
-        Args:
+        Parameters:
             ``X`` (``torch.Tensor``): Vertex feature matrix. Size :math:`(|\mathcal{V}|, C)`.
             ``aggr`` (``str``): The aggregation method. Can be ``'mean'``, ``'sum'`` and ``'softmax_then_sum'``. If specified, this ``aggr`` will be used to both ``v2e`` and ``e2v``.
             ``drop_rate`` (``float``): Dropout rate. Randomly dropout the connections in incidence matrix with probability ``drop_rate``. Default: ``0.0``.
             ``v2e_aggr`` (``str``, optional): The aggregation method for hyperedges to vertices. Can be ``'mean'``, ``'sum'`` and ``'softmax_then_sum'``. If specified, it will override the ``aggr`` in ``e2v``.
-            ``v2e_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (vertices point to hyepredges). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
+            ``v2e_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (vertices point to hyperedges). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
             ``v2e_drop_rate`` (``float``, optional): Dropout rate for hyperedges to vertices. Randomly dropout the connections in incidence matrix with probability ``drop_rate``. If specified, it will override the ``drop_rate`` in ``e2v``. Default: ``None``.
             ``e_weight`` (``torch.Tensor``, optional): The hyperedge weight vector. If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
             ``e2v_aggr`` (``str``, optional): The aggregation method for vertices to hyperedges. Can be ``'mean'``, ``'sum'`` and ``'softmax_then_sum'``. If specified, it will override the ``aggr`` in ``v2e``.
@@ -1759,13 +2074,13 @@ class Hypergraph(BaseHypergraph):
     ):
         r"""Message passing of ``vertices to vertices`` in specified hyperedge group. The combination of ``v2e_of_group`` and ``e2v_of_group``.
 
-        Args:
+        Parameters:
             ``group_name`` (``str``): The specified hyperedge group.
             ``X`` (``torch.Tensor``): Vertex feature matrix. Size :math:`(|\mathcal{V}|, C)`.
             ``aggr`` (``str``): The aggregation method. Can be ``'mean'``, ``'sum'`` and ``'softmax_then_sum'``. If specified, this ``aggr`` will be used to both ``v2e_of_group`` and ``e2v_of_group``.
             ``drop_rate`` (``float``): Dropout rate. Randomly dropout the connections in incidence matrix with probability ``drop_rate``. Default: ``0.0``.
             ``v2e_aggr`` (``str``, optional): The aggregation method for hyperedges to vertices. Can be ``'mean'``, ``'sum'`` and ``'softmax_then_sum'``. If specified, it will override the ``aggr`` in ``e2v_of_group``.
-            ``v2e_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (vertices point to hyepredges). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
+            ``v2e_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (vertices point to hyperedges). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
             ``v2e_drop_rate`` (``float``, optional): Dropout rate for hyperedges to vertices. Randomly dropout the connections in incidence matrix with probability ``drop_rate``. If specified, it will override the ``drop_rate`` in ``e2v_of_group``. Default: ``None``.
             ``e_weight`` (``torch.Tensor``, optional): The hyperedge weight vector. If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
             ``e2v_aggr`` (``str``, optional): The aggregation method for vertices to hyperedges. Can be ``'mean'``, ``'sum'`` and ``'softmax_then_sum'``. If specified, it will override the ``aggr`` in ``v2e_of_group``.
@@ -1790,3 +2105,55 @@ class Hypergraph(BaseHypergraph):
             group_name, X, e2v_aggr, e2v_weight, drop_rate=e2v_drop_rate
         )
         return X
+
+    def get_linegraph(self, s=1, edge=True, weight=True) -> "Graph":
+        """
+        Get the linegraph of the hypergraph based on the clique expansion.
+        If edges=True (default)then the edges will be the vertices of the line
+        graph. Two vertices are connected by an s-line-graph edge if the
+        corresponding hypergraph edges intersect in at least s hypergraph nodes.
+        If edges=False, the hypergraph nodes will be the vertices of the line
+        graph. Two vertices are connected if the nodes they correspond to share
+        at least s incident hyper edges.
+        Returns:
+
+        Parameters
+        ----------
+        s : Two vertices are connected if the nodes they correspond to share
+        at least s incident hyper edges.
+        edge : If edges=True (default)then the edges will be the vertices of the line
+        graph. Two vertices are connected by an s-line-graph edge if the
+        corresponding hypergraph edges intersect in at least s hypergraph nodes.
+        If edges=False, the hypergraph nodes will be the vertices of the line
+        graph.
+        weight :
+
+        Returns
+        -------
+            Graph: The linegraph of the hypergraph.
+
+        """
+
+        if edge:
+            edge_adjacency = self.edge_adjacency_matrix(s=s, weight=weight)
+            linegraph = eg.from_scipy_sparse_matrix(edge_adjacency)
+
+        else:
+            node_adjacency = self.adjacency_matrix(s=s, weight=weight)
+            linegraph = eg.from_scipy_sparse_matrix(node_adjacency)
+
+        return linegraph
+
+    # for e_idx, e in enumerate(self.e[0]):
+    #     hyperedge_nodes[e_idx] = set(e)
+    #     print("e:",e)
+    #     linegraph.add_node(e_idx, hyperedge=hyperedge_nodes[e_idx])
+    # for e_idx1, nodes1 in hyperedge_nodes.items():
+    #     for e_idx2, nodes2 in hyperedge_nodes.items():
+    #         if e_idx1 >= e_idx2:
+    #             continue
+    #         common_nodes = nodes1.intersection(nodes2)
+    #         if len(common_nodes) > 0:
+    #             linegraph.add_edge(
+    #                 e_idx1, e_idx2, hyperedge_intersection=common_nodes
+    #             )
