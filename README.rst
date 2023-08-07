@@ -12,6 +12,9 @@ Copyright (C) <2020-2023> by DataNET Group, Fudan University
 .. image:: https://img.shields.io/pypi/l/Python-EasyGraph
    :target: https://github.com/easy-graph/Easy-Graph/blob/master/LICENSE
 
+.. image:: https://static.pepy.tech/personalized-badge/python-easygraph?period=total&units=international_system&left_color=brightgreen&right_color=yellowgreen&left_text=Downloads
+   :target: https://pypi.org/project/Python-EasyGraph/
+
 - **Documentation:** https://easy-graph.github.io/
 - **Source Code:** https://github.com/easy-graph/Easy-Graph
 - **Issue Tracker:** https://github.com/easy-graph/Easy-Graph/issues
@@ -20,7 +23,10 @@ Copyright (C) <2020-2023> by DataNET Group, Fudan University
 
 Introduction
 ------------
-EasyGraph is an open source graph processing library. It is mainly written in Python and supports analysis for undirected graphs and directed graphs. EasyGraph supports various formats of graph data and covers a series of important graph mining algorithms for community detection, structural hole spanner detection, graph embedding and motif detection. Moreover, EasyGraph implements some key elements using C++ and introduces multiprocessing optimization to achieve a better efficiency.
+EasyGraph is an open-source graph processing library. It is mainly written in Python and supports analysis for undirected graphs and directed graphs. EasyGraph supports various formats of graph data and covers a series of important graph mining algorithms for community detection, structural hole spanner detection, graph embedding, and motif detection. Moreover, EasyGraph implements some key elements using C++ and introduces multiprocessing optimization to achieve better efficiency.
+
+News
+----
 
 Install
 -------
