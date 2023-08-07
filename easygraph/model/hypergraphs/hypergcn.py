@@ -8,7 +8,7 @@ from easygraph.nn import HyperGCNConv
 class HyperGCN(nn.Module):
     r"""The HyperGCN model proposed in `HyperGCN: A New Method of Training Graph Convolutional Networks on Hypergraphs <https://papers.nips.cc/paper/2019/file/1efa39bcaec6f3900149160693694536-Paper.pdf>`_ paper (NeurIPS 2019).
 
-    Args:
+    Parameters:
         ``in_channels`` (``int``): :math:`C_{in}` is the number of input channels.
         ``hid_channels`` (``int``): :math:`C_{hid}` is the number of hidden channels.
         ``num_classes`` (``int``): The Number of class of the classification task.
@@ -50,7 +50,7 @@ class HyperGCN(nn.Module):
     def forward(self, X: torch.Tensor, hg: "eg.Hypergraph") -> torch.Tensor:
         r"""The forward function.
 
-        Args:
+        Parameters:
             ``X`` (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
             ``hg`` (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
         """

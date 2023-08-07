@@ -99,6 +99,7 @@ def get_adj(g):
         if min_node == 0:
             Adj[edges[i][0], edges[i][1]] = 1
             Adj[edges[i][1], edges[i][0]] = 1
+
         else:
             Adj[edges[i][0] - 1, edges[i][1] - 1] = 1
             Adj[edges[i][1] - 1, edges[i][0] - 1] = 1

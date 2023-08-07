@@ -16,7 +16,7 @@ class HGNNConv(nn.Module):
     :math:`\mathbf{W}_e` is a diagonal hyperedge weight matrix, :math:`\mathbf{D}_v` is a diagonal vertex degree matrix,
     :math:`\mathbf{D}_e` is a diagonal hyperedge degree matrix, :math:`\mathbf{\Theta}` is the learnable parameters.
 
-    Args:
+    Parameters:
         ``in_channels`` (``int``): :math:`C_{in}` is the number of input channels.
         ``out_channels`` (int): :math:`C_{out}` is the number of output channels.
         ``bias`` (``bool``): If set to ``False``, the layer will not learn the bias parameter. Defaults to ``True``.
@@ -44,9 +44,9 @@ class HGNNConv(nn.Module):
     def forward(self, X: torch.Tensor, hg: Hypergraph) -> torch.Tensor:
         r"""The forward function.
 
-        Args:
+        Parameters:
             X (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
-            hg (``dhg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
+            hg (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
         """
         X = self.theta(X)
         if self.bn is not None:

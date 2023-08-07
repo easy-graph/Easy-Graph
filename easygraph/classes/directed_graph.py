@@ -1,6 +1,7 @@
 from typing import Dict
 from typing import List
 
+import easygraph
 import easygraph.convert as convert
 
 from easygraph.classes.graph import Graph
@@ -27,7 +28,7 @@ class DiGraph(Graph):
     --------
     Create an empty directed graph with no nodes and edges.
 
-    >>> G = eg.Graph()
+    >>> G = eg.DiGraph()
 
     Create a deep copy graph *G2* from existing Graph *G1*.
 
@@ -35,7 +36,7 @@ class DiGraph(Graph):
 
     Create an graph with attributes.
 
-    >>> G = eg.Graph(name='Karate Club', date='2020.08.21')
+    >>> G = eg.DiGraph(name='Karate Club', date='2020.08.21')
 
     **Attributes:**
 
@@ -94,19 +95,30 @@ class DiGraph(Graph):
 
     @property
     def pred(self):
+        """
+        Return the pred of each node
+        """
         return self._pred
 
     @property
     def adj(self):
+        """
+        Return the adjacency matrix
+        """
         return self._adj
 
     @property
     def nodes(self):
+        """
+        return [node for node in self._node]
+        """
         return self._node
-        # return [node for node in self._node]
 
     @property
     def edges(self):
+        """
+        Return an edge list
+        """
         edges = list()
         for u in self._adj:
             for v in self._adj[u]:
@@ -125,6 +137,13 @@ class DiGraph(Graph):
 
     @name.setter
     def name(self, s):
+        """
+        Set graph name
+
+        Parameters
+        ----------
+        s : name
+        """
         self.graph["name"] = s
 
     def out_degree(self, weight="weight"):
@@ -684,6 +703,23 @@ class DiGraph(Graph):
         self._add_one_edge(u_of_edge, v_of_edge, edge_attr)
 
     def add_weighted_edge(self, u_of_edge, v_of_edge, weight):
+        """Add a weighted edge
+
+        Parameters
+        ----------
+        u_of_edge : start node
+
+        v_of_edge : end node
+
+        weight : weight value
+
+        Examples
+        --------
+        Add a weighted edge
+
+        >>> G.add_weighted_edge( 1 , 3 , 1.0)
+
+        """
         self._add_one_edge(u_of_edge, v_of_edge, edge_attr={"weight": weight})
 
     def add_edges(self, edges_for_adding, edges_attr: List[Dict] = []):
@@ -1022,9 +1058,33 @@ class DiGraph(Graph):
                 del self._pred[v][u]
 
     def has_node(self, node):
+        """Returns whether a node exists
+
+        Parameters
+        ----------
+        node
+
+        Returns
+        -------
+        Bool : True (exist) or False (not exists)
+
+        """
         return node in self._node
 
     def has_edge(self, u, v):
+        """Returns whether an edge exists
+
+        Parameters
+        ----------
+        u : start node
+
+        v: end node
+
+        Returns
+        -------
+        Bool : True (exist) or False (not exists)
+
+        """
         try:
             return v in self._adj[u]
         except KeyError:
@@ -1041,6 +1101,7 @@ class DiGraph(Graph):
         return len(self._node)
 
     def is_directed(self):
+        """Returns True if graph is a directed_graph, False otherwise."""
         return True
 
     def is_multigraph(self):

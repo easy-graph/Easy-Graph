@@ -19,6 +19,15 @@ __all__ = [
 import warnings
 
 
+def _get_eg_url(file_url):
+    """Get EasyGraph online url for download."""
+    eg_repo_url = "https://gitlab.com/easy-graph/"
+    repo_url = os.environ.get("DGL_REPO", eg_repo_url)
+    if repo_url[-1] != "/":
+        repo_url = repo_url + "/"
+    return repo_url + file_url
+
+
 def _get_dgl_url(file_url):
     """Get DGL online url for download."""
     dgl_repo_url = "https://data.dgl.ai/"
@@ -226,8 +235,8 @@ def get_download_dir():
     dirname : str
         Path to the download directory
     """
-    default_dir = os.path.join(os.path.expanduser("~"), ".dgl")
-    dirname = os.environ.get("DGL_DOWNLOAD_DIR", default_dir)
+    default_dir = os.path.join(os.path.expanduser("~"), ".EasyGraphData")
+    dirname = os.environ.get("EG_DOWNLOAD_DIR", default_dir)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
     return dirname

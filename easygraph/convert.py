@@ -13,6 +13,8 @@ from typing import Union
 
 import easygraph as eg
 
+from easygraph.utils.exception import EasyGraphError
+
 
 if TYPE_CHECKING:
     import dgl
@@ -33,6 +35,7 @@ __all__ = [
     "to_networkx",
     "to_dgl",
     "to_pyg",
+    "dict_to_hypergraph",
 ]
 
 
@@ -502,3 +505,77 @@ def from_pyg(
     )
     g_eg = from_networkx(g_nx)
     return g_eg
+
+
+def dict_to_hypergraph(data, max_order=None, is_dynamic=False):
+    """
+    A function to read a file in a standardized JSON format.
+
+    Parameters
+    ----------
+    data: dict
+        A dictionary in the hypergraph JSON format
+    max_order: int, optional
+        Maximum order of edges to add to the hypergraph
+
+    Returns
+    -------
+    A Hypergraph object
+        The loaded hypergraph
+
+    Raises
+    ------
+    EasyGraphError
+        If the JSON is not in a format that can be loaded.
+
+    See Also
+    --------
+    read_json
+
+    """
+
+    timestamp_lst = list()
+    node_data = data["node-data"]
+    node_num = len(node_data)
+    G = eg.Hypergraph(num_v=node_num)
+    try:
+        print(len(data["node-data"]))
+        for id, dd in data["node-data"].items():
+            print("id:", id)
+            print("dd:", dd)
+            id = int(id) - 1
+            G.v_property[id] = dd
+    except KeyError:
+        raise EasyGraphError("Failed to import node attributes.")
+
+    # try:
+
+    e_property_dict = data["edge-data"]
+    for id, edge in data["edge-dict"].items():
+        # print("id:",id)
+        if max_order and len(edge) > max_order + 1:
+            continue
+
+        try:
+            id = int(id)
+        except ValueError as e:
+            raise TypeError(
+                f"Failed to convert the edge with ID {id} to type int."
+            ) from e
+
+        try:
+            edge = [int(n) - 1 for n in edge]
+            # print("edge:",edge)
+        except ValueError as e:
+            raise TypeError(f"Failed to convert nodes to type int.") from e
+        if is_dynamic:
+            G.add_hyperedges(
+                e_list=edge,
+                e_property=e_property_dict[str(id)],
+                group_name=e_property_dict[str(id)]["timestamp"],
+            )
+            timestamp_lst.append(e_property_dict[str(id)]["timestamp"])
+        else:
+            G.add_hyperedges(e_list=edge, e_property=e_property_dict[str(id)])
+
+    return G, timestamp_lst

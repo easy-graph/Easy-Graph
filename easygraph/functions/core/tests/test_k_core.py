@@ -24,9 +24,6 @@ def test_k_core(edges, k):
     G_nx.add_edges_from(edges)
 
     # Compute the k-core of the graphs using the k_core function and nx.k_core
-    H = k_core(G, k=k, return_graph=True)
-    H_nx = nx.k_core(G_nx, k=k)  # type: ignore
-
-    # Verify that the nodes and edges of the computed k-core match the expected output
-    assert sorted(H.nodes.keys()) == sorted(list(H_nx.nodes()))  # type: ignore
-    assert sorted((x, y) for x, y, _ in H.edges) == sorted(list(H_nx.edges()))  # type: ignore
+    H = k_core(G)
+    H_nx = nx.core_number(G_nx)  # type: ignore
+    assert H == list(H_nx.values())

@@ -19,7 +19,7 @@ __all__ = [
 class UniGCN(nn.Module):
     r"""The UniGCN model proposed in `UniGNN: a Unified Framework for Graph and Hypergraph Neural Networks <https://arxiv.org/pdf/2105.00956.pdf>`_ paper (IJCAI 2021).
 
-    Args:
+    Parameters:
         ``in_channels`` (``int``): :math:`C_{in}` is the number of input channels.
         ``hid_channels`` (``int``): :math:`C_{hid}` is the number of hidden channels.
         ``num_classes`` (``int``): The Number of class of the classification task.
@@ -47,7 +47,7 @@ class UniGCN(nn.Module):
     def forward(self, X: torch.Tensor, hg: "eg.Hypergraph") -> torch.Tensor:
         r"""The forward function.
 
-        Args:
+        Parameters:
             ``X`` (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
             ``hg`` (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
         """
@@ -59,7 +59,7 @@ class UniGCN(nn.Module):
 class UniGAT(nn.Module):
     r"""The UniGAT model proposed in `UniGNN: a Unified Framework for Graph and Hypergraph Neural Networks <https://arxiv.org/pdf/2105.00956.pdf>`_ paper (IJCAI 2021).
 
-    Args:
+    Parameters:
         ``in_channels`` (``int``): :math:`C_{in}` is the number of input channels.
         ``hid_channels`` (``int``): :math:`C_{hid}` is the number of hidden channels.
         ``num_classes`` (``int``): The Number of class of the classification task.
@@ -105,7 +105,7 @@ class UniGAT(nn.Module):
     def forward(self, X: torch.Tensor, hg: "eg.Hypergraph") -> torch.Tensor:
         r"""The forward function.
 
-        Args:
+        Parameters:
             ``X`` (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
             ``hg`` (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
         """
@@ -119,7 +119,7 @@ class UniGAT(nn.Module):
 class UniSAGE(nn.Module):
     r"""The UniSAGE model proposed in `UniGNN: a Unified Framework for Graph and Hypergraph Neural Networks <https://arxiv.org/pdf/2105.00956.pdf>`_ paper (IJCAI 2021).
 
-    Args:
+    Parameters:
         ``in_channels`` (``int``): :math:`C_{in}` is the number of input channels.
         ``hid_channels`` (``int``): :math:`C_{hid}` is the number of hidden channels.
         ``num_classes`` (``int``): The Number of class of the classification task.
@@ -147,7 +147,7 @@ class UniSAGE(nn.Module):
     def forward(self, X: torch.Tensor, hg: "eg.Hypergraph") -> torch.Tensor:
         r"""The forward function.
 
-        Args:
+        Parameters:
             ``X`` (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
             ``hg`` (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
         """
@@ -159,7 +159,7 @@ class UniSAGE(nn.Module):
 class UniGIN(nn.Module):
     r"""The UniGIN model proposed in `UniGNN: a Unified Framework for Graph and Hypergraph Neural Networks <https://arxiv.org/pdf/2105.00956.pdf>`_ paper (IJCAI 2021).
 
-    Args:
+    Parameters:
         ``in_channels`` (``int``): :math:`C_{in}` is the number of input channels.
         ``hid_channels`` (``int``): :math:`C_{hid}` is the number of hidden channels.
         ``num_classes`` (``int``): The Number of class of the classification task.
@@ -205,7 +205,7 @@ class UniGIN(nn.Module):
     def forward(self, X: torch.Tensor, hg: "eg.Hypergraph") -> torch.Tensor:
         r"""The forward function.
 
-        Args:
+        Parameters:
             ``X`` (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
             ``hg`` (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
         """

@@ -73,9 +73,9 @@ class Graph:
         self.graph = self.graph_attr_dict_factory()
         self._node = self.node_dict_factory()
         self._adj = self.adjlist_outer_dict_factory()
-        self._ndata = self.gnn_data_dict_factory()
         self._raw_selfloop_dict = self.raw_selfloop_dict()
         self.extra_selfloop = extra_selfloop
+        self._ndata = self.gnn_data_dict_factory()
         self.cache = {}
         self._node_index = self.node_index_dict()
         self.cflag = 0
@@ -107,12 +107,17 @@ class Graph:
 
     @property
     def adj(self):
+        """
+        Return the adjacency matrix
+        """
         return self._adj
 
     @property
     def nodes(self):
+        """
+        return [node for node in self._node]
+        """
         return self._node
-        # return [node for node in self._node]
 
     @property
     def node_index(self):
@@ -124,6 +129,9 @@ class Graph:
 
     @property
     def edges(self):
+        """
+        Return an edge list
+        """
         if self.cache.get("edges") != None:
             return self.cache["edges"]
         edge_lst = list()
@@ -150,6 +158,7 @@ class Graph:
 
     @property
     def e_both_side(self, weight="weight") -> Tuple[List[List], List[float]]:
+        r"""Return the list of edges including both directions."""
         if self.cache.get("e_both_side") != None:
             return self.cache["e_both_side"]
         edges = list()
@@ -183,8 +192,6 @@ class Graph:
         with_mediator=False,
         remove_selfloop=True,
     ):
-        import torch
-
         r"""Construct a graph from a hypergraph with methods proposed in `HyperGCN: A New Method of Training Graph Convolutional Networks on Hypergraphs <https://arxiv.org/pdf/1809.02589.pdf>`_ paper .
 
         Args:
@@ -194,6 +201,8 @@ class Graph:
             ``remove_selfloop`` (``bool``): Whether to remove self-loop. Defaults to ``True``.
             ``device`` (``torch.device``): The device to store the graph. Defaults to ``torch.device("cpu")``.
         """
+        import torch
+
         num_v = hypergraph.num_v
         assert (
             num_v == feature.shape[0]
@@ -240,10 +249,10 @@ class Graph:
 
     @property
     def A(self):
-        import torch
-
         r"""Return the adjacency matrix :math:`\mathbf{A}` of the sample graph with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
         """
+        import torch
+
         if self.cache.get("A", None) is None:
             if len(self.edges) == 0:
                 self.cache["A"] = torch.sparse_coo_tensor(
@@ -263,10 +272,10 @@ class Graph:
     def D_v_neg_1_2(
         self,
     ):
-        import torch
-
         r"""Return the nomalized diagnal matrix of vertex degree :math:`\mathbf{D}_v^{-\frac{1}{2}}` with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
         """
+        import torch
+
         if self.cache.get("D_v_neg_1_2") is None:
             _mat = self.D_v.clone()
             _val = _mat._values() ** -0.5
@@ -278,6 +287,9 @@ class Graph:
 
     @property
     def node2index(self):
+        """
+        Assign an integer index for each node (start from 0)
+        """
         if self.cache.get("node2index", None) is None:
             node2index_dict = {}
             index = 0
@@ -313,10 +325,10 @@ class Graph:
 
     @property
     def D_v(self):
-        import torch
-
         r"""Return the diagnal matrix of vertex degree :math:`\mathbf{D}_v` with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
         """
+        import torch
+
         if self.cache.get("D_v") is None:
             _tmp = torch.sparse.sum(self.A, dim=1).to_dense().clone().view(-1)
             self.cache["D_v"] = torch.sparse_coo_tensor(
@@ -372,6 +384,13 @@ class Graph:
 
     @name.setter
     def name(self, s):
+        """
+        Set graph name
+
+        Parameters
+        ----------
+        s : name
+        """
         self.graph["name"] = s
 
     def degree(self, weight="weight"):
@@ -856,6 +875,23 @@ class Graph:
         self._clear_cache()
 
     def add_weighted_edge(self, u_of_edge, v_of_edge, weight):
+        """Add a weighted edge
+
+        Parameters
+        ----------
+        u_of_edge : start node
+
+        v_of_edge : end node
+
+        weight : weight value
+
+        Examples
+        --------
+        Add a weighted edge
+
+        >>> G.add_weighted_edge( 1 , 3 , 1.0)
+
+        """
         self._add_one_edge(u_of_edge, v_of_edge, edge_attr={"weight": weight})
         self._clear_cache()
 
@@ -1231,7 +1267,6 @@ class Graph:
             del self._adj[u][v]
             if u != v:  # self-loop needs only one entry removed
                 del self._adj[v][u]
-
             self._clear_cache()
         except KeyError:
             raise KeyError("No edge {}-{} in graph.".format(u, v))
@@ -1265,9 +1300,33 @@ class Graph:
         self._clear_cache()
 
     def has_node(self, node):
+        """Returns whether a node exists
+
+        Parameters
+        ----------
+        node
+
+        Returns
+        -------
+        Bool : True (exist) or False (not exists)
+
+        """
         return node in self._node
 
     def has_edge(self, u, v):
+        """Returns whether an edge exists
+
+        Parameters
+        ----------
+        u : start node
+
+        v: end node
+
+        Returns
+        -------
+        Bool : True (exist) or False (not exists)
+
+        """
         try:
             return v in self._adj[u]
         except KeyError:
@@ -1284,6 +1343,7 @@ class Graph:
         return len(self._node)
 
     def is_directed(self):
+        """Returns True if graph is a directed_graph, False otherwise."""
         return False
 
     def is_multigraph(self):
@@ -1428,6 +1488,10 @@ class Graph:
 
         return G, index_of_node, node_of_index
 
+    def _clear_cache(self):
+        r"""Clear the cache."""
+        self.cache = {}
+
     def to_directed_class(self):
         """Returns the class to use for empty directed copies.
 
@@ -1489,10 +1553,6 @@ class Graph:
             for v, data in nbrs.items()
         )
         return G
-
-    def _clear_cache(self):
-        r"""Clear the cache."""
-        self.cache = {}
 
     def cpp(self):
         G = GraphC()

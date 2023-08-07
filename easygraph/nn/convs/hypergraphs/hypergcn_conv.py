@@ -10,7 +10,7 @@ from easygraph.classes import Hypergraph
 class HyperGCNConv(nn.Module):
     r"""The HyperGCN convolution layer proposed in `HyperGCN: A New Method of Training Graph Convolutional Networks on Hypergraphs <https://papers.nips.cc/paper/2019/file/1efa39bcaec6f3900149160693694536-Paper.pdf>`_ paper (NeurIPS 2019).
 
-    Args:
+    Parameters:
         ``in_channels`` (``int``): :math:`C_{in}` is the number of input channels.
         ``out_channels`` (int): :math:`C_{out}` is the number of output channels.
         ``use_mediator`` (``str``): Whether to use mediator to transform the hyperedges to edges in the graph. Defaults to ``False``.
@@ -43,10 +43,10 @@ class HyperGCNConv(nn.Module):
     ) -> torch.Tensor:
         r"""The forward function.
 
-        Args:
+        Parameters:
             ``X`` (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
-            ``hg`` (``dhg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
-            ``cached_g`` (``dhg.Graph``): The pre-transformed graph structure from the hypergraph structure that contains :math:`N` vertices. If not provided, the graph structure will be transformed for each forward time. Defaults to ``None``.
+            ``hg`` (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
+            ``cached_g`` (``eg.Graph``): The pre-transformed graph structure from the hypergraph structure that contains :math:`N` vertices. If not provided, the graph structure will be transformed for each forward time. Defaults to ``None``.
         """
         X = self.theta(X)
         if self.bn is not None:

@@ -17,7 +17,7 @@ __all__ = [
 @not_implemented_for("multigraph")
 def sum_of_shortest_paths(G, S):
     r"""Returns the difference between the sum of lengths of all pairs shortest paths in G and the one in G\S.
-    The experiment metrics in [1]_
+    The experiment ml_metrics in [1]_
 
     Parameters
     ----------
@@ -68,7 +68,7 @@ def sum_of_shortest_paths(G, S):
 @not_implemented_for("multigraph")
 def nodes_of_max_cc_without_shs(G, S):
     r"""Returns the number of nodes in the maximum connected component in graph G\S.
-    The experiment metrics in [1]_
+    The experiment ml_metrics in [1]_
 
     Parameters
     ----------
@@ -139,7 +139,7 @@ def structural_hole_influence_index(
         Propagation Model. Should be IC or LT.
 
     variant: bool, default is False
-        Whether returns variant SHII metrics or not.
+        Whether returns variant SHII ml_metrics or not.
         variant SHII = # of the influenced outsider / # of the influenced insiders
         SHII = # of the influenced outsiders / # of the total influenced nodes
 

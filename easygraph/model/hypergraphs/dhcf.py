@@ -14,7 +14,7 @@ class DHCF(nn.Module):
 
         The user and item embeddings and trainable parameters are initialized with xavier_uniform distribution.
 
-    Args:
+    Parameters:
         ``num_users`` (``int``): The Number of users.
         ``num_items`` (``int``): The Number of items.
         ``emb_dim`` (``int``): Embedding dimension.
@@ -57,7 +57,7 @@ class DHCF(nn.Module):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         r"""The forward function.
 
-        Args:
+        Parameters:
             ``hg_ui`` (``eg.Hypergraph``): The hypergraph structure that users as vertices.
             ``hg_iu`` (``eg.Hypergraph``): The hypergraph structure that items as vertices.
         """
