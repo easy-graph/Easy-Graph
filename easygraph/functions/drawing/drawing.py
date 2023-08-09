@@ -180,18 +180,18 @@ def draw_SHS_center(G, SHS, rate=1, style="center"):
                 node[:, 0],
                 node[:, 1],
                 marker="o",
-                color="b",
-                edgecolors="b",
-                s=500,
+                color="lightblue",
+                edgecolors="lightblue",
+                s=300,
                 linewidth=0.5,
             )
             plt.scatter(
                 center[:, 0],
                 center[:, 1],
                 marker="o",
-                color="b",
-                edgecolors="b",
-                s=500,
+                color="lightblue",
+                edgecolors="lightblue",
+                s=300,
                 linewidth=0.5,
             )
             plt.scatter(
@@ -200,7 +200,7 @@ def draw_SHS_center(G, SHS, rate=1, style="center"):
                 marker="*",
                 color="None",
                 edgecolors="r",
-                s=500,
+                s=800,
                 linewidth=2,
             )
         k = 0
@@ -219,7 +219,7 @@ def draw_SHS_center(G, SHS, rate=1, style="center"):
                     pos[i][0],
                     pos[i][1],
                     i,
-                    fontsize=5,
+                    fontsize=50,
                     verticalalignment="center",
                     horizontalalignment="center",
                 )
@@ -300,7 +300,7 @@ def draw_SHS_center(G, SHS, rate=1, style="center"):
             if u in s and v in s:
                 p1 = [pos[i[0]][0], pos[i[1]][0]]
                 p2 = [pos[i[0]][1], pos[i[1]][1]]
-                plt.plot(p1, p2, "k-", alpha=0.3, linewidth=0.5)
+                plt.plot(p1, p2, color='lightblue', linestyle='-', alpha=0.3, linewidth=2)
         plt.show()
     return
 
