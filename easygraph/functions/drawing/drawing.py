@@ -219,7 +219,7 @@ def draw_SHS_center(G, SHS, rate=1, style="center"):
                     pos[i][0],
                     pos[i][1],
                     i,
-                    fontsize=15,
+                    fontsize=10,
                     verticalalignment="center",
                     horizontalalignment="center",
                 )
