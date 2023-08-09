@@ -180,19 +180,28 @@ def draw_SHS_center(G, SHS, rate=1, style="side"):
                 node[:, 0],
                 node[:, 1],
                 marker="o",
-                color="None",
+                color="b",
                 edgecolors="b",
-                s=50,
+                s=500,
                 linewidth=0.5,
             )
             plt.scatter(
                 center[:, 0],
                 center[:, 1],
                 marker="o",
+                color="b",
+                edgecolors="b",
+                s=500,
+                linewidth=0.5,
+            )
+            plt.scatter(
+                center[:, 0],
+                center[:, 1],
+                marker="*",
                 color="None",
                 edgecolors="r",
-                s=50,
-                linewidth=0.5,
+                s=500,
+                linewidth=2,
             )
         k = 0
         for i in pos:
