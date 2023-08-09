@@ -296,7 +296,7 @@ def draw_SHS_center(G, SHS, rate=1, style="side"):
     return
 
 
-def draw_SHS_center_kk(G, SHS, rate=1, style="side"):
+def draw_SHS_center_kk(G, SHS, rate=1, style="center"):
     """
     Draw the graph whose the SH Spanners are in the center, with a Kamada-Kawai force-directed layout.
 
@@ -340,14 +340,14 @@ def draw_SHS_center_kk(G, SHS, rate=1, style="side"):
                 node[m][1] = pos[i][1]
                 m += 1
         if style == "side":
-            plt.scatter(node[:, 0], node[:, 1], marker=".", color="b", s=10)
-            plt.scatter(center[:, 0], center[:, 1], marker="*", color="r", s=20)
+            plt.scatter(node[:, 0], node[:, 1], marker=".", color="b", s=50)
+            plt.scatter(center[:, 0], center[:, 1], marker="*", color="r", s=100)
         elif style == "center":
             plt.scatter(
                 node[:, 0],
                 node[:, 1],
                 marker="o",
-                color="None",
+                color="b",
                 edgecolors="b",
                 s=50,
                 linewidth=0.5,
@@ -355,8 +355,17 @@ def draw_SHS_center_kk(G, SHS, rate=1, style="side"):
             plt.scatter(
                 center[:, 0],
                 center[:, 1],
-                marker="o",
+                marker="*",
                 color="None",
+                edgecolors="r",
+                s=50,
+                linewidth=0.5,
+            )
+            plt.scatter(
+                center[:, 0],
+                center[:, 1],
+                marker="o",
+                color="b",
                 edgecolors="r",
                 s=50,
                 linewidth=0.5,
