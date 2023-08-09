@@ -200,7 +200,7 @@ def draw_SHS_center(G, SHS, rate=1, style="center"):
                 marker="*",
                 color="None",
                 edgecolors="r",
-                s=800,
+                s=1000,
                 linewidth=2,
             )
         k = 0
@@ -219,7 +219,7 @@ def draw_SHS_center(G, SHS, rate=1, style="center"):
                     pos[i][0],
                     pos[i][1],
                     i,
-                    fontsize=50,
+                    fontsize=15,
                     verticalalignment="center",
                     horizontalalignment="center",
                 )
@@ -227,7 +227,7 @@ def draw_SHS_center(G, SHS, rate=1, style="center"):
         for i in G.edges:
             p1 = [pos[i[0]][0], pos[i[1]][0]]
             p2 = [pos[i[0]][1], pos[i[1]][1]]
-            plt.plot(p1, p2, "k-", alpha=0.3, linewidth=0.5)
+            plt.plot(p1, p2, color='lightblue', linestyle='-', alpha=0.3, linewidth=0.5)
         plt.show()
 
     else:
