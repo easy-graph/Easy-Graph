@@ -129,7 +129,7 @@ def draw_hypergraph(
     plt.show()
 
 
-def draw_SHS_center(G, SHS, rate=1, style="side"):
+def draw_SHS_center(G, SHS, rate=1, style="center"):
     """
     Draw the graph whose the SH Spanners are in the center, with random layout.
 
