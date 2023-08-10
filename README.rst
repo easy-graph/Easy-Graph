@@ -60,7 +60,7 @@ If prebuilt `EasyGraph` wheels are not supported for your platform (OS / CPU arc
     python3 setup.py build_ext
     python3 setup.py install
 
-.. hint::
+Hint
 
     EasyGraph uses  1.12.1 <= `PyTorch <https://pytorch.org/get-started/locally/>`_ < 2.0 for machine
     learning functions.
@@ -99,3 +99,15 @@ using the `HIS <https://keg.cs.tsinghua.edu.cn/jietang/publications/WWW13-Lou&Ta
    5: {0: 1.519976806640625},
    6: {0: 0.83595703125}
   }
+
+Citation
+--------
+
+If you use EasyGraph in a scientific publication, we would appreciate citations to the following paper:
+.. code:: 
+@article{gao2023easygraph,
+title={EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis},
+author={Min Gao, Zheng Li, Ruichen Li, Chenhao Cui, Xinyuan Chen, Bodian Ye, Yupeng Li, Weiwei Gu, Qingyuan Gong, Xin Wang, and Yang Chen},
+year={2023},
+journal={Patterns}
+}
