@@ -104,8 +104,10 @@ Citation
 --------
 
 If you use EasyGraph in a scientific publication, we would appreciate citations to the following paper:
-.. code:: 
-  @article{gao2023easygraph,
+
+.. code:: bash
+
+    @article{gao2023easygraph,
   title={EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis},
   author={Min Gao, Zheng Li, Ruichen Li, Chenhao Cui, Xinyuan Chen, Bodian Ye, Yupeng Li, Weiwei Gu, Qingyuan Gong, Xin Wang, and Yang Chen},
   year={2023},
