@@ -197,6 +197,7 @@ class BaseHypergraph:
         Args:
             ``e_list`` (``List[int]`` or ``List[List[int]]``): The hyperedge list.
         """
+
         if type(e_list[0]) in (int, float):
             return [tuple(sorted(e_list))]
         elif type(e_list) == tuple:

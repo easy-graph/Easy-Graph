@@ -32,6 +32,7 @@ class Hypergraph(BaseHypergraph):
 
     """
     The ``Hypergraph`` class is developed for hypergraph structures.
+    Pleast notice that node id in hypergraph is in [0, num_v)
 
     Parameters
     ----------
@@ -124,7 +125,7 @@ class Hypergraph(BaseHypergraph):
         This function can be used as a boolean check:
 
         >>> import easygraph as eg
-        >>> H = eg.Hypergraph([(0, 1, 2), (1, 2, 3), (2, 3, 4)])
+        >>> H = eg.Hypergraph(v_num = 5, e_list = [(0, 1, 2), (1, 2, 3), (2, 3, 4)])
         >>> H.is_uniform()
         2
         """
@@ -136,7 +137,7 @@ class Hypergraph(BaseHypergraph):
             return False
 
         # order of all edges
-        return edge_sizes.pop() - 1
+        return edge_sizes.pop()
 
     def save(self, file_path: Union[str, Path]):
         r"""Save the EasyGraph's hypergraph structure a file.
@@ -367,6 +368,10 @@ class Hypergraph(BaseHypergraph):
         hg = Hypergraph(num_v=len(graph.nodes), e_list=e_list, device=device)
         return hg
 
+    def isOutRange(self, id):
+        if id >= self.num_v or id < 0:
+            return False
+        return True
     def add_hyperedges(
         self,
         e_list: Union[List[int], List[List[int]]],
@@ -404,6 +409,9 @@ class Hypergraph(BaseHypergraph):
 
         # print("e_property:",e_property)
         for _idx in range(len(e_list)):
+            for n_id in e_list[_idx]:
+                if self.isOutRange(n_id) == False:
+                    raise EasyGraphError("The node id in hyperedge is out of range, please ensure that the node is in [1,n)")
             if e_property != None:
                 e_property[_idx].update({"w_e": float(e_weight[_idx])})
 
