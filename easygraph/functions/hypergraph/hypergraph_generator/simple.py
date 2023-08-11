@@ -75,5 +75,3 @@ def star_clique(n_star, n_clique, d_max):
     )
 
     return H
-
-
