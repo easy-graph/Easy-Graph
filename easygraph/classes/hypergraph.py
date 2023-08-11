@@ -372,6 +372,7 @@ class Hypergraph(BaseHypergraph):
         if id >= self.num_v or id < 0:
             return False
         return True
+
     def add_hyperedges(
         self,
         e_list: Union[List[int], List[List[int]]],
@@ -411,7 +412,10 @@ class Hypergraph(BaseHypergraph):
         for _idx in range(len(e_list)):
             for n_id in e_list[_idx]:
                 if self.isOutRange(n_id) == False:
-                    raise EasyGraphError("The node id in hyperedge is out of range, please ensure that the node is in [1,n)")
+                    raise EasyGraphError(
+                        "The node id in hyperedge is out of range, please ensure that"
+                        " the node is in [1,n)"
+                    )
             if e_property != None:
                 e_property[_idx].update({"w_e": float(e_weight[_idx])})
 
