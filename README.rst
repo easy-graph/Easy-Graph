@@ -107,9 +107,9 @@ If you use EasyGraph in a scientific publication, we would appreciate citations 
 
 .. code:: bash
 
-    @article{gao2023easygraph,
-  title={EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis},
-  author={Min Gao, Zheng Li, Ruichen Li, Chenhao Cui, Xinyuan Chen, Bodian Ye, Yupeng Li, Weiwei Gu, Qingyuan Gong, Xin Wang, and Yang Chen},
-  year={2023},
-  journal={Patterns}
+  @article{gao2023easygraph,
+      title={{EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis}},
+      author={Min Gao and Zheng Li and Ruichen Li and Chenhao Cui and Xinyuan Chen and Bodian Ye and Yupeng Li and Weiwei Gu and Qingyuan Gong and Xin Wang and Yang Chen},
+      year={2023},
+      journal={Patterns}
   }
