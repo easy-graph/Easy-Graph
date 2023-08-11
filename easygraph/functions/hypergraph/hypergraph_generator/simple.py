@@ -7,7 +7,6 @@ from easygraph.utils.exception import EasyGraphError
 
 __all__ = [
     "star_clique",
-    "sunflower",
 ]
 
 
@@ -78,40 +77,3 @@ def star_clique(n_star, n_clique, d_max):
     return H
 
 
-def sunflower(l, c, m):
-    """Create a sunflower hypergraph.
-
-    This creates an m-uniform hypergraph
-    according to the sunflower model.
-
-    Parameters
-    ----------
-    l : int
-        Number of petals
-    c : int
-        Size of the core
-    m : int
-        Size of each edge
-
-    Raises
-    ------
-    EasyGraphError
-        If the edge size is smaller than the core.
-
-    Returns
-    -------
-
-    """
-
-    if m < c:
-        raise EasyGraphError("m cannot be smaller than c.")
-
-    core_nodes = list(range(c))
-
-    H = eg.Hypergraph(num_v=len(core_nodes))
-    start_label = c
-    while start_label + (m - c) <= c + (m - c) * l:
-        H.add_hyperedges(core_nodes + [start_label + i for i in range(m - c)])
-        start_label = start_label + (m - c)
-
-    return H

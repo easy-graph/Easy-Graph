@@ -31,13 +31,11 @@ class TestClassic:
     def test_simple_hypergraph(self):
         H = eg.star_clique(6, 7, 2)
         print(H)
-        H2 = eg.sunflower(5, 3, 10)
-        print(H2.e)
 
     def test_uniform_hypergraph(self):
         n = 1000
         m = 3
-        k = {1: 1, 2: 2, 3: 3, 4: 3}
+        k = {0: 1, 1: 2, 2: 3, 3: 3}
         H = eg.uniform_hypergraph_configuration_model(k, m)
         print(H)
 

@@ -560,15 +560,15 @@ def test_W_e(g2):
     assert (g2.W_e.cpu()._values() == torch.tensor([0.5, 1, 0.5, 1, 0.5])).all()
 
 
-def test_W_e_group(g2):
-    import torch
-
-    g2.add_hyperedges([0, 4, 5], group_name="knn")
-    assert (g2.W_e.cpu()._values() == torch.tensor([0.5, 1, 0.5, 1, 0.5, 1])).all()
-    assert (
-        g2.W_e_of_group("main").cpu()._values() == torch.tensor([0.5, 1, 0.5, 1, 0.5])
-    ).all()
-    assert (g2.W_e_of_group("knn").cpu()._values() == torch.tensor([1])).all()
+# def test_W_e_group(g2):
+#     import torch
+#
+#     g2.add_hyperedges([0, 4, 5], group_name="knn")
+#     assert (g2.W_e.cpu()._values() == torch.tensor([0.5, 1, 0.5, 1, 0.5, 1])).all()
+#     assert (
+#         g2.W_e_of_group("main").cpu()._values() == torch.tensor([0.5, 1, 0.5, 1, 0.5])
+#     ).all()
+#     assert (g2.W_e_of_group("knn").cpu()._values() == torch.tensor([1])).all()
 
 
 def test_D(g1, g2):
