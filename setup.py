@@ -6,7 +6,6 @@ from pathlib import Path
 
 import setuptools
 
-# print(setuptools.__file__)
 # Available at setup time due to pyproject.toml
 from pybind11.setup_helpers import Pybind11Extension
 from pybind11.setup_helpers import build_ext
@@ -27,7 +26,7 @@ if uname[0] == "Darwin" or uname[0] == "Linux":
 CYTHON_STR = "Cython"
 setuptools.setup(
     name="Python-EasyGraph",
-    version="0.2a48",
+    version="1.0",
     author="Fudan DataNET Group",
     author_email="mgao21@m.fudan.edu.cn",
     description="Easy Graph",
@@ -36,14 +35,14 @@ setuptools.setup(
     url="https://github.com/easy-graph/Easy-Graph",
     packages=setuptools.find_packages(),
     classifiers=[
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.7, <=3.11",
+    python_requires=">=3.8, <=3.11",
     install_requires=[
         "numpy>=1.23.1; python_version>='3.10'",
         "numpy>=1.19.5; python_version>='3.7' and python_version<='3.11'",
@@ -61,6 +60,8 @@ setuptools.setup(
         "nose>=0.10.1",
         "pandas>=1.0.1, <=1.1.5; python_version<='3.7'",
         "matplotlib",
+        "requests",
+        "optuna"
     ],
     setup_requires=[CYTHON_STR],
     test_suite="nose.collector",

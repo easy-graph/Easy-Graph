@@ -4,11 +4,6 @@ from .directed_multigraph import MultiDiGraph
 from .graph import Graph
 from .graph import GraphC
 from .graphviews import *
-
-# from .base import BaseHypergraph
-# from .base import load_structure
-# from .hypergraph import Hypergraph
-from .hypergraph import Hypergraph
 from .multigraph import MultiGraph
 from .operation import *
 
@@ -16,6 +11,7 @@ from .operation import *
 try:
     from .base import BaseHypergraph
     from .base import load_structure
+    from .hypergraph import Hypergraph
 
 except:
     print(

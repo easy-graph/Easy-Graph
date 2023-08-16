@@ -1,10 +1,5 @@
-from easygraph.datasets.get_sample_graph import *
-
-from .email_enron import Email_Enron
-from .hypergraph import *
-
-
 try:
+    from easygraph.datasets.get_sample_graph import *
     from easygraph.datasets.gnn_benchmark import *
     from easygraph.datasets.karate import KarateClubDataset
 
@@ -17,6 +12,7 @@ try:
     from .email_enron import Email_Enron
     from .email_eu import Email_Eu
     from .hospital_lyon import Hospital_Lyon
+    from .hypergraph import *
     from .ppi import LegacyPPIDataset
     from .ppi import PPIDataset
 
