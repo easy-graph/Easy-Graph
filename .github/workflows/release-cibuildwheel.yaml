@@ -37,8 +37,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-         os: [ubuntu-20.04, windows-latest, macos-latest]
-#        os: [ubuntu-20.04]
+#         os: [ubuntu-20.04, windows-latest, macos-latest]
+        os: [ubuntu-20.04]
+        python-version: [ "3.8", "3.9", "3.10","3.11"]
 
     steps:
       - uses: actions/checkout@v3
