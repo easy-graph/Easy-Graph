@@ -85,26 +85,26 @@ jobs:
           name: artifact
           path: dist
 
-#  build_sdist:
-#    name: Build source distribution
-#    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
-#    runs-on: ubuntu-20.04
-#    steps:
-#      - uses: actions/checkout@v2
-#        with:
-#          ref: ${{ github.ref }}
-#
-#      - name: Build sdist
-#        run: |
-#          # pip install pybind11
-#          # pipx run build --sdist
-#          pipx install build
-#          pipx inject build pybind11
-#          pipx run build --sdist
-#
-#      - uses: actions/upload-artifact@v2
-#        with:
-#          path: dist/*.tar.gz
+  build_sdist:
+    name: Build source distribution
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Build sdist
+        run: |
+          # pip install pybind11
+          # pipx run build --sdist
+          pipx install build
+          pipx inject build pybind11
+          pipx run build --sdist
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: dist/*.tar.gz
 
   # verify_installation:
   #   name: Test if the latest release on Test PyPI installs and works
