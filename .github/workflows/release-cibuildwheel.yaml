@@ -39,25 +39,31 @@ jobs:
       matrix:
 #         os: [ubuntu-20.04, windows-latest, macos-latest]
         os: [ubuntu-20.04]
-        python-version: [ "3.8", "3.9", "3.10","3.11"]
+        python-version: [ "3.8", "3.9", "3.10", "3.11"]
 
     steps:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.ref }}
 
-      # - name: Install build dependencies
-      #   run: |
-      #     python -m pip install pybind11 cibuildwheel
-      - name: Build wheels (Linux)
-        # if on linux
-        uses: pypa/cibuildwheel@v2.8.1
-        env:
-          # CIBW_BEFORE_ALL: python -m pip install pybind11
-          CIBW_TEST_SKIP: "*"
-          # CIBW_TEST_COMMAND: pytest --disable-warnings {package} -c {package}/pytest.ini
-        # run: |
-        #   cibuildwheel
+      - uses: actions/setup-python@v3
+
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==2.15.0
+
+      - name: Build wheels
+        run: python -m cibuildwheel --output-dir wheelhouse
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+
+
+#      - name: Build wheels (Linux)
+#        uses: pypa/cibuildwheel@v2.8.1
+#        env:
+#          CIBW_TEST_SKIP: "*"
+
 
     #   - name: Build wheels (macOS)
     #     # if on linux
@@ -69,30 +75,36 @@ jobs:
     #       CC: 'gcc-12'
     #       CXX: 'g++-12'
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
 
-  build_sdist:
-    name: Build source distribution
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: ${{ github.ref }}
 
-      - name: Build sdist
-        run: |
-          # pip install pybind11
-          # pipx run build --sdist
-          pipx install build
-          pipx inject build pybind11
-          pipx run build --sdist
-
-      - uses: actions/upload-artifact@v2
+      - uses: actions/download-artifact@v2
         with:
-          path: dist/*.tar.gz
+          name: artifact
+          path: dist
+
+#  build_sdist:
+#    name: Build source distribution
+#    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+#    runs-on: ubuntu-20.04
+#    steps:
+#      - uses: actions/checkout@v2
+#        with:
+#          ref: ${{ github.ref }}
+#
+#      - name: Build sdist
+#        run: |
+#          # pip install pybind11
+#          # pipx run build --sdist
+#          pipx install build
+#          pipx inject build pybind11
+#          pipx run build --sdist
+#
+#      - uses: actions/upload-artifact@v2
+#        with:
+#          path: dist/*.tar.gz
 
   # verify_installation:
   #   name: Test if the latest release on Test PyPI installs and works
