@@ -37,7 +37,7 @@ Install
 
 Prerequisites
 
-`3.9 <= Python <= 3.10` is required.
+`3.8 <= Python <= 3.11` is required.
 
 .. Installation with ``pip`` (outdated)
 
