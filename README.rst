@@ -28,6 +28,12 @@ EasyGraph is an open-source graph processing library. It is mainly written in Py
 News
 ----
 
+Stargazers
+----------
+.. image:: https://reporoster.com/stars/easy-graph/Easy-Graph
+   :target: https://github.com/easy-graph/Easy-Graph/stargazers
+   :alt: Stargazers repo roster for @easy-graph/Easy-Graph
+
 Install
 -------
 
