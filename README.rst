@@ -3,13 +3,13 @@ EasyGraph
 
 Copyright (C) <2020-2023> by DataNET Group, Fudan University
 
-.. image:: https://img.shields.io/pypi/v/Python-EasyGraph.svg
+.. image:: https://img.shields.io/pypi/v/Python-EasyGraph.svg?label=PyPI
   :target: https://pypi.org/project/Python-EasyGraph/
 
-.. image:: https://img.shields.io/pypi/pyversions/Python-EasyGraph.svg
+.. image:: https://img.shields.io/pypi/pyversions/Python-EasyGraph.svg?label=Python
    :target: https://pypi.org/project/Python-EasyGraph/
 
-.. image:: https://img.shields.io/pypi/l/Python-EasyGraph
+.. image:: https://img.shields.io/pypi/l/Python-EasyGraph?label=License
    :target: https://github.com/easy-graph/Easy-Graph/blob/master/LICENSE
 
 .. image:: https://static.pepy.tech/personalized-badge/python-easygraph?period=total&units=international_system&left_color=brightgreen&right_color=yellowgreen&left_text=Downloads
