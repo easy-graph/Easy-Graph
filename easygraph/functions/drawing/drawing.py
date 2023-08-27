@@ -129,7 +129,7 @@ def draw_hypergraph(
     plt.show()
 
 
-def draw_SHS_center(G, SHS, rate=1, style="side"):
+def draw_SHS_center(G, SHS, rate=1, style="center"):
     """
     Draw the graph whose the SH Spanners are in the center, with random layout.
 
@@ -180,19 +180,28 @@ def draw_SHS_center(G, SHS, rate=1, style="side"):
                 node[:, 0],
                 node[:, 1],
                 marker="o",
-                color="None",
-                edgecolors="b",
-                s=50,
+                color="lightblue",
+                edgecolors="lightblue",
+                s=300,
                 linewidth=0.5,
             )
             plt.scatter(
                 center[:, 0],
                 center[:, 1],
                 marker="o",
+                color="lightblue",
+                edgecolors="lightblue",
+                s=300,
+                linewidth=0.5,
+            )
+            plt.scatter(
+                center[:, 0],
+                center[:, 1],
+                marker="*",
                 color="None",
                 edgecolors="r",
-                s=50,
-                linewidth=0.5,
+                s=1000,
+                linewidth=2,
             )
         k = 0
         for i in pos:
@@ -210,7 +219,7 @@ def draw_SHS_center(G, SHS, rate=1, style="side"):
                     pos[i][0],
                     pos[i][1],
                     i,
-                    fontsize=5,
+                    fontsize=10,
                     verticalalignment="center",
                     horizontalalignment="center",
                 )
@@ -218,7 +227,7 @@ def draw_SHS_center(G, SHS, rate=1, style="side"):
         for i in G.edges:
             p1 = [pos[i[0]][0], pos[i[1]][0]]
             p2 = [pos[i[0]][1], pos[i[1]][1]]
-            plt.plot(p1, p2, "k-", alpha=0.3, linewidth=0.5)
+            plt.plot(p1, p2, color='lightblue', linestyle='-', alpha=0.3, linewidth=3)
         plt.show()
 
     else:
@@ -291,12 +300,12 @@ def draw_SHS_center(G, SHS, rate=1, style="side"):
             if u in s and v in s:
                 p1 = [pos[i[0]][0], pos[i[1]][0]]
                 p2 = [pos[i[0]][1], pos[i[1]][1]]
-                plt.plot(p1, p2, "k-", alpha=0.3, linewidth=0.5)
+                plt.plot(p1, p2, color='lightblue', linestyle='-', alpha=0.3, linewidth=3)
         plt.show()
     return
 
 
-def draw_SHS_center_kk(G, SHS, rate=1, style="side"):
+def draw_SHS_center_kk(G, SHS, rate=1, style="center"):
     """
     Draw the graph whose the SH Spanners are in the center, with a Kamada-Kawai force-directed layout.
 
@@ -340,26 +349,35 @@ def draw_SHS_center_kk(G, SHS, rate=1, style="side"):
                 node[m][1] = pos[i][1]
                 m += 1
         if style == "side":
-            plt.scatter(node[:, 0], node[:, 1], marker=".", color="b", s=10)
-            plt.scatter(center[:, 0], center[:, 1], marker="*", color="r", s=20)
+            plt.scatter(node[:, 0], node[:, 1], marker=".", color="b", s=50)
+            plt.scatter(center[:, 0], center[:, 1], marker="*", color="r", s=100)
         elif style == "center":
             plt.scatter(
                 node[:, 0],
                 node[:, 1],
                 marker="o",
-                color="None",
-                edgecolors="b",
-                s=50,
+                color="lightblue",
+                edgecolors="lightblue",
+                s=300,
                 linewidth=0.5,
             )
             plt.scatter(
                 center[:, 0],
                 center[:, 1],
                 marker="o",
+                color="lightblue",
+                edgecolors="lightblue",
+                s=300,
+                linewidth=0.5,
+            )
+            plt.scatter(
+                center[:, 0],
+                center[:, 1],
+                marker="*",
                 color="None",
                 edgecolors="r",
-                s=50,
-                linewidth=0.5,
+                s=1000,
+                linewidth=2,
             )
         k = 0
         for i in pos:
@@ -377,7 +395,7 @@ def draw_SHS_center_kk(G, SHS, rate=1, style="side"):
                     pos[i][0],
                     pos[i][1],
                     i,
-                    fontsize=5,
+                    fontsize=10,
                     verticalalignment="center",
                     horizontalalignment="center",
                 )
@@ -385,7 +403,7 @@ def draw_SHS_center_kk(G, SHS, rate=1, style="side"):
         for i in G.edges:
             p1 = [pos[i[0]][0], pos[i[1]][0]]
             p2 = [pos[i[0]][1], pos[i[1]][1]]
-            plt.plot(p1, p2, "k-", alpha=0.3, linewidth=0.5)
+            plt.plot(p1, p2, color='lightblue', linestyle='-', alpha=0.3, linewidth=3)
         plt.show()
     else:
         degree = G.degree()
@@ -457,7 +475,7 @@ def draw_SHS_center_kk(G, SHS, rate=1, style="side"):
             if u in s and v in s:
                 p1 = [pos[i[0]][0], pos[i[1]][0]]
                 p2 = [pos[i[0]][1], pos[i[1]][1]]
-                plt.plot(p1, p2, "k-", alpha=0.3, linewidth=0.5)
+                plt.plot(p1, p2, color='lightblue', linestyle='-', alpha=0.3, linewidth=3)
         plt.show()
     return
 
