@@ -227,7 +227,7 @@ def draw_SHS_center(G, SHS, rate=1, style="center"):
         for i in G.edges:
             p1 = [pos[i[0]][0], pos[i[1]][0]]
             p2 = [pos[i[0]][1], pos[i[1]][1]]
-            plt.plot(p1, p2, color='lightblue', linestyle='-', alpha=0.3, linewidth=3)
+            plt.plot(p1, p2, color="lightblue", linestyle="-", alpha=0.3, linewidth=3)
         plt.show()
 
     else:
@@ -300,7 +300,7 @@ def draw_SHS_center(G, SHS, rate=1, style="center"):
             if u in s and v in s:
                 p1 = [pos[i[0]][0], pos[i[1]][0]]
                 p2 = [pos[i[0]][1], pos[i[1]][1]]
-                plt.plot(p1, p2, color='lightblue', linestyle='-', alpha=0.3, linewidth=3)
+                plt.plot(p1, p2, color="lightblue", linestyle="-", alpha=0.3, linewidth=3)
         plt.show()
     return
 
@@ -403,7 +403,7 @@ def draw_SHS_center_kk(G, SHS, rate=1, style="center"):
         for i in G.edges:
             p1 = [pos[i[0]][0], pos[i[1]][0]]
             p2 = [pos[i[0]][1], pos[i[1]][1]]
-            plt.plot(p1, p2, color='lightblue', linestyle='-', alpha=0.3, linewidth=3)
+            plt.plot(p1, p2, color="lightblue", linestyle="-", alpha=0.3, linewidth=3)
         plt.show()
     else:
         degree = G.degree()
@@ -475,7 +475,7 @@ def draw_SHS_center_kk(G, SHS, rate=1, style="center"):
             if u in s and v in s:
                 p1 = [pos[i[0]][0], pos[i[1]][0]]
                 p2 = [pos[i[0]][1], pos[i[1]][1]]
-                plt.plot(p1, p2, color='lightblue', linestyle='-', alpha=0.3, linewidth=3)
+                plt.plot(p1, p2, color="lightblue", linestyle="-", alpha=0.3, linewidth=3)
         plt.show()
     return
 
