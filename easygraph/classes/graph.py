@@ -1,3 +1,4 @@
+import copy
 import warnings
 
 from copy import deepcopy
@@ -301,7 +302,7 @@ class Graph:
 
     @property
     def e(self) -> Tuple[List[List[int]], List[float]]:
-        r"""Return the edge list and weight list in the graph."""
+        r"""Return the edge list, weight list and property list in the graph."""
 
         if self.cache.get("e", None) is None:
             node2index = self.node2index
@@ -310,17 +311,18 @@ class Graph:
                 for src_idx, dst_idx, d in self.edges
             ]
             w_list = []
+            property_list = []
             for d in self.edges:
                 if "weight" not in d[2]:
                     w_list.append(1.0)
+                    property_list.append(d[2])
                 else:
                     w_list.append(d[2]["weight"])
-            # e_list.extend([(v_idx, v_idx) for v_idx in self._raw_selfloop_dict.keys()])
-            # w_list.extend(list(self._raw_selfloop_dict.values()))
-            # if self._has_extra_selfloop:
-            #     e_list.extend((v_idx, v_idx) for v_idx in range(self.num_v))
-            #     w_list.extend([1.0] * self.num_v)
-            self.cache["e"] = e_list, w_list
+                    tmp_dict = copy.deepcopy(d[2])
+                    del tmp_dict["weight"]
+                    property_list.append(tmp_dict)
+
+            self.cache["e"] = e_list, w_list, property_list
         return self.cache["e"]
 
     @property

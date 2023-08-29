@@ -87,7 +87,7 @@ class Hypergraph(BaseHypergraph):
         return {
             "num_v": self.num_v,
             "v_property": self.v_property,
-            # "e_property":self.e_property,
+            "e_property":self.e_property,
             "raw_groups": self._raw_groups,
         }
 
@@ -305,9 +305,9 @@ class Hypergraph(BaseHypergraph):
             ``graph`` (``eg.Graph``): The graph to construct the hypergraph.
             ``device`` (``torch.device``, optional): The device to store the hypergraph. Defaults to ``torch.device('cpu')``.
         """
-        e_list, e_weight = graph.e
+        e_list, e_weight, e_property = graph.e
         hg = Hypergraph(
-            num_v=len(graph.nodes), e_list=e_list, e_weight=e_weight, device=device
+            num_v=len(graph.nodes), e_list=e_list, e_weight=e_weight, e_property = e_property, device=device
         )
         return hg
 
@@ -887,12 +887,25 @@ class Hypergraph(BaseHypergraph):
         return H
 
     def get_star_expansion(self):
+        r'''
+        The star expansion algorithm creates a graph  G*(V*, E*) for every hypergraph G(V, E).
+        The graph G*(V*, E*) introduces a node e∈E for each hyperedge in G(V, E), where V* = V ∪ E.
+        Each node e is connected to all the nodes belonging to the hyperedge it originates from, i.e., E* = {(u, e): u∈e, e∈E}.
+        It is worth noting that each hyperedge in the set E corresponds to a star-shaped structure in the graph G*(V*, E*),
+        and G* is a bipartite graph. The star expansion redistributes the weights of hyperedges to their corresponding ordinary pairwise graph edges.
+
+        $ \omega ^{*}(u,e)=\frac{\omega(e)}{\delta(e)} $
+
+        References
+        ----------
+        '''
         star_expansion_graph = eg.Graph()
         for node in self.v:
             star_expansion_graph.add_node(node, type="node")
         e_index = len(self.v)
-        hyperedge_weight_list = self.e[1]
         hyperedge_edge_list = self.e[0]
+        hyperedge_weight_list = self.e[1]
+        hyperedge_property_list = self.e[2]
         for hyperedge_index, e in enumerate(hyperedge_edge_list):
             hyperedge_weight = hyperedge_weight_list[hyperedge_index]
             star_expansion_graph.add_node(e_index, type="hyperedge")
@@ -902,6 +915,7 @@ class Hypergraph(BaseHypergraph):
                     node,
                     weight=hyperedge_weight / len(e),
                     hyperedge_index=hyperedge_index,
+                    edge_property = hyperedge_property_list[index]
                 )
             e_index = e_index + 1
         return star_expansion_graph
@@ -2165,4 +2179,3 @@ class Hypergraph(BaseHypergraph):
             linegraph = eg.from_scipy_sparse_matrix(node_adjacency)
 
         return linegraph
-
