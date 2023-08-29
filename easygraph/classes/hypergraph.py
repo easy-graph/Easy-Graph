@@ -87,7 +87,7 @@ class Hypergraph(BaseHypergraph):
         return {
             "num_v": self.num_v,
             "v_property": self.v_property,
-            "e_property":self.e_property,
+            "e_property": self.e_property,
             "raw_groups": self._raw_groups,
         }
 
@@ -307,7 +307,11 @@ class Hypergraph(BaseHypergraph):
         """
         e_list, e_weight, e_property = graph.e
         hg = Hypergraph(
-            num_v=len(graph.nodes), e_list=e_list, e_weight=e_weight, e_property = e_property, device=device
+            num_v=len(graph.nodes),
+            e_list=e_list,
+            e_weight=e_weight,
+            e_property=e_property,
+            device=device,
         )
         return hg
 
@@ -887,7 +891,7 @@ class Hypergraph(BaseHypergraph):
         return H
 
     def get_star_expansion(self):
-        r'''
+        r"""
         The star expansion algorithm creates a graph  G*(V*, E*) for every hypergraph G(V, E).
         The graph G*(V*, E*) introduces a node e∈E for each hyperedge in G(V, E), where V* = V ∪ E.
         Each node e is connected to all the nodes belonging to the hyperedge it originates from, i.e., E* = {(u, e): u∈e, e∈E}.
@@ -898,7 +902,7 @@ class Hypergraph(BaseHypergraph):
 
         References
         ----------
-        '''
+        """
         star_expansion_graph = eg.Graph()
         for node in self.v:
             star_expansion_graph.add_node(node, type="node")
@@ -915,7 +919,7 @@ class Hypergraph(BaseHypergraph):
                     node,
                     weight=hyperedge_weight / len(e),
                     hyperedge_index=hyperedge_index,
-                    edge_property = hyperedge_property_list[index]
+                    edge_property=hyperedge_property_list[index],
                 )
             e_index = e_index + 1
         return star_expansion_graph

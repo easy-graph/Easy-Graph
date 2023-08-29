@@ -1,15 +1,16 @@
 import torch
 import torch.nn as nn
 
+
 class DHNE(nn.Module):
     r"""The DHNE model proposed in `Structural Deep Embedding for Hyper-Networks <https://arxiv.org/abs/1711.10146>`_ paper (AAAI 2018).
 
-        Parameters:
-            ``dim_feature`` (``int``): : feature dimension list ( len = 3)
-            ``embedding_size`` (``int``): :The embedding dimension size
-            ``hidden_size`` (``int``): The hidden full connected layer size.
+    Parameters:
+        ``dim_feature`` (``int``): : feature dimension list ( len = 3)
+        ``embedding_size`` (``int``): :The embedding dimension size
+        ``hidden_size`` (``int``): The hidden full connected layer size.
 
-        """
+    """
 
     def __init__(self, dim_feature, embedding_size, hidden_size):
         super(DHNE, self).__init__()
@@ -17,19 +18,33 @@ class DHNE(nn.Module):
         self.embedding_size = embedding_size
         self.hidden_size = hidden_size
         self.encode0 = nn.Sequential(
-            nn.Linear(in_features=self.dim_feature[0], out_features=self.embedding_size[0])
+            nn.Linear(
+                in_features=self.dim_feature[0], out_features=self.embedding_size[0]
+            )
         )
         self.encode1 = nn.Sequential(
-            nn.Linear(in_features=self.dim_feature[1], out_features=self.embedding_size[1])
+            nn.Linear(
+                in_features=self.dim_feature[1], out_features=self.embedding_size[1]
+            )
         )
         self.encode2 = nn.Sequential(
-            nn.Linear(in_features=self.dim_feature[2], out_features=self.embedding_size[2])
+            nn.Linear(
+                in_features=self.dim_feature[2], out_features=self.embedding_size[2]
+            )
         )
-        self.decode_layer0 = nn.Linear(in_features=self.embedding_size[0], out_features=self.dim_feature[0])
-        self.decode_layer1 = nn.Linear(in_features=self.embedding_size[1], out_features=self.dim_feature[1])
-        self.decode_layer2 = nn.Linear(in_features=self.embedding_size[2], out_features=self.dim_feature[2])
+        self.decode_layer0 = nn.Linear(
+            in_features=self.embedding_size[0], out_features=self.dim_feature[0]
+        )
+        self.decode_layer1 = nn.Linear(
+            in_features=self.embedding_size[1], out_features=self.dim_feature[1]
+        )
+        self.decode_layer2 = nn.Linear(
+            in_features=self.embedding_size[2], out_features=self.dim_feature[2]
+        )
 
-        self.hidden_layer = nn.Linear(in_features=sum(self.embedding_size), out_features=self.hidden_size)
+        self.hidden_layer = nn.Linear(
+            in_features=sum(self.embedding_size), out_features=self.hidden_size
+        )
         self.ouput_layer = nn.Linear(in_features=self.hidden_size, out_features=1)
 
     def forward(self, input0, input1, input2):
