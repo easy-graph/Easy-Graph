@@ -2,6 +2,15 @@ import torch
 import torch.nn as nn
 
 class DHNE(nn.Module):
+    r"""The DHNE model proposed in `Structural Deep Embedding for Hyper-Networks <https://arxiv.org/abs/1711.10146>`_ paper (AAAI 2018).
+
+        Parameters:
+            ``dim_feature`` (``int``): : feature dimension list ( len = 3)
+            ``embedding_size`` (``int``): :The embedding dimension size
+            ``hidden_size`` (``int``): The hidden full connected layer size.
+
+        """
+
     def __init__(self, dim_feature, embedding_size, hidden_size):
         super(DHNE, self).__init__()
         self.dim_feature = dim_feature
