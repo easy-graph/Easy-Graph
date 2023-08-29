@@ -530,13 +530,13 @@ class BaseHypergraph:
     def v_property(self):
         return self._v_property
 
-    # @property
-    # def e_property(self):
-    #     group_e_property = {}
-    #     for group in self._raw_groups:
-    #         print("group:",group)
-    #         group_e_property[group] = list(group.values())
-    #     return group_e_property
+    @property
+    def e_property(self):
+        group_e_property = {}
+        for group in self._raw_groups:
+            group_e_property[group] = list(self._raw_groups[group].values())
+        return group_e_property
+
     @property
     def num_v(self) -> int:
         r"""Return the number of vertices in the hypergraph."""

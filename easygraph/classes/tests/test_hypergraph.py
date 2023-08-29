@@ -140,7 +140,7 @@ def test_from_graph_kHop():
 def test_empty():
     g = eg.Hypergraph(10)
     assert g.num_v == 10
-    assert g.e == ([], [])
+    assert g.e == ([], [], [])
 
 
 def test_init(g1, g2):
@@ -158,7 +158,7 @@ def test_clear(g1):
     assert g1.num_e == 3
     g1.clear()
     assert g1.num_e == 0
-    assert g1.e == ([], [])
+    assert g1.e == ([], [], [])
 
 
 def test_add_and_merge_hyperedges(g1):
@@ -301,7 +301,7 @@ def test_remove_hyperedges(g1):
     assert (0, 1, 2, 5) not in g1.e[0]
     g1.clear()
     assert g1.num_e == 0
-    assert g1.e == ([], [])
+    assert g1.e == ([], [], [])
 
 
 def test_remove_group(g1):
