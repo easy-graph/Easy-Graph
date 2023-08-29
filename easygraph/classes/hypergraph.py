@@ -593,12 +593,14 @@ class Hypergraph(BaseHypergraph):
     def e(self) -> Tuple[List[List[int]], List[float]]:
         r"""Return all hyperedges and weights in the hypergraph."""
         if self.cache.get("e", None) is None:
-            e_list, e_weight = [], []
+            e_list, e_weight, e_property = [], [], []
             for name in self.group_names:
                 _e = self.e_of_group(name)
                 e_list.extend(_e[0])
                 e_weight.extend(_e[1])
-            self.cache["e"] = (e_list, e_weight)
+                e_property.extend(_e[2])
+
+            self.cache["e"] = (e_list, e_weight, e_property)
         return self.cache["e"]
 
     def e_of_group(self, group_name: str) -> Tuple[List[List[int]], List[float]]:
@@ -616,7 +618,15 @@ class Hypergraph(BaseHypergraph):
             e_weight = [
                 e_content["w_e"] for e_content in self._raw_groups[group_name].values()
             ]
-            self.group_cache[group_name]["e"] = (e_list, e_weight)
+
+            e_property = []
+            for e_content in self._raw_groups[group_name].values():
+                properties = {}
+                for k, v in e_content.items():
+                    if k != "w_e":
+                        properties[k] = v
+                e_property.append(properties)
+            self.group_cache[group_name]["e"] = (e_list, e_weight, e_property)
         return self.group_cache[group_name]["e"]
 
     @property
@@ -2156,16 +2166,3 @@ class Hypergraph(BaseHypergraph):
 
         return linegraph
 
-    # for e_idx, e in enumerate(self.e[0]):
-    #     hyperedge_nodes[e_idx] = set(e)
-    #     print("e:",e)
-    #     linegraph.add_node(e_idx, hyperedge=hyperedge_nodes[e_idx])
-    # for e_idx1, nodes1 in hyperedge_nodes.items():
-    #     for e_idx2, nodes2 in hyperedge_nodes.items():
-    #         if e_idx1 >= e_idx2:
-    #             continue
-    #         common_nodes = nodes1.intersection(nodes2)
-    #         if len(common_nodes) > 0:
-    #             linegraph.add_edge(
-    #                 e_idx1, e_idx2, hyperedge_intersection=common_nodes
-    #             )

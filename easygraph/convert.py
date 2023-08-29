@@ -541,8 +541,6 @@ def dict_to_hypergraph(data, max_order=None, is_dynamic=False):
     try:
         print(len(data["node-data"]))
         for id, dd in data["node-data"].items():
-            print("id:", id)
-            print("dd:", dd)
             id = int(id) - 1
             G.v_property[id] = dd
     except KeyError:

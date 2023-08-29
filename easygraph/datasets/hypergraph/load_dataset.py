@@ -15,10 +15,8 @@ dataset_index_url = "https://gitlab.com/easy-graph/easygraph-data/-/raw/main/dat
 
 
 def request_json_from_url(url):
-    print("url:", url)
     try:
         r = requests.get(url)
-        print("r", r)
     except requests.ConnectionError:
         raise EasyGraphError("Connection Error!")
 
