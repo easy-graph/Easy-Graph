@@ -27,6 +27,8 @@ EasyGraph is an open-source graph processing library. It is mainly written in Py
 
 News
 ----
+- [08-17-2023] We release EasyGraph 1.0!
+- [08-08-2023] Our paper "EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis" has been accepted by Patterns!
 
 Stargazers
 ----------
