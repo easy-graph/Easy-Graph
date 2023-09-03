@@ -30,4 +30,5 @@ def force_layout(
     )
     v_coor = sim.simulate(v_coor, edge_list_to_incidence_matrix(num_v, e_list))
     v_coor = (v_coor - v_coor.min(0)) / (v_coor.max(0) - v_coor.min(0)) * 0.8 + 0.1
+    print("v_coor:",v_coor)
     return v_coor

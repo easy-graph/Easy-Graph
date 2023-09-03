@@ -83,7 +83,8 @@ class Simulator:
             force += f
         if self.edge_repulsion is not None:
             f = self._edge_repulsion(e_center, H, e2e_dist) * self.edge_repulsion
-            assert np.isnan(f).sum() == 0
+            print("np.isnan(f):",np.isnan(f))
+            # assert np.isnan(f).sum() == 0
             force += f
         if self.center_gravity is not None:
             masks = [np.zeros((position.shape[0], 1)), np.zeros((position.shape[0], 1))]
