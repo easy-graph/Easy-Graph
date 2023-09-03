@@ -1,0 +1,17 @@
+name: 'issue-translator'
+on:
+  issue_comment:
+    types: [created]
+  issues:
+    types: [opened]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: usthe/issues-translate-action@v2.7
+        with:
+          BOT_GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
+          # Required, input your bot github token
+          # Not required, suggest not input, action will get name from BOT_GITHUB_TOKEN
+          # If input, BOT name must match github token
