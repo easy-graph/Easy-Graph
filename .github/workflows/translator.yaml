@@ -29,6 +29,6 @@ jobs:
     steps:
       - uses: usthe/issues-translate-action@v2.7
         with:
-          CUSTOM_BOT_NOTE: ""
+          CUSTOM_BOT_NOTE: hello
           BOT_GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
           
