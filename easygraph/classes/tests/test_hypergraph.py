@@ -32,8 +32,8 @@ def g3():
 
 def test_expansion(g3):
     star_expansion_graph = g3.get_star_expansion()
-    node_clique_expansion_graph = g3.get_linegraph(edge=False)
-    edge_clique_expansion_graph = g3.get_linegraph()
+    node_clique_expansion_graph = g3.get_clique_expansion(edge=False)
+    edge_clique_expansion_graph = g3.get_clique_expansion()
     print(star_expansion_graph.edges)
     print(node_clique_expansion_graph.edges)
     print(edge_clique_expansion_graph.edges)
@@ -1014,6 +1014,6 @@ def test_get_linegraph():
     v_weight = [0.2, 0.3, 0.4, 0.5, 0.6]
 
     hg = eg.Hypergraph(num_v=num_v, e_list=e_list, e_weight=e_weight)
-    lg = hg.get_linegraph()
+    lg = hg.get_clique_expansion()
     assert lg.edges == [[0, 1], [0, 2], [1, 2]]
     assert lg.nodes == [0, 1, 2]
