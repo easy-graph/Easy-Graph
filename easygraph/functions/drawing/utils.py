@@ -19,6 +19,14 @@ from .geometry import rad_2_deg
 from .geometry import radian_from_atan
 from .geometry import vlen
 
+import matplotlib.pyplot as plt
+from matplotlib.collections import LineCollection
+from fa2 import ForceAtlas2
+import bezier
+import numpy as np
+from easygraph import to_networkx
+from easygraph.utils.exception import EasyGraphError
+import easygraph as eg
 
 def safe_div(a: np.ndarray, b: np.ndarray, jitter_scale: float = 0.000001):
     mask = b == 0
@@ -258,3 +266,310 @@ def hull_layout(n_v, e_list, pos, v_size, radius_increment=0.3):
         arc_paths[e_idx] = arc_path_for_e
 
     return line_paths, arc_paths, polygons_vertices_index
+
+def apply_alpha(colors, alpha, elem_list, cmap=None, vmin=None, vmax=None):
+    """Apply an alpha (or list of alphas) to the colors provided.
+
+    Parameters
+    ----------
+
+    colors : color string or array of floats (default='r')
+        Color of element. Can be a single color format string,
+        or a sequence of colors with the same length as nodelist.
+        If numeric values are specified they will be mapped to
+        colors using the cmap and vmin,vmax parameters.  See
+        matplotlib.scatter for more details.
+
+    alpha : float or array of floats
+        Alpha values for elements. This can be a single alpha value, in
+        which case it will be applied to all the elements of color. Otherwise,
+        if it is an array, the elements of alpha will be applied to the colors
+        in order (cycling through alpha multiple times if necessary).
+
+    elem_list : array of networkx objects
+        The list of elements which are being colored. These could be nodes,
+        edges or labels.
+
+    cmap : matplotlib colormap
+        Color map for use if colors is a list of floats corresponding to points
+        on a color mapping.
+
+    vmin, vmax : float
+        Minimum and maximum values for normalizing colors if a colormap is used
+
+    Returns
+    -------
+
+    rgba_colors : numpy ndarray
+        Array containing RGBA format values for each of the node colours.
+
+    """
+    from itertools import cycle, islice
+
+    import matplotlib as mpl
+    import matplotlib.cm  # call as mpl.cm
+    import matplotlib.colors  # call as mpl.colors
+    import numpy as np
+    from numbers import Number
+
+    # If we have been provided with a list of numbers as long as elem_list,
+    # apply the color mapping.
+    if len(colors) == len(elem_list) and isinstance(colors[0], Number):
+        mapper = mpl.cm.ScalarMappable(cmap=cmap)
+        mapper.set_clim(vmin, vmax)
+        rgba_colors = mapper.to_rgba(colors)
+    # Otherwise, convert colors to matplotlib's RGB using the colorConverter
+    # object.  These are converted to numpy ndarrays to be consistent with the
+    # to_rgba method of ScalarMappable.
+    else:
+        try:
+            rgba_colors = np.array([mpl.colors.colorConverter.to_rgba(colors)])
+        except ValueError:
+            rgba_colors = np.array(
+                [mpl.colors.colorConverter.to_rgba(color) for color in colors]
+            )
+    # Set the final column of the rgba_colors to have the relevant alpha values
+    try:
+        # If alpha is longer than the number of colors, resize to the number of
+        # elements.  Also, if rgba_colors.size (the number of elements of
+        # rgba_colors) is the same as the number of elements, resize the array,
+        # to avoid it being interpreted as a colormap by scatter()
+        if len(alpha) > len(rgba_colors) or rgba_colors.size == len(elem_list):
+            rgba_colors = np.resize(rgba_colors, (len(elem_list), 4))
+            rgba_colors[1:, 0] = rgba_colors[0, 0]
+            rgba_colors[1:, 1] = rgba_colors[0, 1]
+            rgba_colors[1:, 2] = rgba_colors[0, 2]
+        rgba_colors[:, 3] = list(islice(cycle(alpha), len(rgba_colors)))
+    except TypeError:
+        rgba_colors[:, -1] = alpha
+    return rgba_colors
+
+def draw_easygraph_nodes(
+    G,
+    pos,
+    nodelist=None,
+    node_size=300,
+    node_color="#1f78b4",
+    node_shape="o",
+    alpha=None,
+    cmap=None,
+    vmin=None,
+    vmax=None,
+    ax=None,
+    linewidths=None,
+    edgecolors=None,
+    label=None,
+    margins=None,
+):
+    """Draw the nodes of the graph G.
+
+    This draws only the nodes of the graph G.
+
+    Parameters
+    ----------
+    G : graph
+        A easygraph graph
+
+    pos : dictionary
+        A dictionary with nodes as keys and positions as values.
+        Positions should be sequences of length 2.
+
+    ax : Matplotlib Axes object, optional
+        Draw the graph in the specified Matplotlib axes.
+
+    nodelist : list (default list(G))
+        Draw only specified nodes
+
+    node_size : scalar or array (default=300)
+        Size of nodes.  If an array it must be the same length as nodelist.
+
+    node_color : color or array of colors (default='#1f78b4')
+        Node color. Can be a single color or a sequence of colors with the same
+        length as nodelist. Color can be string or rgb (or rgba) tuple of
+        floats from 0-1. If numeric values are specified they will be
+        mapped to colors using the cmap and vmin,vmax parameters. See
+        matplotlib.scatter for more details.
+
+    node_shape :  string (default='o')
+        The shape of the node.  Specification is as matplotlib.scatter
+        marker, one of 'so^>v<dph8'.
+
+    alpha : float or array of floats (default=None)
+        The node transparency.  This can be a single alpha value,
+        in which case it will be applied to all the nodes of color. Otherwise,
+        if it is an array, the elements of alpha will be applied to the colors
+        in order (cycling through alpha multiple times if necessary).
+
+    cmap : Matplotlib colormap (default=None)
+        Colormap for mapping intensities of nodes
+
+    vmin,vmax : floats or None (default=None)
+        Minimum and maximum for node colormap scaling
+
+    linewidths : [None | scalar | sequence] (default=1.0)
+        Line width of symbol border
+
+    edgecolors : [None | scalar | sequence] (default = node_color)
+        Colors of node borders
+
+    label : [None | string]
+        Label for legend
+
+    margins : float or 2-tuple, optional
+        Sets the padding for axis autoscaling. Increase margin to prevent
+        clipping for nodes that are near the edges of an image. Values should
+        be in the range ``[0, 1]``. See :meth:`matplotlib.axes.Axes.margins`
+        for details. The default is `None`, which uses the Matplotlib default.
+
+    Returns
+    -------
+    matplotlib.collections.PathCollection
+        `PathCollection` of the nodes.
+
+    Examples
+    --------
+    >>> from easygraph.datasets import get_graph_karateclub
+    >>> import easygraph as eg
+    >>> G = get_graph_karateclub()
+    >>> nodes = eg.draw_easygraph_nodes(G, pos=eg.circular_position(G))
+
+    
+    """
+    from collections.abc import Iterable
+
+    import matplotlib as mpl
+    import matplotlib.collections  # call as mpl.collections
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    if ax is None:
+        ax = plt.gca()
+
+    if nodelist is None:
+        nodelist = list(G)
+
+    if len(nodelist) == 0:  # empty nodelist, no drawing
+        return mpl.collections.PathCollection(None)
+
+    try:
+        xy = np.asarray([pos[v] for v in nodelist])
+    except KeyError as err:
+        raise EasyGraphError(f"Node {err} has no position.") from err
+
+    if isinstance(alpha, Iterable):
+        node_color = apply_alpha(node_color, alpha, nodelist, cmap, vmin, vmax)
+        alpha = None
+
+    node_collection = ax.scatter(
+        xy[:, 0],
+        xy[:, 1],
+        s=node_size,
+        c=node_color,
+        marker=node_shape,
+        cmap=cmap,
+        vmin=vmin,
+        vmax=vmax,
+        alpha=alpha,
+        linewidths=linewidths,
+        edgecolors=edgecolors,
+        label=label,
+    )
+    ax.tick_params(
+        axis="both",
+        which="both",
+        bottom=False,
+        left=False,
+        labelbottom=False,
+        labelleft=False,
+    )
+
+    if margins is not None:
+        if isinstance(margins, Iterable):
+            ax.margins(*margins)
+        else:
+            ax.margins(margins)
+
+    node_collection.set_zorder(2)
+    return node_collection
+
+
+
+def draw_curved_edges(G, pos, dist_ratio=0.2, bezier_precision=20, polarity='random'):
+    # Get nodes into np array
+    edges = np.array(G.edges())
+    l = edges.shape[0]
+
+    if polarity == 'random':
+        # Random polarity of curve
+        rnd = np.where(np.random.randint(2, size=l)==0, -1, 1)
+    else:
+        # Create a fixed (hashed) polarity column in the case we use fixed polarity
+        # This is useful, e.g., for animations
+        rnd = np.where(np.mod(np.vectorize(hash)(edges[:,0])+np.vectorize(hash)(edges[:,1]),2)==0,-1,1)
+    
+    # Coordinates (x,y) of both nodes for each edge
+    # e.g., https://stackoverflow.com/questions/16992713/translate-every-element-in-numpy-array-according-to-key
+    # Note the np.vectorize method doesn't work for all node position dictionaries for some reason
+    u, inv = np.unique(edges, return_inverse = True)
+    coords = np.array([pos[x] for x in u])[inv].reshape([edges.shape[0], 2, edges.shape[1]])
+    coords_node1 = coords[:,0,:]
+    coords_node2 = coords[:,1,:]
+    
+    # Swap node1/node2 allocations to make sure the directionality works correctly
+    should_swap = coords_node1[:,0] > coords_node2[:,0]
+    coords_node1[should_swap], coords_node2[should_swap] = coords_node2[should_swap], coords_node1[should_swap]
+    
+    # Distance for control points
+    dist = dist_ratio * np.sqrt(np.sum((coords_node1-coords_node2)**2, axis=1))
+
+    # Gradients of line connecting node & perpendicular
+    m1 = (coords_node2[:,1]-coords_node1[:,1])/(coords_node2[:,0]-coords_node1[:,0])
+    m2 = -1/m1
+
+    # Temporary points along the line which connects two nodes
+    # e.g., https://math.stackexchange.com/questions/656500/given-a-point-slope-and-a-distance-along-that-slope-easily-find-a-second-p
+    t1 = dist/np.sqrt(1+m1**2)
+    v1 = np.array([np.ones(l),m1])
+    coords_node1_displace = coords_node1 + (v1*t1).T
+    coords_node2_displace = coords_node2 - (v1*t1).T
+
+    # Control points, same distance but along perpendicular line
+    # rnd gives the 'polarity' to determine which side of the line the curve should arc
+    t2 = dist/np.sqrt(1+m2**2)
+    v2 = np.array([np.ones(len(edges)),m2])
+    coords_node1_ctrl = coords_node1_displace + (rnd*v2*t2).T
+    coords_node2_ctrl = coords_node2_displace + (rnd*v2*t2).T
+
+    # Combine all these four (x,y) columns into a 'node matrix'
+    node_matrix = np.array([coords_node1, coords_node1_ctrl, coords_node2_ctrl, coords_node2])
+
+    # Create the Bezier curves and store them in a list
+    curveplots = []
+    for i in range(l):
+        nodes = node_matrix[:,i,:].T
+        curveplots.append(bezier.Curve(nodes, degree=3).evaluate_multi(np.linspace(0,1,bezier_precision)).T)
+    # Return an array of these curves
+    curves = np.array(curveplots)
+    return curves
+
+def draw_curved_graph(G, colors, ax):
+    G = to_networkx(G)
+    # layout
+    pos = eg.spring_layout(G, iterations=50)
+    eg.draw_networkx_nodes(G, pos, ax=ax, node_size=200, node_color=colors[0], alpha=0.5)
+
+    # 绘制标签
+    eg.draw_networkx_labels(G, pos, ax=ax, font_size=8, font_family='Arial', font_color='black')
+
+    # Produce the curves
+    curves = draw_curved_edges(G, pos)
+    lc = LineCollection(curves, color=colors[1], alpha=0.4)
+
+    # 添加连线
+    ax.add_collection(lc)
+
+    # 设置坐标轴参数
+    ax.tick_params(axis='both', which='both', bottom=False, left=False, labelbottom=False, labelleft=False)
+
+    plt.savefig('Figure.pdf')
+    plt.show()
