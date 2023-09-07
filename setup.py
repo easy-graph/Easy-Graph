@@ -61,7 +61,9 @@ setuptools.setup(
         "pandas>=1.0.1, <=1.1.5; python_version<='3.7'",
         "matplotlib",
         "requests",
-        "optuna"
+        "optuna",
+        "fa2",
+        "bezier"
     ],
     setup_requires=[CYTHON_STR],
     test_suite="nose.collector",
