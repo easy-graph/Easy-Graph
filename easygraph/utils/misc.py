@@ -1,6 +1,8 @@
+from collections.abc import Iterable
+from collections.abc import Iterator
 from itertools import chain
 from itertools import tee
-from collections.abc import Iterable, Iterator
+
 
 __all__ = [
     "split_len",

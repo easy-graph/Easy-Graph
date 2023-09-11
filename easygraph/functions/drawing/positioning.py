@@ -1,5 +1,7 @@
 import easygraph as eg
+
 from easygraph.utils.exception import EasyGraphError
+
 
 __all__ = [
     "random_position",

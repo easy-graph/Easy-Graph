@@ -4,9 +4,11 @@ from typing import Optional
 from typing import Tuple
 
 import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 
 from matplotlib.axes import Axes
+from matplotlib.collections import LineCollection
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Circle
 from matplotlib.patches import PathPatch
@@ -19,14 +21,14 @@ from .geometry import rad_2_deg
 from .geometry import radian_from_atan
 from .geometry import vlen
 
-import matplotlib.pyplot as plt
-from matplotlib.collections import LineCollection
+
 # from fa2 import ForceAtlas2
 # import bezier
 # import numpy as np
 # from easygraph import to_networkx
 # from easygraph.utils.exception import EasyGraphError
 # import easygraph as eg
+
 
 def safe_div(a: np.ndarray, b: np.ndarray, jitter_scale: float = 0.000001):
     mask = b == 0
@@ -267,6 +269,7 @@ def hull_layout(n_v, e_list, pos, v_size, radius_increment=0.3):
 
     return line_paths, arc_paths, polygons_vertices_index
 
+
 def apply_alpha(colors, alpha, elem_list, cmap=None, vmin=None, vmax=None):
     """Apply an alpha (or list of alphas) to the colors provided.
 
@@ -304,13 +307,14 @@ def apply_alpha(colors, alpha, elem_list, cmap=None, vmin=None, vmax=None):
         Array containing RGBA format values for each of the node colours.
 
     """
-    from itertools import cycle, islice
+    from itertools import cycle
+    from itertools import islice
+    from numbers import Number
 
     import matplotlib as mpl
     import matplotlib.cm  # call as mpl.cm
     import matplotlib.colors  # call as mpl.colors
     import numpy as np
-    from numbers import Number
 
     # If we have been provided with a list of numbers as long as elem_list,
     # apply the color mapping.
@@ -343,6 +347,7 @@ def apply_alpha(colors, alpha, elem_list, cmap=None, vmin=None, vmax=None):
     except TypeError:
         rgba_colors[:, -1] = alpha
     return rgba_colors
+
 
 # def draw_easygraph_nodes(
 #     G,
@@ -433,7 +438,7 @@ def apply_alpha(colors, alpha, elem_list, cmap=None, vmin=None, vmax=None):
 #     >>> G = get_graph_karateclub()
 #     >>> nodes = eg.draw_easygraph_nodes(G, pos=eg.circular_position(G))
 
-    
+
 #     """
 #     from collections.abc import Iterable
 
@@ -493,7 +498,6 @@ def apply_alpha(colors, alpha, elem_list, cmap=None, vmin=None, vmax=None):
 #     return node_collection
 
 
-
 # def draw_curved_edges(G, pos, dist_ratio=0.2, bezier_precision=20, polarity='random'):
 #     # Get nodes into np array
 #     edges = np.array(G.edges())
@@ -506,7 +510,7 @@ def apply_alpha(colors, alpha, elem_list, cmap=None, vmin=None, vmax=None):
 #         # Create a fixed (hashed) polarity column in the case we use fixed polarity
 #         # This is useful, e.g., for animations
 #         rnd = np.where(np.mod(np.vectorize(hash)(edges[:,0])+np.vectorize(hash)(edges[:,1]),2)==0,-1,1)
-    
+
 #     # Coordinates (x,y) of both nodes for each edge
 #     # e.g., https://stackoverflow.com/questions/16992713/translate-every-element-in-numpy-array-according-to-key
 #     # Note the np.vectorize method doesn't work for all node position dictionaries for some reason
@@ -514,11 +518,11 @@ def apply_alpha(colors, alpha, elem_list, cmap=None, vmin=None, vmax=None):
 #     coords = np.array([pos[x] for x in u])[inv].reshape([edges.shape[0], 2, edges.shape[1]])
 #     coords_node1 = coords[:,0,:]
 #     coords_node2 = coords[:,1,:]
-    
+
 #     # Swap node1/node2 allocations to make sure the directionality works correctly
 #     should_swap = coords_node1[:,0] > coords_node2[:,0]
 #     coords_node1[should_swap], coords_node2[should_swap] = coords_node2[should_swap], coords_node1[should_swap]
-    
+
 #     # Distance for control points
 #     dist = dist_ratio * np.sqrt(np.sum((coords_node1-coords_node2)**2, axis=1))
 
