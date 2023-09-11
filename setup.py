@@ -62,8 +62,6 @@ setuptools.setup(
         "matplotlib",
         "requests",
         "optuna",
-        # "fa2",
-        # "bezier"
     ],
     setup_requires=[CYTHON_STR],
     test_suite="nose.collector",
