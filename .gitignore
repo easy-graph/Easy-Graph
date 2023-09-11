@@ -5,6 +5,7 @@ test/
 related-repos/
 test.py
 hypergraph_tutorial.py
+visulation_test.py
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
 

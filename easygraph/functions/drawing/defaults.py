@@ -68,7 +68,7 @@ def default_size(
     v_size: Union[float, list] = 1.0,
     v_line_width: Union[float, list] = 1.0,
     e_line_width: Union[float, list] = 1.0,
-    font_size: float = 1.0,
+    font_size: float = None,
 ):
     import numpy as np
 
@@ -76,11 +76,10 @@ def default_size(
     _v_line_width = 1 * np.exp(-num_v / 50)
     _e_line_width = 1 * np.exp(-len(e_list) / 120)
     _font_size = 20 * np.exp(-num_v / 100)
-
     v_size = fill_sizes(v_size, _v_size, num_v)
     v_line_width = fill_sizes(v_line_width, _v_line_width, num_v)
     e_line_width = fill_sizes(e_line_width, _e_line_width, len(e_list))
-    font_size = _font_size if font_size is None else font_size * _font_size
+    font_size = _font_size if font_size is None else font_size
 
     return v_size, v_line_width, e_line_width, font_size
 

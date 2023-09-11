@@ -13,6 +13,7 @@ __all__ = [
     "draw_SHS_center_kk",
     "draw_kamada_kawai",
     "draw_hypergraph",
+    "draw_dynamic_hypergraph",
 ]
 
 from easygraph.functions.drawing.defaults import default_hypergraph_strength
@@ -126,6 +127,168 @@ def draw_hypergraph(
     plt.ylim((0, 1.0))
     plt.axis("off")
     fig.tight_layout()
+    plt.show()
+
+
+def _draw_single_dynamic_hypergraph(
+    hg: "eg.Hypergraph",
+    ax,
+    title_font_size=4,
+    group_name: str = "main",
+    e_style: str = "circle",
+    v_label: Optional[List[str]] = None,
+    v_size: Union[float, list] = 2.0,
+    v_color: Union[str, list] = "r",
+    v_line_width: Union[str, list] = 1.0,
+    e_color: Union[str, list] = "gray",
+    e_fill_color: Union[str, list] = "whitesmoke",
+    e_line_width: Union[str, list] = 1.0,
+    font_size: float = 1.0,
+    font_family: str = "sans-serif",
+    push_v_strength: float = 1.0,
+    push_e_strength: float = 1.0,
+    pull_e_strength: float = 1.0,
+    pull_center_strength: float = 1.0,
+):
+    import matplotlib.pyplot as plt
+
+    assert isinstance(
+        hg, eg.Hypergraph
+    ), "The input object must be a DHG's hypergraph object."
+    assert e_style in ["circle"], "e_style must be 'circle'"
+    assert hg.num_e > 0, "g must be a non-empty structure"
+
+    num_v, e_list = hg.num_v, deepcopy(hg.e_of_group(group_name)[0])
+    # default configures
+    v_color, e_color, e_fill_color = default_hypergraph_style(
+        hg.num_v, hg.num_e, v_color, e_color, e_fill_color
+    )
+    v_size, v_line_width, e_line_width, font_size = default_size(
+        num_v, e_list, v_size, v_line_width, e_line_width, font_size
+    )
+
+    (
+        push_v_strength,
+        push_e_strength,
+        pull_e_strength,
+        pull_center_strength,
+    ) = default_hypergraph_strength(
+        num_v,
+        e_list,
+        push_v_strength,
+        push_e_strength,
+        pull_e_strength,
+        pull_center_strength,
+    )
+    # layout
+    v_coor = force_layout(
+        num_v,
+        e_list,
+        push_v_strength,
+        push_e_strength,
+        pull_e_strength,
+        pull_center_strength,
+    )
+    if e_style == "circle":
+        draw_circle_edge(
+            ax,
+            v_coor,
+            v_size,
+            e_list,
+            e_color,
+            e_fill_color,
+            e_line_width,
+        )
+    else:
+        raise ValueError("e_style must be 'circle'")
+
+    draw_vertex(
+        ax,
+        v_coor,
+        v_label,
+        font_size,
+        font_family,
+        v_size,
+        v_color,
+        v_line_width,
+    )
+    plt.title(group_name, fontsize=title_font_size)
+    plt.xlim((0, 1.0))
+    plt.ylim((0, 1.0))
+    plt.axis("off")
+
+
+def draw_dynamic_hypergraph(
+    G,
+    group_name_list=None,
+    column_size=None,
+    save_path=None,
+    title_font_size=4,
+    e_style: str = "circle",
+    v_label: Optional[List[str]] = None,
+    v_size: Union[float, list] = 2.0,
+    v_color: Union[str, list] = "r",
+    v_line_width: Union[str, list] = 1.0,
+    e_color: Union[str, list] = "gray",
+    e_fill_color: Union[str, list] = "whitesmoke",
+    e_line_width: Union[str, list] = 1.0,
+    font_size: float = 1.0,
+    font_family: str = "sans-serif",
+    push_v_strength: float = 1.0,
+    push_e_strength: float = 1.0,
+    pull_e_strength: float = 1.0,
+    pull_center_strength: float = 1.0,
+):
+    """
+
+    Parameters
+    ----------
+    G eg.Hypergraph
+    subplot_size The number of subplots
+
+    Returns
+    -------
+
+    """
+    import math
+
+    import matplotlib.pyplot as plt
+
+    if group_name_list == None:
+        group_name_list = G.group_names
+    COLUMN_SIZE = 3 if column_size == None else column_size
+    ROW_SIZE = math.ceil(len(group_name_list) / COLUMN_SIZE)
+    fig = plt.figure()
+
+    sub = 1
+    for gn in group_name_list:
+        if sub > len(group_name_list):
+            break
+        tmp_ax = fig.add_subplot(ROW_SIZE, COLUMN_SIZE, sub)
+        _draw_single_dynamic_hypergraph(
+            G,
+            ax=tmp_ax,
+            group_name=gn,
+            title_font_size=title_font_size,
+            e_style=e_style,
+            v_label=v_label,
+            v_size=v_size,
+            v_color=v_color,
+            v_line_width=v_line_width,
+            e_color=e_color,
+            e_fill_color=e_fill_color,
+            e_line_width=e_line_width,
+            font_size=font_size,
+            font_family=font_family,
+            push_v_strength=push_v_strength,
+            push_e_strength=push_e_strength,
+            pull_e_strength=pull_e_strength,
+            pull_center_strength=pull_center_strength,
+        )
+        sub += 1
+    fig.tight_layout()
+    if save_path is not None:
+        plt.savefig(save_path)
     plt.show()
 
 

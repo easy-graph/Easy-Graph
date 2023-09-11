@@ -254,6 +254,8 @@ class Hypergraph(BaseHypergraph):
         """
         _hg = Hypergraph(state_dict["num_v"])
         _hg._raw_groups = deepcopy(state_dict["raw_groups"])
+        _hg._e_property = deepcopy(state_dict["e_property"])
+        _hg._v_property = deepcopy(state_dict["v_property"])
         return _hg
 
     @staticmethod
@@ -548,6 +550,8 @@ class Hypergraph(BaseHypergraph):
             state_dict = {
                 "num_v": self.num_v,
                 "raw_groups": _raw_groups,
+                "e_property": self._e_property,
+                "v_property": self._v_property,
             }
             _hg = Hypergraph.from_state_dict(state_dict)
             _hg = _hg.to(self.device)
@@ -578,7 +582,9 @@ class Hypergraph(BaseHypergraph):
                     _raw_groups[name] = self._raw_groups[name]
             state_dict = {
                 "num_v": self.num_v,
-                "raw_groups": _raw_groups,
+                "raw_groups": self._raw_groups,
+                "e_property": self._e_property,
+                "v_property": self._v_property,
             }
             _hg = Hypergraph.from_state_dict(state_dict)
             _hg = _hg.to(self.device)
@@ -603,7 +609,6 @@ class Hypergraph(BaseHypergraph):
                 e_list.extend(_e[0])
                 e_weight.extend(_e[1])
                 e_property.extend(_e[2])
-
             self.cache["e"] = (e_list, e_weight, e_property)
         return self.cache["e"]
 
