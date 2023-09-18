@@ -244,10 +244,10 @@ def draw_dynamic_hypergraph(
     Parameters
     ----------
     G eg.Hypergraph
-    subplot_size The number of subplots
-
-    Returns
-    -------
+    group_name_list The groups to visualize
+    column_size The number of subplots placed in each row
+    save_path path to save visualization
+    title_font_size The font size of tilte of each subplot
 
     """
     import math

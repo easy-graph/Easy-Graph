@@ -307,11 +307,12 @@ class Hypergraph(BaseHypergraph):
             ``graph`` (``eg.Graph``): The graph to construct the hypergraph.
             ``device`` (``torch.device``, optional): The device to store the hypergraph. Defaults to ``torch.device('cpu')``.
         """
-        e_list, e_weight, e_property = graph.e
+        e_list, e_weight, v_property, e_property = graph.e
         hg = Hypergraph(
             num_v=len(graph.nodes),
             e_list=e_list,
             e_weight=e_weight,
+            v_property=v_property,
             e_property=e_property,
             device=device,
         )

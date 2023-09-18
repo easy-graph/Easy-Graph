@@ -287,6 +287,22 @@ class Graph:
         return self.cache["D_v_neg_1_2"]
 
     @property
+    def index2node(self):
+        """
+        Assign an integer index for each node (start from 0)
+        """
+        if self.cache.get("index2node", None) is None:
+            index2node_dict = {}
+            index = 0
+            # for index in range(0, len(self.nodes)):
+
+            for index, n in enumerate(self.nodes):
+                index2node_dict[index] = n
+                # index += 1
+            self.cache["index2node"] = index2node_dict
+        return self.cache["index2node"]
+
+    @property
     def node2index(self):
         """
         Assign an integer index for each node (start from 0)
@@ -311,18 +327,24 @@ class Graph:
                 for src_idx, dst_idx, d in self.edges
             ]
             w_list = []
-            property_list = []
+            e_property_list = []
+            v_property_list = []
+
+            node_size = len(self.nodes)
+            for i in range(0, node_size):
+                v_property_list.append(self.nodes[self.index2node[i]])
+
             for d in self.edges:
                 if "weight" not in d[2]:
                     w_list.append(1.0)
-                    property_list.append(d[2])
+                    e_property_list.append(d[2])
                 else:
                     w_list.append(d[2]["weight"])
                     tmp_dict = copy.deepcopy(d[2])
                     del tmp_dict["weight"]
-                    property_list.append(tmp_dict)
+                    e_property_list.append(tmp_dict)
 
-            self.cache["e"] = e_list, w_list, property_list
+            self.cache["e"] = e_list, w_list, v_property_list, e_property_list
         return self.cache["e"]
 
     @property
