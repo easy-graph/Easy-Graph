@@ -212,7 +212,7 @@ def _one_level(G, m, partition, resolution=1, is_directed=False, seed=None, tes=
 
     # for c in Stot:
     #    print(c)
-        
+
     nbrs = {u: {v: data["weight"] for v, data in G[u].items() if v != u} for u in G}
     rand_nodes = list(G.nodes)
     # seed.shuffle(rand_nodes)
@@ -269,7 +269,6 @@ def _one_level(G, m, partition, resolution=1, is_directed=False, seed=None, tes=
             else:
             """
             Stot[best_com] += degree
-
 
             if best_com != node2com[u]:
                 com = G.nodes[u].get("nodes", {u})
