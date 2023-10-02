@@ -1,7 +1,10 @@
-from collections import defaultdict, deque
+from collections import defaultdict
+from collections import deque
 
 import easygraph as eg
+
 from easygraph.functions.community import modularity
+
 
 __all__ = ["louvain_communities", "louvain_partitions"]
 
@@ -132,36 +135,32 @@ def louvain_partitions(G, weight="weight", threshold=0.0000001):
     if G.is_multigraph():
         G = _convert_multigraph(G, weight, is_directed)
     else:
-        graph=G.__class__()
+        graph = G.__class__()
         graph.add_nodes_from(G)
-        graph.add_edges_from(G.edges,weight=1)
-        G=graph
+        graph.add_edges_from(G.edges, weight=1)
+        G = graph
 
     m = G.size(weight="weight")
-    partition, inner_partition, improvement = _one_level(
-        G, m, partition, is_directed
-    )
+    partition, inner_partition, improvement = _one_level(G, m, partition, is_directed)
     improvement = True
     while improvement:
         # gh-5901 protect the sets in the yielded list from further manipulation here
 
         yield [s.copy() for s in partition]
-        new_mod = modularity(
-            G, inner_partition, weight="weight"
-        )
+        new_mod = modularity(G, inner_partition, weight="weight")
         if new_mod - mod <= threshold:
             return
         mod = new_mod
-        '''
+        """
         for node1, node2, wt in G.edges:
             print(node1,node2,wt)
         print("\n")
-        '''
+        """
         G = _gen_graph(G, inner_partition)
-        '''
+        """
         for node1, node2, wt in G.edges:
             print(node1,node2,wt)
-        '''
+        """
         partition, inner_partition, improvement = _one_level(
             G, m, partition, is_directed, 1
         )
@@ -189,7 +188,7 @@ def _one_level(G, m, partition, resolution=1, is_directed=False, seed=None, tes=
     """
     node2com = {u: i for i, u in enumerate(G.nodes)}
     inner_partition = [{u} for u in G.nodes]
-    '''
+    """
     if is_directed:
         in_degrees = dict(G.in_degree(weight="weight"))
         out_degrees = dict(G.out_degree(weight="weight"))
@@ -205,30 +204,29 @@ def _one_level(G, m, partition, resolution=1, is_directed=False, seed=None, tes=
                 nbrs[u][n] += wt
         pass
     else:
-    '''
+    """
     degrees = dict(G.degree(weight="weight"))
-    Stot=[]
+    Stot = []
     for i in G:
         Stot.append(len(G[i]))
     
-    #for c in Stot:
+    # for c in Stot:
     #    print(c)
     
     nbrs = {u: {v: data["weight"] for v, data in G[u].items() if v != u} for u in G}
     rand_nodes = list(G.nodes)
-    #seed.shuffle(rand_nodes)
+    # seed.shuffle(rand_nodes)
     nb_moves = 1
     improvement = False
     while nb_moves > 0:
-
-        #print(nb_moves)
+        # print(nb_moves)
 
         nb_moves = 0
         for u in rand_nodes:
             best_mod = 0
             best_com = node2com[u]
             weights2com = _neighbor_weights(nbrs[u], node2com)
-            '''
+            """
             if is_directed:
                 in_degree = in_degrees[u]
                 out_degree = out_degrees[u]
@@ -240,14 +238,14 @@ def _one_level(G, m, partition, resolution=1, is_directed=False, seed=None, tes=
                     / m**2
                 )
             else:
-            '''
+            """
             degree = degrees[u]
             Stot[best_com] -= degree
-            remove_cost = -weights2com[best_com] / m + (
-                Stot[best_com] * degree
-            ) / (2 * m**2)
+            remove_cost = -weights2com[best_com] / m + (Stot[best_com] * degree) / (
+                2 * m**2
+            )
             for nbr_com, wt in weights2com.items():
-                '''
+                """
                 if is_directed:
                     gain = (
                         remove_cost
@@ -259,21 +257,17 @@ def _one_level(G, m, partition, resolution=1, is_directed=False, seed=None, tes=
                         / m**2
                     )
                 else:
-                '''
-                gain = (
-                    remove_cost
-                    + wt / m
-                    - (Stot[nbr_com] * degree) / (2 * m**2)
-                )
+                """
+                gain = remove_cost + wt / m- (Stot[nbr_com] * degree) / (2 * m**2)
                 if gain > best_mod:
                     best_mod = gain
                     best_com = nbr_com
-            '''
+            """
             if is_directed:
                 Stot_in[best_com] += in_degree
                 Stot_out[best_com] += out_degree
             else:
-            '''
+            """
             Stot[best_com] += degree
 
 
@@ -289,8 +283,8 @@ def _one_level(G, m, partition, resolution=1, is_directed=False, seed=None, tes=
     partition = list(filter(len, partition))
     inner_partition = list(filter(len, inner_partition))
 
-    #for c in partition:
-        #print(c)
+    # for c in partition:
+    # print(c)
 
     return partition, inner_partition, improvement
 
@@ -326,12 +320,12 @@ def _gen_graph(G, partition):
     for node1, node2, wt in G.edges:
         com1 = node2com[node1]
         com2 = node2com[node2]
-        wt=wt["weight"]
+        wt = wt["weight"]
         try:
             temp = H[com1][com2]["weight"]
         except KeyError:
             temp = 0
-        H.add_edge(com1, com2, weight=wt+temp)
+        H.add_edge(com1, com2, weight=wt + temp)
         """
         if wt:
             wt = wt["weight"]

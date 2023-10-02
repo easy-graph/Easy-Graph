@@ -1,6 +1,10 @@
-import easygraph as eg
-from easygraph.functions.path.path import *
 import warnings
+
+import easygraph as eg
+
+from easygraph.functions.path.path import *
+
+
 def average_shortest_path_length(G, weight=None, method=None):
     r"""Returns the average shortest path length.
 
@@ -82,8 +86,7 @@ def average_shortest_path_length(G, weight=None, method=None):
     # there are no paths in the null graph.
     if n == 0:
         msg = (
-            "the null graph has no paths, thus there is no average "
-            "shortest path length"
+            "the null graph has no paths, thus there is no average shortest path length"
         )
         raise eg.EasyGraphPointlessConcept(msg)
     # For the special case of the trivial graph, return zero immediately.

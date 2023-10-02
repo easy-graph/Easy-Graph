@@ -57,7 +57,7 @@ def ego_graph(G, n, radius=1, center=True, undirected=False, distance=None):
         else:
             sp = eg.single_source_dijkstra(G, n, cutoff=radius, weight=distance)
     nodes = list(sp.keys())
-    #for i,wd in sp.items():
+    # for i,wd in sp.items():
     #    print(i,wd)
     H = G.nodes_subgraph(nodes)
     if not center:
