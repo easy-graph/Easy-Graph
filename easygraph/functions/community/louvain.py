@@ -3,7 +3,7 @@ from collections import deque
 
 import easygraph as eg
 
-from easygraph.functions.community import modularity
+from easygraph.functions.community.modularity import *
 
 
 __all__ = ["louvain_communities", "louvain_partitions"]
