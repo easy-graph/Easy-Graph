@@ -258,7 +258,7 @@ def _one_level(G, m, partition, resolution=1, is_directed=False, seed=None, tes=
                     )
                 else:
                 """
-                gain = remove_cost + wt / m- (Stot[nbr_com] * degree) / (2 * m**2)
+                gain = remove_cost + wt / m - (Stot[nbr_com] * degree) / (2 * m**2)
                 if gain > best_mod:
                     best_mod = gain
                     best_com = nbr_com
