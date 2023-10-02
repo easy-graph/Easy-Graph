@@ -209,10 +209,10 @@ def _one_level(G, m, partition, resolution=1, is_directed=False, seed=None, tes=
     Stot = []
     for i in G:
         Stot.append(len(G[i]))
-    
+
     # for c in Stot:
     #    print(c)
-    
+        
     nbrs = {u: {v: data["weight"] for v, data in G[u].items() if v != u} for u in G}
     rand_nodes = list(G.nodes)
     # seed.shuffle(rand_nodes)
