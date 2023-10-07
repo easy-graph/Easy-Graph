@@ -20,8 +20,90 @@ __all__ = [
     "chung_lu_hypergraph",
     "dcsbm_hypergraph",
     "watts_strogatz_hypergraph",
+    "uniform_hypergraph_Gnp",
 ]
 
+def uniform_hypergraph_Gnp_parallel(edges,prob):
+    # print("edges len:",len(edges))
+
+    import time
+    start_time = time.time()
+    remain_edges = [e for e in edges if random.random() < prob]
+    end_time = time.time()
+    print("parallel spend time:", end_time - start_time)
+    return remain_edges
+
+
+def split_edges(edges, worker):
+    import math
+    import time
+    start_time = time.time()
+    edges_size = len(edges)
+    group_size = math.ceil(edges_size /  worker)
+    group_lst = []
+    print("split edges:",len(edges))
+    for i in range(0, edges_size, group_size):
+        group_lst.append(edges[i : i + group_size])
+    end_time = time.time()
+    print("parallel split spend time:", end_time - start_time)
+
+    return group_lst
+def uniform_hypergraph_Gnp(k: int, num_v: int, prob: float, n_workers = None):
+    r"""Return a random ``k``-uniform hypergraph with ``num_v`` vertices and probability ``prob`` of choosing a hyperedge.
+
+    Args:
+        ``num_v`` (``int``): The Number of vertices.
+        ``k`` (``int``): The Number of vertices in each hyperedge.
+        ``prob`` (``float``): Probability of choosing a hyperedge.
+
+    Examples:
+        >>> import easygraph as eg
+        >>> hg = eg.random.uniform_hypergraph_Gnp(3, 5, 0.5)
+        >>> hg.e
+        ([(0, 1, 3), (0, 1, 4), (0, 2, 4), (1, 3, 4), (2, 3, 4)], [1.0, 1.0, 1.0, 1.0, 1.0])
+    """
+    # similar to BinomialRandomUniform in sagemath, https://doc.sagemath.org/html/en/reference/graphs/sage/graphs/hypergraph_generators.html
+
+    assert num_v > 1, "num_v must be greater than 1"
+    assert k > 1, "k must be greater than 1"
+    assert 0 <= prob <= 1, "prob must be between 0 and 1"
+    import random
+
+    if n_workers is not None:
+        #  use the parallel version for large graph
+
+        from functools import partial
+        from multiprocessing import Pool
+        edges = combinations(range(num_v), k)
+        edges_parallel = split_edges(edges= list(edges), worker=n_workers)
+        local_function = partial(
+            uniform_hypergraph_Gnp_parallel,
+            prob = prob
+        )
+
+        res_edges = []
+        import time
+
+        with Pool(n_workers) as p:
+            ret = p.imap(local_function, edges_parallel)
+            start_time = time.time()
+            for res in ret:
+                res_edges.extend(res)
+                # for key in res:
+                # print("res:",len(res))
+
+                # res_hypergraph.add_hyperedges(e_list=res)
+            end_time = time.time()
+
+            print("nworker merge time:", end_time - start_time)
+        print("res:",len(res_edges))
+        res_hypergraph = eg.Hypergraph(num_v=num_v, e_list=res_edges)
+        return res_hypergraph
+
+    else:
+        edges = combinations(range(num_v), k)
+        edges = [e for e in edges if random.random() < prob]
+        return eg.Hypergraph(num_v= num_v, e_list = edges)
 
 def dcsbm_hypergraph(k1, k2, g1, g2, omega, seed=None):
     """A function to generate a Degree-Corrected Stochastic Block Model

@@ -17,9 +17,96 @@ __all__ = [
     "uniform_HSBM",
     "uniform_HPPM",
     "uniform_erdos_renyi_hypergraph",
+    "uniform_hypergraph_Gnm",
 ]
 
+def split_num_e(num_e, worker):
+    import math
+    res = []
+    group_size = num_e // worker
+    for i in range(worker):
+        res.append(group_size)
+    return res
+def uniform_hypergraph_Gnm_parallel(num_e,num_v, k ):
+    random.seed()
+    edges = set()
+    while len(edges) < num_e:
+        e = random.sample(range(num_v), k)
+        e = tuple(sorted(e))
+        if e not in edges:
+            edges.add(e)
+    # print("parallel len:",len(edges))
+    return list(edges)
+def uniform_hypergraph_Gnm(k: int, num_v: int, num_e: int, n_workers = None):
+    r"""Return a random ``k``-uniform hypergraph with ``num_v`` vertices and ``num_e`` hyperedges.
 
+    Args:
+        ``k`` (``int``): The Number of vertices in each hyperedge.
+        ``num_v`` (``int``): The Number of vertices.
+        ``num_e`` (``int``): The Number of hyperedges.
+
+    Examples:
+        >>> import easygraph as eg
+        >>> hg = eg.uniform_hypergraph_Gnm(3, 5, 4)
+        >>> hg.e
+        ([(0, 1, 2), (0, 1, 3), (0, 3, 4), (2, 3, 4)], [1.0, 1.0, 1.0, 1.0])
+    """
+    # similar to UniformRandomUniform in sagemath, https://doc.sagemath.org/html/en/reference/graphs/sage/graphs/hypergraph_generators.html
+
+    assert k > 1, "k must be greater than 1"  # TODO ?
+    assert num_v > 1, "num_v must be greater than 1"
+    assert num_e > 0, "num_e must be greater than 0"
+
+    if n_workers is not None:
+        #  use the parallel version for large graph
+        edges = set()
+        from functools import partial
+        from multiprocessing import Pool
+
+
+        # res_edges = set()
+        edges_parallel = split_num_e(num_e= num_e, worker=n_workers)
+        local_function = partial(
+            uniform_hypergraph_Gnm_parallel,
+            num_v = num_v,
+            k = k
+        )
+
+        res_edges = set()
+        import time
+
+        with Pool(n_workers) as p:
+            ret = p.imap(local_function, edges_parallel)
+            start_time = time.time()
+            for res in ret:
+                for r in res:
+                    res_edges.add(r)
+                # for key in res:
+                print("res:",len(res_edges))
+
+            while len(res_edges) < num_e:
+                e = random.sample(range(num_v), k)
+                e = tuple(sorted(e))
+                if e not in res_edges:
+                    res_edges.add(e)
+
+               # res_hypergraph.add_hyperedges(e_list=res)
+            end_time = time.time()
+
+            print("nworker merge time:", end_time - start_time)
+        # print("res:",res_edges)
+        res_hypergraph = eg.Hypergraph(num_v=num_v, e_list=list(res_edges))
+        return res_hypergraph
+
+    else:
+        edges = set()
+        while len(edges) < num_e:
+            e = random.sample(range(num_v), k)
+            e = tuple(sorted(e))
+            if e not in edges:
+                edges.add(e)
+
+    return eg.Hypergraph(num_v, list(edges))
 def uniform_hypergraph_configuration_model(k, m, seed=None):
     """
     A function to generate an m-uniform configuration model
@@ -292,7 +379,6 @@ def uniform_erdos_renyi_hypergraph(n, m, p, p_type="degree", seed=None):
     if seed is not None:
         np.random.seed(seed)
 
-    node_labels = range(n)
     H = eg.Hypergraph(num_v=n)
 
     if p_type == "degree":

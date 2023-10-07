@@ -66,7 +66,7 @@ class Email_Enron(EasyGraphDataset):
         return False
 
     def download(self):
-        print("download")
+        print("download...")
         if self.has_cache():
             self.load()
         else:
@@ -85,7 +85,8 @@ class Email_Enron(EasyGraphDataset):
         self._g.ndata["hyperedge_feature"] = tensor(
             range(1, len(edge_feature_list) + 1)
         )
-        print(self._g.ndata["hyperedge_feature"])
+
+        self._g.ndata["incidence_matrix"] = self._g.incidence_matrix
 
     @url.setter
     def url(self, value):

@@ -125,10 +125,6 @@ class Graph:
         return self._node_index
 
     @property
-    def node_index(self):
-        return self._node_index
-
-    @property
     def edges(self):
         """
         Return an edge list

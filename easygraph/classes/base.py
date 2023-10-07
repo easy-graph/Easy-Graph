@@ -64,6 +64,8 @@ class BaseHypergraph:
             isinstance(num_v, int) and num_v > 0
         ), "num_v should be a positive integer"
         self.clear()
+        self._rows = []
+        self._cols = []
         self._num_v = num_v
         self.device = device
         if v_property == None:
@@ -123,6 +125,7 @@ class BaseHypergraph:
         r"""Remove all hyperedges and caches from the hypergraph."""
         self._clear_raw()
         self._clear_cache()
+
 
     def _clear_raw(self):
         self._v_weight = None
@@ -196,17 +199,28 @@ class BaseHypergraph:
         Args:
             ``e_list`` (``List[int]`` or ``List[List[int]]``): The hyperedge list.
         """
-
         if type(e_list[0]) in (int, float):
-            return [tuple(sorted(e_list))]
+            return [tuple(e_list)]
         elif type(e_list) == tuple:
             e_list = list(e_list)
         elif type(e_list) == list:
             pass
         else:
             raise TypeError("e_list must be List[int] or List[List[int]].")
+        # for _idx in range(len(e_list)):
+        #     e_list[_idx] = tuple(e_list[_idx])
+        # return e_list
+        # if type(e_list[0]) in (int, float):
+        #     return [tuple(e_list)]
+        # elif type(e_list) == tuple:
+        #     e_list = list(e_list)
+        # elif type(e_list) == list:
+        #     pass
+        # else:
+        #     raise TypeError("e_list must be List[int] or List[List[int]].")
         for _idx in range(len(e_list)):
-            e_list[_idx] = tuple(sorted(e_list[_idx]))
+
+            e_list[_idx] = tuple(e_list[_idx])
         return e_list
 
     def _format_e_property_list(self, e_num, e_property_list: Union[Dict, List[Dict]]):
@@ -305,6 +319,7 @@ class BaseHypergraph:
             sub_e = e[select_idx]
             v_idx.extend(sub_e)
             e_idx.extend([_e_idx] * len(sub_e))
+
         H = torch.sparse_coo_tensor(
             torch.tensor([v_idx, e_idx], dtype=torch.long),
             torch.ones(len(v_idx)),
@@ -426,9 +441,13 @@ class BaseHypergraph:
         if group_name not in self.group_names:
             self._raw_groups[group_name] = {}
             self._raw_groups[group_name][hyperedge_code] = content
+            self._rows.extend(hyperedge_code[0])
+            self._cols.extend([self.num_e - 1] * len(hyperedge_code[0]))
         else:
             if hyperedge_code not in self._raw_groups[group_name]:
                 self._raw_groups[group_name][hyperedge_code] = content
+                self._rows.extend(hyperedge_code[0])
+                self._cols.extend([self.num_e - 1] * len(hyperedge_code[0]))
             else:
                 self._raw_groups[group_name][hyperedge_code] = self._merge_hyperedges(
                     self._raw_groups[group_name][hyperedge_code], content, merge_op

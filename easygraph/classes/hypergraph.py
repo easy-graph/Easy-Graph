@@ -10,17 +10,18 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
+from scipy.sparse import csr_array
 
 import easygraph as eg
 import numpy as np
 import torch
-
+from numba import jit
 from easygraph.classes.base import BaseHypergraph
 from easygraph.functions.drawing import draw_hypergraph
 from easygraph.utils.exception import EasyGraphError
 from easygraph.utils.sparse import sparse_dropout
 from scipy.sparse import csr_matrix
-
+# from numba import jit
 
 if TYPE_CHECKING:
     from easygraph import Graph
@@ -46,6 +47,7 @@ class Hypergraph(BaseHypergraph):
     """
 
     gnn_data_dict_factory = dict
+    degree_data_dict = dict
 
     def __init__(
         self,
@@ -64,7 +66,11 @@ class Hypergraph(BaseHypergraph):
             e_property=e_property,
             device=device,
         )
+
         self._ndata = self.gnn_data_dict_factory()
+        self.deg_v_dict = self.degree_data_dict()
+        for i in range(num_v):
+            self.deg_v_dict[i] = 0
         if e_list is not None:
             self.add_hyperedges(
                 e_list=e_list,
@@ -89,6 +95,7 @@ class Hypergraph(BaseHypergraph):
             "v_property": self.v_property,
             "e_property": self.e_property,
             "raw_groups": self._raw_groups,
+            "deg_v_dict":self.deg_v_dict
         }
 
     def unique_edge_sizes(self):
@@ -225,6 +232,7 @@ class Hypergraph(BaseHypergraph):
 
     def clear(self):
         r"""Clear all hyperedges and caches from the hypergraph."""
+        self.deg_v_dict.clear()
         return super().clear()
 
     def clone(self) -> "Hypergraph":
@@ -233,6 +241,7 @@ class Hypergraph(BaseHypergraph):
         hg._raw_groups = deepcopy(self._raw_groups)
         hg.cache = deepcopy(self.cache)
         hg.group_cache = deepcopy(self.group_cache)
+        hg.deg_v_dict = deepcopy(self.deg_v_dict)
         return hg
 
     def to(self, device: torch.device):
@@ -256,6 +265,7 @@ class Hypergraph(BaseHypergraph):
         _hg._raw_groups = deepcopy(state_dict["raw_groups"])
         _hg._e_property = deepcopy(state_dict["e_property"])
         _hg._v_property = deepcopy(state_dict["v_property"])
+        _hg.deg_v_dict = deepcopy(state_dict["deg_v_dict"])
         return _hg
 
     @staticmethod
@@ -412,18 +422,19 @@ class Hypergraph(BaseHypergraph):
             e_weight
         ), "The number of hyperedges and the number of weights are not equal."
 
-        if type(e_property) == dict:
-            e_property = [e_property]
 
-        # print("e_property:",e_property)
+
         for _idx in range(len(e_list)):
             for n_id in e_list[_idx]:
+                self.deg_v_dict[n_id] += 1
                 if self.isOutRange(n_id) == False:
                     raise EasyGraphError(
                         "The node id in hyperedge is out of range, please ensure that"
                         " the node is in [1,n)"
                     )
             if e_property != None:
+                if type(e_property) == dict:
+                    e_property = [e_property]
                 e_property[_idx].update({"w_e": float(e_weight[_idx])})
 
                 self._add_hyperedge(
@@ -439,12 +450,8 @@ class Hypergraph(BaseHypergraph):
                     merge_op,
                     group_name,
                 )
-            # self._add_hyperedge(
-            #     self._hyperedge_code(e_list[_idx], e_list[_idx]),
-            #     {"w_e": float(e_weight[_idx])},
-            #     merge_op,
-            #     group_name,
-            # )
+
+
         self._clear_cache(group_name)
 
     def add_hyperedges_from_feature_kNN(
@@ -515,11 +522,25 @@ class Hypergraph(BaseHypergraph):
         e_list = self._format_e_list(e_list)
         if group_name is None:
             for _idx in range(len(e_list)):
+                for n_id in e_list[_idx]:
+                    self.deg_v_dict[n_id] -= 1
+                    if self.isOutRange(n_id) == False:
+                        raise EasyGraphError(
+                            "The node id in hyperedge is out of range, please ensure that"
+                            " the node is in [1,n)"
+                        )
                 e_code = self._hyperedge_code(e_list[_idx], e_list[_idx])
                 for name in self.group_names:
                     self._raw_groups[name].pop(e_code, None)
         else:
             for _idx in range(len(e_list)):
+                for n_id in e_list[_idx]:
+                    self.deg_v_dict[n_id] -= 1
+                    if self.isOutRange(n_id) == False:
+                        raise EasyGraphError(
+                            "The node id in hyperedge is out of range, please ensure that"
+                            " the node is in [1,n)"
+                        )
                 e_code = self._hyperedge_code(e_list[_idx], e_list[_idx])
                 self._raw_groups[group_name].pop(e_code, None)
         self._clear_cache(group_name)
@@ -530,6 +551,10 @@ class Hypergraph(BaseHypergraph):
         Parameters:
             ``group_name`` (``str``): The name of the hyperedge group to remove.
         """
+        for e_code, e in self._raw_groups[group_name].items():
+            e = e_code[0]
+            for n_id in e:
+                self.deg_v_dict[n_id] -= 1
         self._raw_groups.pop(group_name, None)
         self._clear_cache(group_name)
 
@@ -624,7 +649,6 @@ class Hypergraph(BaseHypergraph):
         ), f"The specified {group_name} is not in existing hyperedge groups."
         if self.group_cache[group_name].get("e", None) is None:
             e_list = [e_code[0] for e_code in self._raw_groups[group_name].keys()]
-            # print("self._raw_groups[group_name].values()",self._raw_groups[group_name].values())
             e_weight = [
                 e_content["w_e"] for e_content in self._raw_groups[group_name].values()
             ]
@@ -887,14 +911,31 @@ class Hypergraph(BaseHypergraph):
     def H(self) -> torch.Tensor:
         r"""Return the hypergraph incidence matrix :math:`\mathbf{H}` with ``torch.Tensor`` format.
         """
+
         if self.cache.get("H") is None:
             self.cache["H"] = self.H_v2e
         return self.cache["H"]
 
     @property
+    def e_set(self):
+        if self.cache.get("e_set") is None:
+            e_lst = []
+            for name in self.group_names:
+                _e = self.e_of_group(name)
+                e_lst.extend(_e[0])
+            self.cache["e_set"] = e_lst
+        return self.cache["e_set"]
+    @property
     def incidence_matrix(self):
-        H = self.H.to_dense().numpy()
-        return H
+
+        if self.cache.get("incidence_matrix") is None:
+            
+            A = csr_matrix((len(self._rows) * [1], (self._rows, self._cols)),
+                                                       shape=(self.num_v, self.num_e), dtype=int)
+
+            self.cache["incidence_matrix"] = A
+
+        return self.cache["incidence_matrix"]
 
     def get_star_expansion(self):
         r"""
@@ -955,13 +996,14 @@ class Hypergraph(BaseHypergraph):
         adjacency_matrix : scipy.sparse.csr.csr_matrix
 
         """
-
-        tmp_H = self.H.to_dense().numpy()
-        A = tmp_H @ (tmp_H.T)
-        A[np.diag_indices_from(A)] = 0
-        if not weight:
-            A = (A >= s) * 1
-        return csr_matrix(A)
+        if self.cache.get("adjacency_matrix") == None:
+            tmp_H = self.incidence_matrix
+            A = tmp_H @ (tmp_H.T)
+            A[np.diag_indices_from(A)] = 0
+            if not weight:
+                A = (A >= s) * 1
+            self.cache["adjacency_matrix"] = csr_matrix(A)
+        return self.cache["adjacency_matrix"]
 
     def edge_adjacency_matrix(self, s=1, weight=False):
         r"""
@@ -1052,13 +1094,17 @@ class Hypergraph(BaseHypergraph):
         generated by the s-adjacency matrix.
 
         """
+
         l_graph = self.get_clique_expansion(s=s, edge=False)
+
         if source not in l_graph.nodes:
             raise EasyGraphError("Please make sure source exist!")
-        dist = eg.Dijkstra(l_graph, source)
-        if target in dist:
-            return dist[target]
-        raise EasyGraphError("Please make sure target exist!")
+        if target not in l_graph.nodes:
+            raise EasyGraphError("Please make sure target exist!")
+        dist = eg.single_source_dijkstra(G = l_graph, source= source,target=target)
+
+
+        return dist
 
     def edge_diameter(self, s=1):
         """
@@ -1180,6 +1226,11 @@ class Hypergraph(BaseHypergraph):
                 device=self.device,
             ).coalesce()
         return self.group_cache[group_name]["W_e"]
+
+
+    @property
+    def degree_node(self):
+        return self.deg_v_dict
 
     @property
     def D_v(self) -> torch.Tensor:
@@ -2183,9 +2234,17 @@ class Hypergraph(BaseHypergraph):
         if edge:
             edge_adjacency = self.edge_adjacency_matrix(s=s, weight=weight)
             linegraph = eg.from_scipy_sparse_matrix(edge_adjacency)
+            return linegraph
 
         else:
-            node_adjacency = self.adjacency_matrix(s=s, weight=weight)
-            linegraph = eg.from_scipy_sparse_matrix(node_adjacency)
+            if self.cache.get("clique_expansion") is None:
+                A = self.adjacency_matrix(s=s, weight=weight)
+                linegraph = eg.Graph()
+                A = np.array(np.nonzero(A))
+                e1 = np.array([idx for idx in A[0]])
+                e2 = np.array([idx for idx in A[1]])
+                A = np.array([e1, e2]).T
+                linegraph.add_edges_from(A)
+                self.cache["clique_expansion"] = linegraph
 
-        return linegraph
+            return self.cache["clique_expansion"]
