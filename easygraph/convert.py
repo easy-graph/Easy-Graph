@@ -346,7 +346,7 @@ def from_networkx(g: "Union[nx.Graph, nx.DiGraph]") -> "Union[Graph, DiGraph]":
     G.graph = deepcopy(g.graph)
 
     nodes_with_edges = set()
-    for v1, v2, _ in g.edges:
+    for v1, v2 in g.edges:
         G.add_edge(v1, v2)
         nodes_with_edges.add(v1)
         nodes_with_edges.add(v2)
