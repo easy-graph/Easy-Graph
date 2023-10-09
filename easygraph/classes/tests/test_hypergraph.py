@@ -40,10 +40,6 @@ def test_expansion(g3):
 
 
 def test_property(g1, g2):
-    print(g1.edge_adjacency_matrix)
-    print(g1.adjacency_matrix)
-    print("g2", g2.distance(1, 2))
-    print("g2 diameter:", g2.diameter())
     assert g2.distance(1, 2) == 1
     assert g2.diameter() == 2
     assert g1.adjacency_matrix != None
