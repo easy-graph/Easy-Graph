@@ -232,8 +232,10 @@ class Hypergraph(BaseHypergraph):
 
     def clear(self):
         r"""Clear all hyperedges and caches from the hypergraph."""
-        self.deg_v_dict.clear()
-        return super().clear()
+
+        super().clear()
+        self.deg_v_dict = {}
+        self._ndata = {}
 
     def clone(self) -> "Hypergraph":
         r"""Return a copy of the hypergraph."""
