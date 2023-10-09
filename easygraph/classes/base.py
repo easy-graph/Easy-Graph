@@ -126,7 +126,6 @@ class BaseHypergraph:
         self._clear_raw()
         self._clear_cache()
 
-
     def _clear_raw(self):
         self._v_weight = None
         self._raw_groups = {}
@@ -219,7 +218,6 @@ class BaseHypergraph:
         # else:
         #     raise TypeError("e_list must be List[int] or List[List[int]].")
         for _idx in range(len(e_list)):
-
             e_list[_idx] = tuple(e_list[_idx])
         return e_list
 

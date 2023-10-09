@@ -20,14 +20,18 @@ __all__ = [
     "uniform_hypergraph_Gnm",
 ]
 
+
 def split_num_e(num_e, worker):
     import math
+
     res = []
     group_size = num_e // worker
     for i in range(worker):
         res.append(group_size)
     return res
-def uniform_hypergraph_Gnm_parallel(num_e,num_v, k ):
+
+
+def uniform_hypergraph_Gnm_parallel(num_e, num_v, k):
     random.seed()
     edges = set()
     while len(edges) < num_e:
@@ -37,7 +41,9 @@ def uniform_hypergraph_Gnm_parallel(num_e,num_v, k ):
             edges.add(e)
     # print("parallel len:",len(edges))
     return list(edges)
-def uniform_hypergraph_Gnm(k: int, num_v: int, num_e: int, n_workers = None):
+
+
+def uniform_hypergraph_Gnm(k: int, num_v: int, num_e: int, n_workers=None):
     r"""Return a random ``k``-uniform hypergraph with ``num_v`` vertices and ``num_e`` hyperedges.
 
     Args:
@@ -63,14 +69,9 @@ def uniform_hypergraph_Gnm(k: int, num_v: int, num_e: int, n_workers = None):
         from functools import partial
         from multiprocessing import Pool
 
-
         # res_edges = set()
-        edges_parallel = split_num_e(num_e= num_e, worker=n_workers)
-        local_function = partial(
-            uniform_hypergraph_Gnm_parallel,
-            num_v = num_v,
-            k = k
-        )
+        edges_parallel = split_num_e(num_e=num_e, worker=n_workers)
+        local_function = partial(uniform_hypergraph_Gnm_parallel, num_v=num_v, k=k)
 
         res_edges = set()
         import time
@@ -82,7 +83,7 @@ def uniform_hypergraph_Gnm(k: int, num_v: int, num_e: int, n_workers = None):
                 for r in res:
                     res_edges.add(r)
                 # for key in res:
-                print("res:",len(res_edges))
+                print("res:", len(res_edges))
 
             while len(res_edges) < num_e:
                 e = random.sample(range(num_v), k)
@@ -90,7 +91,7 @@ def uniform_hypergraph_Gnm(k: int, num_v: int, num_e: int, n_workers = None):
                 if e not in res_edges:
                     res_edges.add(e)
 
-               # res_hypergraph.add_hyperedges(e_list=res)
+            # res_hypergraph.add_hyperedges(e_list=res)
             end_time = time.time()
 
             print("nworker merge time:", end_time - start_time)
@@ -107,6 +108,8 @@ def uniform_hypergraph_Gnm(k: int, num_v: int, num_e: int, n_workers = None):
                 edges.add(e)
 
     return eg.Hypergraph(num_v, list(edges))
+
+
 def uniform_hypergraph_configuration_model(k, m, seed=None):
     """
     A function to generate an m-uniform configuration model

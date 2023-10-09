@@ -10,17 +10,20 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
-from scipy.sparse import csr_array
 
 import easygraph as eg
 import numpy as np
 import torch
-from numba import jit
+
 from easygraph.classes.base import BaseHypergraph
 from easygraph.functions.drawing import draw_hypergraph
 from easygraph.utils.exception import EasyGraphError
 from easygraph.utils.sparse import sparse_dropout
+from numba import jit
+from scipy.sparse import csr_array
 from scipy.sparse import csr_matrix
+
+
 # from numba import jit
 
 if TYPE_CHECKING:
@@ -95,7 +98,7 @@ class Hypergraph(BaseHypergraph):
             "v_property": self.v_property,
             "e_property": self.e_property,
             "raw_groups": self._raw_groups,
-            "deg_v_dict":self.deg_v_dict
+            "deg_v_dict": self.deg_v_dict,
         }
 
     def unique_edge_sizes(self):
@@ -424,8 +427,6 @@ class Hypergraph(BaseHypergraph):
             e_weight
         ), "The number of hyperedges and the number of weights are not equal."
 
-
-
         for _idx in range(len(e_list)):
             for n_id in e_list[_idx]:
                 self.deg_v_dict[n_id] += 1
@@ -452,7 +453,6 @@ class Hypergraph(BaseHypergraph):
                     merge_op,
                     group_name,
                 )
-
 
         self._clear_cache(group_name)
 
@@ -528,8 +528,8 @@ class Hypergraph(BaseHypergraph):
                     self.deg_v_dict[n_id] -= 1
                     if self.isOutRange(n_id) == False:
                         raise EasyGraphError(
-                            "The node id in hyperedge is out of range, please ensure that"
-                            " the node is in [1,n)"
+                            "The node id in hyperedge is out of range, please ensure"
+                            " that the node is in [1,n)"
                         )
                 e_code = self._hyperedge_code(e_list[_idx], e_list[_idx])
                 for name in self.group_names:
@@ -540,8 +540,8 @@ class Hypergraph(BaseHypergraph):
                     self.deg_v_dict[n_id] -= 1
                     if self.isOutRange(n_id) == False:
                         raise EasyGraphError(
-                            "The node id in hyperedge is out of range, please ensure that"
-                            " the node is in [1,n)"
+                            "The node id in hyperedge is out of range, please ensure"
+                            " that the node is in [1,n)"
                         )
                 e_code = self._hyperedge_code(e_list[_idx], e_list[_idx])
                 self._raw_groups[group_name].pop(e_code, None)
@@ -927,13 +927,15 @@ class Hypergraph(BaseHypergraph):
                 e_lst.extend(_e[0])
             self.cache["e_set"] = e_lst
         return self.cache["e_set"]
+
     @property
     def incidence_matrix(self):
-
         if self.cache.get("incidence_matrix") is None:
-            
-            A = csr_matrix((len(self._rows) * [1], (self._rows, self._cols)),
-                                                       shape=(self.num_v, self.num_e), dtype=int)
+            A = csr_matrix(
+                (len(self._rows) * [1], (self._rows, self._cols)),
+                shape=(self.num_v, self.num_e),
+                dtype=int,
+            )
 
             self.cache["incidence_matrix"] = A
 
@@ -1103,8 +1105,7 @@ class Hypergraph(BaseHypergraph):
             raise EasyGraphError("Please make sure source exist!")
         if target not in l_graph.nodes:
             raise EasyGraphError("Please make sure target exist!")
-        dist = eg.single_source_dijkstra(G = l_graph, source= source,target=target)
-
+        dist = eg.single_source_dijkstra(G=l_graph, source=source, target=target)
 
         return dist
 
@@ -1228,7 +1229,6 @@ class Hypergraph(BaseHypergraph):
                 device=self.device,
             ).coalesce()
         return self.group_cache[group_name]["W_e"]
-
 
     @property
     def degree_node(self):
