@@ -1073,7 +1073,7 @@ class Hypergraph(BaseHypergraph):
             return dist[target]
         raise EasyGraphError("Please make sure target exist!")
 
-    def distance(self, source, target, s=1):
+    def distance(self, source, target=None, s=1):
         """
 
         Parameters
@@ -1107,7 +1107,7 @@ class Hypergraph(BaseHypergraph):
             raise EasyGraphError("Please make sure target exist!")
         dist = eg.single_source_dijkstra(G=l_graph, source=source, target=target)
 
-        return dist
+        return dist[target] if target != None else dist
 
     def edge_diameter(self, s=1):
         """
