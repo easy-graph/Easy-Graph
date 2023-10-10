@@ -19,12 +19,8 @@ from easygraph.classes.base import BaseHypergraph
 from easygraph.functions.drawing import draw_hypergraph
 from easygraph.utils.exception import EasyGraphError
 from easygraph.utils.sparse import sparse_dropout
-from numba import jit
-from scipy.sparse import csr_array
 from scipy.sparse import csr_matrix
 
-
-# from numba import jit
 
 if TYPE_CHECKING:
     from easygraph import Graph

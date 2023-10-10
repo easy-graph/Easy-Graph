@@ -25,7 +25,6 @@ def g2():
 def g3():
     e_list = [[0, 1], [0, 1, 2], [2, 3, 4]]
     e_weight = [1, 1, 1]
-    print("eg", dir(eg))
     g = eg.Hypergraph(5, e_list=e_list, e_weight=e_weight)
     return g
 

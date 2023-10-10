@@ -206,17 +206,6 @@ class BaseHypergraph:
             pass
         else:
             raise TypeError("e_list must be List[int] or List[List[int]].")
-        # for _idx in range(len(e_list)):
-        #     e_list[_idx] = tuple(e_list[_idx])
-        # return e_list
-        # if type(e_list[0]) in (int, float):
-        #     return [tuple(e_list)]
-        # elif type(e_list) == tuple:
-        #     e_list = list(e_list)
-        # elif type(e_list) == list:
-        #     pass
-        # else:
-        #     raise TypeError("e_list must be List[int] or List[List[int]].")
         for _idx in range(len(e_list)):
             e_list[_idx] = tuple(sorted(e_list[_idx]))
         return e_list
