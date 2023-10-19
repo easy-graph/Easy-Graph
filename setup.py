@@ -1,5 +1,7 @@
 import os
 import platform
+import subprocess
+import sys
 
 from distutils import sysconfig
 from pathlib import Path
@@ -10,6 +12,37 @@ import setuptools
 from pybind11.setup_helpers import Pybind11Extension
 from pybind11.setup_helpers import build_ext
 
+class CMakeExtensionGPU(setuptools.Extension):
+    def __init__(self, name: str, sourcedir: str = "", **kwargs) -> None:
+        super().__init__(name, sources=[], **kwargs)
+
+class EGBuildExt(build_ext):
+    def build_extension(self, ext: build_ext) -> None:
+        if ext.name == "cpp_easygraph":
+            super(build_ext, self).build_extension(ext)
+        
+        elif ext.name == "gpu_easygraph":
+            # Must be in this form due to bug in .resolve() only fixed in Python 3.10+
+            ext_fullpath = Path.cwd() / self.get_ext_fullpath(ext.name)
+            extdir = ext_fullpath.parent.resolve()
+            cmake_args = [
+                f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
+                f"-DPYTHON_EXECUTABLE={sys.executable}"
+            ]
+            gpu_source_code_dir = Path("./gpu_easygraph").resolve()
+            try:
+                subprocess.run(
+                    ["cmake", ".", *cmake_args], cwd=gpu_source_code_dir, check=True
+                )
+                subprocess.run(
+                    ["cmake", "--build", "."], cwd=gpu_source_code_dir, check=True
+                )
+            except subprocess.CalledProcessError:
+                print("If you don't intend to install gpu-related functions, the error"\
+                      " above can be safely ignored", file=sys. stderr, flush=True)
+
+        else:
+            raise Exception("Unknow Extension was passed in: {}".format(ext.name))
 
 with open("README.rst") as fh:
     long_description = fh.read()
@@ -66,10 +99,13 @@ setuptools.setup(
     setup_requires=[CYTHON_STR],
     test_suite="nose.collector",
     tests_require=[],
-    cmdclass={"build_ext": build_ext},
+    cmdclass={
+        "build_ext": EGBuildExt,
+    },
     ext_modules=[
         Pybind11Extension(
             "cpp_easygraph", sources, optional=True, extra_compile_args=compileArgs,
-        )
+        ),
+        CMakeExtensionGPU("gpu_easygraph", "", optional=True)
     ],
 )
