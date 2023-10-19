@@ -38,7 +38,8 @@ class EGBuildExt(build_ext):
                     ["cmake", "--build", "."], cwd=gpu_source_code_dir, check=True
                 )
             except subprocess.CalledProcessError:
-                pass
+                print("If you don't intend to install gpu-related functions, the error"\
+                      " above can be safely ignored", file=sys. stderr, flush=True)
 
         else:
             raise Exception("Unknow Extension was passed in: {}".format(ext.name))
