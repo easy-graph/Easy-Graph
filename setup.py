@@ -19,7 +19,7 @@ class CMakeExtensionGPU(setuptools.Extension):
 class EGBuildExt(build_ext):
     def build_extension(self, ext: build_ext) -> None:
         if ext.name == "cpp_easygraph":
-            return super(build_ext, self).build_extension(ext)
+            super(build_ext, self).build_extension(ext)
         
         elif ext.name == "gpu_easygraph":
             # Must be in this form due to bug in .resolve() only fixed in Python 3.10+
@@ -30,14 +30,16 @@ class EGBuildExt(build_ext):
                 f"-DPYTHON_EXECUTABLE={sys.executable}"
             ]
             gpu_source_code_dir = Path("./gpu_easygraph").resolve()
+            try:
+                subprocess.run(
+                    ["cmake", ".", *cmake_args], cwd=gpu_source_code_dir, check=True
+                )
+                subprocess.run(
+                    ["cmake", "--build", "."], cwd=gpu_source_code_dir, check=True
+                )
+            except subprocess.CalledProcessError:
+                pass
 
-            subprocess.run(
-                ["cmake", ".", *cmake_args], cwd=gpu_source_code_dir, check=True
-            )
-            subprocess.run(
-                ["cmake", "--build", "."], cwd=gpu_source_code_dir, check=True
-            )
-            return None
         else:
             raise Exception("Unknow Extension was passed in: {}".format(ext.name))
 
