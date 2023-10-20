@@ -92,6 +92,7 @@ int indexed_value_to_eg_node_dic (
 }
 
 
+
 int sources_stdlize (
     _IN_ py::object py_sources,
     _IN_ int32_t len_V,
@@ -110,6 +111,8 @@ int sources_stdlize (
 
     return EG_GPU_SUCC;
 }
+
+
 
 void throw_exception (
     _IN_ int status
