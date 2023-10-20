@@ -10,7 +10,7 @@
         }                                           \
 
 #define IS_EQUAL(x, y)                              \
-        ((-EG_FLOAT_EPSILON <= ((x) - (y)))          \
+        ((-EG_FLOAT_EPSILON <= ((x) - (y)))         \
         && (((x) - (y)) <= EG_FLOAT_EPSILON))       \
 
 #ifndef _IN_

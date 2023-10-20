@@ -26,6 +26,8 @@ int eg_graph_to_CSR (
     _OUT_ std::vector<std::pair<int, float>>& E_and_W
 );
 
+
+
 /**
  * description: 
  *     convert the results represented by an array indexed with
@@ -55,6 +57,8 @@ int indexed_value_to_eg_node_dic (
     _OUT_ pybind11::dict& node_dic
 );
 
+
+
 /**
  * description: 
  *     convert the sources represented by python list to a vector which 
@@ -76,6 +80,8 @@ int sources_stdlize (
     _IN_ int32_t len_V,
     _OUT_ std::vector<int32_t>& sources
 );
+
+
 
 /**
  * description: 
