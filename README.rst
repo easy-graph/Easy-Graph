@@ -119,5 +119,7 @@ If you use EasyGraph in a scientific publication, we would appreciate citations 
       title={{EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis}},
       author={Min Gao and Zheng Li and Ruichen Li and Chenhao Cui and Xinyuan Chen and Bodian Ye and Yupeng Li and Weiwei Gu and Qingyuan Gong and Xin Wang and Yang Chen},
       year={2023},
-      journal={Patterns}
+      journal={Patterns},
+      volume={4},
+      number={10}
   }
