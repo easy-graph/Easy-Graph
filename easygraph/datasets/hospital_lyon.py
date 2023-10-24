@@ -37,7 +37,7 @@ class Hospital_Lyon(EasyGraphDataset):
             save_dir=save_dir,
         )
 
-    def preprocess(self, data, max_order=None, is_dynamic=False):
+    def preprocess(self, data, max_order=None, is_dynamic=True):
         # The index of the nodes in this dataset are not continuous and therefore require special processing
         timestamp_lst = list()
         node_data = data["node-data"]
@@ -51,6 +51,11 @@ class Hospital_Lyon(EasyGraphDataset):
             G.v_property[id] = v
             id = id + 1
         e_property_dict = data["edge-data"]
+        rows = []
+        cols = []
+        edge_flag_dict = {}
+        edge_id = 0
+        print("len data[edge-dict].items():",len(data["edge-dict"].items()))
         for id, edge in data["edge-dict"].items():
             if max_order and len(edge) > max_order + 1:
                 continue
@@ -64,6 +69,13 @@ class Hospital_Lyon(EasyGraphDataset):
 
             try:
                 edge = [name_dict[n] for n in edge]
+                # if tuple(edge) not in edge_flag_dict:
+                    # print("edge:",edge)
+                    # print("edge_id:",edge_id)
+                    # edge_flag_dict[tuple(edge)] = 1
+                rows.extend(edge)
+                cols.extend(len(edge)*[edge_id])
+                edge_id += 1
             except ValueError as e:
                 raise TypeError(f"Failed to convert nodes to type int.") from e
             if is_dynamic:
@@ -75,7 +87,8 @@ class Hospital_Lyon(EasyGraphDataset):
                 timestamp_lst.append(e_property_dict[str(id)]["timestamp"])
             else:
                 G.add_hyperedges(e_list=edge, e_property=e_property_dict[str(id)])
-
+        G._rows = rows
+        G._cols = cols
         return G, timestamp_lst
 
     @property

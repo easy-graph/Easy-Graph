@@ -86,7 +86,7 @@ class Email_Enron(EasyGraphDataset):
             range(1, len(edge_feature_list) + 1)
         )
 
-        self._g.ndata["incidence_matrix"] = self._g.incidence_matrix
+        # self._g.ndata["incidence_matrix"] = self._g.incidence_matrix
 
     @url.setter
     def url(self, value):
