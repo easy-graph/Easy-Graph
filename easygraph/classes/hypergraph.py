@@ -13,13 +13,16 @@ from typing import Union
 
 import easygraph as eg
 import numpy as np
-import torch
 import pandas as pd
+import torch
+
 from easygraph.classes.base import BaseHypergraph
 from easygraph.functions.drawing import draw_hypergraph
 from easygraph.utils.exception import EasyGraphError
 from easygraph.utils.sparse import sparse_dropout
-from scipy.sparse import csr_array,csr_matrix,coo_matrix
+from scipy.sparse import coo_matrix
+from scipy.sparse import csr_array
+from scipy.sparse import csr_matrix
 
 
 if TYPE_CHECKING:
@@ -73,7 +76,7 @@ class Hypergraph(BaseHypergraph):
         for i in range(num_v):
             self.deg_v_dict[i] = 0
             self.n_e_dict[i] = []
-            
+
         if e_list is not None:
             self.add_hyperedges(
                 e_list=e_list,
@@ -97,7 +100,7 @@ class Hypergraph(BaseHypergraph):
     def __repr__(self) -> str:
         r"""Print the hypergraph information."""
         return f"Hypergraph(num_vertex={self.num_v}, num_hyperedge={self.num_e})"
-    
+
     @property
     def ndata(self):
         return self._ndata
@@ -441,10 +444,14 @@ class Hypergraph(BaseHypergraph):
 
         for _idx in range(len(e_list)):
             flag = True
-            
-            if group_name not in self._raw_groups or self._hyperedge_code(e_list[_idx], e_list[_idx]) not in self._raw_groups[group_name]:
+
+            if (
+                group_name not in self._raw_groups
+                or self._hyperedge_code(e_list[_idx], e_list[_idx])
+                not in self._raw_groups[group_name]
+            ):
                 flag = False
-                self.edge_index +=1 
+                self.edge_index += 1
             for n_id in e_list[_idx]:
                 if self.isOutRange(n_id) == False:
                     raise EasyGraphError(
@@ -471,10 +478,8 @@ class Hypergraph(BaseHypergraph):
                     merge_op,
                     group_name,
                 )
-            
-       
+
         self._clear_cache(group_name)
-        
 
     def add_hyperedges_from_feature_kNN(
         self, feature: torch.Tensor, k: int, group_name: str = "main"
@@ -566,7 +571,6 @@ class Hypergraph(BaseHypergraph):
                 e_code = self._hyperedge_code(e_list[_idx], e_list[_idx])
                 self._raw_groups[group_name].pop(e_code, None)
         self._clear_cache(group_name)
-        
 
     def remove_group(self, group_name: str):
         r"""Remove the specified hyperedge group from the hypergraph.
@@ -952,7 +956,10 @@ class Hypergraph(BaseHypergraph):
     @property
     def incidence_matrix(self):
         if self.cache.get("incidence_matrix") is None:
-            if self.cache.get("edges_col") is None or self.cache.get("indptr_list") is None:
+            if (
+                self.cache.get("edges_col") is None
+                or self.cache.get("indptr_list") is None
+            ):
                 edges_col = []
                 indptr_list = []
                 ptr = 0
@@ -963,12 +970,17 @@ class Hypergraph(BaseHypergraph):
                 indptr_list.append(ptr)
                 self.cache["edges_col"] = np.array(edges_col)
                 self.cache["indptr_list"] = np.array(indptr_list)
-            A = csr_matrix(([1]*len(self.cache["edges_col"]), self.cache["edges_col"], self.cache["indptr_list"]),   
-                           shape=(self.num_v, self.num_e),
-                             dtype=int
-                        )            
+            A = csr_matrix(
+                (
+                    [1] * len(self.cache["edges_col"]),
+                    self.cache["edges_col"],
+                    self.cache["indptr_list"],
+                ),
+                shape=(self.num_v, self.num_e),
+                dtype=int,
+            )
             self.cache["incidence_matrix"] = A
-            
+
         return self.cache["incidence_matrix"]
 
     def get_star_expansion(self):
@@ -1008,7 +1020,10 @@ class Hypergraph(BaseHypergraph):
     def neighbor_of_node(self, node):
         neighbor_lst = []
         node_adj = self.adjacency_matrix()
-        if self.cache.get("neighbor") is None or self.cache["neighbor"].get(node) is None:
+        if (
+            self.cache.get("neighbor") is None
+            or self.cache["neighbor"].get(node) is None
+        ):
             for i in range(node_adj.shape[0]):
                 start = node_adj.indptr[i]
                 end = node_adj.indptr[i + 1]
@@ -1021,7 +1036,7 @@ class Hypergraph(BaseHypergraph):
                 self.cache["neighbor"][node] = neighbor_lst
             else:
                 self.cache["neighbor"][node] = neighbor_lst
-                
+
         return self.cache["neighbor"][node]
 
     def adjacency_matrix(self, s=1, weight=False):

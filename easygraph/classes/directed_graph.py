@@ -61,6 +61,7 @@ class DiGraph(Graph):
     adjlist_outer_dict_factory = dict
     adjlist_inner_dict_factory = dict
     edge_attr_dict_factory = dict
+    node_index_dict = dict
 
     def __init__(self, incoming_graph_data=None, **graph_attr):
         self.graph = self.graph_attr_dict_factory()
@@ -68,6 +69,8 @@ class DiGraph(Graph):
         self._node = self.node_dict_factory()
         self._adj = self.adjlist_outer_dict_factory()
         self._pred = self.adjlist_outer_dict_factory()
+        self._node_index = self.node_index_dict()
+        self._id = 0
         self.cflag = 0
         if incoming_graph_data is not None:
             convert.to_easygraph_graph(incoming_graph_data, create_using=self)
@@ -88,6 +91,10 @@ class DiGraph(Graph):
     def __getitem__(self, node):
         # return list(self._adj[node].keys())
         return self._adj[node]
+
+    @property
+    def node_index(self):
+        return self._node_index
 
     @property
     def ndata(self):
@@ -657,9 +664,10 @@ class DiGraph(Graph):
     def _add_one_node(self, one_node_for_adding, node_attr: dict = {}):
         node = one_node_for_adding
         if node not in self._node:
+            self._node_index[node] = self._id
+            self._id += 1
             self._adj[node] = self.adjlist_inner_dict_factory()
             self._pred[node] = self.adjlist_inner_dict_factory()
-
             attr_dict = self._node[node] = self.node_attr_dict_factory()
             attr_dict.update(node_attr)
         else:  # If already exists, there is no complain and still updating the node attribute

@@ -182,7 +182,7 @@ class BaseHypergraph:
             "max": lambda x, y: max(x, y),
         }
         _e = {}
-        print("e1:",e1,"e2:",e2)
+        print("e1:", e1, "e2:", e2)
         if "w_v2e" in e1 and "w_v2e" in e2:
             for _idx in range(len(e1["w_v2e"])):
                 _e["w_v2e"] = _func[op](e1["w_v2e"][_idx], e2["w_v2e"][_idx])
@@ -190,7 +190,7 @@ class BaseHypergraph:
             for _idx in range(len(e1["w_e2v"])):
                 _e["w_e2v"] = _func[op](e1["w_e2v"][_idx], e2["w_e2v"][_idx])
         _e["w_e"] = _func[op](e1["w_e"], e2["w_e"])
-        print("_e[w_e]:",_e["w_e"])
+        print("_e[w_e]:", _e["w_e"])
         return _e
 
     @staticmethod

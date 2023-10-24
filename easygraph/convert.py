@@ -570,15 +570,13 @@ def dict_to_hypergraph(data, max_order=None, is_dynamic=False):
             if tuple(edge) not in edge_flag_dict:
                 edge_flag_dict[tuple(edge)] = 1
                 rows.extend(edge)
-                cols.extend(len(edge)*[edge_id])
+                cols.extend(len(edge) * [edge_id])
                 edge_id += 1
 
         except ValueError as e:
             raise TypeError(f"Failed to convert nodes to type int.") from e
-        
-    
-        if is_dynamic:
 
+        if is_dynamic:
             G.add_hyperedges(
                 e_list=edge,
                 e_property=e_property_dict[str(id)],
