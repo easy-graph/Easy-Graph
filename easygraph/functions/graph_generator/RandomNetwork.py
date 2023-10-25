@@ -2,14 +2,16 @@ import math
 import random
 
 import easygraph as eg
+
 from easygraph.classes.graph import Graph
+
 
 __all__ = [
     "erdos_renyi_M",
     "erdos_renyi_P",
     "fast_erdos_renyi_P",
     "WS_Random",
-    "graph_Gnm"
+    "graph_Gnm",
 ]
 
 

@@ -11,8 +11,6 @@ import numpy as np
 # from easygraph.classes.hypergraph import Hypergraph
 from easygraph.utils.exception import EasyGraphError
 from scipy.special import comb
-import random
-
 
 from .lattice import *
 
@@ -24,7 +22,6 @@ __all__ = [
     "watts_strogatz_hypergraph",
     "uniform_hypergraph_Gnp",
 ]
-
 
 
 def uniform_hypergraph_Gnp_parallel(edges, prob):
@@ -435,6 +432,3 @@ def random_hypergraph(N, ps, order=None, seed=None):
     H.add_hyperedges(hyperedges)
 
     return H
-
-
-
