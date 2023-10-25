@@ -11,6 +11,8 @@ import numpy as np
 # from easygraph.classes.hypergraph import Hypergraph
 from easygraph.utils.exception import EasyGraphError
 from scipy.special import comb
+import random
+
 
 from .lattice import *
 
@@ -24,31 +26,20 @@ __all__ = [
 ]
 
 
+
 def uniform_hypergraph_Gnp_parallel(edges, prob):
-    # print("edges len:",len(edges))
-
-    import time
-
-    start_time = time.time()
     remain_edges = [e for e in edges if random.random() < prob]
-    end_time = time.time()
-    print("parallel spend time:", end_time - start_time)
     return remain_edges
 
 
 def split_edges(edges, worker):
     import math
-    import time
 
-    start_time = time.time()
     edges_size = len(edges)
     group_size = math.ceil(edges_size / worker)
     group_lst = []
-    print("split edges:", len(edges))
     for i in range(0, edges_size, group_size):
         group_lst.append(edges[i : i + group_size])
-    end_time = time.time()
-    print("parallel split spend time:", end_time - start_time)
 
     return group_lst
 
@@ -85,21 +76,11 @@ def uniform_hypergraph_Gnp(k: int, num_v: int, prob: float, n_workers=None):
         local_function = partial(uniform_hypergraph_Gnp_parallel, prob=prob)
 
         res_edges = []
-        import time
 
         with Pool(n_workers) as p:
             ret = p.imap(local_function, edges_parallel)
-            start_time = time.time()
             for res in ret:
                 res_edges.extend(res)
-                # for key in res:
-                # print("res:",len(res))
-
-                # res_hypergraph.add_hyperedges(e_list=res)
-            end_time = time.time()
-
-            print("nworker merge time:", end_time - start_time)
-        print("res:", len(res_edges))
         res_hypergraph = eg.Hypergraph(num_v=num_v, e_list=res_edges)
         return res_hypergraph
 
@@ -454,3 +435,6 @@ def random_hypergraph(N, ps, order=None, seed=None):
     H.add_hyperedges(hyperedges)
 
     return H
+
+
+
