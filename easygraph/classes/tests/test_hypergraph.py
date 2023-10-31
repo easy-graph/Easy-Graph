@@ -158,7 +158,8 @@ def test_clear(g1):
 
 def test_add_and_merge_hyperedges(g1):
     assert g1.e[1] == [1, 1, 1]
-    g1.add_hyperedges([0, 1], 3, merge_op="mean")
+    print("g1:", g1, g1.e)
+    g1.add_hyperedges(e_list=[0, 1], e_weight=3, merge_op="mean")
     assert g1.e[1] == [1, 2, 1]
     assert g1.e[0] == [(0, 1, 2, 5), (0, 1), (2, 3, 4)]
     g1.add_hyperedges([(2, 4, 3), (1, 0), (3, 4)], [1, 1, 1], merge_op="sum")

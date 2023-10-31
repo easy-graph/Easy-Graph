@@ -539,23 +539,27 @@ def dict_to_hypergraph(data, max_order=None, is_dynamic=False):
     node_num = len(node_data)
     G = eg.Hypergraph(num_v=node_num)
     try:
-        print(len(data["node-data"]))
-        for id, dd in data["node-data"].items():
-            id = int(id) - 1
+        # print(len(data["node-data"]))
+        for index, dd in data["node-data"].items():
+            id = int(index) - 1
             G.v_property[id] = dd
     except KeyError:
         raise EasyGraphError("Failed to import node attributes.")
 
     # try:
-
+    # import time
+    rows = []
+    cols = []
+    edge_flag_dict = {}
     e_property_dict = data["edge-data"]
-    for id, edge in data["edge-dict"].items():
+    edge_id = 0
+    for index, edge in data["edge-dict"].items():
         # print("id:",id)
         if max_order and len(edge) > max_order + 1:
             continue
 
         try:
-            id = int(id)
+            id = int(index)
         except ValueError as e:
             raise TypeError(
                 f"Failed to convert the edge with ID {id} to type int."
@@ -563,17 +567,25 @@ def dict_to_hypergraph(data, max_order=None, is_dynamic=False):
 
         try:
             edge = [int(n) - 1 for n in edge]
-            # print("edge:",edge)
+            if tuple(edge) not in edge_flag_dict:
+                edge_flag_dict[tuple(edge)] = 1
+                rows.extend(edge)
+                cols.extend(len(edge) * [edge_id])
+                edge_id += 1
+
         except ValueError as e:
             raise TypeError(f"Failed to convert nodes to type int.") from e
+
         if is_dynamic:
             G.add_hyperedges(
                 e_list=edge,
                 e_property=e_property_dict[str(id)],
                 group_name=e_property_dict[str(id)]["timestamp"],
             )
+
             timestamp_lst.append(e_property_dict[str(id)]["timestamp"])
         else:
             G.add_hyperedges(e_list=edge, e_property=e_property_dict[str(id)])
-
+    G._rows = rows
+    G._cols = cols
     return G, timestamp_lst

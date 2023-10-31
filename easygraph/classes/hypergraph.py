@@ -13,12 +13,15 @@ from typing import Union
 
 import easygraph as eg
 import numpy as np
+import pandas as pd
 import torch
 
 from easygraph.classes.base import BaseHypergraph
 from easygraph.functions.drawing import draw_hypergraph
 from easygraph.utils.exception import EasyGraphError
 from easygraph.utils.sparse import sparse_dropout
+from scipy.sparse import coo_matrix
+from scipy.sparse import csr_array
 from scipy.sparse import csr_matrix
 
 
@@ -68,8 +71,12 @@ class Hypergraph(BaseHypergraph):
 
         self._ndata = self.gnn_data_dict_factory()
         self.deg_v_dict = self.degree_data_dict()
+        self.n_e_dict = {}
+        self.edge_index = -1
         for i in range(num_v):
             self.deg_v_dict[i] = 0
+            self.n_e_dict[i] = []
+
         if e_list is not None:
             self.add_hyperedges(
                 e_list=e_list,
@@ -77,6 +84,18 @@ class Hypergraph(BaseHypergraph):
                 e_property=e_property,
                 merge_op=merge_op,
             )
+
+        # prepare for the build of incidence matrix
+        edges_col = []
+        indptr_list = []
+        ptr = 0
+        for v in self.n_e_dict.values():
+            edges_col.extend(v)
+            indptr_list.append(ptr)
+            ptr += len(v)
+        indptr_list.append(ptr)
+        self.cache["edges_col"] = np.array(edges_col)
+        self.cache["indptr_list"] = np.array(indptr_list)
 
     def __repr__(self) -> str:
         r"""Print the hypergraph information."""
@@ -424,18 +443,28 @@ class Hypergraph(BaseHypergraph):
         ), "The number of hyperedges and the number of weights are not equal."
 
         for _idx in range(len(e_list)):
+            flag = True
+
+            if (
+                group_name not in self._raw_groups
+                or self._hyperedge_code(e_list[_idx], e_list[_idx])
+                not in self._raw_groups[group_name]
+            ):
+                flag = False
+                self.edge_index += 1
             for n_id in e_list[_idx]:
-                self.deg_v_dict[n_id] += 1
                 if self.isOutRange(n_id) == False:
                     raise EasyGraphError(
                         "The node id in hyperedge is out of range, please ensure that"
                         " the node is in [1,n)"
                     )
+                self.deg_v_dict[n_id] += 1
+                if flag is False:
+                    self.n_e_dict[n_id].append(self.edge_index)
             if e_property != None:
                 if type(e_property) == dict:
                     e_property = [e_property]
                 e_property[_idx].update({"w_e": float(e_weight[_idx])})
-
                 self._add_hyperedge(
                     self._hyperedge_code(e_list[_idx], e_list[_idx]),
                     e_property[_idx],
@@ -927,12 +956,29 @@ class Hypergraph(BaseHypergraph):
     @property
     def incidence_matrix(self):
         if self.cache.get("incidence_matrix") is None:
+            if (
+                self.cache.get("edges_col") is None
+                or self.cache.get("indptr_list") is None
+            ):
+                edges_col = []
+                indptr_list = []
+                ptr = 0
+                for v in self.n_e_dict.values():
+                    edges_col.extend(v)
+                    indptr_list.append(ptr)
+                    ptr += len(v)
+                indptr_list.append(ptr)
+                self.cache["edges_col"] = np.array(edges_col)
+                self.cache["indptr_list"] = np.array(indptr_list)
             A = csr_matrix(
-                (len(self._rows) * [1], (self._rows, self._cols)),
+                (
+                    [1] * len(self.cache["edges_col"]),
+                    self.cache["edges_col"],
+                    self.cache["indptr_list"],
+                ),
                 shape=(self.num_v, self.num_e),
                 dtype=int,
             )
-
             self.cache["incidence_matrix"] = A
 
         return self.cache["incidence_matrix"]
@@ -974,14 +1020,24 @@ class Hypergraph(BaseHypergraph):
     def neighbor_of_node(self, node):
         neighbor_lst = []
         node_adj = self.adjacency_matrix()
-        for i in range(node_adj.shape[0]):
-            start = node_adj.indptr[i]
-            end = node_adj.indptr[i + 1]
-            if i == node:
-                for j in range(start, end):
-                    neighbor_lst.append(node_adj.indices[j])
-                break
-        return neighbor_lst
+        if (
+            self.cache.get("neighbor") is None
+            or self.cache["neighbor"].get(node) is None
+        ):
+            for i in range(node_adj.shape[0]):
+                start = node_adj.indptr[i]
+                end = node_adj.indptr[i + 1]
+                if i == node:
+                    for j in range(start, end):
+                        neighbor_lst.append(node_adj.indices[j])
+                    break
+            if self.cache.get("neighbor") is None:
+                self.cache["neighbor"] = {}
+                self.cache["neighbor"][node] = neighbor_lst
+            else:
+                self.cache["neighbor"][node] = neighbor_lst
+
+        return self.cache["neighbor"][node]
 
     def adjacency_matrix(self, s=1, weight=False):
         r"""
@@ -1002,7 +1058,7 @@ class Hypergraph(BaseHypergraph):
             A[np.diag_indices_from(A)] = 0
             if not weight:
                 A = (A >= s) * 1
-            self.cache["adjacency_matrix"] = csr_matrix(A)
+            self.cache["adjacency_matrix"] = csr_array(A)
         return self.cache["adjacency_matrix"]
 
     def edge_adjacency_matrix(self, s=1, weight=False):
@@ -1023,7 +1079,7 @@ class Hypergraph(BaseHypergraph):
         A[np.diag_indices_from(A)] = 0
         if not weight:
             A = (A >= s) * 1
-        return csr_matrix(A)
+        return csr_array(A)
         # return A
 
     def H_of_group(self, group_name: str) -> torch.Tensor:
@@ -1096,10 +1152,9 @@ class Hypergraph(BaseHypergraph):
         """
 
         l_graph = self.get_clique_expansion(s=s, edge=False)
-
         if source not in l_graph.nodes:
             raise EasyGraphError("Please make sure source exist!")
-        if target not in l_graph.nodes:
+        if target is not None and target not in l_graph.nodes:
             raise EasyGraphError("Please make sure target exist!")
         dist = eg.single_source_dijkstra(G=l_graph, source=source, target=target)
 
