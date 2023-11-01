@@ -21,7 +21,7 @@ py::object closeness_centrality(
     eg_graph_to_CSR(py_G, py_weight, V, E_and_W);
 
     vector<int32_t> sources;
-    sources_stdlize(py_sources, V.size(), sources);
+    sources_stdlize(py_G, py_sources, V.size(), sources);
 
     vector<int32_t> E(E_and_W.size());
     vector<float> W(E_and_W.size());
@@ -33,7 +33,7 @@ py::object closeness_centrality(
     vector<float> CC(V.size());
 
     int r = cuda_closeness_centrality(V.data(), E.data(), W.data(),
-            sources.data(), V.size(), E.size(), CC.data());
+            sources.data(), V.size(), E.size(), sources.size(), CC.data());
 
     if (r != EG_GPU_SUCC) {
         // meets an error, throw an exception
@@ -41,8 +41,10 @@ py::object closeness_centrality(
         // the following codes will never be executed
     }
 
-    py::dict ret;
-    indexed_value_to_eg_node_dic(py_G, CC, sources, ret);
+    py::list ret;
+    for (int i = 0; i < sources.size(); ++i) {
+        ret.append(CC[i]);
+    }
     
     return ret;
 }
