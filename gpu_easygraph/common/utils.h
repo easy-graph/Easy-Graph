@@ -28,54 +28,23 @@ int eg_graph_to_CSR (
 
 
 
-/**
- * description: 
- *     convert the results represented by an array indexed with
- *     node_index to node_dic. The <key, value> pair of node_dic
- *     is <node name, value from results>
- * 
- * arguments:
- *     val -
- *         the results 
- * 
- *     sources -
- *         the node will be inserted into node_dic only if sources[i] is
- *         EG_GPU_NODE_ACTIVE
- * 
- *     node_dic -
- *         the key is node name represented by a hashable python object,
- *         namely index2node[i]
- *         the value is from val[i]
- * 
- * return:
- *     EG_GPU_STATUS_CODE
- */
-int indexed_value_to_eg_node_dic (
-    _IN_ pybind11::object py_G,
-    _IN_ const std::vector<float>& val,
-    _IN_ const std::vector<int32_t>& sources,
-    _OUT_ pybind11::dict& node_dic
-);
-
-
 
 /**
  * description: 
- *     convert the sources represented by python list to a vector which 
- *     contains EG_GPU_NODE_STATUS
+ *     Fill in the indeces of nodes needed to calculate CC
  * 
  * arguments:
  *     py_sources -
- *         sources with python list type
+ *         sources containing types of nodes
  * 
  *     sources -
- *         sources with std::vector format, the elements of it are either
- *         EG_GPU_NODE_ACTIVE or EG_GPU_NODE_INACTIVE
+ *         sources containing indeces of nodes
  * 
  * return:
  *     EG_GPU_STATUS_CODE
  */
 int sources_stdlize (
+    _IN_ pybind11::object py_G,
     _IN_ pybind11::object py_sources,
     _IN_ int32_t len_V,
     _OUT_ std::vector<int32_t>& sources

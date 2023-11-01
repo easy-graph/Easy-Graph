@@ -66,47 +66,26 @@ int eg_graph_to_CSR (
 
 
 
-int indexed_value_to_eg_node_dic (
-    _IN_ py::object py_G,
-    _IN_ const vector<float>& val,
-    _IN_ const vector<int32_t>& sources,
-    _OUT_ py::dict& node_dic
-)
-{
-    py::dict node_to_index = py_G.attr("node_index");
-    py::list index_to_node(node_to_index.size());
-    
-    for (auto it = node_to_index.begin(); it != node_to_index.end(); ++it) {
-        index_to_node[it->second.cast<int>()] = it->first;
-    }
-
-    node_dic.clear();
-
-    for (int i = 0; i < val.size(); ++i) {
-        if (sources[i] == EG_GPU_NODE_ACTIVE) {
-            node_dic[index_to_node[i]] = py::float_(val[i]);
-        }
-    }
-
-    return EG_GPU_SUCC;
-}
-
-
 
 int sources_stdlize (
+    _IN_ py::object py_G,
     _IN_ py::object py_sources,
     _IN_ int32_t len_V,
     _OUT_ vector<int32_t>& sources
 )
 {
+    py::dict node_to_index = py_G.attr("node_index");
+
+    sources.clear();
     if (py_sources.is_none()) {
-        sources = vector<int32_t>(len_V, EG_GPU_NODE_ACTIVE);
+        for (int i = 0; i < len_V; ++i) {
+            sources.push_back(i);
+        }
         return EG_GPU_SUCC;
     }
 
-    sources = vector<int32_t>(len_V, EG_GPU_NODE_INACTIVE);
     for (auto it = py_sources.begin(); it != py_sources.end(); ++it) {
-        sources[it->cast<int>()] = EG_GPU_NODE_ACTIVE;
+        sources.push_back(node_to_index[*it].cast<int32_t>());
     }
 
     return EG_GPU_SUCC;

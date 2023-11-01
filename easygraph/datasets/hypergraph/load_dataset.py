@@ -9,7 +9,9 @@ from easygraph.convert import dict_to_hypergraph
 from easygraph.utils.exception import EasyGraphError
 
 
-__all__ = ["load_hypergraph_data"]
+__all__ = [
+    "load_dynamic_hypergraph_dataset",
+]
 
 dataset_index_url = "https://gitlab.com/easy-graph/easygraph-data/-/raw/main/dataset_index.json?inline=false"
 
@@ -26,8 +28,8 @@ def request_json_from_url(url):
         raise EasyGraphError(f"Error: HTTP response {r.status_code}")
 
 
-def _request_from_xgi_data(dataset=None, cache=True):
-    """Request a dataset from xgi-data.
+def _request_from_eg_data(dataset=None, cache=True):
+    """Request a dataset from eg-data.
 
     Parameters
     ----------
@@ -62,7 +64,7 @@ def _request_from_xgi_data(dataset=None, cache=True):
     return request_json_from_url(index_data[key]["url"])
 
 
-def load_hypergraph_data(
+def load_dynamic_hypergraph_dataset(
     dataset=None,
     local_read=False,
     path="",
@@ -86,7 +88,7 @@ def load_hypergraph_data(
                 "from the xgi-data repository instead. To download a local "
                 "copy, use `download_xgi_data`."
             )
-    data = _request_from_xgi_data(dataset)
+    data = _request_from_eg_data(dataset)
     return dict_to_hypergraph(
         data, max_order=max_order, is_dynamic=index_datasets[dataset]["is_dynamic"]
     )

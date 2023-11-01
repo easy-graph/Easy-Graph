@@ -35,11 +35,12 @@
  *     EG_GPU_STATUS_CODE
  */
 int cuda_closeness_centrality (
-    _IN_ int32_t* V, 
-    _IN_ int32_t* E, 
-    _IN_ float* W, 
+    _IN_ int32_t* V,
+    _IN_ int32_t* E,
+    _IN_ float* W,
     _IN_ int32_t* sources,
-    _IN_ int32_t len_V, 
-    _IN_ int32_t len_E,  
+    _IN_ int32_t len_V,
+    _IN_ int32_t len_E,
+    _IN_ int32_t len_sources,
     _OUT_ float* CC
 );
