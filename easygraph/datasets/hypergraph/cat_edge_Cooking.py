@@ -15,7 +15,7 @@ def request_text_from_url(url):
         raise EasyGraphError(f"Error: HTTP response {r.status_code}")
 
 
-class cat-edge-Cooking:
+class cat_edge_Cooking:
     def __init__(self, data_root=None):
         self.data_root = "https://" if data_root is not None else data_root
         self.hyperedges_path = "https://gitlab.com/easy-graph/easygraph-data-cat-edge-cooking/-/raw/main/hyperedges.txt?inline=false"
