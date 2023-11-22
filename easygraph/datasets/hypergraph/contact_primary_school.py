@@ -94,9 +94,8 @@ class contact_primary_school:
         # print("process_label_names_info:", process_label_names_info)
 
 
-
-if __name__ == "__main__":
-    a = contact_primary_school()
-    print(a.node_labels)
-    print(a.label_names)
-#     print(a.node_names)
+#if __name__ == "__main__":
+#    a = contact_primary_school()
+#    print(a.node_labels)
+#    print(a.label_names)
+#    print(a.node_names)

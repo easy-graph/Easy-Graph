@@ -92,11 +92,3 @@ class trivago_clicks:
         process_label_names_info = self.process_label_txt(label_names_info)
         self._label_names = process_label_names_info
         # print("process_label_names_info:", process_label_names_info)
-
-
-
-if __name__ == "__main__":
-    a = trivago_clicks()
-    print(a.node_labels)
-    print(a.label_names)
-    print(a.hyperedges)
