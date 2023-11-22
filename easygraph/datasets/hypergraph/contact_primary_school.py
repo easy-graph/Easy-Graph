@@ -20,7 +20,7 @@ class contact_primary_school:
         self.data_root = "https://" if data_root is not None else data_root
         self.hyperedges_path = "https://gitlab.com/easy-graph/easygraph-data-contact-primary-school/-/raw/main/hyperedges-contact-primary-school.txt?inline=false"
         self.node_labels_path = "https://gitlab.com/easy-graph/easygraph-data-contact-primary-school/-/raw/main/node-labels-contact-primary-school.txt?ref_type=heads&inline=false"
-        #self.node_names_path = "https://gitlab.com/easy-graph/easygraph-data-house-committees/-/raw/main/node-names-house-committees.txt?ref_type=heads&inline=false"
+        # self.node_names_path = "https://gitlab.com/easy-graph/easygraph-data-house-committees/-/raw/main/node-names-house-committees.txt?ref_type=heads&inline=false"
         self.label_names_path = "https://gitlab.com/easy-graph/easygraph-data-contact-primary-school/-/raw/main/label-names-contact-primary-school.txt?ref_type=heads&inline=false"
         self._hyperedges = []
         self._node_labels = []
@@ -29,7 +29,7 @@ class contact_primary_school:
         self.generate_hypergraph(
             hyperedges_path=self.hyperedges_path,
             node_labels_path=self.node_labels_path,
-            #node_names_path=self.node_names_path,
+            # node_names_path=self.node_names_path,
             label_names_path=self.label_names_path,
         )
 
@@ -64,7 +64,7 @@ class contact_primary_school:
         self,
         hyperedges_path=None,
         node_labels_path=None,
-        #node_names_path=None,
+        # node_names_path=None,
         label_names_path=None,
     ):
         def fun(data):
@@ -94,7 +94,7 @@ class contact_primary_school:
         # print("process_label_names_info:", process_label_names_info)
 
 
-#if __name__ == "__main__":
+# if __name__ == "__main__":
 #    a = contact_primary_school()
 #    print(a.node_labels)
 #    print(a.label_names)

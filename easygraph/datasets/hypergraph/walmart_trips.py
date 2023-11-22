@@ -20,7 +20,7 @@ class walmart_trips:
         self.data_root = "https://" if data_root is not None else data_root
         self.hyperedges_path = "https://gitlab.com/easy-graph/easygraph-data-walmart-trips/-/raw/main/hyperedges-walmart-trips.txt?inline=false"
         self.node_labels_path = "https://gitlab.com/easy-graph/easygraph-data-walmart-trips/-/raw/main/node-labels-walmart-trips.txt?ref_type=heads&inline=false"
-        #self.node_names_path = "https://gitlab.com/easy-graph/easygraph-data-walmart-trips/-/raw/main/node-names-house-committees.txt?ref_type=heads&inline=false"
+        # self.node_names_path = "https://gitlab.com/easy-graph/easygraph-data-walmart-trips/-/raw/main/node-names-house-committees.txt?ref_type=heads&inline=false"
         self.label_names_path = "https://gitlab.com/easy-graph/easygraph-data-walmart-trips/-/raw/main/label-names-walmart-trips.txt?ref_type=heads&inline=false"
         self._hyperedges = []
         self._node_labels = []
@@ -29,7 +29,7 @@ class walmart_trips:
         self.generate_hypergraph(
             hyperedges_path=self.hyperedges_path,
             node_labels_path=self.node_labels_path,
-            #node_names_path=self.node_names_path,
+            # node_names_path=self.node_names_path,
             label_names_path=self.label_names_path,
         )
 
@@ -64,7 +64,7 @@ class walmart_trips:
         self,
         hyperedges_path=None,
         node_labels_path=None,
-        #node_names_path=None,
+        # node_names_path=None,
         label_names_path=None,
     ):
         def fun(data):

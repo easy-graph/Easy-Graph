@@ -29,7 +29,7 @@ class mathoverflow_answers:
         self.generate_hypergraph(
             hyperedges_path=self.hyperedges_path,
             node_labels_path=self.node_labels_path,
-            #node_names_path=self.node_names_path,
+            # node_names_path=self.node_names_path,
             label_names_path=self.label_names_path,
         )
 
@@ -64,7 +64,7 @@ class mathoverflow_answers:
         self,
         hyperedges_path=None,
         node_labels_path=None,
-        #node_names_path=None,
+        # node_names_path=None,
         label_names_path=None,
     ):
         def fun(data):
