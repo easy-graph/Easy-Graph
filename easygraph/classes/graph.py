@@ -269,7 +269,7 @@ class Graph:
     def D_v_neg_1_2(
         self,
     ):
-        r"""Return the nomalized diagnal matrix of vertex degree :math:`\mathbf{D}_v^{-\frac{1}{2}}` with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
+        r"""Return the normalized diagonal matrix of vertex degree :math:`\mathbf{D}_v^{-\frac{1}{2}}` with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
         """
         import torch
 
@@ -345,7 +345,7 @@ class Graph:
 
     @property
     def D_v(self):
-        r"""Return the diagnal matrix of vertex degree :math:`\mathbf{D}_v` with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
+        r"""Return the diagonal matrix of vertex degree :math:`\mathbf{D}_v` with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
         """
         import torch
 
@@ -1306,7 +1306,7 @@ class Graph:
 
         Examples
         --------
-        Remove the edges *('Jack', 'Mary')* amd *('Mary', 'Tom')* from *G*
+        Remove the edges *('Jack', 'Mary')* and *('Mary', 'Tom')* from *G*
 
         >>> G.remove_edge([
         ...     ('Jack', 'Mary'),

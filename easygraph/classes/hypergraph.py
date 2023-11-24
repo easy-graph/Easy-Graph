@@ -35,7 +35,7 @@ class Hypergraph(BaseHypergraph):
 
     """
     The ``Hypergraph`` class is developed for hypergraph structures.
-    Pleast notice that node id in hypergraph is in [0, num_v)
+    Please notice that node id in hypergraph is in [0, num_v)
 
     Parameters
     ----------
@@ -292,7 +292,7 @@ class Hypergraph(BaseHypergraph):
     def _e_list_from_feature_kNN(features: torch.Tensor, k: int):
         import scipy
 
-        r"""Construct hyperedges from the feature matrix. Each hyperedge in the hypergraph is constructed by the central vertex ans its :math:`k-1` neighbor vertices.
+        r"""Construct hyperedges from the feature matrix. Each hyperedge in the hypergraph is constructed by the central vertex and its :math:`k-1` neighbor vertices.
 
         Parameters:
             ``features`` (``torch.Tensor``): The feature matrix.
@@ -312,7 +312,7 @@ class Hypergraph(BaseHypergraph):
     def from_feature_kNN(
         features: torch.Tensor, k: int, device: torch.device = torch.device("cpu")
     ):
-        r"""Construct the hypergraph from the feature matrix. Each hyperedge in the hypergraph is constructed by the central vertex ans its :math:`k-1` neighbor vertices.
+        r"""Construct the hypergraph from the feature matrix. Each hyperedge in the hypergraph is constructed by the central vertex and its :math:`k-1` neighbor vertices.
 
         .. note::
             The constructed hypergraph is a k-uniform hypergraph. If the feature matrix has the size :math:`N \times C`, the number of vertices and hyperedges of the constructed hypergraph are both :math:`N`.
