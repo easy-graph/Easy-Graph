@@ -142,7 +142,7 @@ class VertexClassificationTask(BaseTask):
         r"""Test the model.
 
         Args:
-            ``data`` (``dict``, optional): The input data if set to ``None``, the specified ``data`` in the intialization of the experiments will be used. Defaults to ``None``.
+            ``data`` (``dict``, optional): The input data if set to ``None``, the specified ``data`` in the initialization of the experiments will be used. Defaults to ``None``.
             ``model`` (``nn.Module``, optional): The model if set to ``None``, the trained best model will be used. Defaults to ``None``.
         """
         if data is None:

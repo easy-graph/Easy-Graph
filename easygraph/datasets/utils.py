@@ -288,7 +288,7 @@ def generate_mask_tensor(mask):
     """
     assert isinstance(
         mask, np.ndarray
-    ), "input for generate_mask_tensorshould be an numpy ndarray"
+    ), "input for generate_mask_tensor should be an numpy ndarray"
     return tensor(mask, dtype=data_type_dict()["bool"])
 
 
