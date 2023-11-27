@@ -18,7 +18,7 @@ def dynamical_assortativity(H):
 
     Parameters
     ----------
-    H : xgi.Hypergraph
+    H : eg.Hypergraph
         Hypergraph of interest
 
     Returns
