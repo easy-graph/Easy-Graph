@@ -13,14 +13,12 @@ from typing import Union
 
 import easygraph as eg
 import numpy as np
-import pandas as pd
 import torch
 
 from easygraph.classes.base import BaseHypergraph
 from easygraph.functions.drawing import draw_hypergraph
 from easygraph.utils.exception import EasyGraphError
 from easygraph.utils.sparse import sparse_dropout
-from scipy.sparse import coo_matrix
 from scipy.sparse import csr_array
 from scipy.sparse import csr_matrix
 
