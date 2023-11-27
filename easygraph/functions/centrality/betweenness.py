@@ -129,7 +129,7 @@ def betweenness_centrality(
         directed=G.is_directed(),
         endpoints=endpoints,
     )
-    return betweenness
+    return list(betweenness.values())
 
 
 def _rescale(betweenness, n, normalized, directed=False, endpoints=False):
