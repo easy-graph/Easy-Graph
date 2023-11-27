@@ -23,14 +23,6 @@ def format_metric_configs(task: str, metric_configs: List[Union[str, Dict[str, d
         import easygraph.ml_metrics.classification as module
 
         available_metrics = module.available_classification_metrics()
-    # elif task == "retrieval":
-    #     import dhg.ml_metrics.retrieval as module
-    #
-    #     available_metrics = module.available_retrieval_metrics()
-    # elif task == "recommender":
-    #     import dhg.ml_metrics.recommender as module
-    #
-    #     available_metrics = module.available_recommender_metrics()
     else:
         raise ValueError(
             f"Task {task} is not supported yet. Please email '{AUTHOR_EMAIL}' to"
