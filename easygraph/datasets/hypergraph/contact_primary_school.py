@@ -52,6 +52,7 @@ class contact_primary_school:
     def node_names(self):
         return self._node_names
     """
+
     @property
     def label_names(self):
         return self._label_names

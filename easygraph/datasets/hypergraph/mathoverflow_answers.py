@@ -20,7 +20,7 @@ class mathoverflow_answers:
         self.data_root = "https://" if data_root is not None else data_root
         self.hyperedges_path = "https://gitlab.com/easy-graph/easygraph-data-mathoverflow-answers/-/raw/main/hyperedges-mathoverflow-answers.txt?inline=false"
         self.node_labels_path = "https://gitlab.com/easy-graph/easygraph-data-mathoverflow-answers/-/raw/main/node-labels-mathoverflow-answers.txt?ref_type=heads&inline=false"
-        #self.node_names_path = "https://gitlab.com/easy-graph/easygraph-data-house-committees/-/raw/main/node-names-house-committees.txt?ref_type=heads&inline=false"
+        # self.node_names_path = "https://gitlab.com/easy-graph/easygraph-data-house-committees/-/raw/main/node-names-house-committees.txt?ref_type=heads&inline=false"
         self.label_names_path = "https://gitlab.com/easy-graph/easygraph-data-mathoverflow-answers/-/raw/main/label-names-mathoverflow-answers.txt?ref_type=heads&inline=false"
         self._hyperedges = []
         self._node_labels = []
@@ -52,6 +52,7 @@ class mathoverflow_answers:
     def node_names(self):
         return self._node_names
     """
+
     @property
     def label_names(self):
         return self._label_names
@@ -79,14 +80,14 @@ class mathoverflow_answers:
             hyperedge = [int(i) - 1 for i in hyperedge.split(",")]
             self._hyperedges.append(tuple(hyperedge))
         # print(self.hyperedges)
-        '''
+        """
         node_labels_info = request_text_from_url(node_labels_path)
 
         process_node_labels_info = self.process_label_txt(
             node_labels_info, transform_fun=fun
         )
         self._node_labels = process_node_labels_info
-        '''
+        """
         node_labels_info = request_text_from_url(hyperedges_path)
         node_labels_info = node_labels_info.strip()
         node_labels_lst = hyperedges_info.split("\n")

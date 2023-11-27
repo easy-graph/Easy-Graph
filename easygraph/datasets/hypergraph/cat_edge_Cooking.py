@@ -85,7 +85,7 @@ class cat_edge_Cooking:
         )
         self._edge_labels = process_edge_labels_info
         # print("process_node_labels_info:", process_node_labels_info)
-        
+
         node_names_info = request_text_from_url(node_names_path)
         process_node_names_info = self.process_label_txt(node_names_info)
         self._node_names = process_node_names_info

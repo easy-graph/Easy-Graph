@@ -94,4 +94,3 @@ class senate_committees:
         process_label_names_info = self.process_label_txt(label_names_info)
         self._label_names = process_label_names_info
         # print("process_label_names_info:", process_label_names_info)
-        
