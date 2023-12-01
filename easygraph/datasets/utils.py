@@ -64,7 +64,7 @@ def tensor(data, dtype=None):
     if isinstance(data, list) and len(data) > 0 and isinstance(data[0], th.Tensor):
         # prevent GPU->CPU->GPU copies
         if data[0].ndim == 0:
-            # zero dimenion scalar tensors
+            # zero dimension scalar tensors
             return th.stack(data)
     if isinstance(data, th.Tensor):
         return th.as_tensor(data, dtype=dtype, device=data.device)
@@ -288,7 +288,7 @@ def generate_mask_tensor(mask):
     """
     assert isinstance(
         mask, np.ndarray
-    ), "input for generate_mask_tensorshould be an numpy ndarray"
+    ), "input for generate_mask_tensor should be an numpy ndarray"
     return tensor(mask, dtype=data_type_dict()["bool"])
 
 

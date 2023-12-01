@@ -27,9 +27,9 @@ class BaseTask:
         ``data`` (``dict``): The dictionary to store input data that used in the experiment.
         ``model_builder`` (``Callable``): The function to build a model with a fixed parameter ``trial``.
         ``train_builder`` (``Callable``): The function to build a training configuration with two fixed parameters ``trial`` and ``model``.
-        ``evaluator`` (``dhg.ml_metrics.BaseEvaluator``): The EasyGraph evaluator object to evaluate performance of the model in the experiment.
+        ``evaluator`` (``eg.ml_metrics.BaseEvaluator``): The EasyGraph evaluator object to evaluate performance of the model in the experiment.
         ``device`` (``torch.device``): The target device to run the experiment.
-        ``structure_builder`` (``Optional[Callable]``): The function to build a structure with a fixed parameter ``trial``. The structure can be ``dhg.Graph``, ``dhg.DiGraph``, ``dhg.BiGraph``, and ``dhg.Hypergraph``.
+        ``structure_builder`` (``Optional[Callable]``): The function to build a structure with a fixed parameter ``trial``. The structure can be ``eg.Graph``, ``eg.DiGraph``, ``eg.BiGraph``, and ``eg.Hypergraph``.
         ``study_name`` (``Optional[str]``): The name of this study. If set to ``None``, the study name will be generated automatically according to current time. Defaults to ``None``.
         ``overwrite`` (``bool``): The flag that whether to overwrite the existing study. Different studies are identified by the ``study_name``. Defaults to ``True``.
     """
@@ -199,6 +199,6 @@ class BaseTask:
         r"""Test the model.
 
         Args:
-            ``data`` (``dict``, optional): The input data if set to ``None``, the specified ``data`` in the intialization of the experiments will be used. Defaults to ``None``.
+            ``data`` (``dict``, optional): The input data if set to ``None``, the specified ``data`` in the initialization of the experiments will be used. Defaults to ``None``.
             ``model`` (``nn.Module``, optional): The model if set to ``None``, the trained best model will be used. Defaults to ``None``.
         """

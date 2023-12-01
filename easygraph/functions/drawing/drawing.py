@@ -64,7 +64,7 @@ def draw_hypergraph(
 
     assert isinstance(
         hg, eg.Hypergraph
-    ), "The input object must be a DHG's hypergraph object."
+    ), "The input object must be a EasyGraph's hypergraph object."
     assert e_style in ["circle"], "e_style must be 'circle'"
     assert hg.num_e > 0, "g must be a non-empty structure"
     fig, ax = plt.subplots(figsize=(6, 6))
@@ -154,7 +154,7 @@ def _draw_single_dynamic_hypergraph(
 
     assert isinstance(
         hg, eg.Hypergraph
-    ), "The input object must be a DHG's hypergraph object."
+    ), "The input object must be a EasyGraph's hypergraph object."
     assert e_style in ["circle"], "e_style must be 'circle'"
     assert hg.num_e > 0, "g must be a non-empty structure"
 

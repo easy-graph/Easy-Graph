@@ -39,7 +39,6 @@ def uniform_hypergraph_Gnm_parallel(num_e, num_v, k):
         e = tuple(sorted(e))
         if e not in edges:
             edges.add(e)
-    # print("parallel len:",len(edges))
     return list(edges)
 
 
