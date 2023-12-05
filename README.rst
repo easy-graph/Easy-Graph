@@ -23,7 +23,7 @@ Copyright (C) <2020-2023> by DataNET Group, Fudan University
 
 Introduction
 ------------
-EasyGraph is an open-source graph processing library. It is mainly written in Python and supports analysis for undirected graphs and directed graphs. EasyGraph supports various formats of graph data and covers a series of important graph mining algorithms for community detection, structural hole spanner detection, graph embedding, and motif detection. Moreover, EasyGraph implements some key elements using C++ and introduces multiprocessing optimization to achieve better efficiency.
+EasyGraph is an open-source network analysis library. It is mainly written in Python and supports analysis for undirected networks and directed networks. EasyGraph supports various formats of network data and covers a series of important network analysis algorithms for community detection, structural hole spanner detection, network embedding, and motif detection. Moreover, EasyGraph implements some key elements using C++ and introduces multiprocessing optimization to achieve better efficiency.
 
 News
 ----
