@@ -55,7 +55,6 @@ class Hospital_Lyon(EasyGraphDataset):
         cols = []
         edge_flag_dict = {}
         edge_id = 0
-        print("len data[edge-dict].items():", len(data["edge-dict"].items()))
         for id, edge in data["edge-dict"].items():
             if max_order and len(edge) > max_order + 1:
                 continue
@@ -69,10 +68,6 @@ class Hospital_Lyon(EasyGraphDataset):
 
             try:
                 edge = [name_dict[n] for n in edge]
-                # if tuple(edge) not in edge_flag_dict:
-                # print("edge:",edge)
-                # print("edge_id:",edge_id)
-                # edge_flag_dict[tuple(edge)] = 1
                 rows.extend(edge)
                 cols.extend(len(edge) * [edge_id])
                 edge_id += 1

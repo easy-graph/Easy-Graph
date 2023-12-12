@@ -153,6 +153,7 @@ def draw_vertex(
     font_family: str,
     v_size: list,
     v_color: list,
+    edgecolors,
     v_line_width: list,
 ):
     patches = []
@@ -178,7 +179,8 @@ def draw_vertex(
                 va="top",
             )
         patches.append(circle)
-    p = PatchCollection(patches, facecolors=v_color, edgecolors="black")
+    edgecolors = "black" if edgecolors == None else edgecolors
+    p = PatchCollection(patches, facecolors=v_color, edgecolors=edgecolors)
     ax.add_collection(p)
 
 
