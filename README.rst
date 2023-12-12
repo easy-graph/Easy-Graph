@@ -49,7 +49,7 @@ Install
 
 .. Installation with ``pip`` (outdated)
 
-- **Installation with ``pip``**
+- **Installation with** ``pip``
 
 .. code::
 
