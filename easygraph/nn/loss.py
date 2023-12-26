@@ -3,6 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+__all__ = ["BPRLoss"]
+
+
 class BPRLoss(nn.Module):
     r"""This criterion computes the Bayesian Personalized Ranking (BPR) loss between the positive scores and the negative scores.
 

@@ -4,6 +4,7 @@ try:
     from .hypergraphs import HGNNP
     from .hypergraphs import HNHN
     from .hypergraphs import HyperGCN
+    from .hypergraphs import SetGNN
     from .hypergraphs import UniGAT
     from .hypergraphs import UniGCN
     from .hypergraphs import UniGIN

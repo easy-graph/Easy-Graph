@@ -4,6 +4,9 @@ import torch
 import torch.nn as nn
 
 
+__all__ = ["EmbeddingRegularization"]
+
+
 class EmbeddingRegularization(nn.Module):
     r"""Regularization function for embeddings.
 

@@ -1,7 +1,5 @@
 """Cora, citeseer, pubmed dataset.
 
-(lingfan): following dataset loading and preprocessing code from tkipf/gcn
-https://github.com/tkipf/gcn/blob/master/gcn/utils.py
 """
 from __future__ import absolute_import
 
@@ -22,9 +20,6 @@ from .utils import deprecate_property
 from .utils import generate_mask_tensor
 from .utils import nonzero_1d
 from .utils import tensor
-
-
-backend = os.environ.get("DGLBACKEND", "pytorch")
 
 
 def _pickle_load(pkl_file):

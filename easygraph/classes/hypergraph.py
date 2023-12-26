@@ -1152,7 +1152,6 @@ class Hypergraph(BaseHypergraph):
         if target is not None and target not in l_graph.nodes:
             raise EasyGraphError("Please make sure target exist!")
         dist = eg.single_source_dijkstra(G=l_graph, source=source, target=target)
-        print("dist:", dist)
         return dist[target] if target != None else dist
 
     def edge_diameter(self, s=1):
