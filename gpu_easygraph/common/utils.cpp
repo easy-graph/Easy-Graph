@@ -17,8 +17,8 @@ using std::vector;
 int eg_graph_to_CSR (
     _IN_ py::object py_G,
     _IN_ py::object py_attr_weight_name,
-    _OUT_ vector<int32_t>& V, 
-    _OUT_ vector<pair<int, float>>& E_and_W
+    _OUT_ vector<int>& V, 
+    _OUT_ vector<pair<int, double>>& E_and_W
 )
 {
     py::dict edge = py_G.attr("adj");
@@ -42,9 +42,9 @@ int eg_graph_to_CSR (
         auto adjs = edge[index_to_node[i]].cast<py::dict>();
         for (auto it = adjs.begin(); it != adjs.end(); ++it) {
             int adj_idx = node_to_index[it->first].cast<int>();
-            float w = 1.0;
+            double w = 1.0;
             if (it->second.contains(py_attr_weight_name)) {
-                w = it->second[py_attr_weight_name].cast<float>();
+                w = it->second[py_attr_weight_name].cast<double>();
             }
 
             E_and_W.push_back({adj_idx, w});
@@ -53,7 +53,7 @@ int eg_graph_to_CSR (
         int range_end = E_and_W.size();
 
         sort(E_and_W.begin() + range_start, E_and_W.end(), 
-                [] (const pair<int, float>& p1, const pair<int, float>& p2) {
+                [] (const pair<int, double>& p1, const pair<int, double>& p2) {
             return p1.first < p2.first;
         });
         V[i] = range_start;
@@ -70,8 +70,8 @@ int eg_graph_to_CSR (
 int sources_stdlize (
     _IN_ py::object py_G,
     _IN_ py::object py_sources,
-    _IN_ int32_t len_V,
-    _OUT_ vector<int32_t>& sources
+    _IN_ int len_V,
+    _OUT_ vector<int>& sources
 )
 {
     py::dict node_to_index = py_G.attr("node_index");
@@ -85,10 +85,32 @@ int sources_stdlize (
     }
 
     for (auto it = py_sources.begin(); it != py_sources.end(); ++it) {
-        sources.push_back(node_to_index[*it].cast<int32_t>());
+        sources.push_back(node_to_index[*it].cast<int>());
     }
 
     return EG_GPU_SUCC;
+}
+
+
+
+int decide_warp_size (
+    _IN_ int len_V,
+    _IN_ int len_E
+)
+{
+    vector<int> warp_size_cand{1, 2, 4, 8, 16, 32};
+
+    if (len_E / len_V < warp_size_cand.front()) {
+        return warp_size_cand.front();
+    }
+
+    for (int i = 0; i + 1 < warp_size_cand.size(); ++i) {
+        if (warp_size_cand[i] <= len_E / len_V
+                && len_E / len_V < warp_size_cand[i + 1]) {
+            return warp_size_cand[i + 1];
+        }
+    }
+    return warp_size_cand.back();
 }
 
 

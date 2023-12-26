@@ -7,7 +7,6 @@ file(GLOB SOURCES
     functions/*/*.cu
     common/*.c
     common/*.cpp
-    common/*.cu
     gpu_easygraph.cpp
 )
 

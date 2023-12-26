@@ -16,6 +16,7 @@ def betweenness_centrality_parallel(nodes, G, path_length, accumulate):
 
 
 @not_implemented_for("multigraph")
+@hybrid("gpu_betweenness_centrality", func_type="gpu")
 @hybrid("cpp_betweenness_centrality")
 def betweenness_centrality(
     G, weight=None, sources=None, normalized=True, endpoints=False, n_workers=None
