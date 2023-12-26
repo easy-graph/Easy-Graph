@@ -1,7 +1,6 @@
 #pragma once
 
-#define EG_FLOAT_INF 1e10
-#define EG_FLOAT_EPSILON 1e-6
+#define EG_DOUBLE_INF 1e20
 
 #define EXIT_IF_CUDA_FAILED(condition)              \
         cuda_ret = condition;                       \
@@ -9,16 +8,16 @@
             goto exit;                              \
         }                                           \
 
-#define IS_EQUAL(x, y)                              \
-        ((-EG_FLOAT_EPSILON <= ((x) - (y)))         \
-        && (((x) - (y)) <= EG_FLOAT_EPSILON))       \
-
 #ifndef _IN_
 #define _IN_
 #endif
 
 #ifndef _OUT_
 #define _OUT_
+#endif
+
+#ifndef _BUFFER_
+#define _BUFFER_
 #endif
 
 typedef enum {

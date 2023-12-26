@@ -5,7 +5,7 @@
 #include "../../classes/segment_tree.cpp"
 
 
-void betweenness_dijkstra(const Graph_L& G_l, const int &S, std::vector<double>& bc, double cutoff, Segment_tree_zkw& segment_tree_zkw) {
+void betweenness_dijkstra(const Graph_L& G_l, const int &S, std::vector<double>& bc, double cutoff, Segment_tree_zkw& segment_tree_zkw, int endpoints_) {
     const int dis_inf = 0x3f3f3f3f;
     int N = G_l.n;
     int edge_number_path = 0;
@@ -56,6 +56,9 @@ void betweenness_dijkstra(const Graph_L& G_l, const int &S, std::vector<double>&
             }
         }
     }
+    if (endpoints_) {
+        bc[S] += cnt_St - 1;
+    }
     while (cnt_St > 0) {
         int u = St[--cnt_St];
         float coeff = (1.0 + delta[u]) / count_path[u];
@@ -64,12 +67,41 @@ void betweenness_dijkstra(const Graph_L& G_l, const int &S, std::vector<double>&
         }
 
         if (u != S)
-            bc[u] += delta[u];
+            bc[u] += delta[u] + endpoints_;
     }
 
 }
 
-py::object betweenness_centrality(py::object G, py::object weight, py::object cutoff, py::object sources){
+
+
+static double calc_scale(int len_V, int is_directed, int normalized, int endpoints) {
+    double scale = 1.0;
+    if (normalized) {
+        if (endpoints) {
+            if (len_V < 2) {
+                scale = 1.0;
+            } else {
+                scale = 1.0 / (double(len_V) * (len_V - 1));
+            }
+        } else if (len_V <= 2) {
+            scale = 1.0;
+        } else {
+            scale = 1.0 / ((double(len_V) - 1) * (len_V - 2));
+        }
+    } else {
+        if (!is_directed) {
+            scale = 0.5;
+        } else {
+            scale = 1.0;
+        }
+    }
+    return scale;
+}
+
+
+
+py::object betweenness_centrality(py::object G, py::object weight, py::object cutoff, py::object sources, 
+                                    py::object normalized, py::object endpoints){
     Graph& G_ = G.cast<Graph&>();
     int cutoff_ = -1;
     if (!cutoff.is_none()){
@@ -77,6 +109,9 @@ py::object betweenness_centrality(py::object G, py::object weight, py::object cu
     }
     int N = G_.node.size();
     bool is_directed = G.attr("is_directed")().cast<bool>();
+    int normalized_ = normalized.cast<bool>();
+    int endpoints_ = endpoints.cast<bool>();
+    double scale = calc_scale(N, is_directed, normalized_, endpoints_);
     std::string weight_key = weight_to_string(weight);
     Graph_L G_l;
     if(G_.linkgraph_dirty){
@@ -100,11 +135,7 @@ py::object betweenness_centrality(py::object G, py::object weight, py::object cu
             }
             py::list res_lst = py::list();
             node_t source_id = G_.node_to_id.attr("get")(sources_list[i]).cast<node_t>();
-            betweenness_dijkstra(G_l, source_id, bc, cutoff_, segment_tree_zkw);
-        }
-        double scale = 1.0;
-        if(!is_directed){
-            scale = 0.5;
+            betweenness_dijkstra(G_l, source_id, bc, cutoff_, segment_tree_zkw, endpoints_);
         }
         for(int i = 1; i <= N; i++){
             res_lst.append(scale * bc[i]);
@@ -112,11 +143,7 @@ py::object betweenness_centrality(py::object G, py::object weight, py::object cu
     }
     else{
         for (int i = 1; i <= N; ++i){
-            betweenness_dijkstra(G_l, i, bc, cutoff_,segment_tree_zkw);
-        }
-        double scale = 1.0;
-        if(!is_directed){
-            scale = 0.5;
+            betweenness_dijkstra(G_l, i, bc, cutoff_,segment_tree_zkw, endpoints_);
         }
         for(int i = 1; i <= N; i++){
             res_lst.append(scale * bc[i]);

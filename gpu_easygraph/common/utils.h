@@ -22,8 +22,8 @@
 int eg_graph_to_CSR (
     _IN_ pybind11::object py_G,
     _IN_ pybind11::object py_attr_weight_name,
-    _OUT_ std::vector<int32_t>& V, 
-    _OUT_ std::vector<std::pair<int, float>>& E_and_W
+    _OUT_ std::vector<int>& V, 
+    _OUT_ std::vector<std::pair<int, double>>& E_and_W
 );
 
 
@@ -46,9 +46,31 @@ int eg_graph_to_CSR (
 int sources_stdlize (
     _IN_ pybind11::object py_G,
     _IN_ pybind11::object py_sources,
-    _IN_ int32_t len_V,
-    _OUT_ std::vector<int32_t>& sources
+    _IN_ int len_V,
+    _OUT_ std::vector<int>& sources
 );
+
+
+
+/**
+ * description: 
+ *     decide the GPU-ver BC parameter "warp_size" by len_V and len_E
+ * 
+ * arguments:
+ *     len_V -
+ *         size of vertices
+ * 
+ *     len_E -
+ *         size of edges
+ * 
+ * return:
+ *     a proper warp_size
+ */
+int decide_warp_size (
+    _IN_ int len_V,
+    _IN_ int len_E
+);
+
 
 
 

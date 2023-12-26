@@ -28,7 +28,7 @@ jobs:
           ref: '${{ github.ref }}'
           install-pytorch: 'true'
           install-lxml: 'true'
-          extra-modules-to-install: 'optuna'
+          extra-modules-to-install: 'optuna torch_scatter torch_geometric'
 
 
       - uses: actions/checkout@v3

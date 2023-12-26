@@ -61,7 +61,7 @@ def closeness_centrality(G, weight=None, sources=None, n_workers=None):
         nodes = sources
     else:
         nodes = G.nodes
-    length = len(nodes)
+    length = len(G)
     import functools
 
     if weight is not None:
@@ -100,4 +100,4 @@ def closeness_centrality(G, weight=None, sources=None, n_workers=None):
                 closeness[node] = 0
             else:
                 closeness[node] = (cnt - 1) * (cnt - 1) / (dist * (length - 1))
-    return return list(closeness.values())
+    return list(closeness.values())

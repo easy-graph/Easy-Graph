@@ -3,6 +3,8 @@ import hashlib
 import numbers
 import os
 
+from pathlib import Path
+
 import numpy as np
 import requests
 import torch as th
@@ -18,11 +20,13 @@ __all__ = [
 
 import warnings
 
+from easygraph.utils.download import _retry
+
 
 def _get_eg_url(file_url):
     """Get EasyGraph online url for download."""
     eg_repo_url = "https://gitlab.com/easy-graph/"
-    repo_url = os.environ.get("DGL_REPO", eg_repo_url)
+    repo_url = eg_repo_url
     if repo_url[-1] != "/":
         repo_url = repo_url + "/"
     return repo_url + file_url
@@ -64,7 +68,7 @@ def tensor(data, dtype=None):
     if isinstance(data, list) and len(data) > 0 and isinstance(data[0], th.Tensor):
         # prevent GPU->CPU->GPU copies
         if data[0].ndim == 0:
-            # zero dimenion scalar tensors
+            # zero dimension scalar tensors
             return th.stack(data)
     if isinstance(data, th.Tensor):
         return th.as_tensor(data, dtype=dtype, device=data.device)
@@ -288,7 +292,7 @@ def generate_mask_tensor(mask):
     """
     assert isinstance(
         mask, np.ndarray
-    ), "input for generate_mask_tensorshould be an numpy ndarray"
+    ), "input for generate_mask_tensor should be an numpy ndarray"
     return tensor(mask, dtype=data_type_dict()["bool"])
 
 
@@ -296,3 +300,59 @@ def deprecate_property(old, new):
     warnings.warn(
         "Property {} will be deprecated, please use {} instead.".format(old, new)
     )
+
+
+def check_file(file_path: Path, md5: str):
+    r"""Check if a file is valid.
+
+    Args:
+        ``file_path`` (``Path``): The local path of the file.
+        ``md5`` (``str``): The md5 of the file.
+
+    Raises:
+        FileNotFoundError: Not found the file.
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"{file_path} does not exist.")
+    else:
+        with open(file_path, "rb") as f:
+            data = f.read()
+        cur_md5 = hashlib.md5(data).hexdigest()
+        return cur_md5 == md5
+
+
+def download_file(url: str, file_path: Path):
+    r"""Download a file from a url.
+
+    Args:
+        ``url`` (``str``): the url of the file
+        ``file_path`` (``str``): the path to the file
+    """
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    r = requests.get(url, stream=True, verify=True)
+    if r.status_code != 200:
+        raise requests.HTTPError(f"{url} is not accessible.")
+    with open(file_path, "wb") as f:
+        for chunk in r.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
+
+
+@_retry(3)
+def download_and_check(url: str, file_path: Path, md5: str):
+    r"""Download a file from a url and check its integrity.
+
+    Args:
+        ``url`` (``str``): The url of the file.
+        ``file_path`` (``Path``): The path to the file.
+        ``md5`` (``str``): The md5 of the file.
+    """
+    if not file_path.exists():
+        download_file(url, file_path)
+    if not check_file(file_path, md5):
+        file_path.unlink()
+        raise ValueError(
+            f"{file_path} is corrupted. We will delete it, and try to download it"
+            " again."
+        )
+    return True

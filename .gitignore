@@ -4,6 +4,7 @@ __pycache__
 test/
 related-repos/
 test.py
+dynamic_hypergraph.pdf
 hypergraph_tutorial.py
 visulation_test.py
 hypergraph-bench/

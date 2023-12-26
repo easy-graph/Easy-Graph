@@ -23,7 +23,7 @@ Copyright (C) <2020-2023> by DataNET Group, Fudan University
 
 Introduction
 ------------
-EasyGraph is an open-source graph processing library. It is mainly written in Python and supports analysis for undirected graphs and directed graphs. EasyGraph supports various formats of graph data and covers a series of important graph mining algorithms for community detection, structural hole spanner detection, graph embedding, and motif detection. Moreover, EasyGraph implements some key elements using C++ and introduces multiprocessing optimization to achieve better efficiency.
+**EasyGraph** is an open-source network analysis library. It is mainly written in Python and supports analysis for undirected networks and directed networks. EasyGraph supports various formats of network data and covers a series of important network analysis algorithms for community detection, structural hole spanner detection, network embedding, and motif detection. Moreover, EasyGraph implements some key elements using C++ and introduces multiprocessing optimization to achieve better efficiency.
 
 News
 ----
@@ -43,13 +43,13 @@ Install
 
 .. In the meantime, here's a work around you can try to install the latest version of easygraph on your machine:
 
-Prerequisites
+- **Prerequisites**
 
-`3.8 <= Python <= 3.11` is required.
+``3.8 <= Python <= 3.11`` is required.
 
 .. Installation with ``pip`` (outdated)
 
-Installation with ``pip``
+- **Installation with** ``pip``
 
 .. code::
 
@@ -57,9 +57,9 @@ Installation with ``pip``
 
 The conda package is no longer updated or maintained.
 
-If you've installed `EasyGraph` this way before, please uninstall it with `conda` and install it with `pip`.
+If you've installed EasyGraph this way before, please uninstall it with ``conda`` and install it with ``pip``.
 
-If prebuilt `EasyGraph` wheels are not supported for your platform (OS / CPU arch, check `here <https://pypi.org/simple/python-easygraph/>`_), you can build it locally this way:
+If prebuilt EasyGraph wheels are not supported for your platform (OS / CPU arch, check `here <https://pypi.org/simple/python-easygraph/>`_), you can build it locally this way:
 
 .. code:: bash
 
@@ -68,13 +68,13 @@ If prebuilt `EasyGraph` wheels are not supported for your platform (OS / CPU arc
     python3 setup.py build_ext
     python3 setup.py install
 
-Hint
+- **Hint**
 
     EasyGraph uses  1.12.1 <= `PyTorch <https://pytorch.org/get-started/locally/>`_ < 2.0 for machine
     learning functions.
     Note that this does not prevent your from running non-machine learning functions normally,
     if there is no PyTorch in your environment.
-    But you will receive some warnings which remind you some unavailable modules when they  depend on it.
+    But you will receive some warnings which remind you some unavailable modules when they depend on it.
 
 Simple Example
 --------------

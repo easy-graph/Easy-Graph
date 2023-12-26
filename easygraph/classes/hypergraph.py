@@ -13,14 +13,12 @@ from typing import Union
 
 import easygraph as eg
 import numpy as np
-import pandas as pd
 import torch
 
 from easygraph.classes.base import BaseHypergraph
 from easygraph.functions.drawing import draw_hypergraph
 from easygraph.utils.exception import EasyGraphError
 from easygraph.utils.sparse import sparse_dropout
-from scipy.sparse import coo_matrix
 from scipy.sparse import csr_array
 from scipy.sparse import csr_matrix
 
@@ -35,7 +33,7 @@ class Hypergraph(BaseHypergraph):
 
     """
     The ``Hypergraph`` class is developed for hypergraph structures.
-    Pleast notice that node id in hypergraph is in [0, num_v)
+    Please notice that node id in hypergraph is in [0, num_v)
 
     Parameters
     ----------
@@ -84,8 +82,6 @@ class Hypergraph(BaseHypergraph):
                 e_property=e_property,
                 merge_op=merge_op,
             )
-
-        # prepare for the build of incidence matrix
         edges_col = []
         indptr_list = []
         ptr = 0
@@ -292,7 +288,7 @@ class Hypergraph(BaseHypergraph):
     def _e_list_from_feature_kNN(features: torch.Tensor, k: int):
         import scipy
 
-        r"""Construct hyperedges from the feature matrix. Each hyperedge in the hypergraph is constructed by the central vertex ans its :math:`k-1` neighbor vertices.
+        r"""Construct hyperedges from the feature matrix. Each hyperedge in the hypergraph is constructed by the central vertex and its :math:`k-1` neighbor vertices.
 
         Parameters:
             ``features`` (``torch.Tensor``): The feature matrix.
@@ -312,7 +308,7 @@ class Hypergraph(BaseHypergraph):
     def from_feature_kNN(
         features: torch.Tensor, k: int, device: torch.device = torch.device("cpu")
     ):
-        r"""Construct the hypergraph from the feature matrix. Each hyperedge in the hypergraph is constructed by the central vertex ans its :math:`k-1` neighbor vertices.
+        r"""Construct the hypergraph from the feature matrix. Each hyperedge in the hypergraph is constructed by the central vertex and its :math:`k-1` neighbor vertices.
 
         .. note::
             The constructed hypergraph is a k-uniform hypergraph. If the feature matrix has the size :math:`N \times C`, the number of vertices and hyperedges of the constructed hypergraph are both :math:`N`.
@@ -1018,19 +1014,18 @@ class Hypergraph(BaseHypergraph):
         return star_expansion_graph
 
     def neighbor_of_node(self, node):
-        neighbor_lst = []
+        neighbor_lst = list()
         node_adj = self.adjacency_matrix()
         if (
             self.cache.get("neighbor") is None
             or self.cache["neighbor"].get(node) is None
         ):
-            for i in range(node_adj.shape[0]):
-                start = node_adj.indptr[i]
-                end = node_adj.indptr[i + 1]
-                if i == node:
-                    for j in range(start, end):
-                        neighbor_lst.append(node_adj.indices[j])
-                    break
+            start = node_adj.indptr[node]
+            end = node_adj.indptr[node + 1]
+
+            for j in range(start, end):
+                neighbor_lst.append(node_adj.indices[j])
+
             if self.cache.get("neighbor") is None:
                 self.cache["neighbor"] = {}
                 self.cache["neighbor"][node] = neighbor_lst
@@ -1058,7 +1053,7 @@ class Hypergraph(BaseHypergraph):
             A[np.diag_indices_from(A)] = 0
             if not weight:
                 A = (A >= s) * 1
-            self.cache["adjacency_matrix"] = csr_array(A)
+            self.cache["adjacency_matrix"] = csr_matrix(A)
         return self.cache["adjacency_matrix"]
 
     def edge_adjacency_matrix(self, s=1, weight=False):
@@ -1157,7 +1152,6 @@ class Hypergraph(BaseHypergraph):
         if target is not None and target not in l_graph.nodes:
             raise EasyGraphError("Please make sure target exist!")
         dist = eg.single_source_dijkstra(G=l_graph, source=source, target=target)
-
         return dist[target] if target != None else dist
 
     def edge_diameter(self, s=1):
@@ -2256,7 +2250,7 @@ class Hypergraph(BaseHypergraph):
         )
         return X
 
-    def get_clique_expansion(self, s=1, edge=True, weight=True) -> "Graph":
+    def get_clique_expansion(self, s=1, edge=True, weight=True):
         """
         Get the linegraph of the hypergraph based on the clique expansion.
         If edges=True (default)then the edges will be the vertices of the line
@@ -2286,18 +2280,19 @@ class Hypergraph(BaseHypergraph):
 
         if edge:
             edge_adjacency = self.edge_adjacency_matrix(s=s, weight=weight)
-            linegraph = eg.from_scipy_sparse_matrix(edge_adjacency)
-            return linegraph
+            graph = eg.from_scipy_sparse_matrix(edge_adjacency)
+            return graph
 
         else:
             if self.cache.get("clique_expansion") is None:
                 A = self.adjacency_matrix(s=s, weight=weight)
-                linegraph = eg.Graph()
+                graph = eg.Graph()
                 A = np.array(np.nonzero(A))
                 e1 = np.array([idx for idx in A[0]])
                 e2 = np.array([idx for idx in A[1]])
                 A = np.array([e1, e2]).T
-                linegraph.add_edges_from(A)
-                self.cache["clique_expansion"] = linegraph
+                graph.add_edges_from(A)
+                graph.add_nodes(list(range(0, self.num_v)))
+                self.cache["clique_expansion"] = graph
 
             return self.cache["clique_expansion"]

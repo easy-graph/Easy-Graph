@@ -39,7 +39,6 @@ def uniform_hypergraph_Gnm_parallel(num_e, num_v, k):
         e = tuple(sorted(e))
         if e not in edges:
             edges.add(e)
-    # print("parallel len:",len(edges))
     return list(edges)
 
 
@@ -78,12 +77,9 @@ def uniform_hypergraph_Gnm(k: int, num_v: int, num_e: int, n_workers=None):
 
         with Pool(n_workers) as p:
             ret = p.imap(local_function, edges_parallel)
-            start_time = time.time()
             for res in ret:
                 for r in res:
                     res_edges.add(r)
-                # for key in res:
-                print("res:", len(res_edges))
 
             while len(res_edges) < num_e:
                 e = random.sample(range(num_v), k)
@@ -91,11 +87,6 @@ def uniform_hypergraph_Gnm(k: int, num_v: int, num_e: int, n_workers=None):
                 if e not in res_edges:
                     res_edges.add(e)
 
-            # res_hypergraph.add_hyperedges(e_list=res)
-            end_time = time.time()
-
-            print("nworker merge time:", end_time - start_time)
-        # print("res:",res_edges)
         res_hypergraph = eg.Hypergraph(num_v=num_v, e_list=list(res_edges))
         return res_hypergraph
 

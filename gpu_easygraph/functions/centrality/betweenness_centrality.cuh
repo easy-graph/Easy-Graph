@@ -4,7 +4,7 @@
 
 /**
  * description: 
- *     use cuda to calculate closeness_centrality. the graph must be 
+ *     use cuda to calculate betweenness_centrality. the graph must be 
  *     in CSR format.
  * 
  * arguments:
@@ -18,8 +18,7 @@
  *         the weight of edges in CSR format
  * 
  *     sources -
- *         an array of EG_GPU_NODE_STATUS. the according CC[i] will be 
- *         calculated only if sources[i] == EG_GPU_NODE_ACTIVE
+ *         set of source vertices to consider when calculating shortest paths.
  * 
  *     len_V -
  *         len of V
@@ -30,13 +29,22 @@
  *     warp_size -
  *         the number of threads assigned to a vertex
  * 
- *     CC -
- *         closeness centrality output
+ *     is_directed -
+ *         if this graph is directed
+ * 
+ *     normalized -
+ *         if the answer needs to be normalized
+ * 
+ *     endpoints -
+ *         if true include the endpoints in the shortest basic counts.
+ * 
+ *     BC -
+ *         betweenness centrality output
  * 
  * return:
  *     EG_GPU_STATUS_CODE
  */
-int cuda_closeness_centrality (
+int cuda_betweenness_centrality (
     _IN_ int* V,
     _IN_ int* E,
     _IN_ double* W,
@@ -45,5 +53,8 @@ int cuda_closeness_centrality (
     _IN_ int len_E,
     _IN_ int len_sources,
     _IN_ int warp_size,
-    _OUT_ double* CC
+    _IN_ int is_directed,
+    _IN_ int normalized,
+    _IN_ int endpoints,
+    _OUT_ double* BC
 );
