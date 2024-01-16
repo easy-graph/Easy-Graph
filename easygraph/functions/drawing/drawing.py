@@ -14,6 +14,8 @@ __all__ = [
     "draw_kamada_kawai",
     "draw_hypergraph",
     "draw_dynamic_hypergraph",
+    "draw_easygraph_nodes",
+    "draw_easygraph_edges",
 ]
 
 from easygraph.functions.drawing.defaults import default_hypergraph_strength
@@ -290,6 +292,7 @@ def draw_dynamic_hypergraph(
     if save_path is not None:
         plt.savefig(save_path)
     plt.show()
+
 
 def draw_easygraph_nodes(
     G,
@@ -869,6 +872,7 @@ def draw_easygraph_edges(
     )
 
     return edge_viz_obj
+
 
 def draw_SHS_center(G, SHS, rate=1, style="center"):
     """
