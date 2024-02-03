@@ -212,11 +212,13 @@ def _draw_single_dynamic_hypergraph(
         font_family,
         v_size,
         v_color,
+        "black",
         v_line_width,
     )
     plt.title(group_name, fontsize=title_font_size)
     plt.xlim((0, 1.0))
     plt.ylim((0, 1.0))
+
     plt.axis("off")
 
 
@@ -288,6 +290,7 @@ def draw_dynamic_hypergraph(
             pull_center_strength=pull_center_strength,
         )
         sub += 1
+
     fig.tight_layout()
     if save_path is not None:
         plt.savefig(save_path)

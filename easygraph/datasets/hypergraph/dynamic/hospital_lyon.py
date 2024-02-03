@@ -5,11 +5,10 @@ import torch
 
 from easygraph.classes.hypergraph import Hypergraph
 from easygraph.convert import dict_to_hypergraph
-
-from .eg_dataset import EasyGraphDataset
-from .hypergraph.load_dataset import request_json_from_url
-from .utils import _get_eg_url
-from .utils import tensor
+from easygraph.datasets.eg_dataset import EasyGraphDataset
+from easygraph.datasets.hypergraph.load_dataset import request_json_from_url
+from easygraph.datasets.utils import _get_eg_url
+from easygraph.datasets.utils import tensor
 
 
 class Hospital_Lyon(EasyGraphDataset):

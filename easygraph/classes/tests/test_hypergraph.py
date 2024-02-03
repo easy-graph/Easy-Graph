@@ -116,20 +116,6 @@ def test_from_graph_kHop():
     assert hg.num_e == 5
 
 
-# def test_from_bigraph():
-#     g = BiGraph(3, 4, [(0, 1), (0, 2), (1, 2), (2, 3)])
-#     hg = Hypergraph.from_bigraph(g, U_as_vertex=True)
-#     assert hg.num_v == 3 and hg.num_e == 3
-#     assert (0,) in hg.e[0]
-#     assert (0, 1) in hg.e[0]
-#     assert (2,) in hg.e[0]
-#     hg = Hypergraph.from_bigraph(g, U_as_vertex=False)
-#     assert hg.num_v == 4 and hg.num_e == 3
-#     assert (1, 2) in hg.e[0]
-#     assert (2,) in hg.e[0]
-#     assert (3,) in hg.e[0]
-
-
 # test representation
 def test_empty():
     g = eg.Hypergraph(10)
