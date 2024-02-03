@@ -271,23 +271,12 @@ class Graph:
                     size=(len(self.nodes), len(self.nodes)), device=self.device
                 )
             else:
-                # import time
-                # start = time.time()
-                # print("self.cache:",self.cache.keys())
                 if self.cache.get("e_both_side") is not None:
                     e_list, e_weight = self.cache["e_both_side"]
-                    # print("e_weight:",e_weight)
 
                 else:
                     e_list, e_weight = self.e_both_side
 
-                # end = time.time()
-                # print("eg e_both_size:",end-start)
-                # print("adj:",self.adj)
-
-                # print("e_list:",type(e_list))
-                # for e in e_list:
-                #     print("len:",len(list(e)),list(e))
                 node_size = len(self.nodes)
                 self.cache["A"] = torch.sparse_coo_tensor(
                     indices=torch.tensor(e_list, dtype=torch.int).t(),
@@ -316,15 +305,7 @@ class Graph:
             # _mat = _tmp
             _val = _mat**-0.5
             _val[torch.isinf(_val)] = 0
-
             nodes_num = len(self.nodes)
-            # self.cache["D_v_neg_1_2"] = torch.sparse_csr_tensor(
-            #     torch.arange(0, nodes_num + 1),
-            #     torch.arange(0, nodes_num), _val, torch.Size([nodes_num, nodes_num]), device=self.device
-            # )
-
-            # _val = _mat._values() ** -0.5
-            # _val[torch.isinf(_val)] = 0
             self.cache["D_v_neg_1_2"] = torch.sparse_coo_tensor(
                 torch.arange(0, len(self.nodes)).view(1, -1).repeat(2, 1),
                 _val,

@@ -720,7 +720,7 @@ class Hypergraph(BaseHypergraph):
     @property
     def deg_v(self) -> List[int]:
         r"""Return the degree list of each vertex."""
-        return self.D_v._values().cpu().view(-1).numpy().tolist()
+        return self.D_v.to_sparse_coo()._values().cpu().view(-1).numpy().tolist()
 
     def deg_v_of_group(self, group_name: str) -> List[int]:
         r"""Return the degree list of each vertex of the specified hyperedge group.
@@ -736,7 +736,7 @@ class Hypergraph(BaseHypergraph):
     @property
     def deg_e(self) -> List[int]:
         r"""Return the degree list of each hyperedge."""
-        return self.D_e._values().cpu().view(-1).numpy().tolist()
+        return self.D_e.to_sparse_coo()._values().cpu().view(-1).numpy().tolist()
 
     def deg_e_of_group(self, group_name: str) -> List[int]:
         r"""Return the degree list of each hyperedge of the specified hyperedge group.
@@ -1237,7 +1237,7 @@ class Hypergraph(BaseHypergraph):
         consecutive nodes are s-adjacent. If the graph is not connected,
         an error will be raised.
         """
-        l_graph = self.get_clique_expansion(s=s, edge=False)
+        l_graph = self.get_clique_expansion(s=s)
         if eg.is_connected(l_graph):
             return eg.diameter(l_graph)
         raise EasyGraphError(f"Hypergraph is not s-connected. s={s}")
