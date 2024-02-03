@@ -21,6 +21,7 @@ from easygraph.utils.exception import EasyGraphError
 from easygraph.utils.sparse import sparse_dropout
 from scipy.sparse import csr_array
 from scipy.sparse import csr_matrix
+from torch_sparse import spmm
 
 
 if TYPE_CHECKING:
@@ -71,6 +72,7 @@ class Hypergraph(BaseHypergraph):
         self.deg_v_dict = self.degree_data_dict()
         self.n_e_dict = {}
         self.edge_index = -1
+
         for i in range(num_v):
             self.deg_v_dict[i] = 0
             self.n_e_dict[i] = []
@@ -90,8 +92,17 @@ class Hypergraph(BaseHypergraph):
             indptr_list.append(ptr)
             ptr += len(v)
         indptr_list.append(ptr)
+
+        e_idx, v_idx = [], []
+
+        for n, e in self.n_e_dict.items():
+            v_idx.extend([n] * len(e))
+            e_idx.extend(e)
+
         self.cache["edges_col"] = np.array(edges_col)
         self.cache["indptr_list"] = np.array(indptr_list)
+        self.cache["e_idx"] = e_idx
+        self.cache["v_idx"] = v_idx
 
     def __repr__(self) -> str:
         r"""Print the hypergraph information."""
@@ -451,8 +462,10 @@ class Hypergraph(BaseHypergraph):
             for n_id in e_list[_idx]:
                 if self.isOutRange(n_id) == False:
                     raise EasyGraphError(
-                        "The node id in hyperedge is out of range, please ensure that"
-                        " the node is in [1,n)"
+                        "The node id:"
+                        + str(n_id)
+                        + " in hyperedge is out of range, please ensure that"
+                        " the node is in [0,n)"
                     )
                 self.deg_v_dict[n_id] += 1
                 if flag is False:
@@ -849,7 +862,9 @@ class Hypergraph(BaseHypergraph):
     def v2e_dst(self) -> torch.Tensor:
         r"""Return the destination hyperedge index vector :math:`\overrightarrow{v2e}_{dst}` of the connections (vertices point to hyperedges) in the hypergraph.
         """
-        return self.H_T._indices()[0].clone()
+        if self.cache.get("v2e_dst") is None:
+            self.cache["v2e_dst"] = self.H_T._indices()[0]
+        return self.cache["v2e_dst"]
 
     def v2e_dst_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the destination hyperedge index vector :math:`\overrightarrow{v2e}_{dst}` of the connections (vertices point to hyperedges) in the specified hyperedge group.
@@ -883,7 +898,7 @@ class Hypergraph(BaseHypergraph):
     def e2v_src(self) -> torch.Tensor:
         r"""Return the source hyperedge index vector :math:`\overrightarrow{e2v}_{src}` of the connections (hyperedges point to vertices) in the hypergraph.
         """
-        return self.H._indices()[1].clone()
+        return self.H._indices()[1]
 
     def e2v_src_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the source hyperedge index vector :math:`\overrightarrow{e2v}_{src}` of the connections (hyperedges point to vertices) in the specified hyperedge group.
@@ -917,7 +932,7 @@ class Hypergraph(BaseHypergraph):
     def e2v_weight(self) -> torch.Tensor:
         r"""Return the weight vector :math:`\overrightarrow{e2v}_{weight}` of the connections (hyperedges point to vertices) in the hypergraph.
         """
-        return self.H._values().clone()
+        return self.H._values()
 
     def e2v_weight_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the weight vector :math:`\overrightarrow{e2v}_{weight}` of the connections (hyperedges point to vertices) in the specified hyperedge group.
@@ -936,7 +951,16 @@ class Hypergraph(BaseHypergraph):
         """
 
         if self.cache.get("H") is None:
-            self.cache["H"] = self.H_v2e
+            num_e = len(self._raw_groups["main"])
+            self.cache["H"] = torch.sparse_coo_tensor(
+                torch.tensor(
+                    [self.cache["v_idx"], self.cache["e_idx"]], dtype=torch.long
+                ),
+                torch.ones(len(self.cache["v_idx"])),
+                torch.Size([self.num_v, num_e]),
+                device=self.device,
+            ).coalesce()
+
         return self.cache["H"]
 
     @property
@@ -966,6 +990,7 @@ class Hypergraph(BaseHypergraph):
                 indptr_list.append(ptr)
                 self.cache["edges_col"] = np.array(edges_col)
                 self.cache["indptr_list"] = np.array(indptr_list)
+
             A = csr_matrix(
                 (
                     [1] * len(self.cache["edges_col"]),
@@ -976,7 +1001,6 @@ class Hypergraph(BaseHypergraph):
                 dtype=int,
             )
             self.cache["incidence_matrix"] = A
-
         return self.cache["incidence_matrix"]
 
     def get_star_expansion(self):
@@ -991,6 +1015,8 @@ class Hypergraph(BaseHypergraph):
 
         References
         ----------
+        Antelmi, Alessia, et al. "A survey on hypergraph representation learning." ACM Computing Surveys 56.1 (2023): 1-38.
+
         """
         star_expansion_graph = eg.Graph()
         for node in self.v:
@@ -1069,7 +1095,7 @@ class Hypergraph(BaseHypergraph):
         adjacency_matrix : scipy.sparse.csr.csr_matrix
 
         """
-        tmp_H = self.H.to_dense().numpy()
+        tmp_H = self.incidence_matrix
         A = (tmp_H.T) @ (tmp_H)
         A[np.diag_indices_from(A)] = 0
         if not weight:
@@ -1087,7 +1113,7 @@ class Hypergraph(BaseHypergraph):
             group_name in self.group_names
         ), f"The specified {group_name} is not in existing hyperedge groups."
         if self.group_cache[group_name].get("H") is None:
-            self.group_cache[group_name]["H"] = self.H_v2e_of_group(group_name)
+            self.group_cache[group_name]["H"] = self._fetch_H()
         return self.group_cache[group_name]["H"]
 
     def edge_distance(self, source, target, s=1):
@@ -1146,7 +1172,7 @@ class Hypergraph(BaseHypergraph):
 
         """
 
-        l_graph = self.get_clique_expansion(s=s, edge=False)
+        l_graph = self.get_clique_expansion(s=s)
         if source not in l_graph.nodes:
             raise EasyGraphError("Please make sure source exist!")
         if target is not None and target not in l_graph.nodes:
@@ -1242,10 +1268,7 @@ class Hypergraph(BaseHypergraph):
         r"""Return the weight matrix :math:`\mathbf{W}_e` of hyperedges with ``torch.Tensor`` format.
         """
         if self.cache.get("W_e") is None:
-            _tmp = [
-                self.W_e_of_group(name)._values().clone() for name in self.group_names
-            ]
-            _tmp = torch.cat(_tmp, dim=0).view(-1)
+            _tmp = torch.ones(len(self._raw_groups["main"]))
             _num_e = _tmp.size(0)
             self.cache["W_e"] = torch.sparse_coo_tensor(
                 torch.arange(0, _num_e).view(1, -1).repeat(2, 1),
@@ -1253,6 +1276,7 @@ class Hypergraph(BaseHypergraph):
                 torch.Size([_num_e, _num_e]),
                 device=self.device,
             ).coalesce()
+
         return self.cache["W_e"]
 
     def W_e_of_group(self, group_name: str) -> torch.Tensor:
@@ -1265,7 +1289,8 @@ class Hypergraph(BaseHypergraph):
             group_name in self.group_names
         ), f"The specified {group_name} is not in existing hyperedge groups."
         if self.group_cache[group_name].get("W_e") is None:
-            _tmp = self._fetch_W_of_group(group_name).view(-1)
+            w_list = [1.0] * len(self._raw_groups["main"])
+            _tmp = torch.tensor(w_list, device=self.device).view((-1, 1)).view(-1)
             _num_e = _tmp.size(0)
             self.group_cache[group_name]["W_e"] = torch.sparse_coo_tensor(
                 torch.arange(0, _num_e).view(1, -1).repeat(2, 1),
@@ -1284,13 +1309,14 @@ class Hypergraph(BaseHypergraph):
         r"""Return the vertex degree matrix :math:`\mathbf{D}_v` with ``torch.sparse_coo_tensor`` format.
         """
         if self.cache.get("D_v") is None:
-            _tmp = [
-                self.D_v_of_group(name)._values().clone() for name in self.group_names
-            ]
-            _tmp = torch.vstack(_tmp).sum(dim=0).view(-1)
+            if self.cache.get("D_v_value") is None:
+                self.cache["D_v_value"] = (
+                    torch.sparse.sum(self.H, dim=1).to_dense().view(-1)
+                )
+
             self.cache["D_v"] = torch.sparse_coo_tensor(
                 torch.arange(0, self.num_v).view(1, -1).repeat(2, 1),
-                _tmp,
+                self.cache["D_v_value"],
                 torch.Size([self.num_v, self.num_v]),
                 device=self.device,
             ).coalesce()
@@ -1326,12 +1352,22 @@ class Hypergraph(BaseHypergraph):
         r"""Return the vertex degree matrix :math:`\mathbf{D}_v^{-1}` with ``torch.sparse_coo_tensor`` format.
         """
         if self.cache.get("D_v_neg_1") is None:
-            _mat = self.D_v.clone()
-            _val = _mat._values() ** -1
+            if self.cache.get("D_v_value") is None:
+                self.cache["D_v_value"] = (
+                    torch.sparse.sum(self.H, dim=1).to_dense().view(-1)
+                )
+            _tmp = self.cache["D_v_value"]
+            _num_v = _tmp.size(0)
+            _val = _tmp**-1
             _val[torch.isinf(_val)] = 0
-            self.cache["D_v_neg_1"] = torch.sparse_coo_tensor(
-                _mat._indices(), _val, _mat.size(), device=self.device
-            ).coalesce()
+            self.cache["D_v_neg_1"] = torch.sparse_csr_tensor(
+                torch.arange(0, _num_v + 1),
+                torch.arange(0, _num_v),
+                _val,
+                torch.Size([_num_v, _num_v]),
+                device=self.device,
+            )
+
         return self.cache["D_v_neg_1"]
 
     def D_v_neg_1_of_group(self, group_name: str) -> torch.Tensor:
@@ -1357,12 +1393,21 @@ class Hypergraph(BaseHypergraph):
         r"""Return the vertex degree matrix :math:`\mathbf{D}_v^{-\frac{1}{2}}` with ``torch.sparse_coo_tensor`` format.
         """
         if self.cache.get("D_v_neg_1_2") is None:
-            _mat = self.D_v.clone()
-            _val = _mat._values() ** -0.5
-            _val[torch.isinf(_val)] = 0
-            self.cache["D_v_neg_1_2"] = torch.sparse_coo_tensor(
-                _mat._indices(), _val, _mat.size(), device=self.device
-            ).coalesce()
+            if self.cache.get("D_v_value") is None:
+                self.cache["D_v_value"] = (
+                    torch.sparse.sum(self.H, dim=1).to_dense().view(-1)
+                )
+            _mat = self.cache["D_v_value"]
+            _mat = _mat**-0.5
+            _mat[torch.isinf(_mat)] = 0
+            self.cache["D_v_neg_1_2"] = torch.sparse_csr_tensor(
+                torch.arange(0, self.num_v + 1),
+                torch.arange(0, self.num_v),
+                _mat,
+                torch.Size([self.num_v, self.num_v]),
+                device=self.device,
+            )
+
         return self.cache["D_v_neg_1_2"]
 
     def D_v_neg_1_2_of_group(self, group_name: str) -> torch.Tensor:
@@ -1388,17 +1433,16 @@ class Hypergraph(BaseHypergraph):
         r"""Return the hyperedge degree matrix :math:`\mathbf{D}_e` with ``torch.sparse_coo_tensor`` format.
         """
         if self.cache.get("D_e") is None:
-            _tmp = [
-                self.D_e_of_group(name)._values().clone() for name in self.group_names
-            ]
-            _tmp = torch.cat(_tmp, dim=0).view(-1)
+            _tmp = torch.sparse.sum(self.H_T, dim=1).to_dense().view(-1)
             _num_e = _tmp.size(0)
-            self.cache["D_e"] = torch.sparse_coo_tensor(
-                torch.arange(0, _num_e).view(1, -1).repeat(2, 1),
+            self.cache["D_e"] = torch.sparse_csr_tensor(
+                torch.arange(0, _num_e + 1),
+                torch.arange(0, _num_e),
                 _tmp,
                 torch.Size([_num_e, _num_e]),
                 device=self.device,
-            ).coalesce()
+            )
+
         return self.cache["D_e"]
 
     def D_e_of_group(self, group_name: str) -> torch.Tensor:
@@ -1412,10 +1456,7 @@ class Hypergraph(BaseHypergraph):
         ), f"The specified {group_name} is not in existing hyperedge groups."
         if self.group_cache[group_name].get("D_e") is None:
             _tmp = (
-                torch.sparse.sum(self.H_T_of_group(group_name), dim=1)
-                .to_dense()
-                .clone()
-                .view(-1)
+                torch.sparse.sum(self._fetch_H().t(), dim=1).to_dense().clone().view(-1)
             )
             _num_e = _tmp.size(0)
             self.group_cache[group_name]["D_e"] = torch.sparse_coo_tensor(
@@ -1431,12 +1472,19 @@ class Hypergraph(BaseHypergraph):
         r"""Return the hyperedge degree matrix :math:`\mathbf{D}_e^{-1}` with ``torch.sparse_coo_tensor`` format.
         """
         if self.cache.get("D_e_neg_1") is None:
-            _mat = self.D_e.clone()
-            _val = _mat._values() ** -1
+            _tmp = torch.sparse.sum(self.H_T, dim=1).to_dense().view(-1)
+            _num_e = _tmp.size(0)
+            _val = _tmp**-1
             _val[torch.isinf(_val)] = 0
-            self.cache["D_e_neg_1"] = torch.sparse_coo_tensor(
-                _mat._indices(), _val, _mat.size(), device=self.device
-            ).coalesce()
+
+            self.cache["D_e_neg_1"] = torch.sparse_csr_tensor(
+                torch.arange(0, _num_e + 1),
+                torch.arange(0, _num_e),
+                _val,
+                torch.Size([_num_e, _num_e]),
+                device=self.device,
+            )
+
         return self.cache["D_e_neg_1"]
 
     def D_e_neg_1_of_group(self, group_name: str) -> torch.Tensor:
@@ -1456,6 +1504,32 @@ class Hypergraph(BaseHypergraph):
                 _mat._indices(), _val, _mat.size(), device=self.device
             ).coalesce()
         return self.group_cache[group_name]["D_e_neg_1"]
+
+    def _fetch_H(self):
+        r"""Fetch the H matrix of the specified hyperedge group with ``torch.sparse_coo_tensor`` format.
+
+        Args:
+            ``direction`` (``str``): The direction of hyperedges can be either ``'v2e'`` or ``'e2v'``.
+            ``group_name`` (``str``): The name of the group.
+        """
+        # assert (
+        #     group_name in self.group_names
+        # ), f"The specified {group_name} is not in existing hyperedge groups."
+        # assert direction in ["v2e", "e2v"], "direction must be one of ['v2e', 'e2v']"
+        # if direction == "v2e":
+        #     select_idx = 0
+        # else:
+        #     select_idx = 1
+        if self.cache.get("main_H") is None:
+            num_e = len(self._raw_groups["main"])
+            self.cache["main_H"] = torch.sparse_coo_tensor(
+                ([self.cache["v_idx"], self.cache["e_idx"]]),
+                torch.ones(len(self.cache["v_idx"])),
+                torch.Size([self.num_v, num_e]),
+                device=self.device,
+            ).coalesce()
+
+        return self.cache["main_H"]
 
     def N_e(self, v_idx: int) -> torch.Tensor:
         r"""Return the neighbor hyperedges of the specified vertex with ``torch.Tensor`` format.
@@ -1657,16 +1731,16 @@ class Hypergraph(BaseHypergraph):
             \mathcal{L}_{HGNN} = \mathbf{D}_v^{-\frac{1}{2}} \mathbf{H} \mathbf{W}_e \mathbf{D}_e^{-1} \mathbf{H}^\top \mathbf{D}_v^{-\frac{1}{2}}
         """
         if self.cache.get("L_HGNN") is None:
+            _d_v_neg_1_2 = self.D_v_neg_1_2.to_sparse_coo()
             _tmp = (
-                self.D_v_neg_1_2.mm(self.H)
-                .mm(self.W_e)
-                .mm(self.D_e_neg_1)
-                .mm(
-                    self.H_T,
-                )
-                .mm(self.D_v_neg_1_2)
+                _d_v_neg_1_2
+                @ self.H
+                @ self.W_e
+                @ self.D_e_neg_1.to_sparse_coo()
+                @ self.H_T
+                @ _d_v_neg_1_2
             )
-            self.cache["L_HGNN"] = _tmp.coalesce()
+            self.cache["L_HGNN"] = _tmp.to_sparse_csr()
         return self.cache["L_HGNN"]
 
     def L_HGNN_of_group(self, group_name: str) -> torch.Tensor:
@@ -1713,6 +1787,7 @@ class Hypergraph(BaseHypergraph):
         """
         if self.device != X.device:
             X = X.to(self.device)
+
         if drop_rate > 0.0:
             L_HGNN = sparse_dropout(self.L_HGNN, drop_rate)
         else:
@@ -1761,7 +1836,6 @@ class Hypergraph(BaseHypergraph):
             ``v2e_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (vertices point to hyperedges). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
             ``drop_rate`` (``float``): Dropout rate. Randomly dropout the connections in incidence matrix with probability ``drop_rate``. Default: ``0.0``.
         """
-        assert aggr in ["mean", "sum", "softmax_then_sum"]
         if self.device != X.device:
             self.to(X.device)
         if v2e_weight is None:
@@ -1769,6 +1843,7 @@ class Hypergraph(BaseHypergraph):
                 P = sparse_dropout(self.H_T, drop_rate)
             else:
                 P = self.H_T
+
             if aggr == "mean":
                 X = torch.sparse.mm(P, X)
                 X = torch.sparse.mm(self.D_e_neg_1, X)
@@ -1787,6 +1862,7 @@ class Hypergraph(BaseHypergraph):
             P = torch.sparse_coo_tensor(
                 self.H_T._indices(), v2e_weight, self.H_T.shape, device=self.device
             )
+
             if drop_rate > 0.0:
                 P = sparse_dropout(P, drop_rate)
             # message passing
@@ -1794,7 +1870,7 @@ class Hypergraph(BaseHypergraph):
                 X = torch.sparse.mm(P, X)
                 D_e_neg_1 = torch.sparse.sum(P, dim=1).to_dense().view(-1, 1)
                 D_e_neg_1[torch.isinf(D_e_neg_1)] = 0
-                X = D_e_neg_1 * X
+                X = spmm(D_e_neg_1, X)
             elif aggr == "sum":
                 X = torch.sparse.mm(P, X)
             elif aggr == "softmax_then_sum":
@@ -1935,6 +2011,7 @@ class Hypergraph(BaseHypergraph):
             ``e_weight`` (``torch.Tensor``, optional): The hyperedge weight vector. If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
             ``drop_rate`` (``float``): Dropout rate. Randomly dropout the connections in incidence matrix with probability ``drop_rate``. Default: ``0.0``.
         """
+
         X = self.v2e_aggregation(X, aggr, v2e_weight, drop_rate=drop_rate)
         X = self.v2e_update(X, e_weight)
         return X
@@ -1982,7 +2059,6 @@ class Hypergraph(BaseHypergraph):
             ``e2v_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (hyperedges point to vertices). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
             ``drop_rate`` (``float``): Dropout rate. Randomly dropout the connections in incidence matrix with probability ``drop_rate``. Default: ``0.0``.
         """
-        assert aggr in ["mean", "sum", "softmax_then_sum"]
         if self.device != X.device:
             self.to(X.device)
         if e2v_weight is None:
@@ -2007,7 +2083,8 @@ class Hypergraph(BaseHypergraph):
             ), "The size of e2v_weight must be equal to the size of self.e2v_weight."
             P = torch.sparse_coo_tensor(
                 self.H._indices(), e2v_weight, self.H.shape, device=self.device
-            )
+            ).coalesce()
+
             if drop_rate > 0.0:
                 P = sparse_dropout(P, drop_rate)
             # message passing
@@ -2198,8 +2275,10 @@ class Hypergraph(BaseHypergraph):
             v2e_drop_rate = drop_rate
         if e2v_drop_rate is None:
             e2v_drop_rate = drop_rate
+
         X = self.v2e(X, v2e_aggr, v2e_weight, e_weight, drop_rate=v2e_drop_rate)
         X = self.e2v(X, e2v_aggr, e2v_weight, drop_rate=e2v_drop_rate)
+
         return X
 
     def v2v_of_group(
@@ -2250,16 +2329,13 @@ class Hypergraph(BaseHypergraph):
         )
         return X
 
-    def get_clique_expansion(self, s=1, edge=True, weight=True):
+    def get_linegraph(self, s=1, weight=True):
         """
         Get the linegraph of the hypergraph based on the clique expansion.
-        If edges=True (default)then the edges will be the vertices of the line
+        The edges will be the vertices of the line
         graph. Two vertices are connected by an s-line-graph edge if the
         corresponding hypergraph edges intersect in at least s hypergraph nodes.
-        If edges=False, the hypergraph nodes will be the vertices of the line
-        graph. Two vertices are connected if the nodes they correspond to share
-        at least s incident hyper edges.
-        Returns:
+
 
         Parameters
         ----------
@@ -2274,25 +2350,104 @@ class Hypergraph(BaseHypergraph):
 
         Returns
         -------
-            Graph: The linegraph of the hypergraph.
+            Graph: easygraph.Graph, the linegraph of the hypergraph.
+
+        """
+        edge_adjacency = self.edge_adjacency_matrix(s=s, weight=weight)
+        graph = eg.from_scipy_sparse_matrix(edge_adjacency)
+        return graph
+
+    def get_clique_expansion(self, s=1, weight=True):
+        """
+        Get the linegraph of the hypergraph based on the clique expansion.
+        The hypergraph nodes will be the vertices of the line
+        graph. Two vertices are connected if the nodes they correspond to share
+        at least s incident hyper edges.
+
+        Parameters
+        ----------
+        s : Two vertices are connected if the nodes they correspond to share
+        at least s incident hyper edges.
+        edge : If edges=True (default)then the edges will be the vertices of the line
+        graph. Two vertices are connected by an s-line-graph edge if the
+        corresponding hypergraph edges intersect in at least s hypergraph nodes.
+        If edges=False, the hypergraph nodes will be the vertices of the line
+        graph.
+        weight :
+
+        Returns
+        -------
+            Graph: easygraph.Graph, the clique expansion of the hypergraph.
 
         """
 
-        if edge:
-            edge_adjacency = self.edge_adjacency_matrix(s=s, weight=weight)
-            graph = eg.from_scipy_sparse_matrix(edge_adjacency)
-            return graph
+        if self.cache.get("clique_expansion") is None:
+            A = self.adjacency_matrix(s=s, weight=weight)
+            graph = eg.Graph()
+            A = np.array(np.nonzero(A))
+            e1 = np.array([idx for idx in A[0]])
+            e2 = np.array([idx for idx in A[1]])
+            A = np.array([e1, e2]).T
+            graph.add_edges_from(A)
+            graph.add_nodes(list(range(0, self.num_v)))
+            self.cache["clique_expansion"] = graph
 
+        return self.cache["clique_expansion"]
+
+    def s_connected_components(self, s=1, edges=True, return_singletons=False):
+        """
+        Returns a generator for the :term:`s-edge-connected components
+        <s-edge-connected component>`
+        or the :term:`s-node-connected components <s-connected component,
+        s-node-connected component>` of the hypergraph.
+
+        Parameters
+        ----------
+        s : int, optional, default 1
+
+        edges : boolean, optional, default = True
+            If True will return edge components, if False will return node
+            components
+        return_singletons : bool, optional, default = False
+
+        Notes
+        -----
+        If edges=True, this method returns the s-edge-connected components as
+        lists of lists of edge uids.
+        An s-edge-component has the property that for any two edges e1 and e2
+        there is a sequence of edges starting with e1 and ending with e2
+        such that pairwise adjacent edges in the sequence intersect in at least
+        s nodes. If s=1 these are the path components of the hypergraph.
+
+        If edges=False this method returns s-node-connected components.
+        A list of sets of uids of the nodes which are s-walk connected.
+        Two nodes v1 and v2 are s-walk-connected if there is a
+        sequence of nodes starting with v1 and ending with v2 such that
+        pairwise adjacent nodes in the sequence share s edges. If s=1 these
+        are the path components of the hypergraph.
+
+        Example
+        -------
+            >>> S = {'A':{1,2,3},'B':{2,3,4},'C':{5,6},'D':{6}}
+            >>> H = Hypergraph(S)
+
+            >>> list(H.s_components(edges=True))
+            [{'C', 'D'}, {'A', 'B'}]
+            >>> list(H.s_components(edges=False))
+            [{1, 2, 3, 4}, {5, 6}]
+
+        Yields
+        ------
+        s_connected_components : iterator
+            Iterator returns sets of uids of the edges (or nodes) in the
+            s-edge(node) components of hypergraph.
+
+        """
+        if not edges:
+            g = self.get_clique_expansion()
         else:
-            if self.cache.get("clique_expansion") is None:
-                A = self.adjacency_matrix(s=s, weight=weight)
-                graph = eg.Graph()
-                A = np.array(np.nonzero(A))
-                e1 = np.array([idx for idx in A[0]])
-                e2 = np.array([idx for idx in A[1]])
-                A = np.array([e1, e2]).T
-                graph.add_edges_from(A)
-                graph.add_nodes(list(range(0, self.num_v)))
-                self.cache["clique_expansion"] = graph
-
-            return self.cache["clique_expansion"]
+            g = self.get_linegraph(s)
+        for c in eg.connected_components(g):
+            if not return_singletons and len(c) == 1:
+                continue
+            yield c

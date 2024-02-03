@@ -16,7 +16,9 @@ def request_text_from_url(url):
 
 
 class walmart_trips:
-    def __init__(self, data_root=None):
+    def __init__(self, data_root=None, local_path=None):
+        # if local_path is not None:
+
         self.data_root = "https://" if data_root is not None else data_root
         self.hyperedges_path = "https://gitlab.com/easy-graph/easygraph-data-walmart-trips/-/raw/main/hyperedges-walmart-trips.txt?inline=false"
         self.node_labels_path = "https://gitlab.com/easy-graph/easygraph-data-walmart-trips/-/raw/main/node-labels-walmart-trips.txt?ref_type=heads&inline=false"
@@ -26,6 +28,7 @@ class walmart_trips:
         self._node_labels = []
         self._label_names = []
         self._node_names = []
+
         self.generate_hypergraph(
             hyperedges_path=self.hyperedges_path,
             node_labels_path=self.node_labels_path,

@@ -39,6 +39,15 @@ class HGNN(nn.Module):
             ``X`` (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
             ``hg`` (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
         """
+        # import time
+        # start = time.time()
+        # X = self.laplacian @ self.Theta1(self.dropout(X))
+        # end = time.time()
+        # # print("lal:",end-start)
+        # X = self.act(X)
+        # X = self.laplacian @ self.Theta2(X)
+        # return X
+
         for layer in self.layers:
             X = layer(X, hg)
         return X

@@ -88,9 +88,9 @@ class mathoverflow_answers:
         )
         self._node_labels = process_node_labels_info
         """
-        node_labels_info = request_text_from_url(hyperedges_path)
+        node_labels_info = request_text_from_url(node_labels_path)
         node_labels_info = node_labels_info.strip()
-        node_labels_lst = hyperedges_info.split("\n")
+        node_labels_lst = node_labels_info.split("\n")
         for node_label in node_labels_lst:
             node_label = node_label.strip()
             node_label = [int(i) - 1 for i in node_label.split(",")]
