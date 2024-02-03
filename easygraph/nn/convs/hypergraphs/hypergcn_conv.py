@@ -7,9 +7,6 @@ from easygraph.classes import Graph
 from easygraph.classes import Hypergraph
 
 
-torch.manual_seed(42)
-
-
 class HyperGCNConv(nn.Module):
     r"""The HyperGCN convolution layer proposed in `HyperGCN: A New Method of Training Graph Convolutional Networks on Hypergraphs <https://papers.nips.cc/paper/2019/file/1efa39bcaec6f3900149160693694536-Paper.pdf>`_ paper (NeurIPS 2019).
 

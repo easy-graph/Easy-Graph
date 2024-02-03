@@ -4,9 +4,6 @@ import torch.nn as nn
 from easygraph.classes import Hypergraph
 
 
-torch.manual_seed(42)
-
-
 class HNHNConv(nn.Module):
     r"""The HNHN convolution layer proposed in `HNHN: Hypergraph Networks with Hyperedge Neurons <https://arxiv.org/pdf/2006.12278.pdf>`_ paper (ICML 2020).
 

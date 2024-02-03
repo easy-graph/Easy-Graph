@@ -4,9 +4,6 @@ import torch.nn as nn
 from easygraph.classes import Hypergraph
 
 
-torch.manual_seed(42)
-
-
 class UniGCNConv(nn.Module):
     r"""The UniGCN convolution layer proposed in `UniGNN: a Unified Framework for Graph and Hypergraph Neural Networks <https://arxiv.org/pdf/2105.00956.pdf>`_ paper (IJCAI 2021).
 
