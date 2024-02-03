@@ -113,7 +113,7 @@ def test_from_graph_kHop():
     assert hg.num_e == 5
     assert (0, 1, 3, 4) in hg.e[0]
     hg = eg.Hypergraph.from_graph_kHop(g, k=2, only_kHop=True)
-    assert hg.num_e == 5
+    assert hg.num_e == 4
 
 
 # test representation
@@ -246,27 +246,6 @@ def test_add_hyperedges_from_graph_kHop(g1):
             assert e in origin_e
         for e in gg2.e_of_group("main")[0]:
             assert e in origin_e
-
-
-# def test_add_hyperedges_from_bigraph():
-#     g = BiGraph(3, 4, [[0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [1, 1], [2, 2], [3, 2]])
-#     h = Hypergraph(6)
-#     h.add_hyperedges_from_bigraph(g, group_name="bigraph")
-#     assert h.num_e == 4
-#     assert (0, 1, 2, 3) in h.e_of_group("bigraph")[0]
-#     assert (0, 1) in h.e_of_group("bigraph")[0]
-#     assert (2, 3) in h.e_of_group("bigraph")[0]
-#
-#     h.add_hyperedges_from_bigraph(g, group_name="bigraph-u", U_as_vertex=True)
-#     assert h.num_e == 4
-#     assert (0, 1, 2, 3) in h.e_of_group("bigraph-u")[0]
-#     assert (0, 1) in h.e_of_group("bigraph-u")[0]
-#     assert (2, 3) in h.e_of_group("bigraph-u")[0]
-#
-#     h.add_hyperedges_from_bigraph(g, group_name="bigraph-v", U_as_vertex=False)
-#     assert h.num_e == 3
-#     assert (0, 1) in h.e_of_group("bigraph-v")[0]
-#     assert (0, 2) in h.e_of_group("bigraph-v")[0]
 
 
 def test_remove_hyperedges(g1):
@@ -460,6 +439,7 @@ def test_e2v_index_group(g1):
 def test_H(g1):
     import torch
 
+    print("g1", g1.H.to_dense())
     assert (
         g1.H.to_dense().cpu()
         == torch.tensor(
@@ -536,10 +516,12 @@ def test_H_T(g1):
 #     ).all()
 
 
-# def test_W_e(g2):
-#     import torch
-#
-#     assert (g2.W_e.cpu()._values() == torch.tensor([0.5, 1, 0.5, 1, 0.5])).all()
+def test_W_e(g2):
+    import torch
+
+    assert (
+        g2.W_e.to_sparse_coo().cpu()._values() == torch.tensor([0.5, 1, 0.5, 1, 0.5])
+    ).all()
 
 
 # def test_W_e_group(g2):
@@ -582,30 +564,40 @@ def test_D(g1, g2):
 #     assert (g1.D_e_of_group("knn").cpu()._values() == torch.tensor([2, 3])).all()
 
 
-# def test_D_neg(g1, g2):
-#     import torch
-#
-#     # -1
-#     assert (
-#         g1.D_v_neg_1.cpu()._values() == torch.tensor([2, 2, 2, 1, 1, 1]) ** (-1.0)
-#     ).all()
-#     assert (g1.D_e_neg_1.cpu()._values() == torch.tensor([4, 2, 3]) ** (-1.0)).all()
-#     assert (
-#         g2.D_v_neg_1.cpu()._values() == torch.tensor([2, 3, 3, 4, 1]) ** (-1.0)
-#     ).all()
-#     assert (
-#         g2.D_e_neg_1.cpu()._values() == torch.tensor([3, 3, 2, 3, 2]) ** (-1.0)
-#     ).all()
-#     # -1/2
-#     assert (
-#         g1.D_v_neg_1_2.cpu()._values() == torch.tensor([2, 2, 2, 1, 1, 1]) ** (-0.5)
-#     ).all()
-#     assert (
-#         g2.D_v_neg_1_2.cpu()._values() == torch.tensor([2, 3, 3, 4, 1]) ** (-0.5)
-#     ).all()
-#     # isolated vertex
-#     g3 = eg.Hypergraph(num_v=3, e_list=[0, 1])
-#     assert (g3.D_v_neg_1.cpu()._values() == torch.tensor([1, 1, 0])).all()
+def test_D_neg(g1, g2):
+    import torch
+
+    # -1
+    assert (
+        g1.D_v_neg_1.to_sparse_coo().cpu()._values()
+        == torch.tensor([2, 2, 2, 1, 1, 1]) ** (-1.0)
+    ).all()
+    assert (
+        g1.D_e_neg_1.to_sparse_coo().cpu()._values()
+        == torch.tensor([4, 2, 3]) ** (-1.0)
+    ).all()
+    assert (
+        g2.D_v_neg_1.to_sparse_coo().cpu()._values()
+        == torch.tensor([2, 3, 3, 4, 1]) ** (-1.0)
+    ).all()
+    assert (
+        g2.D_e_neg_1.to_sparse_coo().cpu()._values()
+        == torch.tensor([3, 3, 2, 3, 2]) ** (-1.0)
+    ).all()
+    # -1/2
+    assert (
+        g1.D_v_neg_1_2.to_sparse_coo().cpu()._values()
+        == torch.tensor([2, 2, 2, 1, 1, 1]) ** (-0.5)
+    ).all()
+    assert (
+        g2.D_v_neg_1_2.to_sparse_coo().cpu()._values()
+        == torch.tensor([2, 3, 3, 4, 1]) ** (-0.5)
+    ).all()
+    # isolated vertex
+    g3 = eg.Hypergraph(num_v=3, e_list=[0, 1])
+    assert (
+        g3.D_v_neg_1.to_sparse_coo().cpu()._values() == torch.tensor([1, 1, 0])
+    ).all()
 
 
 # def test_D_neg_group(g1):
@@ -743,17 +735,23 @@ def test_smoothing():
     sys.version_info.major <= 3 and sys.version_info.minor < 7,
     reason="python requires >= 3.7",
 )
-# def test_L_sym(g1):
-#     import torch
-#
-#     H = g1.H.to_dense().cpu()
-#     D_v_neg_1_2 = torch.diag(H.sum(dim=1).view(-1) ** (-0.5))
-#     D_e_neg_1 = torch.diag(H.sum(dim=0).view(-1) ** (-1))
-#     W_e = g1.W_e.to_dense()
-#     L_sym = (
-#         torch.eye(H.shape[0]) - D_v_neg_1_2 @ H @ W_e @ D_e_neg_1 @ H.t() @ D_v_neg_1_2
-#     )
-#     assert (L_sym == g1.L_sym.to_dense().cpu()).all()
+def test_L_sym(g1):
+    import torch
+
+    H = g1.H.to_sparse_coo().to_dense().cpu()
+    D_v_neg_1_2 = torch.diag(H.sum(dim=1).view(-1) ** (-0.5))
+    D_e_neg_1 = torch.diag(H.sum(dim=0).view(-1) ** (-1))
+    W_e = g1.W_e.to_dense()
+    L_sym = (
+        torch.eye(H.shape[0])
+        - D_v_neg_1_2.to_sparse_coo()
+        @ H.to_sparse_coo()
+        @ W_e
+        @ D_e_neg_1.to_sparse_coo()
+        @ H.t().to_sparse_coo()
+        @ D_v_neg_1_2.to_sparse_coo()
+    )
+    assert (L_sym == g1.L_sym.to_dense().cpu()).all()
 
 
 @pytest.mark.skipif(

@@ -8,11 +8,9 @@ from typing import Tuple
 
 import easygraph as eg
 import easygraph.convert as convert
-import numpy as np
 import torch
 
 from easygraph.utils.exception import EasyGraphError
-from easygraph.utils.exception import EasyGraphException
 from easygraph.utils.sparse import sparse_dropout
 
 
@@ -164,8 +162,8 @@ class Graph:
         weights = list()
         seen = set()
         for u in self._adj:
-            edges.append([u, u])
-            weights.append(1.0)
+            # edges.append([u, u])
+            # weights.append(1.0)
             for v in self._adj[u]:
                 if (u, v) not in seen:
                     seen.add((u, v))
@@ -177,12 +175,8 @@ class Graph:
                         weights.append(1.0)
                         weights.append(1.0)
                     else:
-                        # if type(self._adj[u][v][weight]) == float:
                         weights.append(self._adj[u][v][weight])
                         weights.append(self._adj[v][u][weight])
-                        # else:
-                        #     raise EasyGraphException("The type of weight must be float")
-        # del seen
         self.cache["e_both_side"] = (edges, weights)
         return self.cache["e_both_side"]
 
@@ -203,7 +197,6 @@ class Graph:
             ``device`` (``torch.device``): The device to store the graph. Defaults to ``torch.device("cpu")``.
         """
 
-        torch.manual_seed(42)
         num_v = hypergraph.num_v
         assert (
             num_v == feature.shape[0]
@@ -247,7 +240,6 @@ class Graph:
                 _g.add_edge(e[0], e[1], weight=(w + _g.adj[e[0]][e[1]]["weight"]))
             else:
                 _g.add_edge(e[0], e[1], weight=w)
-        # print("_g:",_g.edges[:10])
         now_edges = []
         now_weight = []
         for e in _g.edges:

@@ -96,15 +96,14 @@ class Hypergraph(BaseHypergraph):
         indptr_list.append(ptr)
 
         e_idx, v_idx = [], []
-
         for n, e in self.n_e_dict.items():
             v_idx.extend([n] * len(e))
             e_idx.extend(e)
+        self.cache["e_idx"] = e_idx
+        self.cache["v_idx"] = v_idx
 
         self.cache["edges_col"] = np.array(edges_col)
         self.cache["indptr_list"] = np.array(indptr_list)
-        self.cache["e_idx"] = e_idx
-        self.cache["v_idx"] = v_idx
 
     def __repr__(self) -> str:
         r"""Print the hypergraph information."""
@@ -954,6 +953,13 @@ class Hypergraph(BaseHypergraph):
 
         if self.cache.get("H") is None:
             num_e = len(self._raw_groups["main"])
+            if self.cache.get("v_idx") is None or self.cache.get("e_idx") is None:
+                e_idx, v_idx = [], []
+                for n, e in self.n_e_dict.items():
+                    v_idx.extend([n] * len(e))
+                    e_idx.extend(e)
+                self.cache["e_idx"] = e_idx
+                self.cache["v_idx"] = v_idx
             self.cache["H"] = torch.sparse_coo_tensor(
                 torch.tensor(
                     [self.cache["v_idx"], self.cache["e_idx"]], dtype=torch.long
@@ -1270,7 +1276,7 @@ class Hypergraph(BaseHypergraph):
         r"""Return the weight matrix :math:`\mathbf{W}_e` of hyperedges with ``torch.Tensor`` format.
         """
         if self.cache.get("W_e") is None:
-            _tmp = torch.ones(len(self._raw_groups["main"]))
+            _tmp = torch.tensor(self.e[1])
             _num_e = _tmp.size(0)
             self.cache["W_e"] = torch.sparse_coo_tensor(
                 torch.arange(0, _num_e).view(1, -1).repeat(2, 1),
@@ -1617,10 +1623,12 @@ class Hypergraph(BaseHypergraph):
                 torch.hstack(
                     [
                         torch.arange(0, self.num_v).view(1, -1).repeat(2, 1),
-                        L_HGNN._indices(),
+                        L_HGNN.to_sparse_coo()._indices(),
                     ]
                 ),
-                torch.hstack([torch.ones(self.num_v), -L_HGNN._values()]),
+                torch.hstack(
+                    [torch.ones(self.num_v), -L_HGNN.to_sparse_coo()._values()]
+                ),
                 torch.Size([self.num_v, self.num_v]),
                 device=self.device,
             ).coalesce()

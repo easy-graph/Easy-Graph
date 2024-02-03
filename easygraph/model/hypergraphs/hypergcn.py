@@ -56,21 +56,11 @@ class HyperGCN(nn.Module):
         """
         if self.fast:
             if self.cached_g is None:
-                # import time
-                # start = time.time()
                 self.cached_g = Graph.from_hypergraph_hypergcn(
                     hg, X, self.with_mediator
                 )
-                # end = time.time()
-                # print("eg from_hypergraph_hypergcn:",end-start)
-                # print("cached_g:",len( self.cached_g.nodes),len( self.cached_g.edges))
-                # print("self.cached_g cache:",self.cached_g.cache.keys())
             for layer in self.layers:
-                # import time
-                # start = time.time()
                 X = layer(X, hg, self.cached_g)
-                # end = time.time()
-                # print("eg HyperGCNConv:", end - start)
         else:
             for layer in self.layers:
                 X = layer(X, hg)

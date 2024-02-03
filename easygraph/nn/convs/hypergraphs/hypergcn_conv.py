@@ -58,12 +58,7 @@ class HyperGCNConv(nn.Module):
             g = Graph.from_hypergraph_hypergcn(hg, X, self.use_mediator)
             X = g.smoothing_with_GCN(X)
         else:
-            # import time
-            # start = time.time()
-            # print("HyperGCNConv:",cached_g.cache.keys())
             X = cached_g.smoothing_with_GCN(X)
-            # end = time.time()
-            # print("eg cached_g.smoothing_with_GCN:", end - start)
         if not self.is_last:
             X = self.drop(self.act(X))
         return X
