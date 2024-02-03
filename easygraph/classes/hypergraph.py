@@ -21,7 +21,7 @@ from easygraph.utils.exception import EasyGraphError
 from easygraph.utils.sparse import sparse_dropout
 from scipy.sparse import csr_array
 from scipy.sparse import csr_matrix
-from torch_sparse import spmm
+# from torch_sparse import spmm
 
 
 if TYPE_CHECKING:
@@ -1870,7 +1870,7 @@ class Hypergraph(BaseHypergraph):
                 X = torch.sparse.mm(P, X)
                 D_e_neg_1 = torch.sparse.sum(P, dim=1).to_dense().view(-1, 1)
                 D_e_neg_1[torch.isinf(D_e_neg_1)] = 0
-                X = spmm(D_e_neg_1, X)
+                X = torch.sparse.mm(D_e_neg_1, X)
             elif aggr == "sum":
                 X = torch.sparse.mm(P, X)
             elif aggr == "softmax_then_sum":
