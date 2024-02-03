@@ -3,8 +3,7 @@ from typing import Optional
 from easygraph.datapipe import load_from_pickle
 from easygraph.datapipe import to_long_tensor
 from easygraph.datapipe import to_tensor
-
-from .base import BaseData
+from easygraph.datasets.hypergraph.hypergraph_dataset_base import BaseData
 
 
 class YelpRestaurant(BaseData):

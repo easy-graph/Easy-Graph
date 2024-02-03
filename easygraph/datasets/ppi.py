@@ -7,7 +7,7 @@ import numpy as np
 from easygraph.classes.directed_graph import DiGraph
 
 from ..readwrite import json_graph
-from .eg_dataset import EasyGraphBuiltinDataset
+from .graph_dataset_base import EasyGraphBuiltinDataset
 from .utils import _get_dgl_url
 from .utils import data_type_dict
 from .utils import tensor

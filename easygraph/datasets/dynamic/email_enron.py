@@ -1,17 +1,18 @@
 import json
 import os
 
-import torch
-
 from easygraph.convert import dict_to_hypergraph
-from easygraph.datasets.eg_dataset import EasyGraphDataset
-from easygraph.datasets.hypergraph.load_dataset import request_json_from_url
+from easygraph.datasets.dynamic.load_dataset import request_json_from_url
+from easygraph.datasets.graph_dataset_base import EasyGraphDataset
 from easygraph.datasets.utils import _get_eg_url
 from easygraph.datasets.utils import tensor
 
 
-class Email_Eu(EasyGraphDataset):
+class Email_Enron(EasyGraphDataset):
     _urls = {
+        "email-enron": (
+            "easygraph-data-email-enron/-/raw/main/email-enron.json?inline=false"
+        ),
         "email-eu": "easygraph-data-email-eu/-/raw/main/email-eu.json?inline=false",
     }
 
@@ -23,9 +24,9 @@ class Email_Eu(EasyGraphDataset):
         transform=None,
         save_dir="./",
     ):
-        name = "email-eu"
+        name = "email-enron"
         self.url = _get_eg_url(self._urls[name])
-        super(Email_Eu, self).__init__(
+        super(Email_Enron, self).__init__(
             name=name,
             url=self.url,
             raw_dir=raw_dir,
@@ -62,7 +63,6 @@ class Email_Eu(EasyGraphDataset):
         return False
 
     def download(self):
-        print("download")
         if self.has_cache():
             self.load()
         else:
@@ -76,13 +76,11 @@ class Email_Eu(EasyGraphDataset):
         """Loads input data from data directory and transfer to target graph for better analysis
         """
 
-        # self._g, edge_feature_list = dict_to_hypergraph(self.load_data, is_dynamic=True)
         self._g, edge_feature_list = dict_to_hypergraph(self.load_data, is_dynamic=True)
+
         self._g.ndata["hyperedge_feature"] = tensor(
             range(1, len(edge_feature_list) + 1)
         )
-        # print("self._g:",self._g)
-        # print(self._g.ndata["hyperedge_feature"])
 
     @url.setter
     def url(self, value):
