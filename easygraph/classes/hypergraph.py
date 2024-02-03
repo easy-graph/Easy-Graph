@@ -21,6 +21,8 @@ from easygraph.utils.exception import EasyGraphError
 from easygraph.utils.sparse import sparse_dropout
 from scipy.sparse import csr_array
 from scipy.sparse import csr_matrix
+
+
 # from torch_sparse import spmm
 
 
