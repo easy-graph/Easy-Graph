@@ -8,6 +8,23 @@ __all__ = ["size_independent_hypercoreness", "frequency_based_hypercoreness"]
 
 
 def size_independent_hypercoreness(h):
+    """The size_independent_hypercoreness of nodes in hypergraph.
+
+    Parameters
+    ----------
+    h : eg.Hypergraph.
+
+
+    Returns
+    ----------
+    dict
+        Centrality, where keys are node IDs and values are lists of centralities.
+
+    References
+    ----------
+    Mancastroppa, M., Iacopini, I., Petri, G. et al. Hyper-cores promote localization and efficient seeding in higher-order processes. Nat Commun 14, 6223 (2023). https://doi.org/10.1038/s41467-023-41887-2.
+
+    """
     e_list = h.e[0]
     initial_node_num = h.num_v
     data = [e_list[i] for i in range(len(e_list)) if len(e_list[i]) > 1]
@@ -165,6 +182,22 @@ def size_independent_hypercoreness(h):
 
 
 def frequency_based_hypercoreness(h):
+    r"""The frequency-based hypercoreness of nodes in hypergraph.
+
+     Parameters
+     ----------
+     h : easygraph.Hypergraph
+
+
+    Returns
+    -------
+    dict : Centrality, where keys are node IDs and values are lists of centralities.
+
+    References
+    ----------
+    Mancastroppa, M., Iacopini, I., Petri, G. et al. Hyper-cores promote localization and efficient seeding in higher-order processes. Nat Commun 14, 6223 (2023). https://doi.org/10.1038/s41467-023-41887-2
+
+    """
     e_list = h.e[0]
     initial_node_num = h.num_v
     data = [e_list[i] for i in range(len(e_list)) if len(e_list[i]) > 1]

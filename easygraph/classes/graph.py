@@ -162,8 +162,6 @@ class Graph:
         weights = list()
         seen = set()
         for u in self._adj:
-            # edges.append([u, u])
-            # weights.append(1.0)
             for v in self._adj[u]:
                 if (u, v) not in seen:
                     seen.add((u, v))

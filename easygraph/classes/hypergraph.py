@@ -999,7 +999,7 @@ class Hypergraph(BaseHypergraph):
                 self.cache["edges_col"] = np.array(edges_col)
                 self.cache["indptr_list"] = np.array(indptr_list)
 
-            A = csr_matrix(
+            H = csr_matrix(
                 (
                     [1] * len(self.cache["edges_col"]),
                     self.cache["edges_col"],
@@ -1008,7 +1008,7 @@ class Hypergraph(BaseHypergraph):
                 shape=(self.num_v, self.num_e),
                 dtype=int,
             )
-            self.cache["incidence_matrix"] = A
+            self.cache["incidence_matrix"] = H
         return self.cache["incidence_matrix"]
 
     def get_star_expansion(self):

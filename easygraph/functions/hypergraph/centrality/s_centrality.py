@@ -5,17 +5,24 @@ __all__ = ["s_betweenness", "s_closeness", "s_eccentricity"]
 
 
 def s_betweenness(H, s=1, n_workers=None):
-    """
+    """Computes the betweenness centrality for each edge in the hypergraph.
+
     Computes the betweenness centrality for each edge in the hypergraph.
 
     Parameters
     ----------
     H : eg.Hypergraph.
-    s : int, optional
+        The hypergraph to compute
+
+    s : int, optional.
 
     Returns
-    -------
-    dict. The betweenness centrality for each edge in the hypergraph. The keys are the edges and the values are the betweenness centrality.
+    ----------
+    dict
+    The keys are the edges and the values are the betweenness centrality.
+    The betweenness centrality for each edge in the hypergraph.
+
+
     """
 
     linegraph = H.get_linegraph(s=s)

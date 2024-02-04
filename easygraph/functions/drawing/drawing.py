@@ -122,6 +122,7 @@ def draw_hypergraph(
         font_family,
         v_size,
         v_color,
+        "black",
         v_line_width,
     )
 
