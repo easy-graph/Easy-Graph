@@ -259,8 +259,8 @@ def draw_dynamic_hypergraph(
 
     import matplotlib.pyplot as plt
 
-    if group_name_list == None:
-        group_name_list = G.group_names
+    # if group_name_list == None:
+    #     group_name_list = G.group_names
     COLUMN_SIZE = 3 if column_size == None else column_size
     ROW_SIZE = math.ceil(len(group_name_list) / COLUMN_SIZE)
     fig = plt.figure()

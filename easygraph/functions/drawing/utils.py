@@ -93,7 +93,6 @@ def draw_circle_edge(
 ):
     n_v = len(v_coor)
     line_paths, arc_paths, vertices = hull_layout(n_v, e_list, v_coor, v_size)
-
     for eidx, lines in enumerate(line_paths):
         pathdata = []
         for line in lines:
@@ -107,6 +106,7 @@ def draw_circle_edge(
             continue
         codes, verts = zip(*pathdata)
         path = Path(verts, codes)
+
         ax.add_patch(
             PathPatch(
                 path,
@@ -121,6 +121,19 @@ def draw_circle_edge(
             center, theta1, theta2, radius = arc
             x, y = center[0], center[1]
 
+            patcjes_arc = matplotlib.patches.Arc(
+                (x, y),
+                2 * radius,
+                2 * radius,
+                theta1=theta1,
+                theta2=theta2,
+                color=e_color[eidx],
+                linewidth=e_line_width[eidx],
+                # edgecolor=e_color[eidx],
+                edgecolor=e_color[eidx],
+                facecolor=e_fill_color[eidx],
+            )
+
             ax.add_patch(
                 matplotlib.patches.Arc(
                     (x, y),
@@ -128,8 +141,9 @@ def draw_circle_edge(
                     2 * radius,
                     theta1=theta1,
                     theta2=theta2,
-                    # color=e_color[eidx],
+                    color=e_color[eidx],
                     linewidth=e_line_width[eidx],
+                    # edgecolor=e_color[eidx],
                     edgecolor=e_color[eidx],
                     facecolor=e_fill_color[eidx],
                 )
