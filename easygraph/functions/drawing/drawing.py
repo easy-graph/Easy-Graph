@@ -943,7 +943,7 @@ def draw_SHS_center(G, SHS, rate=1, style="center"):
                 edgecolors="tomato",
                 s=500,
                 linewidth=0.5,
-                zorder=2
+                zorder=2,
             )
         k = 0
         for i in pos:
@@ -969,7 +969,15 @@ def draw_SHS_center(G, SHS, rate=1, style="center"):
         for i in G.edges:
             p1 = [pos[i[0]][0], pos[i[1]][0]]
             p2 = [pos[i[0]][1], pos[i[1]][1]]
-            plt.plot(p1, p2, color="skyblue", linestyle="-", alpha=0.3, linewidth=1.8, zorder=1)
+            plt.plot(
+                p1,
+                p2,
+                color="skyblue",
+                linestyle="-",
+                alpha=0.3,
+                linewidth=1.8,
+                zorder=1,
+            )
         plt.show()
 
     else:
@@ -1042,9 +1050,7 @@ def draw_SHS_center(G, SHS, rate=1, style="center"):
             if u in s and v in s:
                 p1 = [pos[i[0]][0], pos[i[1]][0]]
                 p2 = [pos[i[0]][1], pos[i[1]][1]]
-                plt.plot(
-                    p1, p2, color="skyblue", linestyle="-", alpha=0.3, linewidth=3
-                )
+                plt.plot(p1, p2, color="skyblue", linestyle="-", alpha=0.3, linewidth=3)
         plt.show()
     return
 
@@ -1219,9 +1225,7 @@ def draw_SHS_center_kk(G, SHS, rate=1, style="center"):
             if u in s and v in s:
                 p1 = [pos[i[0]][0], pos[i[1]][0]]
                 p2 = [pos[i[0]][1], pos[i[1]][1]]
-                plt.plot(
-                    p1, p2, color="skyblue", linestyle="-", alpha=0.3, linewidth=3
-                )
+                plt.plot(p1, p2, color="skyblue", linestyle="-", alpha=0.3, linewidth=3)
         plt.show()
     return
 
@@ -1348,6 +1352,7 @@ def draw_kamada_kawai(G, rate=1, style="side"):
         plt.show()
     return
 
+
 def draw_louvain_com(G, l_com):
     """
     Draw the graph and show the communities
@@ -1359,15 +1364,16 @@ def draw_louvain_com(G, l_com):
     """
     import matplotlib.pyplot as plt
     import numpy as np
+
     plt.figure(figsize=(8, 8))
     n = len(l_com)
-    colors = get_n_colors(n+1)
+    colors = get_n_colors(n + 1)
     com_pos = community_pos(n)
     node = np.zeros((len(G.nodes), 2), float)
-    node_idx = np.zeros(len(G.nodes)+1)
+    node_idx = np.zeros(len(G.nodes) + 1)
     edge_label = edge_partition(G, l_com)
     k = 0
-    
+
     for i in range(n):
         n_pos = node_pos(len(l_com[i]))
         com_list = list(l_com[i])
@@ -1379,14 +1385,14 @@ def draw_louvain_com(G, l_com):
             node_idx[com_list[j]] = k
             k += 1
         plt.scatter(
-            node[start : k, 0],
-            node[start : k, 1],
+            node[start:k, 0],
+            node[start:k, 1],
             marker="o",
             color=colors[i],
             edgecolors=colors[i],
             s=300,
             linewidth=0.5,
-            zorder=2
+            zorder=2,
         )
         for j in range(m):
             x = int(node_idx[com_list[j]])
@@ -1397,16 +1403,25 @@ def draw_louvain_com(G, l_com):
                 fontsize=10,
                 verticalalignment="center",
                 horizontalalignment="center",
-                color="white"
+                color="white",
             )
     for i in G.edges:
         x = int(node_idx[int(i[0])])
         y = int(node_idx[int(i[1])])
         p1 = [node[x][0], node[y][0]]
         p2 = [node[x][1], node[y][1]]
-        plt.plot(p1, p2, color=colors[edge_label[(i[0], i[1])]], linestyle="-", alpha=0.3, linewidth=1.5, zorder=1)
+        plt.plot(
+            p1,
+            p2,
+            color=colors[edge_label[(i[0], i[1])]],
+            linestyle="-",
+            alpha=0.3,
+            linewidth=1.5,
+            zorder=1,
+        )
     plt.show()
     return
+
 
 def draw_lpa_com(G, lpa_com):
     """
@@ -1419,16 +1434,17 @@ def draw_lpa_com(G, lpa_com):
     """
     import matplotlib.pyplot as plt
     import numpy as np
+
     plt.figure(figsize=(8, 8))
     list_lpa_com = list(lpa_com.values())
     n = len(list_lpa_com)
-    colors = get_n_colors(n+1)
+    colors = get_n_colors(n + 1)
     com_pos = community_pos(n)
     node = np.zeros((len(G.nodes), 2), float)
-    node_idx = np.zeros(len(G.nodes)+1)
+    node_idx = np.zeros(len(G.nodes) + 1)
     edge_label = edge_partition(G, list_lpa_com)
     k = 0
-    
+
     for i in range(n):
         cur_com = list_lpa_com[i]
         m = len(cur_com)
@@ -1440,14 +1456,14 @@ def draw_lpa_com(G, lpa_com):
             node_idx[cur_com[j]] = k
             k += 1
         plt.scatter(
-            node[start : k, 0],
-            node[start : k, 1],
+            node[start:k, 0],
+            node[start:k, 1],
             marker="o",
             color=colors[i],
             edgecolors=colors[i],
             s=300,
             linewidth=0.5,
-            zorder=2
+            zorder=2,
         )
         for j in range(m):
             x = int(node_idx[cur_com[j]])
@@ -1458,16 +1474,25 @@ def draw_lpa_com(G, lpa_com):
                 fontsize=10,
                 verticalalignment="center",
                 horizontalalignment="center",
-                color="white"
+                color="white",
             )
     for i in G.edges:
         x = int(node_idx[int(i[0])])
         y = int(node_idx[int(i[1])])
         p1 = [node[x][0], node[y][0]]
         p2 = [node[x][1], node[y][1]]
-        plt.plot(p1, p2, color=colors[edge_label[(i[0], i[1])]], linestyle="-", alpha=0.3, linewidth=1.5, zorder=1)
+        plt.plot(
+            p1,
+            p2,
+            color=colors[edge_label[(i[0], i[1])]],
+            linestyle="-",
+            alpha=0.3,
+            linewidth=1.5,
+            zorder=1,
+        )
     plt.show()
     return
+
 
 def draw_gm_com(G, gm_com):
     """
@@ -1480,16 +1505,17 @@ def draw_gm_com(G, gm_com):
     """
     import matplotlib.pyplot as plt
     import numpy as np
+
     plt.figure(figsize=(8, 8))
     list_gm_com = [list(i) for i in gm_com]
     n = len(list_gm_com)
-    colors = get_n_colors(n+1)
+    colors = get_n_colors(n + 1)
     com_pos = community_pos(n)
     node = np.zeros((len(G.nodes), 2), float)
-    node_idx = np.zeros(len(G.nodes)+1)
+    node_idx = np.zeros(len(G.nodes) + 1)
     edge_label = edge_partition(G, list_gm_com)
     k = 0
-    
+
     for i in range(n):
         cur_com = list_gm_com[i]
         m = len(cur_com)
@@ -1501,14 +1527,14 @@ def draw_gm_com(G, gm_com):
             node_idx[cur_com[j]] = k
             k += 1
         plt.scatter(
-            node[start : k, 0],
-            node[start : k, 1],
+            node[start:k, 0],
+            node[start:k, 1],
             marker="o",
             color=colors[i],
             edgecolors=colors[i],
             s=300,
             linewidth=0.5,
-            zorder=2
+            zorder=2,
         )
         for j in range(m):
             x = int(node_idx[cur_com[j]])
@@ -1519,23 +1545,35 @@ def draw_gm_com(G, gm_com):
                 fontsize=10,
                 verticalalignment="center",
                 horizontalalignment="center",
-                color="white"
+                color="white",
             )
     for i in G.edges:
         x = int(node_idx[int(i[0])])
         y = int(node_idx[int(i[1])])
         p1 = [node[x][0], node[y][0]]
         p2 = [node[x][1], node[y][1]]
-        plt.plot(p1, p2, color=colors[edge_label[(i[0], i[1])]], linestyle="-", alpha=0.3, linewidth=1.5, zorder=1)
+        plt.plot(
+            p1,
+            p2,
+            color=colors[edge_label[(i[0], i[1])]],
+            linestyle="-",
+            alpha=0.3,
+            linewidth=1.5,
+            zorder=1,
+        )
     plt.show()
     return
 
+
 def get_n_colors(n):
-    from matplotlib import cm
     import numpy as np
-    viridis = cm.get_cmap('viridis', n)
+
+    from matplotlib import cm
+
+    viridis = cm.get_cmap("viridis", n)
     colors = viridis(np.linspace(0, 1, n))
     return colors
+
 
 def community_pos(n, scale=10):
     """
@@ -1551,19 +1589,21 @@ def community_pos(n, scale=10):
     pos = eg.spring_layout(graph, scale=scale)
     return pos
 
+
 def node_pos(n, scale=2):
     """
     Set position for every node in a community
 
     Parameters
     ----------
-    n : number of nodes 
+    n : number of nodes
     scale : parameter for sprint_layout
     """
     graph = eg.Graph()
     graph.add_nodes(range(n))
     pos = eg.spring_layout(graph, scale=scale)
     return pos
+
 
 def edge_partition(G, community):
     """
@@ -1585,6 +1625,7 @@ def edge_partition(G, community):
                 edge_label[(edge[0], edge[1])] = n
                 break
     return edge_label
+
 
 def draw_ego_graph(G, ego_graph):
     import matplotlib.pyplot as plt
@@ -1623,7 +1664,7 @@ def draw_ego_graph(G, ego_graph):
         edgecolors="tomato",
         s=200,
         linewidth=0.5,
-        zorder=2
+        zorder=2,
     )
     k = 0
     for i in pos:
@@ -1640,11 +1681,28 @@ def draw_ego_graph(G, ego_graph):
         p1 = [pos[i[0]][0], pos[i[1]][0]]
         p2 = [pos[i[0]][1], pos[i[1]][1]]
         if i not in ego_graph.edges:
-            plt.plot(p1, p2, color="skyblue", linestyle="-", alpha=0.3, linewidth=1.8, zorder=1)
+            plt.plot(
+                p1,
+                p2,
+                color="skyblue",
+                linestyle="-",
+                alpha=0.3,
+                linewidth=1.8,
+                zorder=1,
+            )
         else:
-            plt.plot(p1, p2, color="tomato", linestyle="-", alpha=0.3, linewidth=1.8, zorder=1)
+            plt.plot(
+                p1,
+                p2,
+                color="tomato",
+                linestyle="-",
+                alpha=0.3,
+                linewidth=1.8,
+                zorder=1,
+            )
     plt.show()
     return
+
 
 if __name__ == "__main__":
     G = eg.datasets.get_graph_karateclub()
@@ -1660,4 +1718,3 @@ if __name__ == "__main__":
     draw_SHS_center_kk(G, [1, 33, 34], rate=0.8, style="center")
     draw_kamada_kawai(G, rate=0.8, style="side")
     draw_kamada_kawai(G, rate=0.8, style="center")
-
