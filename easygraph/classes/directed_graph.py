@@ -302,7 +302,8 @@ class DiGraph(Graph):
         degree = dict()
         outdegree = self.out_degree(weight=weight)
         indegree = self.in_degree(weight=weight)
-        for u in outdegree:
+        all_nodes = set(outdegree.keys()) | set(indegree.keys())
+        for u in all_nodes:
             degree[u] = outdegree[u] + indegree[u]
         return degree
 
