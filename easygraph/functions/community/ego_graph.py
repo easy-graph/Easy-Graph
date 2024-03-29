@@ -53,10 +53,11 @@ def ego_graph(G, n, radius=1, center=True, undirected=False, distance=None):
         """
     else:
         if distance is not None:
-            sp = eg.single_source_dijkstra(G, n, cutoff=radius, weight=distance)
+            sp = eg.single_source_dijkstra(G, n, weight=distance)
         else:
-            sp = eg.single_source_dijkstra(G, n, cutoff=radius, weight=distance)
-    nodes = list(sp.keys())
+            sp = eg.single_source_dijkstra(G, n)
+    nodes = [key for key, value in sp.items() if value <= radius]
+    nodes = list(nodes)
     # for i,wd in sp.items():
     #    print(i,wd)
     H = G.nodes_subgraph(nodes)

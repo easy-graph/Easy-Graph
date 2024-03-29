@@ -61,26 +61,6 @@ class EasyGraphDataset(object):
         a transformed version. The :class:`~dgl.DGLGraph` object will be
         transformed before every access.
 
-    Attributes
-    ----------
-    url : str
-        The URL to download the dataset
-    name : str
-        The dataset name
-    raw_dir : str
-        Directory to store all the downloaded raw datasets.
-    raw_path : str
-        Path to the downloaded raw dataset folder. An alias for
-        ``os.path.join(self.raw_dir, self.name)``.
-    save_dir : str
-        Directory to save all the processed datasets.
-    save_path : str
-        Path to the processed dataset folder. An alias for
-        ``os.path.join(self.save_dir, self.name)``.
-    verbose : bool
-        Whether to print more runtime information.
-    hash : str
-        Hash value for the dataset and the setting.
     """
 
     def __init__(

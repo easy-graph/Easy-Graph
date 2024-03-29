@@ -13,7 +13,7 @@ import scipy.sparse as sp
 
 from easygraph.classes.graph import Graph
 
-from .eg_dataset import EasyGraphBuiltinDataset
+from .graph_dataset_base import EasyGraphBuiltinDataset
 from .utils import _get_dgl_url
 from .utils import data_type_dict
 from .utils import deprecate_property

@@ -72,6 +72,8 @@ class DiGraph(Graph):
         self._node_index = self.node_index_dict()
         self._id = 0
         self.cflag = 0
+        self.cache = {}
+        self._node_index = self.node_index_dict()
         if incoming_graph_data is not None:
             convert.to_easygraph_graph(incoming_graph_data, create_using=self)
         self.graph.update(graph_attr)
@@ -152,6 +154,32 @@ class DiGraph(Graph):
         s : name
         """
         self.graph["name"] = s
+
+    @property
+    def node_index(self):
+        """
+        Assign an integer index for each node (start from 0)
+        """
+        if self.cache.get("node_index", None) is None:
+            node2index_dict = {}
+            index = 0
+            for n in self.nodes:
+                node2index_dict[n] = index
+                index += 1
+            self.cache["node_index"] = node2index_dict
+        return self.cache["node_index"]
+
+    @property
+    def index2node(self):
+        """
+        Assign an integer index for each node (start from 0)
+        """
+        if self.cache.get("index2node", None) is None:
+            index2node_dict = {}
+            for index, n in enumerate(self.nodes):
+                index2node_dict[index] = n
+            self.cache["index2node"] = index2node_dict
+        return self.cache["index2node"]
 
     def out_degree(self, weight="weight"):
         """Returns the weighted out degree of each node.
@@ -274,7 +302,8 @@ class DiGraph(Graph):
         degree = dict()
         outdegree = self.out_degree(weight=weight)
         indegree = self.in_degree(weight=weight)
-        for u in outdegree:
+        all_nodes = set(outdegree.keys()) | set(indegree.keys())
+        for u in all_nodes:
             degree[u] = outdegree[u] + indegree[u]
         return degree
 

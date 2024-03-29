@@ -1,14 +1,11 @@
 import json
 import os
 
-import torch
-
 from easygraph.convert import dict_to_hypergraph
-
-from .eg_dataset import EasyGraphDataset
-from .hypergraph.load_dataset import request_json_from_url
-from .utils import _get_eg_url
-from .utils import tensor
+from easygraph.datasets.dynamic.load_dataset import request_json_from_url
+from easygraph.datasets.graph_dataset_base import EasyGraphDataset
+from easygraph.datasets.utils import _get_eg_url
+from easygraph.datasets.utils import tensor
 
 
 class Email_Enron(EasyGraphDataset):
@@ -66,7 +63,6 @@ class Email_Enron(EasyGraphDataset):
         return False
 
     def download(self):
-        print("download...")
         if self.has_cache():
             self.load()
         else:
@@ -85,8 +81,6 @@ class Email_Enron(EasyGraphDataset):
         self._g.ndata["hyperedge_feature"] = tensor(
             range(1, len(edge_feature_list) + 1)
         )
-
-        # self._g.ndata["incidence_matrix"] = self._g.incidence_matrix
 
     @url.setter
     def url(self, value):

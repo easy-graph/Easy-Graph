@@ -1,15 +1,11 @@
 import json
 import os
 
-import torch
-
 from easygraph.classes.hypergraph import Hypergraph
-from easygraph.convert import dict_to_hypergraph
-
-from .eg_dataset import EasyGraphDataset
-from .hypergraph.load_dataset import request_json_from_url
-from .utils import _get_eg_url
-from .utils import tensor
+from easygraph.datasets.dynamic.load_dataset import request_json_from_url
+from easygraph.datasets.graph_dataset_base import EasyGraphDataset
+from easygraph.datasets.utils import _get_eg_url
+from easygraph.datasets.utils import tensor
 
 
 class Hospital_Lyon(EasyGraphDataset):
@@ -113,7 +109,6 @@ class Hospital_Lyon(EasyGraphDataset):
         return False
 
     def download(self):
-        # print("download")
         if self.has_cache():
             self.load()
         else:
@@ -127,12 +122,10 @@ class Hospital_Lyon(EasyGraphDataset):
         """Loads input data from data directory and transfer to target graph for better analysis
         """
 
-        # self._g, edge_feature_list = dict_to_hypergraph(self.load_data, is_dynamic=True)
         self._g, edge_feature_list = self.preprocess(self.load_data, is_dynamic=True)
         self._g.ndata["hyperedge_feature"] = tensor(
             range(1, len(edge_feature_list) + 1)
         )
-        # print(self._g.ndata["hyperedge_feature"])
 
     @url.setter
     def url(self, value):

@@ -6,10 +6,11 @@ def hyepergraph_degree_centrality(G):
 
     Parameters
     ----------
-    G :   eg.Hypergraph
+    G : eg.Hypergraph
+        The target hypergraph
 
     Returns
-    -------
+    ----------
     degree centrality of each node in G : dict
 
     """

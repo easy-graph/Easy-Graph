@@ -32,6 +32,16 @@ class mathoverflow_answers:
             # node_names_path=self.node_names_path,
             label_names_path=self.label_names_path,
         )
+        self._content = {
+            "num_classes": len(self._label_names),
+            "num_vertices": len(self._node_labels),
+            "num_edges": len(self._hyperedges),
+            "edge_list": self._hyperedges,
+            "labels": self._node_labels,
+        }
+
+    def __getitem__(self, key: str):
+        return self._content[key]
 
     def process_label_txt(self, data_str, delimiter="\n", transform_fun=str):
         data_str = data_str.strip()
@@ -88,9 +98,9 @@ class mathoverflow_answers:
         )
         self._node_labels = process_node_labels_info
         """
-        node_labels_info = request_text_from_url(hyperedges_path)
+        node_labels_info = request_text_from_url(node_labels_path)
         node_labels_info = node_labels_info.strip()
-        node_labels_lst = hyperedges_info.split("\n")
+        node_labels_lst = node_labels_info.split("\n")
         for node_label in node_labels_lst:
             node_label = node_label.strip()
             node_label = [int(i) - 1 for i in node_label.split(",")]
