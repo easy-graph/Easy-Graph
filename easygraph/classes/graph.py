@@ -321,27 +321,27 @@ class Graph:
         return self.cache["index2node"]
 
     @property
-    def node2index(self):
+    def node_index(self):
         """
         Assign an integer index for each node (start from 0)
         """
-        if self.cache.get("node2index", None) is None:
+        if self.cache.get("node_index", None) is None:
             node2index_dict = {}
             index = 0
             for n in self.nodes:
                 node2index_dict[n] = index
                 index += 1
-            self.cache["node2index"] = node2index_dict
-        return self.cache["node2index"]
+            self.cache["node_index"] = node2index_dict
+        return self.cache["node_index"]
 
     @property
     def e(self) -> Tuple[List[List[int]], List[float]]:
         r"""Return the edge list, weight list and property list in the graph."""
 
         if self.cache.get("e", None) is None:
-            node2index = self.node2index
+            node_index = self.node_index
             e_list = [
-                (node2index[src_idx], node2index[dst_idx])
+                (node_index[src_idx], node_index[dst_idx])
                 for src_idx, dst_idx, d in self.edges
             ]
             w_list = []

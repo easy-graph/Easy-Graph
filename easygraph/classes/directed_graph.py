@@ -156,18 +156,18 @@ class DiGraph(Graph):
         self.graph["name"] = s
 
     @property
-    def node2index(self):
+    def node_index(self):
         """
         Assign an integer index for each node (start from 0)
         """
-        if self.cache.get("node2index", None) is None:
+        if self.cache.get("node_index", None) is None:
             node2index_dict = {}
             index = 0
             for n in self.nodes:
                 node2index_dict[n] = index
                 index += 1
-            self.cache["node2index"] = node2index_dict
-        return self.cache["node2index"]
+            self.cache["node_index"] = node2index_dict
+        return self.cache["node_index"]
 
     @property
     def index2node(self):
