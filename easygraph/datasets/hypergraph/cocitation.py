@@ -6,8 +6,7 @@ from easygraph.datapipe import norm_ft
 from easygraph.datapipe import to_bool_tensor
 from easygraph.datapipe import to_long_tensor
 from easygraph.datapipe import to_tensor
-
-from .base import BaseData
+from easygraph.datasets.hypergraph.hypergraph_dataset_base import BaseData
 
 
 class CocitationCora(BaseData):

@@ -32,6 +32,16 @@ class trivago_clicks:
             # node_names_path=self.node_names_path,
             label_names_path=self.label_names_path,
         )
+        self._content = {
+            "num_classes": len(self._label_names),
+            "num_vertices": len(self._node_labels),
+            "num_edges": len(self._hyperedges),
+            "edge_list": self._hyperedges,
+            "labels": self._node_labels,
+        }
+
+    def __getitem__(self, key: str):
+        return self._content[key]
 
     def process_label_txt(self, data_str, delimiter="\n", transform_fun=str):
         data_str = data_str.strip()
@@ -92,4 +102,3 @@ class trivago_clicks:
         label_names_info = request_text_from_url(label_names_path)
         process_label_names_info = self.process_label_txt(label_names_info)
         self._label_names = process_label_names_info
-        # print("process_label_names_info:", process_label_names_info)

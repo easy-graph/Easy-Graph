@@ -1,6 +1,6 @@
 import easygraph as eg
 
-from .eg_dataset import EasyGraphDataset
+from .graph_dataset_base import EasyGraphDataset
 from .utils import _set_labels
 from .utils import tensor
 

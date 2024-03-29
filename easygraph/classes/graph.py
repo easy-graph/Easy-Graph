@@ -8,9 +8,9 @@ from typing import Tuple
 
 import easygraph as eg
 import easygraph.convert as convert
+import torch
 
 from easygraph.utils.exception import EasyGraphError
-from easygraph.utils.exception import EasyGraphException
 from easygraph.utils.sparse import sparse_dropout
 
 
@@ -173,12 +173,8 @@ class Graph:
                         weights.append(1.0)
                         weights.append(1.0)
                     else:
-                        if type(self._adj[u][v][weight]) == float:
-                            weights.append(self._adj[u][v][weight])
-                            weights.append(self._adj[u][v][weight])
-                        else:
-                            raise EasyGraphException("The type of weight must be float")
-        del seen
+                        weights.append(self._adj[u][v][weight])
+                        weights.append(self._adj[v][u][weight])
         self.cache["e_both_side"] = (edges, weights)
         return self.cache["e_both_side"]
 
@@ -198,7 +194,6 @@ class Graph:
             ``remove_selfloop`` (``bool``): Whether to remove self-loop. Defaults to ``True``.
             ``device`` (``torch.device``): The device to store the graph. Defaults to ``torch.device("cpu")``.
         """
-        import torch
 
         num_v = hypergraph.num_v
         assert (
@@ -214,7 +209,7 @@ class Graph:
             p = torch.mm(feature[e, :], rv).squeeze()
             v_a_idx, v_b_idx = torch.argmax(p), torch.argmin(p)
             if not with_mediator:
-                new_e_list.append([e[v_a_idx], e[v_b_idx]])
+                new_e_list.append((e[v_a_idx], e[v_b_idx]))
                 new_e_weight.append(1.0 / num_v_in_e)
             else:
                 w = 1.0 / (2 * num_v_in_e - 3)
@@ -233,6 +228,7 @@ class Graph:
             new_e_weight = new_e_weight[e_mask].numpy().tolist()
 
         _g = Graph()
+
         _g.add_nodes(list(range(0, num_v)))
         for (
             e,
@@ -242,25 +238,40 @@ class Graph:
                 _g.add_edge(e[0], e[1], weight=(w + _g.adj[e[0]][e[1]]["weight"]))
             else:
                 _g.add_edge(e[0], e[1], weight=w)
+        now_edges = []
+        now_weight = []
+        for e in _g.edges:
+            now_edges.append((e[0], e[1]))
+            now_weight.append(e[2]["weight"])
+        now_edges.extend([(i, i) for i in range(num_v)])
+        now_weight.extend([1.0] * num_v)
+        _g.cache["e_both_side"] = (now_edges, now_weight)
+
         return _g
 
     @property
     def A(self):
         r"""Return the adjacency matrix :math:`\mathbf{A}` of the sample graph with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
         """
-        import torch
+        #  import torch
 
         if self.cache.get("A", None) is None:
             if len(self.edges) == 0:
                 self.cache["A"] = torch.sparse_coo_tensor(
-                    size=(len(self.nodes), len(self.edges)), device=self.device
+                    size=(len(self.nodes), len(self.nodes)), device=self.device
                 )
             else:
-                e_list, e_weight = self.e_both_side
+                if self.cache.get("e_both_side") is not None:
+                    e_list, e_weight = self.cache["e_both_side"]
+
+                else:
+                    e_list, e_weight = self.e_both_side
+
+                node_size = len(self.nodes)
                 self.cache["A"] = torch.sparse_coo_tensor(
-                    indices=torch.tensor(e_list).t(),
+                    indices=torch.tensor(e_list, dtype=torch.int).t(),
                     values=torch.tensor(e_weight),
-                    size=(len(self.nodes), len(self.nodes)),
+                    size=(node_size, node_size),
                     device=self.device,
                 ).coalesce()
         return self.cache["A"]
@@ -271,14 +282,25 @@ class Graph:
     ):
         r"""Return the normalized diagonal matrix of vertex degree :math:`\mathbf{D}_v^{-\frac{1}{2}}` with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
         """
-        import torch
+        # import torch
 
         if self.cache.get("D_v_neg_1_2") is None:
-            _mat = self.D_v.clone()
-            _val = _mat._values() ** -0.5
+            if self.cache.get("D_v_value") is None:
+                self.cache["D_v_value"] = (
+                    torch.sparse.sum(self.A, dim=1).to_dense().view(-1)
+                )
+                # self.cache["D_v_value"] = torch.tensor(list(self.degree().values())).float()
+
+            _mat = self.cache["D_v_value"]
+            # _mat = _tmp
+            _val = _mat**-0.5
             _val[torch.isinf(_val)] = 0
+            nodes_num = len(self.nodes)
             self.cache["D_v_neg_1_2"] = torch.sparse_coo_tensor(
-                _mat._indices(), _val, _mat.size(), device=self.device
+                torch.arange(0, len(self.nodes)).view(1, -1).repeat(2, 1),
+                _val,
+                torch.Size([nodes_num, nodes_num]),
+                device=self.device,
             ).coalesce()
         return self.cache["D_v_neg_1_2"]
 
@@ -299,27 +321,27 @@ class Graph:
         return self.cache["index2node"]
 
     @property
-    def node2index(self):
+    def node_index(self):
         """
         Assign an integer index for each node (start from 0)
         """
-        if self.cache.get("node2index", None) is None:
+        if self.cache.get("node_index", None) is None:
             node2index_dict = {}
             index = 0
             for n in self.nodes:
                 node2index_dict[n] = index
                 index += 1
-            self.cache["node2index"] = node2index_dict
-        return self.cache["node2index"]
+            self.cache["node_index"] = node2index_dict
+        return self.cache["node_index"]
 
     @property
     def e(self) -> Tuple[List[List[int]], List[float]]:
         r"""Return the edge list, weight list and property list in the graph."""
 
         if self.cache.get("e", None) is None:
-            node2index = self.node2index
+            node_index = self.node_index
             e_list = [
-                (node2index[src_idx], node2index[dst_idx])
+                (node_index[src_idx], node_index[dst_idx])
                 for src_idx, dst_idx, d in self.edges
             ]
             w_list = []
@@ -347,16 +369,26 @@ class Graph:
     def D_v(self):
         r"""Return the diagonal matrix of vertex degree :math:`\mathbf{D}_v` with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
         """
-        import torch
 
         if self.cache.get("D_v") is None:
+            # print("self.A:",self.A)
             _tmp = torch.sparse.sum(self.A, dim=1).to_dense().clone().view(-1)
-            self.cache["D_v"] = torch.sparse_coo_tensor(
-                torch.arange(0, len(self.nodes)).view(1, -1).repeat(2, 1),
+
+            nodes_num = len(self.nodes)
+            self.cache["D_v"] = torch.sparse_csr_tensor(
+                torch.arange(0, nodes_num + 1),
+                torch.arange(0, nodes_num),
                 _tmp,
-                torch.Size([len(self.nodes), len(self.nodes)]),
+                torch.Size([nodes_num, nodes_num]),
                 device=self.device,
-            ).coalesce()
+            )
+
+            # self.cache["D_v"] = torch.sparse_coo_tensor(
+            #     torch.arange(0, len(self.nodes)).view(1, -1).repeat(2, 1),
+            #     _tmp,
+            #     torch.Size([len(self.nodes), len(self.nodes)]),
+            #     device=self.device,
+            # ).coalesce()
         return self.cache["D_v"]
 
     def add_extra_selfloop(self):
@@ -524,13 +556,9 @@ class Graph:
 
         """
         if self.cache.get("L_GCN") is None:
-            _tmp_g = self.clone()
-            _tmp_g.add_extra_selfloop()
+            # self.add_extra_selfloop()
             self.cache["L_GCN"] = (
-                _tmp_g.D_v_neg_1_2.mm(_tmp_g.A)
-                .mm(_tmp_g.D_v_neg_1_2)
-                .clone()
-                .coalesce()
+                self.D_v_neg_1_2.mm(self.A).mm(self.D_v_neg_1_2).coalesce()
             )
         return self.cache["L_GCN"]
 
@@ -545,7 +573,8 @@ class Graph:
             L_GCN = sparse_dropout(self.L_GCN, drop_rate)
         else:
             L_GCN = self.L_GCN
-        return L_GCN.mm(X)
+
+        return torch.sparse.mm(L_GCN, X)
 
     def number_of_edges(self, u=None, v=None):
         """Returns the number of edges between two nodes.
