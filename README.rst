@@ -22,11 +22,11 @@ Copyright (C) <2020-2024> by DataNET Group, Fudan University
 - **Youtube channel:** https://www.youtube.com/@python-easygraph
 
 Introduction
-------------
+--------------
 **EasyGraph** is an open-source network analysis library. It is mainly written in Python and supports analysis for undirected networks and directed networks. EasyGraph supports various formats of network data and covers a series of important network analysis algorithms for community detection, structural hole spanner detection, network embedding, and motif detection. Moreover, EasyGraph implements some key elements using C++ and introduces multiprocessing optimization to achieve better efficiency.
 
 New Features in Version 1.1
->>>>>>>>>
+>>>>>>>>>>>>>
 - **Support for more hypergraph metrics and algorithms.** Such as `hypercoreness <https://www.nature.com/articles/s41467-023-41887-2>`_, `vector-centrality <https://www.sciencedirect.com/science/article/pii/S0960077922006075>`_, `s-centrality <https://epjds.epj.org/articles/epjdata/abs/2020/01/13688_2020_Article_231/13688_2020_Article_231.html>`_, and so on.
 - **Support for more hypergraph datasets.** `Static hypergraph datasets and dynamic datasets <https://easy-graph.github.io/docs/reference/easygraph.datasets.html>`_ can be both loaded by calling corresponding dataset name.
 - **Support for more flexible dynamic hypergraph visualization.** Users can define dynamic hypergraphs and visualize the structure of the hypergraph at each timestamp.
@@ -35,19 +35,19 @@ New Features in Version 1.1
 If you need more details, please see our `documentation <https://easy-graph.github.io/>`_ of latest version.
 
 News
-----
+--------------
 - [02-05-2024] We release EasyGraph 1.1! This version features hypergraph analysis and learning for higher-order network modeling and representation.
 - [08-17-2023] We release EasyGraph 1.0!
 - [08-08-2023] Our paper "EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis" has been accepted by Patterns!
 
 Stargazers
-----------
+--------------
 .. image:: https://reporoster.com/stars/easy-graph/Easy-Graph
    :target: https://github.com/easy-graph/Easy-Graph/stargazers
    :alt: Stargazers repo roster for @easy-graph/Easy-Graph
 
 Install
--------
+--------------
 
 .. The current version on PyPI is outdated, we'll push the latest version as soon as we figure out how to integrate the C++ binding framework we use with our CI pipeline.
 
@@ -119,7 +119,7 @@ using the `HIS <https://keg.cs.tsinghua.edu.cn/jietang/publications/WWW13-Lou&Ta
   }
 
 Citation
---------
+--------------
 
 If you use EasyGraph in a scientific publication, we would appreciate citations to the following paper:
 
