@@ -26,7 +26,7 @@ Introduction
 **EasyGraph** is an open-source network analysis library. It is mainly written in Python and supports analysis for undirected networks and directed networks. EasyGraph supports various formats of network data and covers a series of important network analysis algorithms for community detection, structural hole spanner detection, network embedding, and motif detection. Moreover, EasyGraph implements some key elements using C++ and introduces multiprocessing optimization to achieve better efficiency.
 
 New Features in Version 1.1
->>>>>>>>>>>>>
+--------------
 - **Support for more hypergraph metrics and algorithms.** Such as `hypercoreness <https://www.nature.com/articles/s41467-023-41887-2>`_, `vector-centrality <https://www.sciencedirect.com/science/article/pii/S0960077922006075>`_, `s-centrality <https://epjds.epj.org/articles/epjdata/abs/2020/01/13688_2020_Article_231/13688_2020_Article_231.html>`_, and so on.
 - **Support for more hypergraph datasets.** `Static hypergraph datasets and dynamic datasets <https://easy-graph.github.io/docs/reference/easygraph.datasets.html>`_ can be both loaded by calling corresponding dataset name.
 - **Support for more flexible dynamic hypergraph visualization.** Users can define dynamic hypergraphs and visualize the structure of the hypergraph at each timestamp.
