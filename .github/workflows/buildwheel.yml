@@ -25,6 +25,7 @@ jobs:
         matrix:
           # macos-13 is an intel runner, macos-14 is apple silicon
           os: [ ubuntu-latest, windows-latest, macos-13, macos-14 ]
+          python-version: [ "3.8", "3.9", "3.10","3.11", "3.12"]
 
       steps:
         - uses: actions/checkout@v4
@@ -34,6 +35,8 @@ jobs:
 
         - uses: actions/upload-artifact@v4
           with:
+
+            python-version: ${{ matrix.python-version }}
             name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
             path: ./wheelhouse/*.whl
 
@@ -57,7 +60,7 @@ jobs:
       environment: pypi
       permissions:
         id-token: write
-      if: github.event_name == 'release' && github.event.action == 'published'
+#      if: github.event_name == 'release' && github.event.action == 'published'
       # or, alternatively, upload to PyPI on every tag starting with 'v' (remove on: release above to use this)
       # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
       steps:
