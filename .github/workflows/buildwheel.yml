@@ -5,40 +5,69 @@ on: workflow_dispatch
 jobs:
 
 
-  build-wheel:
+#  build-wheel:
+#    runs-on: ${{ matrix.os }}
+#    strategy:
+#      matrix:
+#        os: [ windows-latest, ubuntu-20.04, ubuntu-latest, macos-latest,  windows-2019,	macos-13,  macos-11, macos-14]
+##        python-version: [ "3.8", "3.9", "3.10","3.11", "3.12"]
+#
+#    steps:
+#      - uses: actions/checkout@v4
+#      - name: Set up python
+#        uses: actions/setup-python@v4
+#        with:
+#          python-version: ${{ matrix.python-version }}
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ windows-latest, ubuntu-20.04, ubuntu-latest, macos-latest,  windows-2019,	macos-13,  macos-11, macos-14]
-#        python-version: [ "3.8", "3.9", "3.10","3.11", "3.12"]
+        # macos-13 is an intel runner, macos-14 is apple silicon
+        os: [ ubuntu-latest, windows-latest, macos-13, macos-14 ]
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-#      - name: build wheel
-#        run: |
-#          mkdir -p path/to/artifact
-#          pip install --upgrade pip
-#          pip install --upgrade setuptools
-#          pip install pybind11
-#          pip install wheel
-#          python setup.py bdist_wheel
-#          ls
-
-      - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.17.0
 
       - name: Build wheels
-        run: python -m cibuildwheel --output-dir wheelhouse
-
+        uses: pypa/cibuildwheel@v2.17.0
 
       - uses: actions/upload-artifact@v4
         with:
-            name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
-            path: ./wheelhouse/*.whl
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
+
+    build_sdist:
+      name: Build source distribution
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+
+        - name: Build sdist
+          run: pipx run build --sdist
+
+        - uses: actions/upload-artifact@v4
+          with:
+            name: cibw-sdist
+            path: dist/*.tar.gz
+
+    upload_pypi:
+      needs: [ build_wheels, build_sdist ]
+      runs-on: ubuntu-latest
+      environment: pypi
+      permissions:
+        id-token: write
+      if: github.event_name == 'release' && github.event.action == 'published'
+      # or, alternatively, upload to PyPI on every tag starting with 'v' (remove on: release above to use this)
+      # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+      steps:
+        - uses: actions/download-artifact@v4
+          with:
+            # unpacks all CIBW artifacts into dist/
+            pattern: cibw-*
+            path: dist
+            merge-multiple: true
+
 #      - uses: actions/upload-artifact@v3
 #        with:
 #           name: my-artifact
