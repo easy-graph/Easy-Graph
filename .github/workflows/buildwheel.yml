@@ -9,15 +9,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ windows-latest, ubuntu-20.04, ubuntu-latest, macos-latest,  windows-2019,	macos-13,  macos-11]
+        os: [ windows-latest, ubuntu-20.04, ubuntu-latest, macos-latest,  windows-2019,	macos-13,  macos-11, macos-14]
 #        python-version: [ "3.8", "3.9", "3.10","3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v4
       - name: Set up python
         uses: actions/setup-python@v4
-#        with:
-#          python-version: ${{ matrix.python-version }}
+        with:
+          python-version: ${{ matrix.python-version }}
 #      - name: build wheel
 #        run: |
 #          mkdir -p path/to/artifact
@@ -27,8 +27,11 @@ jobs:
 #          pip install wheel
 #          python setup.py bdist_wheel
 #          ls
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.17.0
+
+#      - name: Build wheels
+#        uses: pypa/cibuildwheel@v2.17.0
+
+
 
       - uses: actions/upload-artifact@v3
         with:
