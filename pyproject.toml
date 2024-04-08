@@ -155,8 +155,6 @@ force-exclude = '''
 # ]
 # ignore_missing_imports = true
 
-[project]
-requires-python = ">3.7"
 
 
 [tool.coverage.run]
