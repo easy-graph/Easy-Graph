@@ -6,8 +6,8 @@ import io
 
 import easygraph as eg
 
-from nose import SkipTest
-from nose.tools import *
+# from nose import SkipTest
+# from nose.tools import *
 
 
 def filterEdges(edges):
@@ -38,7 +38,8 @@ class TestUcinet:
         try:
             pass
         except ImportError:
-            raise SkipTest("NumPy not available.")
+            print("NumPy not available.")
+            # raise SkipTest("NumPy not available.")
 
     def test_generate_ucinet(self):
         Gout = eg.generate_ucinet(self.G)
