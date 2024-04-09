@@ -11,7 +11,7 @@ from pybind11.setup_helpers import Pybind11Extension
 from pybind11.setup_helpers import build_ext
 
 
-with open("README.rst") as fh:
+with open("README.md") as fh:
     long_description = fh.read()
 
 cpp_source_dir = Path(__file__).parent / "cpp_easygraph"
@@ -31,7 +31,7 @@ setuptools.setup(
     author_email="mgao21@m.fudan.edu.cn",
     description="Easy Graph",
     long_description=long_description,
-    long_description_content_type="text/x-rst",
+    long_description_content_type="text/markdown",
     url="https://github.com/easy-graph/Easy-Graph",
     packages=setuptools.find_packages(),
     classifiers=[
