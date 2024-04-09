@@ -62,7 +62,7 @@ In the meantime, here's a work around you can try to install the latest version 
 
 - **Prerequisites**
 
-``3.8 <= Python <= 3.11`` is required.
+``3.8 <= Python <= 3.12`` is required.
 
 Installation with ``pip`` (outdated)
 
