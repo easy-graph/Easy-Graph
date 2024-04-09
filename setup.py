@@ -43,7 +43,7 @@ setuptools.setup(
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.8, <=3.12",
+    python_requires=">=3.8, <3.13",
     install_requires=[
         "numpy>=1.23.1; python_version>='3.10'",
         "numpy>=1.19.5; python_version>='3.7' and python_version<='3.12'",
