@@ -41,6 +41,7 @@ If you need more details, please see our [documentation](https://easy-graph.gith
 
 News
 ----
+- [04-09-2024] We release EasyGraph 1.2! This version now fully supports Python 3.12.
 - [02-05-2024] We release EasyGraph 1.1! This version features hypergraph analysis and learning for higher-order network modeling and representation.
 - [08-17-2023] We release EasyGraph 1.0!
 - [08-08-2023] Our paper "EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis" has been accepted by Patterns!
