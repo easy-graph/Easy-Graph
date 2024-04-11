@@ -57,15 +57,9 @@ Stargazers
 Install
 -------
 
-The current version on PyPI is outdated, we'll push the latest version as soon as we figure out how to integrate the C++ binding framework we use with our CI pipeline.
-
-In the meantime, here's a work around you can try to install the latest version of easygraph on your machine:
-
 - **Prerequisites**
 
 ``3.8 <= Python <= 3.12`` is required.
-
-Installation with ``pip`` (outdated)
 
 - **Installation with** ``pip``
 ```
