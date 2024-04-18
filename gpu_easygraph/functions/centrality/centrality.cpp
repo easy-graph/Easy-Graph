@@ -28,21 +28,22 @@ py::object closeness_centrality(
         W[i] = E_and_W[i].second;
     }
 
+    int len_V = V.size() - 1;
+    int len_E = E.size();
+
     vector<int> sources;
-    sources_stdlize(py_G, py_sources, V.size(), sources);
+    sources_stdlize(py_G, py_sources, len_V, sources);
 
-    int warp_size = decide_warp_size(V.size(), E_and_W.size());
+    int warp_size = decide_warp_size(len_V, len_E);
 
-    vector<double> CC(V.size());
+    vector<double> CC(len_V);
 
     int r = cuda_closeness_centrality(V.data(), E.data(), W.data(), 
-            sources.data(), V.size(), E.size(), sources.size(), 
+            sources.data(), len_V, len_E, sources.size(), 
             warp_size, CC.data());
 
     if (r != EG_GPU_SUCC) {
-        // meets an error, throw an exception
         throw_exception(r);
-        // the following codes will never be executed
     }
 
     py::list ret;
@@ -73,24 +74,25 @@ py::object betweenness_centrality(
         W[i] = E_and_W[i].second;
     }
 
-    vector<int> sources;
-    sources_stdlize(py_G, py_sources, V.size(), sources);
+    int len_V = V.size() - 1;
+    int len_E = E.size();
 
-    int warp_size = decide_warp_size(V.size(), E_and_W.size());
+    vector<int> sources;
+    sources_stdlize(py_G, py_sources, len_V, sources);
+
+    int warp_size = decide_warp_size(len_V, len_E);
     int normalized = py_normalized.cast<py::bool_>();
     int endpoints = py_endpoints.cast<py::bool_>();
     int is_directed = py_G.attr("is_directed")().cast<py::bool_>();
 
-    vector<double> BC(V.size());
+    vector<double> BC(len_V);
 
     int r = cuda_betweenness_centrality(V.data(), E.data(), W.data(),
-            sources.data(), V.size(), E.size(), sources.size(),
+            sources.data(), len_V, len_E, sources.size(),
             warp_size, is_directed, normalized, endpoints, BC.data());
 
     if (r != EG_GPU_SUCC) {
-        // meets an error, throw an exception
         throw_exception(r);
-        // the following codes will never be executed
     }
 
     py::list ret;

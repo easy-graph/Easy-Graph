@@ -60,6 +60,55 @@ int eg_graph_to_CSR (
 
         range_start = range_end;
     }
+
+    V.push_back(E_and_W.size());
+    
+    return EG_GPU_SUCC;
+}
+
+
+
+int eg_graph_to_CSR (
+    _IN_ py::object py_G,
+    _OUT_ vector<int>& V, 
+    _OUT_ vector<int>& E
+)
+{
+    py::dict edge = py_G.attr("adj");
+    py::dict nodes = py_G.attr("nodes");
+    py::dict node_to_index = py_G.attr("node_index");
+    py::list index_to_node(node_to_index.size());
+    
+    for (auto it = node_to_index.begin(); it != node_to_index.end(); ++it) {
+        index_to_node[it->second.cast<int>()] = it->first;
+    }
+
+    int len_E = 0;
+    for (auto it = edge.begin(); it != edge.end(); ++it) {
+        len_E += it->second.cast<py::dict>().size();
+    }
+
+    V = vector<int>(nodes.size(), 0);
+    int range_start = 0;
+    
+    for (int i = 0; i < index_to_node.size(); ++i) {
+        auto adjs = edge[index_to_node[i]].cast<py::dict>();
+        for (auto it = adjs.begin(); it != adjs.end(); ++it) {
+            int adj_idx = node_to_index[it->first].cast<int>();
+            E.push_back(adj_idx);
+        }
+
+        int range_end = E.size();
+
+        sort(E.begin() + range_start, E.end(), [] (int i1, int i2) {
+            return i1 < i2;
+        });
+        V[i] = range_start;
+
+        range_start = range_end;
+    }
+
+    V.push_back(E.size());
     
     return EG_GPU_SUCC;
 }
@@ -133,6 +182,9 @@ void throw_exception (
             break;
         case EG_GPU_UNKNOW_ERROR:
             throw runtime_error("EasyGraph GPU: gpu unkonw error");
+            break;
+        case EG_UNSUPPORTED_GRAPH:
+            throw runtime_error("EasyGraph GPU: unsupported graph type");
             break;
         default:
             throw runtime_error("EasyGraph GPU: unknow error occurred");

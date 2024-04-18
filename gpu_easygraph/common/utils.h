@@ -10,7 +10,7 @@
 /**
  * description: 
  *     convert a easygraph python format graph to 
- *     compressed sparse row(CSR) format
+ *     compressed sparse row(CSR) format with edges weight
  * 
  * arguments:
  *     py_attr_weight_name -
@@ -24,6 +24,26 @@ int eg_graph_to_CSR (
     _IN_ pybind11::object py_attr_weight_name,
     _OUT_ std::vector<int>& V, 
     _OUT_ std::vector<std::pair<int, double>>& E_and_W
+);
+
+
+
+/**
+ * description: 
+ *     convert a easygraph python format graph to 
+ *     compressed sparse row(CSR) format without edges weight
+ * 
+ * arguments:
+ *     py_attr_weight_name -
+ *         the attribute name of edge weight in edge attributes dict
+ * 
+ * return:
+ *     EG_GPU_STATUS_CODE
+ */
+int eg_graph_to_CSR (
+    _IN_ pybind11::object py_G,
+    _OUT_ std::vector<int>& V, 
+    _OUT_ std::vector<int>& E
 );
 
 

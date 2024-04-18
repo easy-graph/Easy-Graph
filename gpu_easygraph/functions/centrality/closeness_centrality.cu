@@ -50,15 +50,17 @@ static __global__ void d_calc_min_edge (
 )
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-	if (tid < len_V) {
+    int tnum = blockDim.x * gridDim.x;
+
+    for (int u = tid; u < len_V; u += tnum) {
 		double curr_min = EG_DOUBLE_INF;
-        int edge_start = d_V[tid];
-        int edge_end = tid + 1 < len_V ? d_V[tid + 1] : len_E;
-		for(int i = edge_start; i < edge_end; ++i) {
-            curr_min = min(curr_min, d_W[i]);
+        int edge_start = d_V[u];
+        int edge_end = d_V[u + 1];
+		for(int v = edge_start; v < edge_end; ++v) {
+            curr_min = min(curr_min, d_W[v]);
 		}
-		d_min_edge[tid] = curr_min;
-	}
+		d_min_edge[u] = curr_min;
+    }
 }
 
 static __global__ void d_dijkstra_cc (
@@ -109,7 +111,7 @@ static __global__ void d_dijkstra_cc (
             for (int j = threadIdx.x; j < len_F * warp_size; j += blockDim.x) {
                 int f = d_F[j / warp_size];
                 int edge_start = d_V[f];
-                int edge_end = f + 1 < len_V ? d_V[f + 1] : len_E;
+                int edge_end = d_V[f + 1];
                 double dist = d_dist[f];
                 for (int e = j % warp_size; e < edge_end - edge_start; e += warp_size) {
                     int adj = d_E[e + edge_start];
@@ -190,7 +192,7 @@ int cuda_closeness_centrality (
 
     EXIT_IF_CUDA_FAILED(cudaMemGetInfo(&mem_free, &mem_total));
     while (true) {
-        size_t mem_needed = sizeof(int) * len_V // d_V
+        size_t mem_needed = sizeof(int) * (len_V + 1) // d_V
                         + sizeof(int) * len_E // d_E
                         + sizeof(int) * len_sources // d_sources
                         + sizeof(int) * grid_size * len_V // d_U_2D
@@ -207,7 +209,7 @@ int cuda_closeness_centrality (
         }
     }
 
-    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_V, sizeof(int) * len_V));
+    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_V, sizeof(int) * (len_V + 1)));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_E, sizeof(int) * len_E));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_sources, sizeof(int) * len_sources));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_U_2D, sizeof(int) * grid_size * len_V));
@@ -217,7 +219,7 @@ int cuda_closeness_centrality (
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_dist_2D, sizeof(double) * grid_size * len_V));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_CC, sizeof(double) * len_V));
 
-    EXIT_IF_CUDA_FAILED(cudaMemcpy(d_V, V, sizeof(int) * len_V, cudaMemcpyHostToDevice));
+    EXIT_IF_CUDA_FAILED(cudaMemcpy(d_V, V, sizeof(int) * (len_V + 1), cudaMemcpyHostToDevice));
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_E, E, sizeof(int) * len_E, cudaMemcpyHostToDevice));
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_sources, sources, sizeof(int) * len_sources, cudaMemcpyHostToDevice));
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_W, W, sizeof(double) * len_E, cudaMemcpyHostToDevice));

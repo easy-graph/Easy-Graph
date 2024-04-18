@@ -66,4 +66,7 @@ def k_core(G: "Graph") -> Union["Graph", List]:
                 nodes[bin_start], nodes[pos] = nodes[pos], nodes[bin_start]
                 bin_boundaries[core[u]] += 1
                 core[u] -= 1
-    return list(core.values())
+    ret = [0 for i in range(len(G))]
+    for i in range(len(ret)):
+        ret[i] = core[G.index2node[i]]
+    return ret
