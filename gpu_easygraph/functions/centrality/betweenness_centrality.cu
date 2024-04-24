@@ -4,6 +4,8 @@
 
 #include "common.h"
 
+namespace gpu_easygraph {
+
 static __device__ double atomicAddDouble (
     _OUT_ double* address, 
     _IN_ double val
@@ -420,3 +422,5 @@ exit:
 
     return EG_ret;
 }
+
+} // namespace gpu_easygraph

@@ -2,6 +2,8 @@
 
 #include "common.h"
 
+namespace gpu_easygraph {
+
 /**
  * description: 
  *     use cuda to calculate closeness_centrality. the graph must be 
@@ -47,3 +49,5 @@ int cuda_closeness_centrality (
     _IN_ int warp_size,
     _OUT_ double* CC
 );
+
+} // namespace gpu_easygraph

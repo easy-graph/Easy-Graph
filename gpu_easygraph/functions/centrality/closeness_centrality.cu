@@ -4,6 +4,8 @@
 
 #include "common.h"
 
+namespace gpu_easygraph {
+
 static __device__ double atomicAddDouble (
     _OUT_ double* address, 
     _IN_ double val
@@ -182,41 +184,26 @@ int cuda_closeness_centrality (
     int cuda_ret = cudaSuccess;
     int EG_ret = EG_GPU_SUCC;
 
-    int block_size = 256;
-    size_t grid_size = len_V / block_size + (len_V % block_size != 0);
-    size_t mem_free = 0, mem_total = 0;
+    int min_edge_block_size;
+    int min_edge_grid_size;
+    int dijkstra_block_size;
+    int dijkstra_grid_size;
+
+    cudaOccupancyMaxPotentialBlockSize(&min_edge_grid_size, &min_edge_block_size, d_calc_min_edge, 0, 0); 
+    cudaOccupancyMaxPotentialBlockSize(&dijkstra_grid_size, &dijkstra_block_size, d_dijkstra_cc, 0, 0); 
 
     int *d_V = NULL, *d_E = NULL, *d_sources= NULL;
     int *d_U_2D = NULL, *d_F_2D = NULL;
     double *d_W = NULL, *d_min_edge = NULL, *d_dist_2D = NULL, *d_CC = NULL;
 
-    EXIT_IF_CUDA_FAILED(cudaMemGetInfo(&mem_free, &mem_total));
-    while (true) {
-        size_t mem_needed = sizeof(int) * (len_V + 1) // d_V
-                        + sizeof(int) * len_E // d_E
-                        + sizeof(int) * len_sources // d_sources
-                        + sizeof(int) * grid_size * len_V // d_U_2D
-                        + sizeof(int) * grid_size * len_V // d_F_2D
-                        + sizeof(double) * len_E // d_W
-                        + sizeof(double) * len_V // d_min_edge
-                        + sizeof(double) * grid_size * len_V // d_dist_2D
-                        + sizeof(double) * len_V // d_BC
-                        ;
-        if (mem_needed < mem_free / 2) {
-            break;
-        } else {
-            grid_size /= 2;
-        }
-    }
-
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_V, sizeof(int) * (len_V + 1)));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_E, sizeof(int) * len_E));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_sources, sizeof(int) * len_sources));
-    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_U_2D, sizeof(int) * grid_size * len_V));
-    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_F_2D, sizeof(int) * grid_size * len_V));
+    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_U_2D, sizeof(int) * dijkstra_grid_size * len_V));
+    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_F_2D, sizeof(int) * dijkstra_grid_size * len_V));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_W, sizeof(double) * len_E));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_min_edge, sizeof(double) * len_V));
-    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_dist_2D, sizeof(double) * grid_size * len_V));
+    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_dist_2D, sizeof(double) * dijkstra_grid_size * len_V));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_CC, sizeof(double) * len_V));
 
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_V, V, sizeof(int) * (len_V + 1), cudaMemcpyHostToDevice));
@@ -224,10 +211,10 @@ int cuda_closeness_centrality (
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_sources, sources, sizeof(int) * len_sources, cudaMemcpyHostToDevice));
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_W, W, sizeof(double) * len_E, cudaMemcpyHostToDevice));
 
-    d_calc_min_edge<<<grid_size, block_size>>>(d_V, d_E, d_W, len_V, len_E, d_min_edge);
+    d_calc_min_edge<<<dijkstra_grid_size, dijkstra_block_size>>>(d_V, d_E, d_W, len_V, len_E, d_min_edge);
 
-    d_dijkstra_cc<<<grid_size, block_size>>>(d_V, d_E, d_W, d_min_edge, d_sources, d_dist_2D,
-                                    d_U_2D, d_F_2D, len_V, len_E, len_sources, warp_size, d_CC);
+    d_dijkstra_cc<<<min_edge_grid_size, min_edge_block_size>>>(d_V, d_E, d_W, d_min_edge, d_sources, 
+                                    d_dist_2D, d_U_2D, d_F_2D, len_V, len_E, len_sources, warp_size, d_CC);
 
     EXIT_IF_CUDA_FAILED(cudaMemcpy(CC, d_CC, sizeof(double) * len_V, cudaMemcpyDeviceToHost));
 
@@ -255,3 +242,5 @@ exit:
 
     return EG_ret;
 }
+
+} // namespace gpu_easygraph

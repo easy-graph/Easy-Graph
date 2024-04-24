@@ -24,7 +24,6 @@ def closeness_centrality_parallel(nodes, G, path_length):
 
 
 @not_implemented_for("multigraph")
-@hybrid("gpu_closeness_centrality", func_type="gpu")
 @hybrid("cpp_closeness_centrality")
 def closeness_centrality(G, weight=None, sources=None, n_workers=None):
     r"""
@@ -100,4 +99,4 @@ def closeness_centrality(G, weight=None, sources=None, n_workers=None):
                 closeness[node] = 0
             else:
                 closeness[node] = (cnt - 1) * (cnt - 1) / (dist * (length - 1))
-    return list(closeness.values())
+    return [list(G.nodes), list(closeness.values())]

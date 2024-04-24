@@ -1,4 +1,9 @@
 #include "centrality.h"
+
+#ifdef EASYGRAPH_ENABLE_GPU
+#include <gpu_easygraph.h>
+#endif
+
 #include "../../classes/graph.h"
 #include "../../common/utils.h"
 #include "../../classes/linkgraph.h"
@@ -42,7 +47,8 @@ double closeness_dijkstra(const Graph_L& G_l, const int &S, int cutoff, Segment_
     
 }
 
-py::object closeness_centrality(py::object G, py::object weight, py::object cutoff, py::object sources) {
+static py::object invoke_cpp_closeness_centrality(py::object G, py::object weight, 
+                                            py::object cutoff, py::object sources) {
     Graph& G_ = G.cast<Graph&>();
     int N = G_.node.size();
     bool is_directed = G.attr("is_directed")().cast<bool>();
@@ -75,6 +81,60 @@ py::object closeness_centrality(py::object G, py::object weight, py::object cuto
             total_res_lst.append(py::cast(res));
         }
     }
-    return total_res_lst;
+
+    py::list py_nodes_order;
+    std::vector<node_t> node_idx;
+
+    for (auto it = G_.node.begin(); it != G_.node.end(); ++it) {
+        node_idx.push_back(it->first);
+    }
+    std::sort(node_idx.begin(), node_idx.end());
+
+    for (int i = 0; i < node_idx.size(); ++i) {
+        py_nodes_order.append(G_.id_to_node[py::cast(node_idx[i])]);
+    }
+
+    py::list ret;
+    ret.append(py_nodes_order);
+    ret.append(total_res_lst);
+
+    return ret;
+}
+
+#ifdef EASYGRAPH_ENABLE_GPU
+static py::object invoke_gpu_closeness_centrality(py::object G, py::object weight, py::object py_sources) {
+    Graph& G_ = G.cast<Graph&>();
+    py::list py_nodes_order;
+    std::vector<int> E;
+    std::vector<int> V;
+    std::vector<double> W;
+    std::vector<int> sources;
+    std::vector<double> CC;
+    G_.gen_CSR(weight, py_sources, py_nodes_order, V, E, W, sources);
+    int gpu_r = gpu_easygraph::closeness_centrality(V, E, W, sources, CC);
+
+    if (gpu_r != gpu_easygraph::EG_GPU_SUCC) {
+        // the code below will throw an exception
+        py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
+    }
+
+    py::list ret_val;
+    for (int i = 0; i < CC.size(); ++i) {
+        ret_val.append(CC[i]);
+    }
+
+    py::list ret;
+    ret.append(py_nodes_order);
+    ret.append(ret_val);
     
+    return ret;
+}
+#endif
+
+py::object closeness_centrality(py::object G, py::object weight, py::object cutoff, py::object sources) {
+#ifdef EASYGRAPH_ENABLE_GPU
+    return invoke_gpu_closeness_centrality(G, weight, sources);
+#else
+    return invoke_cpp_closeness_centrality(G, weight, cutoff, sources);
+#endif
 }

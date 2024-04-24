@@ -69,4 +69,4 @@ def k_core(G: "Graph") -> Union["Graph", List]:
     ret = [0 for i in range(len(G))]
     for i in range(len(ret)):
         ret[i] = core[G.index2node[i]]
-    return ret
+    return [list(G.nodes), ret]

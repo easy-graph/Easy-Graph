@@ -2,6 +2,8 @@
 
 #include "common.h"
 
+namespace gpu_easygraph {
+
 /**
  * description: 
  *     use cuda to calculate k core. the graph must be 
@@ -33,3 +35,5 @@ int cuda_k_core (
     _IN_ int len_E,
     _OUT_ int* k_core_res
 );
+
+} // namespace gpu_easygraph
