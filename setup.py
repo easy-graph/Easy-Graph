@@ -50,18 +50,18 @@ class CMakeBuild(build_ext):
             ["cmake", "--build", "."], cwd=eg_dir_path, check=True
         )
 
-with open("README.rst") as fh:
+with open("README.md") as fh:
     long_description = fh.read()
 
 CYTHON_STR = "Cython"
 setuptools.setup(
     name="Python-EasyGraph",
-    version="1.1",
+    version="1.2",
     author="Fudan DataNET Group",
     author_email="mgao21@m.fudan.edu.cn",
     description="Easy Graph",
     long_description=long_description,
-    long_description_content_type="text/x-rst",
+    long_description_content_type="text/markdown",
     url="https://github.com/easy-graph/Easy-Graph",
     packages=setuptools.find_packages(),
     classifiers=[
@@ -69,13 +69,14 @@ setuptools.setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.8, <3.12",
+    python_requires=">=3.8, <3.13",
     install_requires=[
         "numpy>=1.23.1; python_version>='3.10'",
-        "numpy>=1.19.5; python_version>='3.7' and python_version<'3.12'",
+        "numpy>=1.19.5; python_version>='3.7' and python_version<='3.12'",
         "tqdm>=4.49.0",
         "joblib>=1.2.0",
         "six>=1.15.0, <1.16.0",
