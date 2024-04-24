@@ -10,7 +10,7 @@ def ego_graph(G, n, radius=1, center=True, undirected=False, distance=None):
     Parameters
     ----------
     G : graph
-      A NetworkX Graph or DiGraph
+      A EasyGraph Graph or DiGraph
 
     n : node
       A single node

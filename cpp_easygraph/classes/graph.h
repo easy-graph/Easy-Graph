@@ -26,6 +26,11 @@ struct Graph {
     bool is_linkgraph_dirty();
     Graph_L _get_linkgraph_structure();
 
+    void gen_CSR(const py::object& py_weight, const py::object& py_sources, 
+                        py::list& py_nodes_order, std::vector<int>& V, std::vector<int>& E, 
+                        std::vector<double>& W, std::vector<int>& sources);
+    void gen_CSR(py::list& py_nodes_order, std::vector<int>& V, std::vector<int>& E);
+
 };
 
 py::object Graph__init__(py::args args, py::kwargs kwargs);

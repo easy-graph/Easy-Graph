@@ -141,32 +141,17 @@ import functools
 import cpp_easygraph
 
 
-def hybrid(method_name, func_type="cpp"):
+def hybrid(cpp_method_name):
     def _hybrid(py_method):
         @functools.wraps(py_method)
         def method(*args, **kwargs):
-            if func_type == "cpp":
-                G = args[0]
-                if G.cflag and method_name is not None:
-                    try:
-                        cpp_method = getattr(cpp_easygraph, method_name)
-                        return cpp_method(*args, **kwargs)
-                    except AttributeError as e:
-                        print(f"Warning: {e}. Use python method instead.")
-            elif func_type == "gpu":
+            G = args[0]
+            if G.cflag and cpp_method_name is not None:
                 try:
-                    import gpu_easygraph
-                    gpu_method = getattr(gpu_easygraph, method_name)
-                    return gpu_method(*args, **kwargs)
+                    cpp_method = getattr(cpp_easygraph, cpp_method_name)
+                    return cpp_method(*args, **kwargs)
                 except AttributeError as e:
-                    # If user installed gpu-related version and import
-                    # failed, we should notify user.
-                    print(f"Warning: {e}. failed to index {method_name}, use python/cpp instead.")
-                except ImportError:
-                    # ImportError means user doesn't install gpu-related version.
-                    # It's normal. Don't need to notify users.
-                    pass
-            
+                    print(f"Warning: {e}. Use python method instead.")
             return py_method(*args, **kwargs)
 
         return method

@@ -729,3 +729,100 @@ std::vector<graph_edge> Graph::_get_edges(bool if_directed) {
     }
     return edges;
 }
+
+void Graph::gen_CSR(const py::object& py_weight, const py::object& py_sources, 
+                        py::list& py_nodes_order, std::vector<int>& V, std::vector<int>& E, 
+                        std::vector<double>& W, std::vector<int>& sources) {
+    py_nodes_order = py::list();
+    V.clear();
+    E.clear();
+    W.clear();
+
+    std::string weight_key = weight_to_string(py_weight);
+
+    std::vector<node_t> nodes;
+    for (auto it = node.begin(); it != node.end(); ++it) {
+        nodes.push_back(it->first);
+    }
+
+    std::sort(nodes.begin(), nodes.end());
+
+    std::unordered_map<node_t, int> node2idx;
+
+    for (int i = 0; i < nodes.size(); ++i) {
+        node2idx[nodes[i]] = i;
+    }
+
+    for (int idx = 0; idx < nodes.size(); ++idx) {
+        V.push_back(E.size());
+
+        node_t n = nodes[idx];
+
+        // if n is not in adj, this way can raise an exception
+        const auto& n_adjs = adj.find(n)->second;
+
+        for (auto adj_it = n_adjs.begin(); adj_it != n_adjs.end(); ++adj_it) {
+            const edge_attr_dict_factory& edge_attr = adj_it->second;
+            auto edge_it = edge_attr.find(weight_key);
+            weight_t w = edge_it != edge_attr.end() ? edge_it->second : 1.9;
+
+            W.push_back(w);
+            E.push_back(node2idx[adj_it->first]);
+        }
+    }
+
+    V.push_back(E.size());
+
+    sources.clear();
+    if (py_sources.is_none()) {
+        for (int i = 0; i < V.size() - 1; ++i) {
+            sources.push_back(i);
+        }
+    } else {
+        for (auto it = py_sources.begin(); it != py_sources.end(); ++it) {
+            sources.push_back(node2idx[node_to_id[*it].cast<node_t>()]);
+        }
+    }
+
+    for (int i = 0; i < nodes.size(); ++i) {
+        py_nodes_order.append(this->id_to_node[py::cast(nodes[i])]);
+    }
+}
+
+void Graph::gen_CSR(py::list& py_nodes_order, std::vector<int>& V, std::vector<int>& E) {
+    py_nodes_order = py::list();
+    V.clear();
+    E.clear();
+
+    std::vector<node_t> nodes;
+    for (auto it = node.begin(); it != node.end(); ++it) {
+        nodes.push_back(it->first);
+    }
+
+    std::sort(nodes.begin(), nodes.end());
+
+    std::unordered_map<node_t, int> node2idx;
+
+    for (int i = 0; i < nodes.size(); ++i) {
+        node2idx[nodes[i]] = i;
+    }
+
+    for (int idx = 0; idx < nodes.size(); ++idx) {
+        V.push_back(E.size());
+
+        node_t n = nodes[idx];
+
+        // if n is not in adj, this way can raise an exception
+        const auto& n_adjs = adj.find(n)->second;
+
+        for (auto adj_it = n_adjs.begin(); adj_it != n_adjs.end(); ++adj_it) {
+            E.push_back(node2idx[adj_it->first]);
+        }
+    }
+
+    V.push_back(E.size());
+
+    for (int i = 0; i < nodes.size(); ++i) {
+        py_nodes_order.append(this->id_to_node[py::cast(nodes[i])]);
+    }
+}

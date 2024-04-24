@@ -11,6 +11,8 @@
 
 #include "common.h"
 
+namespace gpu_easygraph {
+
 static __device__ double atomicAddDouble (
     _OUT_ double* address, 
     _IN_ double val
@@ -58,7 +60,7 @@ static __global__ void d_calc_min_edge (
 	if (tid < len_V) {
 		double curr_min = EG_DOUBLE_INF;
         int edge_start = d_V[tid];
-        int edge_end = tid + 1 < len_V ? d_V[tid + 1] : len_E;
+        int edge_end = d_V[tid + 1];
 		for(int i = edge_start; i < edge_end; ++i) {
             curr_min = min(curr_min, d_W[i]);
 		}
@@ -139,7 +141,7 @@ static __global__ void d_dijkstra_bc (
             for (int j = threadIdx.x; j < len_F * warp_size; j += blockDim.x) {
                 int f = d_F[j / warp_size];
                 int edge_start = d_V[f];
-                int edge_end = f + 1 < len_V ? d_V[f + 1] : len_E;
+                int edge_end = d_V[f + 1];
                 double dist = d_dist[f];
                 for (int e = j % warp_size; e < edge_end - edge_start; e += warp_size) {
                     int adj = d_E[e + edge_start];
@@ -225,7 +227,7 @@ static __global__ void d_dijkstra_bc (
             for (int j = threadIdx.x; j < (st_end - st_start) * warp_size; j += blockDim.x) {
                 int pred = d_st[st_start + j / warp_size];
                 int edge_start = d_V[pred];
-                int edge_end = pred + 1 < len_V ? d_V[pred + 1] : len_E;
+                int edge_end = d_V[pred + 1];
                 double pred_sigma = d_sigma[pred];
                 double pred_dist = d_dist[pred];
 
@@ -417,3 +419,5 @@ exit:
 
     return EG_ret;
 }
+
+} // namespace gpu_easygraph

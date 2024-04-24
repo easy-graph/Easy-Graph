@@ -1,20 +1,21 @@
 cmake_minimum_required(VERSION 3.23)
 project(gpu_easygraph LANGUAGES CXX CUDA)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 file(GLOB SOURCES
     functions/*/*.c
     functions/*/*.cpp
     functions/*/*.cu
     common/*.c
     common/*.cpp
-    gpu_easygraph.cpp
 )
 
-add_subdirectory(pybind11)
-pybind11_add_module(gpu_easygraph ${SOURCES})
+add_library(gpu_easygraph OBJECT ${SOURCES})
+
 set_property(TARGET gpu_easygraph PROPERTY CUDA_ARCHITECTURES all)
 
 target_include_directories(gpu_easygraph
-PRIVATE common
-PRIVATE functions
+    PRIVATE common
+    PRIVATE functions
 )

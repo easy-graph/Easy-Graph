@@ -2,6 +2,8 @@
 
 #include "common.h"
 
+namespace gpu_easygraph {
+
 /**
  * description: 
  *     use cuda to calculate betweenness_centrality. the graph must be 
@@ -58,3 +60,5 @@ int cuda_betweenness_centrality (
     _IN_ int endpoints,
     _OUT_ double* BC
 );
+
+} // namespace gpu_easygraph

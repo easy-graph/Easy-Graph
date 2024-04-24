@@ -1,4 +1,9 @@
 #include "centrality.h"
+
+#ifdef EASYGRAPH_ENABLE_GPU
+#include <gpu_easygraph.h>
+#endif
+
 #include "../../classes/graph.h"
 #include "../../common/utils.h"
 #include "../../classes/linkgraph.h"
@@ -100,7 +105,8 @@ static double calc_scale(int len_V, int is_directed, int normalized, int endpoin
 
 
 
-py::object betweenness_centrality(py::object G, py::object weight, py::object cutoff, py::object sources, 
+static py::object invoke_cpp_betweenness_centrality(py::object G, py::object weight, 
+                                    py::object cutoff, py::object sources, 
                                     py::object normalized, py::object endpoints){
     Graph& G_ = G.cast<Graph&>();
     int cutoff_ = -1;
@@ -149,7 +155,69 @@ py::object betweenness_centrality(py::object G, py::object weight, py::object cu
             res_lst.append(scale * bc[i]);
         }
     }
-    return res_lst;
+
+    py::list py_nodes_order;
+    std::vector<node_t> node_idx;
+
+    for (auto it = G_.node.begin(); it != G_.node.end(); ++it) {
+        node_idx.push_back(it->first);
+    }
+    std::sort(node_idx.begin(), node_idx.end());
+
+    for (int i = 0; i < node_idx.size(); ++i) {
+        py_nodes_order.append(G_.id_to_node[py::cast(node_idx[i])]);
+    }
+
+    py::list ret;
+    ret.append(py_nodes_order);
+    ret.append(res_lst);
+
+    return ret;
+}
+
+
+#ifdef EASYGRAPH_ENABLE_GPU
+static py::object invoke_gpu_betweenness_centrality(py::object G, py::object weight, 
+                        py::object py_sources, py::object normalized, py::object endpoints) {
+    Graph& G_ = G.cast<Graph&>();
+    py::list py_nodes_order;
+    std::vector<int> E;
+    std::vector<int> V;
+    std::vector<double> W;
+    std::vector<int> sources;
+    std::vector<double> BC;
+    bool is_directed = G.attr("is_directed")().cast<bool>();
+    G_.gen_CSR(weight, py_sources, py_nodes_order, V, E, W, sources);
+    int gpu_r = gpu_easygraph::betweenness_centrality(V, E, W, sources, 
+                                    is_directed, normalized.cast<py::bool_>(),
+                                    endpoints.cast<py::bool_>(), BC);
+
+    if (gpu_r != gpu_easygraph::EG_GPU_SUCC) {
+        // the code below will throw an exception
+        py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
+    }
+
+    py::list ret_val;
+    for (int i = 0; i < BC.size(); ++i) {
+        ret_val.append(BC[i]);
+    }
+
+    py::list ret;
+    ret.append(py_nodes_order);
+    ret.append(ret_val);
+    
+    return ret;
+}
+#endif
+
+
+py::object betweenness_centrality(py::object G, py::object weight, py::object cutoff, py::object sources, 
+                                    py::object normalized, py::object endpoints) {
+#ifdef EASYGRAPH_ENABLE_GPU
+    return invoke_gpu_betweenness_centrality(G, weight, sources, normalized, endpoints);
+#else
+    return invoke_cpp_betweenness_centrality(G, weight, cutoff, sources, normalized, endpoints);
+#endif
 }
 
 // void betweenness_dijkstra(const Graph_L& G_l, const int &S, std::vector<double>& bc, double cutoff) {

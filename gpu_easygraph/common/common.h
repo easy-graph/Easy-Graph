@@ -1,5 +1,7 @@
 #pragma once
 
+#include "err.h"
+
 #define EG_DOUBLE_INF 1e20
 
 #define EXIT_IF_CUDA_FAILED(condition)              \
@@ -19,16 +21,3 @@
 #ifndef _BUFFER_
 #define _BUFFER_
 #endif
-
-typedef enum {
-    EG_GPU_SUCC = 0,
-    EG_GPU_FAILED_TO_ALLOCATE_HOST_MEM,
-    EG_GPU_FAILED_TO_ALLOCATE_DEVICE_MEM,
-    EG_GPU_DEVICE_ERR,
-    EG_GPU_UNKNOW_ERROR
-} EG_GPU_STATUS_CODE;
-
-typedef enum {
-    EG_GPU_NODE_ACTIVE,
-    EG_GPU_NODE_INACTIVE
-} EG_GPU_NODE_STATUS;
