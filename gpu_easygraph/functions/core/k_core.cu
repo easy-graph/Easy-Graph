@@ -15,10 +15,10 @@ static __global__ void d_calc_deg(
 )
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    if (tid >= len_V) {
-        return;
+    int tnum = blockDim.x * gridDim.x;
+    for (int u = tid; u < len_V; u += tnum) {
+        d_deg[u] = d_V[u + 1] - d_V[u];
     }
-    d_deg[tid] = d_V[tid + 1] - d_V[tid];
 }
 
 
@@ -166,8 +166,18 @@ int cuda_k_core (
     int cuda_ret = cudaSuccess;
     int EG_ret = EG_GPU_SUCC;
 
-    int block_size = 256;
-    int grid_size = 56; //TODO
+    int calc_deg_block_size;
+    int calc_deg_grid_size;
+    int scan_block_size;
+    int scan_grid_size;
+    int loop_block_size;
+    int loop_grid_size;
+
+    cudaOccupancyMaxPotentialBlockSize(&calc_deg_grid_size, &calc_deg_block_size, d_calc_deg, 0, 0); 
+    cudaOccupancyMaxPotentialBlockSize(&scan_grid_size, &scan_block_size, d_k_core_scan, 0, 0); 
+    cudaOccupancyMaxPotentialBlockSize(&loop_grid_size, &loop_block_size, d_k_core_loop, 0, 0); 
+
+    int k_core_grid_size = max(scan_grid_size, loop_grid_size);
 
     int count = 0, level = 0;
 
@@ -178,9 +188,8 @@ int cuda_k_core (
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_E, sizeof(int) * len_E));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_deg, sizeof(int) * len_V));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_k_core_res, sizeof(int) * len_V));
-    // TMP TODO TODO size
-    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_buf_2D, sizeof(int) * grid_size * len_V));
-    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_buf_tail_2D, sizeof(int) * grid_size));
+    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_buf_2D, sizeof(int) * k_core_grid_size * len_V));
+    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_buf_tail_2D, sizeof(int) * k_core_grid_size));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_count, sizeof(int)));
 
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_V, V, sizeof(int) * (len_V + 1), cudaMemcpyHostToDevice));
@@ -188,13 +197,13 @@ int cuda_k_core (
 
     EXIT_IF_CUDA_FAILED(cudaMemset(d_count, 0, sizeof(int)));
 
-    d_calc_deg<<<len_V / block_size + 1, block_size>>>(d_V, d_E, len_V, len_E, d_deg);
+    d_calc_deg<<<calc_deg_grid_size, calc_deg_block_size>>>(d_V, d_E, len_V, len_E, d_deg);
     while (count < len_V) {
-        EXIT_IF_CUDA_FAILED(cudaMemset(d_buf_tail_2D, 0, sizeof(int) * grid_size));
+        EXIT_IF_CUDA_FAILED(cudaMemset(d_buf_tail_2D, 0, sizeof(int) * k_core_grid_size));
 
-        d_k_core_scan<<<grid_size, block_size>>>(d_deg, len_V, level, d_buf_2D, d_buf_tail_2D);
+        d_k_core_scan<<<k_core_grid_size, scan_block_size>>>(d_deg, len_V, level, d_buf_2D, d_buf_tail_2D);
 
-        d_k_core_loop<<<grid_size, block_size>>>(d_V, d_E, d_deg, len_V, len_E, level,
+        d_k_core_loop<<<k_core_grid_size, loop_block_size>>>(d_V, d_E, d_deg, len_V, len_E, level,
                                                     d_buf_2D, d_buf_tail_2D, d_count);
         
         EXIT_IF_CUDA_FAILED(cudaMemcpy(&count, d_count, sizeof(int), cudaMemcpyDeviceToHost));

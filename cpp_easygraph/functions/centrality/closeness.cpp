@@ -82,20 +82,25 @@ static py::object invoke_cpp_closeness_centrality(py::object G, py::object weigh
         }
     }
 
-    py::list py_nodes_order;
-    std::vector<node_t> node_idx;
-
-    for (auto it = G_.node.begin(); it != G_.node.end(); ++it) {
-        node_idx.push_back(it->first);
-    }
-    std::sort(node_idx.begin(), node_idx.end());
-
-    for (int i = 0; i < node_idx.size(); ++i) {
-        py_nodes_order.append(G_.id_to_node[py::cast(node_idx[i])]);
-    }
-
     py::list ret;
-    ret.append(py_nodes_order);
+
+    if (sources.is_none()) {
+        py::list py_nodes_order;
+        std::vector<node_t> node_idx;
+
+        for (auto it = G_.node.begin(); it != G_.node.end(); ++it) {
+            node_idx.push_back(it->first);
+        }
+        std::sort(node_idx.begin(), node_idx.end());
+
+        for (int i = 0; i < node_idx.size(); ++i) {
+            py_nodes_order.append(G_.id_to_node[py::cast(node_idx[i])]);
+        }
+
+        ret.append(py_nodes_order);
+    } else {
+        ret.append(py::list(sources));
+    }
     ret.append(total_res_lst);
 
     return ret;
@@ -118,13 +123,19 @@ static py::object invoke_gpu_closeness_centrality(py::object G, py::object weigh
         py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
     }
 
+    py::list ret;
+
     py::list ret_val;
-    for (int i = 0; i < CC.size(); ++i) {
+    for (int i = 0; i < sources.size(); ++i) {
         ret_val.append(CC[i]);
     }
 
-    py::list ret;
-    ret.append(py_nodes_order);
+    if (py_sources.is_none()) {
+        ret.append(py_nodes_order);
+    } else {
+        ret.append(py::list(py_sources));
+    }
+
     ret.append(ret_val);
     
     return ret;

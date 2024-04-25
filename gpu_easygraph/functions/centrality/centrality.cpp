@@ -50,7 +50,7 @@ int closeness_centrality(
     int r = cuda_closeness_centrality(V.data(), E.data(), W.data(), 
             sources.data(), len_V, len_E, sources.size(), 
             warp_size, CC.data());
-
+        
     return r;
 }
 
