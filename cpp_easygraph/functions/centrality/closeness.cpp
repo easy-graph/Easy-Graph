@@ -53,7 +53,7 @@ static py::object invoke_cpp_closeness_centrality(py::object G, py::object weigh
     int N = G_.node.size();
     bool is_directed = G.attr("is_directed")().cast<bool>();
     std::string weight_key = weight_to_string(weight);
-    const Graph_L& G_l = graph_to_linkgraph(G_, is_directed, weight_key, false, true);
+    const Graph_L& G_l = graph_to_linkgraph(G_, is_directed, weight_key, false, false);
     int cutoff_ = -1;
     if (!cutoff.is_none()){
         cutoff_ = cutoff.cast<int>();

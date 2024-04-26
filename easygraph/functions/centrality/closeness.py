@@ -17,7 +17,7 @@ def closeness_centrality_parallel(nodes, G, path_length):
         dist = sum(x.values())
         cnt = len(x)
         if dist == 0:
-            ret.append([node, 0])
+            ret.append([node, 0.0])
         else:
             ret.append([node, (cnt - 1) * (cnt - 1) / (dist * (length - 1))])
     return ret
@@ -102,7 +102,7 @@ def closeness_centrality(G, weight=None, sources=None, n_workers=None):
             cnt = len(x)
             ret_nodes.append(node)
             if dist == 0:
-                ret_vals.append(0)
+                ret_vals.append(0.0)
             else:
                 ret_vals.append((cnt - 1) * (cnt - 1) / (dist * (length - 1)))
     return [ret_nodes, ret_vals]
