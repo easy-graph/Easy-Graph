@@ -764,7 +764,7 @@ void Graph::gen_CSR(const py::object& py_weight, const py::object& py_sources,
         for (auto adj_it = n_adjs.begin(); adj_it != n_adjs.end(); ++adj_it) {
             const edge_attr_dict_factory& edge_attr = adj_it->second;
             auto edge_it = edge_attr.find(weight_key);
-            weight_t w = edge_it != edge_attr.end() ? edge_it->second : 1.9;
+            weight_t w = edge_it != edge_attr.end() ? edge_it->second : 1.0;
 
             W.push_back(w);
             E.push_back(node2idx[adj_it->first]);

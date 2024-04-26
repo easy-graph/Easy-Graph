@@ -95,7 +95,7 @@ class HalfNLHconv(MessagePassing):
     def message(self, x_j, norm):
         return norm.view(-1, 1) * x_j
 
-    def aggregate(self, inputs, index, dim_size=None, aggr=None):
+    def aggregate(self, inputs, index, dim_size=None, aggr="add"):
         r"""Aggregates messages from neighbors as
         :math:`\square_{j \in \mathcal{N}(i)}`.
 
