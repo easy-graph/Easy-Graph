@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -95,7 +96,7 @@ class HalfNLHconv(MessagePassing):
     def message(self, x_j, norm):
         return norm.view(-1, 1) * x_j
 
-    def aggregate(self, inputs, index, dim_size=None, aggr="add"):
+    def aggregate(self, inputs, index, dim_size=None, aggr="sum"):
         r"""Aggregates messages from neighbors as
         :math:`\square_{j \in \mathcal{N}(i)}`.
 
@@ -107,6 +108,5 @@ class HalfNLHconv(MessagePassing):
         :meth:`__init__` by the :obj:`aggr` argument.
         """
         #         ipdb.set_trace()
-        if aggr is None:
-            raise ValueError("aggr was not passed!")
+
         return scatter(inputs, index, dim=self.node_dim, reduce=aggr)
