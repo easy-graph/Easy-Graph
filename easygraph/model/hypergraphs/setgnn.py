@@ -1,3 +1,5 @@
+from collections import Counter
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -50,6 +52,7 @@ class SetGNN(nn.Module):
         GPR=False,
         LearnMask=False,
         norm=None,
+        self_loop=True,
     ):
         super(SetGNN, self).__init__()
         """
@@ -76,7 +79,8 @@ class SetGNN(nn.Module):
         self.E2VConvs = nn.ModuleList()
         self.bnV2Es = nn.ModuleList()
         self.bnE2Vs = nn.ModuleList()
-
+        self.edge_index = None
+        self.self_loop = self_loop
         if self.LearnMask:
             self.Importance = nn.Parameter(torch.ones(norm.size()))
 
@@ -180,6 +184,43 @@ class SetGNN(nn.Module):
                     InputNorm=False,
                 )
 
+    def generate_edge_index(self, dataset, self_loop=False):
+        edge_list = dataset["edge_list"]
+        e_ind = 0
+        edge_index = [[], []]
+        for e in edge_list:
+            for n in e:
+                edge_index[0].append(n)
+                edge_index[1].append(e_ind)
+            e_ind += 1
+        edge_index = torch.tensor(edge_index).type(torch.LongTensor)
+        if self_loop:
+            hyperedge_appear_fre = Counter(edge_index[1].numpy())
+            skip_node_lst = []
+            for edge in hyperedge_appear_fre:
+                if hyperedge_appear_fre[edge] == 1:
+                    skip_node = edge_index[0][torch.where(edge_index[1] == edge)[0]]
+                    skip_node_lst.append(skip_node)
+            num_nodes = dataset["num_vertices"]
+            new_edge_idx = len(edge_index[1]) + 1
+            new_edges = torch.zeros(
+                (2, num_nodes - len(skip_node_lst)), dtype=edge_index.dtype
+            )
+            tmp_count = 0
+            for i in range(num_nodes):
+                if i not in skip_node_lst:
+                    new_edges[0][tmp_count] = i
+                    new_edges[1][tmp_count] = new_edge_idx
+                    new_edge_idx += 1
+                    tmp_count += 1
+
+            edge_index = torch.Tensor(edge_index).type(torch.LongTensor)
+            edge_index = torch.cat((edge_index, new_edges), dim=1)
+            _, sorted_idx = torch.sort(edge_index[0])
+            edge_index = torch.Tensor(edge_index[:, sorted_idx]).type(torch.LongTensor)
+
+        return edge_index
+
     def reset_parameters(self):
         for layer in self.V2EConvs:
             layer.reset_parameters()
@@ -206,8 +247,10 @@ class SetGNN(nn.Module):
         data.norm: The weight for edges in bipartite graphs, correspond to data.edge_index
         !!! Note that we output final node representation. Loss should be defined outside.
         """
-
-        x, edge_index= data["features"], data["edge_index"]
+        if self.edge_index is None:
+            self.edge_index = self.generate_edge_index(data, self.self_loop)
+        # print("generate_edge_index:", self.edge_index.shape)
+        x, edge_index = data["features"], self.edge_index
         if data["weight"] == None:
             norm = torch.ones(edge_index.size()[1])
         else:
@@ -215,8 +258,7 @@ class SetGNN(nn.Module):
 
         if self.LearnMask:
             norm = self.Importance * norm
-        cidx = min(edge_index[1])
-        # edge_index[1] -= cidx  # make sure we do not waste memory
+
         reversed_edge_index = torch.stack([edge_index[1], edge_index[0]], dim=0)
         if self.GPR:
             xs = []
