@@ -35,3 +35,8 @@ else()
     )
 
 endif()
+
+target_link_libraries(cpp_easygraph
+    PRIVATE -static-libgcc
+    PRIVATE -static-libstdc++
+)

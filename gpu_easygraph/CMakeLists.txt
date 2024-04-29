@@ -19,3 +19,8 @@ target_include_directories(gpu_easygraph
     PRIVATE common
     PRIVATE functions
 )
+
+target_link_libraries(gpu_easygraph
+    PRIVATE -static-libgcc
+    PRIVATE -static-libstdc++
+)
