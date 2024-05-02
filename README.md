@@ -1,7 +1,7 @@
 EasyGraph
 ==================
 
-Copyright (C) <2020-2024> by DataNET Group, Fudan University
+Copyright (C) <2020-2024> by [DataNET Group, Fudan University](https://fudan-datanet.mysxl.cn/)
 
 ___________________________________________________________________________
 
@@ -122,6 +122,7 @@ If you use EasyGraph in a scientific publication, we would appreciate citations 
       year={2023},
       journal={Patterns},
       volume={4},
-      number={10}
+      number={10},
+      pages={100839},
   }
 ```
