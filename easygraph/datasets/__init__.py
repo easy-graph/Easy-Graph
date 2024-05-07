@@ -16,5 +16,6 @@ try:
 
 except:
     print(
-        " Please install Pytorch before use graph-related datasets and hypergraph-related datasets."
+        " Please install Pytorch before use graph-related datasets and"
+        " hypergraph-related datasets."
     )
