@@ -7,3 +7,4 @@ from .senate_committees import *
 from .trivago_clicks import *
 from .walmart_trips import *
 from .Yelp import *
+from .coauthorship import *
