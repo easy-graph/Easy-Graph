@@ -1,4 +1,5 @@
 from .cat_edge_Cooking import *
+from .coauthorship import *
 from .cocitation import *
 from .contact_primary_school import *
 from .House_Committees import *
@@ -7,4 +8,3 @@ from .senate_committees import *
 from .trivago_clicks import *
 from .walmart_trips import *
 from .Yelp import *
-from .coauthorship import *
