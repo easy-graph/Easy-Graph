@@ -1,7 +1,7 @@
-__all__ = ["hyepergraph_degree_centrality"]
+__all__ = ["hypergraph_degree_centrality"]
 
 
-def hyepergraph_degree_centrality(G):
+def hypergraph_degree_centrality(G):
     """
 
     Parameters

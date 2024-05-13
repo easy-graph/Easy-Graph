@@ -1,6 +1,6 @@
-from easygraph.functions.basic import *
-from easygraph.functions.path import single_source_bfs
-from easygraph.functions.path import single_source_dijkstra
+from easygraph.functions.graph.basic import *
+from easygraph.functions.graph.path import single_source_bfs
+from easygraph.functions.graph.path import single_source_dijkstra
 from easygraph.utils import *
 
 

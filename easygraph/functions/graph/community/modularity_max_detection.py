@@ -1,4 +1,4 @@
-from easygraph.functions.community.modularity import modularity
+from easygraph.functions.graph.community.modularity import modularity
 from easygraph.utils import *
 from easygraph.utils.mapped_queue import MappedQueue
 

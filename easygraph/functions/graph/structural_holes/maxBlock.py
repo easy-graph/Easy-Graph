@@ -4,8 +4,8 @@ import sys
 
 import easygraph as eg
 
-from easygraph.functions.components.strongly_connected import condensation
-from easygraph.functions.components.strongly_connected import (
+from easygraph.functions.graph.components.strongly_connected import condensation
+from easygraph.functions.graph.components.strongly_connected import (
     number_strongly_connected_components,
 )
 from easygraph.utils import *
