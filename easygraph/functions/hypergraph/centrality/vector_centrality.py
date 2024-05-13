@@ -8,7 +8,7 @@ __all__ = ["vector_centrality"]
 
 
 def vector_centrality(H):
-    """The vector centrality of nodes in the line graph of the hypergraph.
+    """The vector centrality of nodes in the line graph of the hypergraph. This metric does not support for disconnected hypergraphs.
 
     Parameters
     ----------

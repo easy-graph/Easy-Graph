@@ -172,7 +172,7 @@ def cycle_ratio_centrality(G):
 
     """
     CycLenDict = dict()
-    NumNode = G.number_of_nodes()  # update
+    NumNode = len(G.v)  # update
     DEF_IMPOSSLEN = NumNode + 1  # Impossible simple cycle length
     NodeGirth = dict()
     CycLenDict = dict()
