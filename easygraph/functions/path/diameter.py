@@ -1,5 +1,5 @@
 import easygraph as eg
-import easygraph.functions.graph.path
+import easygraph.functions.path
 
 
 __all__ = ["diameter", "eccentricity"]

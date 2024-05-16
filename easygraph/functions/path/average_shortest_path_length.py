@@ -2,7 +2,7 @@ import warnings
 
 import easygraph as eg
 
-from easygraph.functions.graph.path.path import *
+from easygraph.functions.path.path import *
 
 
 def average_shortest_path_length(G, weight=None, method=None):

@@ -3,8 +3,8 @@ import random
 
 import easygraph as eg
 
-from easygraph.functions.graph.components.biconnected import generator_articulation_points
-from easygraph.functions.graph.components.connected import connected_components
+from easygraph.functions.components.biconnected import generator_articulation_points
+from easygraph.functions.components.connected import connected_components
 from easygraph.utils.decorators import *
 
 
