@@ -11,6 +11,6 @@ try:
     from .hypergraphs import UniSAGE
 except:
     print(
-        "Warning raise in module:model.Please install Pytorch before you use functions"
+        "Warning raise in module:model.Please install torch before you use functions"
         " related to Hypergraph"
     )
