@@ -34,10 +34,10 @@ static int decide_warp_size (
 
 
 int closeness_centrality(
-    _IN_ std::vector<int> V,
-    _IN_ std::vector<int> E,
-    _IN_ std::vector<double> W,
-    _IN_ std::vector<int> sources,
+    _IN_ const std::vector<int>& V,
+    _IN_ const std::vector<int>& E,
+    _IN_ const std::vector<double>& W,
+    _IN_ const std::vector<int>& sources,
     _OUT_ std::vector<double>& CC
 ) {
     int len_V = V.size() - 1;
@@ -57,10 +57,10 @@ int closeness_centrality(
 
 
 int betweenness_centrality(
-    _IN_ std::vector<int> V,
-    _IN_ std::vector<int> E,
-    _IN_ std::vector<double> W,
-    _IN_ std::vector<int> sources,
+    _IN_ const std::vector<int>& V,
+    _IN_ const std::vector<int>& E,
+    _IN_ const std::vector<double>& W,
+    _IN_ const std::vector<int>& sources,
     _IN_ bool is_directed,
     _IN_ bool normalized,
     _IN_ bool endpoints,

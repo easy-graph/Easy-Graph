@@ -20,6 +20,8 @@ if (EASYGRAPH_ENABLE_GPU)
         $<TARGET_OBJECTS:gpu_easygraph>
     )
 
+    set_property(TARGET cpp_easygraph PROPERTY CUDA_ARCHITECTURES all)
+
     target_compile_definitions(cpp_easygraph 
         PRIVATE EASYGRAPH_ENABLE_GPU
     )

@@ -8,6 +8,7 @@ Graph::Graph() {
     this->dirty_nodes = true;
     this->dirty_adj = true;
     this->linkgraph_dirty = true;
+    this->csr_graph = nullptr;
     this->node_to_id = py::dict();
     this->id_to_node = py::dict();
     this->graph = py::dict();
@@ -79,9 +80,7 @@ node_t _add_one_node(Graph& self, py::object one_node_for_adding, py::object nod
 
 py::object Graph_add_node(py::args args, py::kwargs kwargs) {
     Graph& self = args[0].cast<Graph&>();
-    self.dirty_nodes = true;
-    self.dirty_adj = true;
-    self.linkgraph_dirty = true;
+    self.drop_cache();
     py::object one_node_for_adding = args[1];
     py::dict node_attr = kwargs;
     _add_one_node(self, one_node_for_adding, node_attr);
@@ -89,9 +88,7 @@ py::object Graph_add_node(py::args args, py::kwargs kwargs) {
 }
 
 py::object Graph_add_nodes(Graph& self, py::list nodes_for_adding, py::list nodes_attr) {
-    self.dirty_nodes = true;
-    self.dirty_adj = true;
-    self.linkgraph_dirty = true;
+    self.drop_cache();
     if (py::len(nodes_attr) != 0) {
         if (py::len(nodes_for_adding) != py::len(nodes_attr)) {
             PyErr_Format(PyExc_AssertionError, "Nodes and Attributes lists must have same length.");
@@ -113,9 +110,7 @@ py::object Graph_add_nodes(Graph& self, py::list nodes_for_adding, py::list node
 
 py::object Graph_add_nodes_from(py::args args, py::kwargs kwargs) {
     Graph& self = args[0].cast<Graph&>();
-    self.dirty_nodes = true;
-    self.dirty_adj = true;
-    self.linkgraph_dirty = true;
+    self.drop_cache();
     py::list nodes_for_adding = py::list(args[1]);
     for (int i = 0; i < py::len(nodes_for_adding); i++) {
         bool newnode;
@@ -159,9 +154,7 @@ py::object Graph_add_nodes_from(py::args args, py::kwargs kwargs) {
 }
 
 py::object Graph_remove_node(Graph& self, py::object node_to_remove) {
-    self.dirty_nodes = true;
-    self.dirty_adj = true;
-    self.linkgraph_dirty = true;
+    self.drop_cache();
     if (!self.node_to_id.contains(node_to_remove)) {
         PyErr_Format(PyExc_KeyError, "No node %R in graph.", node_to_remove.ptr());
         return py::none();
@@ -180,9 +173,7 @@ py::object Graph_remove_node(Graph& self, py::object node_to_remove) {
 
 py::object Graph_remove_nodes(py::object self, py::list nodes_to_remove) {
     Graph& self_ = self.cast<Graph&>();
-    self_.dirty_nodes = true;
-    self_.dirty_adj = true;
-    self_.linkgraph_dirty = true;
+    self_.drop_cache();
     for (int i = 0; i < py::len(nodes_to_remove); i++) {
         py::object node_to_remove = nodes_to_remove[i];
         if (!self_.node_to_id.contains(node_to_remove)) {
@@ -253,9 +244,7 @@ void _add_one_edge(Graph& self, py::object u_of_edge, py::object v_of_edge, py::
 
 py::object Graph_add_edge(py::args args, py::kwargs kwargs) {
     Graph& self = args[0].cast<Graph&>();
-    self.dirty_nodes = true;
-    self.dirty_adj = true;
-    self.linkgraph_dirty = true;
+    self.drop_cache();
     py::object u_of_edge = args[1], v_of_edge = args[2];
     py::dict edge_attr = kwargs;
     _add_one_edge(self, u_of_edge, v_of_edge, edge_attr);
@@ -263,9 +252,7 @@ py::object Graph_add_edge(py::args args, py::kwargs kwargs) {
 }
 
 py::object Graph_add_edges(Graph& self, py::list edges_for_adding, py::list edges_attr) {
-    self.dirty_nodes = true;
-    self.dirty_adj = true;
-    self.linkgraph_dirty = true;
+    self.drop_cache();
     if (py::len(edges_attr) != 0) {
         if (py::len(edges_for_adding) != py::len(edges_attr)) {
             PyErr_Format(PyExc_AssertionError, "Edges and Attributes lists must have same length.");
@@ -287,9 +274,7 @@ py::object Graph_add_edges(Graph& self, py::list edges_for_adding, py::list edge
 
 py::object Graph_add_edges_from(py::args args, py::kwargs attr) {
     Graph& self = args[0].cast<Graph&>();
-    self.dirty_nodes = true;
-    self.dirty_adj = true;
-    self.linkgraph_dirty = true;
+    self.drop_cache();
     py::list ebunch_to_add = py::list(args[1]);
     for (int i = 0; i < len(ebunch_to_add); i++) {
         py::list e = py::list(ebunch_to_add[i]);
@@ -349,9 +334,7 @@ py::object Graph_add_edges_from(py::args args, py::kwargs attr) {
 }
 
 py::object Graph_add_edges_from_file(Graph& self, py::str file, py::object weighted, py::object is_transform) {
-    self.dirty_nodes = true;
-    self.dirty_adj = true;
-    self.linkgraph_dirty = true;
+    self.drop_cache();
     bool _is_transform = is_transform.cast<bool>();
     struct commactype : std::ctype<char> {
         commactype() : std::ctype<char>(get_table()) {}
@@ -418,9 +401,7 @@ py::object Graph_add_edges_from_file(Graph& self, py::str file, py::object weigh
 }
 
 py::object Graph_add_weighted_edge(Graph& self, py::object u_of_edge, py::object v_of_edge, weight_t weight) {
-    self.dirty_nodes = true;
-    self.dirty_adj = true;
-    self.linkgraph_dirty = true;
+    self.drop_cache();
     py::dict edge_attr;
     edge_attr["weight"] = weight;
     _add_one_edge(self, u_of_edge, v_of_edge, edge_attr);
@@ -428,9 +409,7 @@ py::object Graph_add_weighted_edge(Graph& self, py::object u_of_edge, py::object
 }
 
 py::object Graph_remove_edge(Graph& self, py::object u, py::object v) {
-    self.dirty_nodes = true;
-    self.dirty_adj = true;
-    self.linkgraph_dirty = true;
+    self.drop_cache();
     if (self.node_to_id.contains(u) && self.node_to_id.contains(v)) {
         node_t u_id = self.node_to_id[u].cast<node_t>();
         node_t v_id = self.node_to_id[v].cast<node_t>();
@@ -454,9 +433,7 @@ py::object Graph_remove_edges(py::object self, py::list edges_to_remove) {
         py::object u = edge[0], v = edge[1];
         self.attr("remove_edge")(u, v);
     }
-    self_.dirty_nodes = true;
-    self_.dirty_adj = true;
-    self_.linkgraph_dirty = true;
+    self_.drop_cache();
     return py::none();
 }
 
@@ -730,99 +707,143 @@ std::vector<graph_edge> Graph::_get_edges(bool if_directed) {
     return edges;
 }
 
-void Graph::gen_CSR(const py::object& py_weight, const py::object& py_sources, 
-                        py::list& py_nodes_order, std::vector<int>& V, std::vector<int>& E, 
-                        std::vector<double>& W, std::vector<int>& sources) {
-    py_nodes_order = py::list();
-    V.clear();
-    E.clear();
-    W.clear();
+void Graph::drop_cache() {
+    dirty_nodes = true;
+    dirty_adj = true;
+    linkgraph_dirty = true;
+    csr_graph = nullptr;
+}
 
-    std::string weight_key = weight_to_string(py_weight);
+std::shared_ptr<CSRGraph> Graph::gen_CSR(const std::string& weight) {
+    if (csr_graph != nullptr) {
+        if (csr_graph->W_map.find(weight) == csr_graph->W_map.end()) {
+            auto W = std::make_shared<std::vector<double>>();
 
-    std::vector<node_t> nodes;
-    for (auto it = node.begin(); it != node.end(); ++it) {
-        nodes.push_back(it->first);
-    }
+            // According to C++ Standard, the iteration order of a unordered contrainer will
+            // not change without rehashing which only happens during a insert.
+            for (node_t n : csr_graph->nodes) {
+                // if n is not in adj, this way can raise an exception
+                const auto& n_adjs = adj.find(n)->second;
 
-    std::sort(nodes.begin(), nodes.end());
+                for (auto adj_it = n_adjs.begin(); adj_it != n_adjs.end(); ++adj_it) {
+                    const edge_attr_dict_factory& edge_attr = adj_it->second;
+                    auto edge_it = edge_attr.find(weight);
+                    weight_t w = edge_it != edge_attr.end() ? edge_it->second : 1.0;
 
-    std::unordered_map<node_t, int> node2idx;
+                    W->push_back(w);
+                }
+            }
 
-    for (int i = 0; i < nodes.size(); ++i) {
-        node2idx[nodes[i]] = i;
-    }
+            csr_graph->W_map[weight] = W;
+        }
+    } else {
+        // the graph has been modified
 
-    for (int idx = 0; idx < nodes.size(); ++idx) {
+        csr_graph = std::make_shared<CSRGraph>();
+
+        std::vector<node_t>& nodes = csr_graph->nodes;
+        for (auto it = node.begin(); it != node.end(); ++it) {
+            nodes.push_back(it->first);
+        }
+
+        std::sort(nodes.begin(), nodes.end());
+
+        std::unordered_map<node_t, int>& node2idx = csr_graph->node2idx;
+
+        for (int i = 0; i < nodes.size(); ++i) {
+            node2idx[nodes[i]] = i;
+        }
+
+        std::vector<int>& V = csr_graph->V;
+        std::vector<int>& E = csr_graph->E;
+        auto W = std::make_shared<std::vector<double>>();
+
+        for (int idx = 0; idx < nodes.size(); ++idx) {
+            V.push_back(E.size());
+
+            node_t n = nodes[idx];
+
+            // if n is not in adj, this way can raise an exception
+            const auto& n_adjs = adj.find(n)->second;
+
+            for (auto adj_it = n_adjs.begin(); adj_it != n_adjs.end(); ++adj_it) {
+                const edge_attr_dict_factory& edge_attr = adj_it->second;
+                auto edge_it = edge_attr.find(weight);
+                weight_t w = edge_it != edge_attr.end() ? edge_it->second : 1.0;
+
+                W->push_back(w);
+                E.push_back(node2idx[adj_it->first]);
+            }
+        }
+
         V.push_back(E.size());
 
-        node_t n = nodes[idx];
-
-        // if n is not in adj, this way can raise an exception
-        const auto& n_adjs = adj.find(n)->second;
-
-        for (auto adj_it = n_adjs.begin(); adj_it != n_adjs.end(); ++adj_it) {
-            const edge_attr_dict_factory& edge_attr = adj_it->second;
-            auto edge_it = edge_attr.find(weight_key);
-            weight_t w = edge_it != edge_attr.end() ? edge_it->second : 1.0;
-
-            W.push_back(w);
-            E.push_back(node2idx[adj_it->first]);
-        }
+        csr_graph->W_map[weight] = W;
     }
 
-    V.push_back(E.size());
+    return csr_graph;
+}
 
-    sources.clear();
+std::shared_ptr<CSRGraph> Graph::gen_CSR() {
+    if (csr_graph != nullptr) {
+        if (csr_graph->unweighted_W.size() != csr_graph->E.size()) {
+            csr_graph->unweighted_W = std::vector<double>(csr_graph->E.size(), 1.0);
+        }
+    } else {
+        // the graph has been modified
+
+        csr_graph = std::make_shared<CSRGraph>();
+
+        std::vector<node_t>& nodes = csr_graph->nodes;
+        for (auto it = node.begin(); it != node.end(); ++it) {
+            nodes.push_back(it->first);
+        }
+
+        std::sort(nodes.begin(), nodes.end());
+
+        std::unordered_map<node_t, int>& node2idx = csr_graph->node2idx;
+
+        for (int i = 0; i < nodes.size(); ++i) {
+            node2idx[nodes[i]] = i;
+        }
+
+        std::vector<int>& V = csr_graph->V;
+        std::vector<int>& E = csr_graph->E;
+
+        for (int idx = 0; idx < nodes.size(); ++idx) {
+            V.push_back(E.size());
+
+            node_t n = nodes[idx];
+
+            // if n is not in adj, this way can raise an exception
+            const auto& n_adjs = adj.find(n)->second;
+
+            for (auto adj_it = n_adjs.begin(); adj_it != n_adjs.end(); ++adj_it) {
+                const edge_attr_dict_factory& edge_attr = adj_it->second;
+
+                E.push_back(node2idx[adj_it->first]);
+            }
+        }
+
+        V.push_back(E.size());
+        csr_graph->unweighted_W = std::vector<double>(E.size(), 1.0);
+    }
+
+    return csr_graph;
+}
+
+std::shared_ptr<std::vector<int>> Graph::gen_CSR_sources(const py::object& py_sources) {
+    auto sources = std::make_shared<std::vector<int>>();
+
     if (py_sources.is_none()) {
-        for (int i = 0; i < V.size() - 1; ++i) {
-            sources.push_back(i);
+        for (int i = 0; i < csr_graph->V.size() - 1; ++i) {
+            sources->push_back(i);
         }
     } else {
         for (auto it = py_sources.begin(); it != py_sources.end(); ++it) {
-            sources.push_back(node2idx[node_to_id[*it].cast<node_t>()]);
+            sources->push_back(csr_graph->node2idx[node_to_id[*it].cast<node_t>()]);
         }
     }
 
-    for (int i = 0; i < nodes.size(); ++i) {
-        py_nodes_order.append(this->id_to_node[py::cast(nodes[i])]);
-    }
-}
-
-void Graph::gen_CSR(py::list& py_nodes_order, std::vector<int>& V, std::vector<int>& E) {
-    py_nodes_order = py::list();
-    V.clear();
-    E.clear();
-
-    std::vector<node_t> nodes;
-    for (auto it = node.begin(); it != node.end(); ++it) {
-        nodes.push_back(it->first);
-    }
-
-    std::sort(nodes.begin(), nodes.end());
-
-    std::unordered_map<node_t, int> node2idx;
-
-    for (int i = 0; i < nodes.size(); ++i) {
-        node2idx[nodes[i]] = i;
-    }
-
-    for (int idx = 0; idx < nodes.size(); ++idx) {
-        V.push_back(E.size());
-
-        node_t n = nodes[idx];
-
-        // if n is not in adj, this way can raise an exception
-        const auto& n_adjs = adj.find(n)->second;
-
-        for (auto adj_it = n_adjs.begin(); adj_it != n_adjs.end(); ++adj_it) {
-            E.push_back(node2idx[adj_it->first]);
-        }
-    }
-
-    V.push_back(E.size());
-
-    for (int i = 0; i < nodes.size(); ++i) {
-        py_nodes_order.append(this->id_to_node[py::cast(nodes[i])]);
-    }
+    return sources;
 }

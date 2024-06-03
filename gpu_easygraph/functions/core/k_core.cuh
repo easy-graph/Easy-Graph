@@ -29,8 +29,8 @@ namespace gpu_easygraph {
  *     EG_GPU_STATUS_CODE
  */
 int cuda_k_core (
-    _IN_ int* V,
-    _IN_ int* E,
+    _IN_ const int* V,
+    _IN_ const int* E,
     _IN_ int len_V,
     _IN_ int len_E,
     _OUT_ int* k_core_res

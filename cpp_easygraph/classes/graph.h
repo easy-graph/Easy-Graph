@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../common/common.h"
+#include "csr_graph.h"
 #include "linkgraph.h"
 
 // old version
@@ -8,6 +9,7 @@ struct Graph {
     node_dict_factory node;
     adj_dict_factory adj;
     Graph_L linkgraph_structure;
+    std::shared_ptr<CSRGraph> csr_graph;
     py::kwargs node_to_id, id_to_node, graph;
     node_t id;
     bool dirty_nodes, dirty_adj, linkgraph_dirty;
@@ -25,11 +27,11 @@ struct Graph {
     std::vector<graph_edge> _get_edges(bool if_directed=true);
     bool is_linkgraph_dirty();
     Graph_L _get_linkgraph_structure();
+    void drop_cache();
 
-    void gen_CSR(const py::object& py_weight, const py::object& py_sources, 
-                        py::list& py_nodes_order, std::vector<int>& V, std::vector<int>& E, 
-                        std::vector<double>& W, std::vector<int>& sources);
-    void gen_CSR(py::list& py_nodes_order, std::vector<int>& V, std::vector<int>& E);
+    std::shared_ptr<CSRGraph> gen_CSR(const std::string& weight);
+    std::shared_ptr<CSRGraph> gen_CSR();
+    std::shared_ptr<std::vector<int>> gen_CSR_sources(const py::object& py_sources);
 
 };
 

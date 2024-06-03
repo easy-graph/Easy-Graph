@@ -130,7 +130,7 @@ static py::object invoke_cpp_betweenness_centrality(py::object G, py::object wei
     }
     Segment_tree_zkw segment_tree_zkw(N);
     std::vector<double> bc(N+1, 0);
-    py::list res_lst = py::list();
+    std::vector<double> BC;
     if(!sources.is_none()){
         py::list sources_list = py::list(sources);
         int sources_list_len = py::len(sources_list);
@@ -139,12 +139,11 @@ static py::object invoke_cpp_betweenness_centrality(py::object G, py::object wei
                 printf("The node should exist in the graph!");
                 return py::none();
             }
-            py::list res_lst = py::list();
             node_t source_id = G_.node_to_id.attr("get")(sources_list[i]).cast<node_t>();
             betweenness_dijkstra(G_l, source_id, bc, cutoff_, segment_tree_zkw, endpoints_);
         }
         for(int i = 1; i <= N; i++){
-            res_lst.append(scale * bc[i]);
+            BC.push_back(scale * bc[i]);
         }
     }
     else{
@@ -152,25 +151,12 @@ static py::object invoke_cpp_betweenness_centrality(py::object G, py::object wei
             betweenness_dijkstra(G_l, i, bc, cutoff_,segment_tree_zkw, endpoints_);
         }
         for(int i = 1; i <= N; i++){
-            res_lst.append(scale * bc[i]);
+            BC.push_back(scale * bc[i]);
         }
     }
 
-    py::list py_nodes_order;
-    std::vector<node_t> node_idx;
-
-    for (auto it = G_.node.begin(); it != G_.node.end(); ++it) {
-        node_idx.push_back(it->first);
-    }
-    std::sort(node_idx.begin(), node_idx.end());
-
-    for (int i = 0; i < node_idx.size(); ++i) {
-        py_nodes_order.append(G_.id_to_node[py::cast(node_idx[i])]);
-    }
-
-    py::list ret;
-    ret.append(py_nodes_order);
-    ret.append(res_lst);
+    py::array::ShapeContainer ret_shape{(int)BC.size()};
+    py::array_t<double> ret(ret_shape, BC.data());
 
     return ret;
 }
@@ -180,15 +166,20 @@ static py::object invoke_cpp_betweenness_centrality(py::object G, py::object wei
 static py::object invoke_gpu_betweenness_centrality(py::object G, py::object weight, 
                         py::object py_sources, py::object normalized, py::object endpoints) {
     Graph& G_ = G.cast<Graph&>();
-    py::list py_nodes_order;
-    std::vector<int> E;
-    std::vector<int> V;
-    std::vector<double> W;
-    std::vector<int> sources;
+    if (weight.is_none()) {
+        G_.gen_CSR();
+    } else {
+        G_.gen_CSR(weight_to_string(weight));
+    }
+    auto csr_graph = G_.csr_graph;
+    std::vector<int>& E = csr_graph->E;
+    std::vector<int>& V = csr_graph->V;
+    std::vector<double> *W_p = weight.is_none() ? &(csr_graph->unweighted_W) 
+                                : csr_graph->W_map.find(weight_to_string(weight))->second.get();
+    auto sources = G_.gen_CSR_sources(py_sources);
     std::vector<double> BC;
     bool is_directed = G.attr("is_directed")().cast<bool>();
-    G_.gen_CSR(weight, py_sources, py_nodes_order, V, E, W, sources);
-    int gpu_r = gpu_easygraph::betweenness_centrality(V, E, W, sources, 
+    int gpu_r = gpu_easygraph::betweenness_centrality(V, E, *W_p, *sources, 
                                     is_directed, normalized.cast<py::bool_>(),
                                     endpoints.cast<py::bool_>(), BC);
 
@@ -197,15 +188,9 @@ static py::object invoke_gpu_betweenness_centrality(py::object G, py::object wei
         py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
     }
 
-    py::list ret_val;
-    for (int i = 0; i < BC.size(); ++i) {
-        ret_val.append(BC[i]);
-    }
+    py::array::ShapeContainer ret_shape{(int)BC.size()};
+    py::array_t<double> ret(ret_shape, BC.data());
 
-    py::list ret;
-    ret.append(py_nodes_order);
-    ret.append(ret_val);
-    
     return ret;
 }
 #endif

@@ -47,10 +47,10 @@ namespace gpu_easygraph {
  *     EG_GPU_STATUS_CODE
  */
 int cuda_betweenness_centrality (
-    _IN_ int* V,
-    _IN_ int* E,
-    _IN_ double* W,
-    _IN_ int* sources,
+    _IN_ const int* V,
+    _IN_ const int* E,
+    _IN_ const double* W,
+    _IN_ const int* sources,
     _IN_ int len_V,
     _IN_ int len_E,
     _IN_ int len_sources,

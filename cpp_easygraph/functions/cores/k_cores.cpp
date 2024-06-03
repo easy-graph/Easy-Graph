@@ -65,26 +65,8 @@ py::object invoke_cpp_core_decomposition(py::object G) {
         }
     }
 
-    py::list core_list = py::list();
-    for(register int i = 1; i <= N; ++i){
-         core_list.append(core[i]);
-    }
-
-    py::list py_nodes_order;
-    std::vector<node_t> node_idx;
-
-    for (auto it = G_.node.begin(); it != G_.node.end(); ++it) {
-        node_idx.push_back(it->first);
-    }
-    std::sort(node_idx.begin(), node_idx.end());
-
-    for (int i = 0; i < node_idx.size(); ++i) {
-        py_nodes_order.append(G_.id_to_node[py::cast(node_idx[i])]);
-    }
-
-    py::list ret;
-    ret.append(py_nodes_order);
-    ret.append(core_list);
+    py::array::ShapeContainer ret_shape{(int)core.size()};
+    py::array_t<int> ret(ret_shape, core.data());
 
     return ret;
 }
@@ -92,11 +74,10 @@ py::object invoke_cpp_core_decomposition(py::object G) {
 #ifdef EASYGRAPH_ENABLE_GPU
 py::object invoke_gpu_core_decomposition(py::object G) {
     Graph& G_ = G.cast<Graph&>();
-    py::list py_nodes_order;
-    std::vector<int> E;
-    std::vector<int> V;
+    auto csr_graph = G_.gen_CSR();
+    std::vector<int>& E = csr_graph->E;
+    std::vector<int>& V = csr_graph->V;
     std::vector<int> KC;
-    G_.gen_CSR(py_nodes_order, V, E);
     int gpu_r = gpu_easygraph::k_core(V, E, KC);
 
     if (gpu_r != gpu_easygraph::EG_GPU_SUCC) {
@@ -104,15 +85,9 @@ py::object invoke_gpu_core_decomposition(py::object G) {
         py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
     }
 
-    py::list ret_val;
-    for (int i = 0; i < KC.size(); ++i) {
-        ret_val.append(KC[i]);
-    }
+    py::array::ShapeContainer ret_shape{(int)KC.size()};
+    py::array_t<int> ret(ret_shape, KC.data());
 
-    py::list ret;
-    ret.append(py_nodes_order);
-    ret.append(ret_val);
-    
     return ret;
 }
 #endif

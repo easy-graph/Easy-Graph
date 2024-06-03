@@ -9,8 +9,8 @@ namespace gpu_easygraph {
 using std::vector;
 
 int k_core(
-    _IN_ std::vector<int> V,
-    _IN_ std::vector<int> E,
+    _IN_ const std::vector<int>& V,
+    _IN_ const std::vector<int>& E,
     _OUT_ std::vector<int>& KC
 ) {
     int len_V = V.size() - 1;

@@ -17,7 +17,7 @@ def closeness_centrality_parallel(nodes, G, path_length):
         dist = sum(x.values())
         cnt = len(x)
         if dist == 0:
-            ret.append([node, 0.0])
+            ret.append([node, 0])
         else:
             ret.append([node, (cnt - 1) * (cnt - 1) / (dist * (length - 1))])
     return ret
@@ -68,9 +68,6 @@ def closeness_centrality(G, weight=None, sources=None, n_workers=None):
     else:
         path_length = functools.partial(single_source_bfs)
 
-    ret_nodes = []
-    ret_vals = []
-
     if n_workers is not None:
         # use parallel version for large graph
         import random
@@ -90,19 +87,19 @@ def closeness_centrality(G, weight=None, sources=None, n_workers=None):
         )
         with Pool(n_workers) as p:
             ret = p.imap(local_function, nodes)
-            for i in ret:
-                for n, v in i:
-                    ret_nodes.append(n)
-                    ret_vals.append(v)
+            res = [x for i in ret for x in i]
+        closeness = dict(res)
     else:
         # use np-parallel version for small graph
         for node in nodes:
             x = path_length(G, node)
             dist = sum(x.values())
             cnt = len(x)
-            ret_nodes.append(node)
             if dist == 0:
-                ret_vals.append(0.0)
+                closeness[node] = 0
             else:
-                ret_vals.append((cnt - 1) * (cnt - 1) / (dist * (length - 1)))
-    return [ret_nodes, ret_vals]
+                closeness[node] = (cnt - 1) * (cnt - 1) / (dist * (length - 1))
+    ret = [0.0 for i in range(len(G))]
+    for i in range(len(ret)):
+        ret[i] = closeness[G.index2node[i]]
+    return ret

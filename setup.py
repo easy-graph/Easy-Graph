@@ -53,7 +53,7 @@ class CMakeBuild(build_ext):
 with open("README.md") as fh:
     long_description = fh.read()
 
-CYTHON_STR = "Cython"
+CYTHON_STR = "Cython<3.0"
 setuptools.setup(
     name="Python-EasyGraph",
     version="1.3",
