@@ -56,7 +56,7 @@ with open("README.md") as fh:
 CYTHON_STR = "Cython<3.0"
 setuptools.setup(
     name="Python-EasyGraph",
-    version="1.3",
+    version="1.4",
     author="Fudan DataNET Group",
     author_email="mgao21@m.fudan.edu.cn",
     description="Easy Graph",
