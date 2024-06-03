@@ -23,9 +23,6 @@ from scipy.sparse import csr_array
 from scipy.sparse import csr_matrix
 
 
-# from torch_sparse import spmm
-
-
 if TYPE_CHECKING:
     from easygraph import Graph
 

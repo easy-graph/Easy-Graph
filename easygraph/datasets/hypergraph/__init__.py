@@ -1,4 +1,5 @@
 from .cat_edge_Cooking import *
+from .coauthorship import *
 from .cocitation import *
 from .contact_primary_school import *
 from .House_Committees import *

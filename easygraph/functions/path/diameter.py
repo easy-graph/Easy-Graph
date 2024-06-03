@@ -2,6 +2,9 @@ import easygraph as eg
 import easygraph.functions.path
 
 
+__all__ = ["diameter", "eccentricity"]
+
+
 def eccentricity(G, v=None, sp=None):
     """Returns the eccentricity of nodes in G.
 

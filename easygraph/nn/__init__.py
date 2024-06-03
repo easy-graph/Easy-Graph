@@ -16,7 +16,7 @@ try:
     from .regularization import EmbeddingRegularization
 except:
     print(
-        "Warning raise in module:nn. Please install"
-        " Pytorch,torch_geometric,torch_scatter before you use functions related to"
-        " Hypergraph"
+        "Warning raise in module:nn. Please installtorch, torch_geometric,"
+        " torch_scatter before you use functions related to AllDeepSet and"
+        " AllSetTransformer."
     )
