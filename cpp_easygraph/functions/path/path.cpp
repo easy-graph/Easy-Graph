@@ -1,5 +1,9 @@
 #include "path.h"
 
+#ifdef EASYGRAPH_ENABLE_GPU
+#include <gpu_easygraph.h>
+#endif
+
 #include "../../classes/graph.h"
 #include "../../common/utils.h"
 #include "../../classes/linkgraph.h"
@@ -35,7 +39,7 @@ std::vector<float> _dijkstra(Graph_L &G_l, int source, std::string weight, int t
     return dis;
 
 }
-py::object _dijkstra_multisource(py::object G,py::object sources, py::object weight, py::object target) {
+py::object _invoke_cpp_dijkstra_multisource(py::object G,py::object sources, py::object weight, py::object target) {
     py::list res_lst = py::list();
     bool is_directed = G.attr("is_directed")().cast<bool>();
     Graph& G_ = G.cast<Graph&>();
@@ -55,6 +59,7 @@ py::object _dijkstra_multisource(py::object G,py::object sources, py::object wei
     int N = G_l.n;
     py::list sources_list = py::list(sources);
     int sources_list_len = py::len(sources_list);
+    std::vector<double> sssp;
     for(register int i = 0; i < sources_list_len; i++){
         if(G_.node_to_id.attr("get")(sources_list[i],py::none()) == py::none()){
             printf("The node should exist in the graph!");
@@ -62,14 +67,53 @@ py::object _dijkstra_multisource(py::object G,py::object sources, py::object wei
         }
         node_t source_id = G_.node_to_id.attr("get")(sources_list[i]).cast<node_t>();
         const std::vector<float>& dis = _dijkstra(G_l,source_id,weight_key,target_id);
-        py::list pydist = py::list();
         for(int i = 1;i<=N;i++){
-            pydist.append(dis[i]);
+            sssp.push_back(dis[i]);
         }
-        res_lst.append(pydist);
     }
+    py::array::ShapeContainer ret_shape{(int)sources_list.size(), N};
+    py::array_t<double> ret(ret_shape, sssp.data());
+
+    return ret;
+}
+
+#ifdef EASYGRAPH_ENABLE_GPU
+py::object _invoke_gpu_dijkstra_multisource(py::object G,py::object py_sources, py::object weight, py::object target) {
+    Graph& G_ = G.cast<Graph&>();
+    if (weight.is_none()) {
+        G_.gen_CSR();
+    } else {
+        G_.gen_CSR(weight_to_string(weight));
+    }
+    auto csr_graph = G_.csr_graph;
+    std::vector<int>& E = csr_graph->E;
+    std::vector<int>& V = csr_graph->V;
+    std::vector<double> *W_p = weight.is_none() ? &(csr_graph->unweighted_W) 
+                                : csr_graph->W_map.find(weight_to_string(weight))->second.get();
+    auto sources = G_.gen_CSR_sources(py_sources);
+    std::vector<double> sssp;
+    int gpu_r = gpu_easygraph::sssp_dijkstra(V, E, *W_p, *sources, 
+                                            target.is_none() ? -1 : (int)py::cast<py::int_>(target), 
+                                            sssp);
+
+    if (gpu_r != gpu_easygraph::EG_GPU_SUCC) {
+        // the code below will throw an exception
+        py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
+    }
+
+    py::array::ShapeContainer ret_shape{(int)sources->size(), (int)V.size() - 1};
+    py::array_t<double> ret(ret_shape, sssp.data());
     
-    return res_lst;
+    return ret;
+}
+#endif
+
+py::object _dijkstra_multisource(py::object G,py::object sources, py::object weight, py::object target) {
+#ifdef EASYGRAPH_ENABLE_GPU
+    return _invoke_gpu_dijkstra_multisource(G, sources, weight, target);
+#else
+    return _invoke_cpp_dijkstra_multisource(G, sources, weight, target);
+#endif
 }
 
 

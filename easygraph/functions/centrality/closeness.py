@@ -99,4 +99,7 @@ def closeness_centrality(G, weight=None, sources=None, n_workers=None):
                 closeness[node] = 0
             else:
                 closeness[node] = (cnt - 1) * (cnt - 1) / (dist * (length - 1))
-    return list(closeness.values())
+    ret = [0.0 for i in range(len(G))]
+    for i in range(len(ret)):
+        ret[i] = closeness[G.index2node[i]]
+    return ret

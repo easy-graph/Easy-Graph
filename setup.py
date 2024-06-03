@@ -1,5 +1,7 @@
 import os
 import platform
+import subprocess
+import sys
 
 from distutils import sysconfig
 from pathlib import Path
@@ -7,26 +9,54 @@ from pathlib import Path
 import setuptools
 
 # Available at setup time due to pyproject.toml
-from pybind11.setup_helpers import Pybind11Extension
 from pybind11.setup_helpers import build_ext
 
+disable_cpp = False
+if "--disable-cpp" in sys.argv:
+    disable_cpp = True
+    sys.argv.remove("--disable-cpp")
+
+enable_gpu = False
+if "--enable-gpu" in sys.argv:
+    enable_gpu = True
+    sys.argv.remove("--enable-gpu")
+
+class CMakeExtension(setuptools.Extension):
+    def __init__(self, name: str, **kwargs) -> None:
+        super().__init__(name, sources=[], **kwargs)
+
+class CMakeBuild(build_ext):
+    def build_extension(self, ext: build_ext) -> None:
+        global disable_cpp
+        global enable_gpu
+
+        if disable_cpp:
+            return
+        
+        # Must be in this form due to bug in .resolve() only fixed in Python 3.10+
+        ext_fullpath = Path.cwd() / self.get_ext_fullpath(ext.name)
+        extdir = ext_fullpath.parent.resolve()
+        cmake_args = [
+            f"-DCMAKE_BUILD_TYPE=Release",
+            f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
+            f"-DPYTHON_EXECUTABLE={sys.executable}",
+            f"-DEASYGRAPH_ENABLE_GPU={'ON' if enable_gpu else 'OFF'}"
+        ]
+        eg_dir_path = Path("./").resolve()
+        subprocess.run(
+            ["cmake", ".", *cmake_args], cwd=eg_dir_path, check=True
+        )
+        subprocess.run(
+            ["cmake", "--build", "."], cwd=eg_dir_path, check=True
+        )
 
 with open("README.md") as fh:
     long_description = fh.read()
 
-cpp_source_dir = Path(__file__).parent / "cpp_easygraph"
-sources = list(str(x) for x in cpp_source_dir.rglob("*.cpp"))
-
-uname = platform.uname()
-
-
-compileArgs = []
-if uname[0] == "Darwin" or uname[0] == "Linux":
-    compileArgs = ["-std=c++11"]
-CYTHON_STR = "Cython"
+CYTHON_STR = "Cython<3.0"
 setuptools.setup(
     name="Python-EasyGraph",
-    version="1.3",
+    version="1.4",
     author="Fudan DataNET Group",
     author_email="mgao21@m.fudan.edu.cn",
     description="Easy Graph",
@@ -67,10 +97,10 @@ setuptools.setup(
     setup_requires=[CYTHON_STR],
     test_suite="nose.collector",
     tests_require=[],
-    cmdclass={"build_ext": build_ext},
+    cmdclass={
+        "build_ext": CMakeBuild,
+    },
     ext_modules=[
-        Pybind11Extension(
-            "cpp_easygraph", sources, optional=True, extra_compile_args=compileArgs,
-        )
+        CMakeExtension("cpp_easygraph", optional=True)
     ],
 )

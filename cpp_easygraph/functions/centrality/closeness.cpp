@@ -1,4 +1,9 @@
 #include "centrality.h"
+
+#ifdef EASYGRAPH_ENABLE_GPU
+#include <gpu_easygraph.h>
+#endif
+
 #include "../../classes/graph.h"
 #include "../../common/utils.h"
 #include "../../classes/linkgraph.h"
@@ -42,18 +47,19 @@ double closeness_dijkstra(const Graph_L& G_l, const int &S, int cutoff, Segment_
     
 }
 
-py::object closeness_centrality(py::object G, py::object weight, py::object cutoff, py::object sources) {
+static py::object invoke_cpp_closeness_centrality(py::object G, py::object weight, 
+                                            py::object cutoff, py::object sources) {
     Graph& G_ = G.cast<Graph&>();
     int N = G_.node.size();
     bool is_directed = G.attr("is_directed")().cast<bool>();
     std::string weight_key = weight_to_string(weight);
-    const Graph_L& G_l = graph_to_linkgraph(G_, is_directed, weight_key, false, true);
+    const Graph_L& G_l = graph_to_linkgraph(G_, is_directed, weight_key, false, false);
     int cutoff_ = -1;
     if (!cutoff.is_none()){
         cutoff_ = cutoff.cast<int>();
     }
     Segment_tree_zkw segment_tree_zkw(N);
-    py::list total_res_lst = py::list();
+    std::vector<double> CC;
     if(!sources.is_none()){
         py::list sources_list = py::list(sources);
         int sources_list_len = py::len(sources_list);
@@ -62,19 +68,56 @@ py::object closeness_centrality(py::object G, py::object weight, py::object cuto
                 printf("The node should exist in the graph!");
                 return py::none();
             }
-            py::list res_lst = py::list();
             node_t source_id = G_.node_to_id.attr("get")(sources_list[i]).cast<node_t>();
             float res = closeness_dijkstra(G_l, source_id, cutoff_,segment_tree_zkw);
-            res_lst.append(py::cast(res));
-            total_res_lst.append(res);
+            CC.push_back(res);
         }
     }
     else{
         for(register int i = 1; i <= N; i++){
             float res = closeness_dijkstra(G_l, i, cutoff_,segment_tree_zkw);
-            total_res_lst.append(py::cast(res));
+            CC.push_back(res);
         }
     }
-    return total_res_lst;
-    
+    py::array::ShapeContainer ret_shape{(int)CC.size()};
+    py::array_t<double> ret(ret_shape, CC.data());
+
+    return ret;
+}
+
+#ifdef EASYGRAPH_ENABLE_GPU
+static py::object invoke_gpu_closeness_centrality(py::object G, py::object weight, py::object py_sources) {
+    Graph& G_ = G.cast<Graph&>();
+    if (weight.is_none()) {
+        G_.gen_CSR();
+    } else {
+        G_.gen_CSR(weight_to_string(weight));
+    }
+    auto csr_graph = G_.csr_graph;
+    std::vector<int>& E = csr_graph->E;
+    std::vector<int>& V = csr_graph->V;
+    std::vector<double> *W_p = weight.is_none() ? &(csr_graph->unweighted_W) 
+                                : csr_graph->W_map.find(weight_to_string(weight))->second.get();
+    auto sources = G_.gen_CSR_sources(py_sources);
+    std::vector<double> CC;
+    int gpu_r = gpu_easygraph::closeness_centrality(V, E, *W_p, *sources, CC);
+
+    if (gpu_r != gpu_easygraph::EG_GPU_SUCC) {
+        // the code below will throw an exception
+        py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
+    }
+
+    py::array::ShapeContainer ret_shape{(int)CC.size()};
+    py::array_t<double> ret(ret_shape, CC.data());
+
+    return ret;
+}
+#endif
+
+py::object closeness_centrality(py::object G, py::object weight, py::object cutoff, py::object sources) {
+#ifdef EASYGRAPH_ENABLE_GPU
+    return invoke_gpu_closeness_centrality(G, weight, sources);
+#else
+    return invoke_cpp_closeness_centrality(G, weight, cutoff, sources);
+#endif
 }

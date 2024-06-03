@@ -129,7 +129,10 @@ def betweenness_centrality(
         directed=G.is_directed(),
         endpoints=endpoints,
     )
-    return list(betweenness.values())
+    ret = [0.0 for i in range(len(G))]
+    for i in range(len(ret)):
+        ret[i] = betweenness[G.index2node[i]]
+    return ret
 
 
 def _rescale(betweenness, n, normalized, directed=False, endpoints=False):
