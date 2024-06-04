@@ -1,6 +1,4 @@
 try:
-    from .base import BaseHypergraph
-    from .base import load_structure
     from .directed_graph import DiGraph
     from .directed_graph import DiGraphC
     from .directed_multigraph import MultiDiGraph
@@ -10,10 +8,12 @@ try:
     from .hypergraph import Hypergraph
     from .multigraph import MultiGraph
     from .operation import *
+    from .base import BaseHypergraph
+    from .base import load_structure
 
 
 except:
     print(
-        "Warning raise in module:classes. Please install torch before you use"
+        "Warning raise in module:classes. Please install Pytorch before you use"
         " functions related to Hypergraph"
     )

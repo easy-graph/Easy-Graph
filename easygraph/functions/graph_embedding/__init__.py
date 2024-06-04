@@ -8,6 +8,6 @@ try:
     from .sdne import *
 except:
     print(
-        "Warning raise in module:graph_embedding. Please install packages pytorch"
-        "before you use functions related to graph_embedding"
+        "Warning raise in module:graph_embedding. Please install packages Pytorch"
+        " before you use functions related to graph_embedding"
     )
