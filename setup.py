@@ -100,9 +100,6 @@ class CMakeBuild(build_ext):
         if not build_temp.exists():
             build_temp.mkdir(parents=True)
 
-        print(f"GGGGGGGGGGGGGGG  {ext.sourcedir}  GGGGGGGGGGGGGGGGGGGG")
-        print(f"GGGGGGGGGGGGGGG  {build_temp}  GGGGGGGGGGGGGGGGGGGG")
-        print(f'GGGGGGGGGGGGGGG  {["cmake", ext.sourcedir, *cmake_args]}  GGGGGGGGGGGGGGGGGGGG')
         subprocess.run(
             ["cmake", ext.sourcedir, *cmake_args], cwd=build_temp, check=True
         )
