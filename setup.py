@@ -11,11 +11,6 @@ import setuptools
 
 from setuptools.command.build_ext import build_ext
 
-enable_gpu = False
-if "--enable-gpu" in sys.argv:
-    enable_gpu = True
-    sys.argv.remove("--enable-gpu")
-
 # The following code is maily from https://github.com/pybind/cmake_example/tree/master
 
 # Convert distutils Windows platform specifiers to CMake -A arguments
@@ -33,7 +28,7 @@ class CMakeExtension(setuptools.Extension):
 
 class CMakeBuild(build_ext):
     def build_extension(self, ext: CMakeExtension) -> None:
-        global enable_gpu
+        enable_gpu = "EASYGRAPH_ENABLE_GPU" in os.environ and "TRUE" in os.environ.get("EASYGRAPH_ENABLE_GPU").upper()
 
         # Must be in this form due to bug in .resolve() only fixed in Python 3.10+
         ext_fullpath = Path.cwd() / self.get_ext_fullpath(ext.name)
