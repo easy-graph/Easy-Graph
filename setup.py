@@ -11,6 +11,7 @@ import setuptools
 
 from setuptools.command.build_ext import build_ext
 
+
 enable_gpu = False
 if "--enable-gpu" in sys.argv:
     enable_gpu = True

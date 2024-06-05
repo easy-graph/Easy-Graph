@@ -185,6 +185,7 @@ class Graph:
         remove_selfloop=True,
     ):
         import torch
+
         r"""Construct a graph from a hypergraph with methods proposed in `HyperGCN: A New Method of Training Graph Convolutional Networks on Hypergraphs <https://arxiv.org/pdf/1809.02589.pdf>`_ paper .
 
         Args:
@@ -370,6 +371,7 @@ class Graph:
         r"""Return the diagonal matrix of vertex degree :math:`\mathbf{D}_v` with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
         """
         import torch
+
         if self.cache.get("D_v") is None:
             # print("self.A:",self.A)
             _tmp = torch.sparse.sum(self.A, dim=1).to_dense().clone().view(-1)
@@ -417,6 +419,7 @@ class Graph:
 
     def N_v(self, v_idx: int) -> Tuple[List[int], List[float]]:
         import torch
+
         r"""Return the neighbors of the vertex ``v_idx`` with ``torch.Tensor`` format.
 
         Args:
@@ -557,6 +560,7 @@ class Graph:
 
         """
         import torch
+
         if self.cache.get("L_GCN") is None:
             # self.add_extra_selfloop()
             self.cache["L_GCN"] = (
@@ -572,6 +576,7 @@ class Graph:
             ``drop_rate`` (``float``): Dropout rate. Randomly dropout the connections in adjacency matrix with probability ``drop_rate``. Default: ``0.0``.
         """
         import torch
+
         if drop_rate > 0.0:
             L_GCN = sparse_dropout(self.L_GCN, drop_rate)
         else:
