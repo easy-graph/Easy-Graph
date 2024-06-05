@@ -216,16 +216,6 @@ def _single_source_bfs(adj, firstlevel, target=None):
 
 @not_implemented_for("multigraph")
 def single_source_dijkstra(G, source, weight="weight", target=None):
-    return multi_source_dijkstra(G, {source}, weight, target=target)
-
-
-@not_implemented_for("multigraph")
-def multi_source_dijkstra(G, sources, weight="weight", target=None):
-    return _dijkstra_multisource(G, sources, weight, target=target)
-
-
-@hybrid("cpp_dijkstra_multisource")
-def _dijkstra_multisource(G, sources, weight="weight", target=None):
     from heapq import heappop
     from heapq import heappush
 
@@ -238,9 +228,8 @@ def _dijkstra_multisource(G, sources, weight="weight", target=None):
 
     c = count()
     Q = []
-    for source in sources:
-        seen[source] = 0
-        push(Q, (0, next(c), source))
+    seen[source] = 0
+    push(Q, (0, next(c), source))
     while Q:
         (d, _, v) = pop(Q)
         if v in dist:
@@ -260,3 +249,9 @@ def _dijkstra_multisource(G, sources, weight="weight", target=None):
             else:
                 continue
     return dist
+
+
+@not_implemented_for("multigraph")
+@hybrid("cpp_dijkstra_multisource")
+def multi_source_dijkstra(G, sources, weight="weight", target=None):
+    return {source : single_source_dijkstra(G, source, weight, target) for source in sources}

@@ -1,9 +1,15 @@
+#ifdef EASYGRAPH_ENABLE_GPU
+#include <gpu_easygraph.h>
+#endif
+
 #include "k_cores.h"
 #include "../../classes/graph.h"
 #include "../../common/utils.h"
 #include "../../classes/linkgraph.h"
-#include<time.h>
-py::object core_decomposition(py::object G) {
+#include <time.h>
+
+
+py::object invoke_cpp_core_decomposition(py::object G) {
     // reference:https://arxiv.org/pdf/cs/0310049.pdf
     Graph& G_ = G.cast<Graph&>();
     int N = G_.node.size();
@@ -59,9 +65,37 @@ py::object core_decomposition(py::object G) {
         }
     }
 
-    py::list core_list = py::list();
-    for(register int i = 1; i <= N; ++i){
-         core_list.append(core[i]);
+    py::array::ShapeContainer ret_shape{(int)core.size()};
+    py::array_t<int> ret(ret_shape, core.data());
+
+    return ret;
+}
+
+#ifdef EASYGRAPH_ENABLE_GPU
+py::object invoke_gpu_core_decomposition(py::object G) {
+    Graph& G_ = G.cast<Graph&>();
+    auto csr_graph = G_.gen_CSR();
+    std::vector<int>& E = csr_graph->E;
+    std::vector<int>& V = csr_graph->V;
+    std::vector<int> KC;
+    int gpu_r = gpu_easygraph::k_core(V, E, KC);
+
+    if (gpu_r != gpu_easygraph::EG_GPU_SUCC) {
+        // the code below will throw an exception
+        py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
     }
-    return core_list;
+
+    py::array::ShapeContainer ret_shape{(int)KC.size()};
+    py::array_t<int> ret(ret_shape, KC.data());
+
+    return ret;
+}
+#endif
+
+py::object core_decomposition(py::object G) {
+#ifdef EASYGRAPH_ENABLE_GPU
+    return invoke_gpu_core_decomposition(G);
+#else
+    return invoke_cpp_core_decomposition(G);
+#endif
 }

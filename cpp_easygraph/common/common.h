@@ -1,11 +1,13 @@
 #pragma once
 
 #include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 #include <iostream>
 #include <stdio.h>
 #include <fstream>
 #include <map>
+#include <memory>
 #include <unordered_map>
 #include <unordered_set>
 #include <exception>
