@@ -8,7 +8,6 @@ from typing import Tuple
 
 import easygraph as eg
 import easygraph.convert as convert
-import torch
 
 from easygraph.utils.exception import EasyGraphError
 from easygraph.utils.sparse import sparse_dropout
@@ -185,6 +184,8 @@ class Graph:
         with_mediator=False,
         remove_selfloop=True,
     ):
+        import torch
+
         r"""Construct a graph from a hypergraph with methods proposed in `HyperGCN: A New Method of Training Graph Convolutional Networks on Hypergraphs <https://arxiv.org/pdf/1809.02589.pdf>`_ paper .
 
         Args:
@@ -253,7 +254,7 @@ class Graph:
     def A(self):
         r"""Return the adjacency matrix :math:`\mathbf{A}` of the sample graph with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
         """
-        #  import torch
+        import torch
 
         if self.cache.get("A", None) is None:
             if len(self.edges) == 0:
@@ -282,7 +283,7 @@ class Graph:
     ):
         r"""Return the normalized diagonal matrix of vertex degree :math:`\mathbf{D}_v^{-\frac{1}{2}}` with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
         """
-        # import torch
+        import torch
 
         if self.cache.get("D_v_neg_1_2") is None:
             if self.cache.get("D_v_value") is None:
@@ -369,6 +370,7 @@ class Graph:
     def D_v(self):
         r"""Return the diagonal matrix of vertex degree :math:`\mathbf{D}_v` with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
         """
+        import torch
 
         if self.cache.get("D_v") is None:
             # print("self.A:",self.A)
@@ -416,6 +418,8 @@ class Graph:
         return self.N_v(v_idx).cpu().numpy().tolist()
 
     def N_v(self, v_idx: int) -> Tuple[List[int], List[float]]:
+        import torch
+
         r"""Return the neighbors of the vertex ``v_idx`` with ``torch.Tensor`` format.
 
         Args:
@@ -555,6 +559,8 @@ class Graph:
             \mathcal{L}_{GCN} = \mathbf{\hat{D}}_v^{-\frac{1}{2}} \mathbf{\hat{A}} \mathbf{\hat{D}}_v^{-\frac{1}{2}}
 
         """
+        import torch
+
         if self.cache.get("L_GCN") is None:
             # self.add_extra_selfloop()
             self.cache["L_GCN"] = (
@@ -569,6 +575,8 @@ class Graph:
             ``X`` (``torch.Tensor``): Vertex feature matrix. Size :math:`(|\mathcal{V}|, C)`.
             ``drop_rate`` (``float``): Dropout rate. Randomly dropout the connections in adjacency matrix with probability ``drop_rate``. Default: ``0.0``.
         """
+        import torch
+
         if drop_rate > 0.0:
             L_GCN = sparse_dropout(self.L_GCN, drop_rate)
         else:

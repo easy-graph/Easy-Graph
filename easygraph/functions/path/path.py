@@ -254,4 +254,6 @@ def single_source_dijkstra(G, source, weight="weight", target=None):
 @not_implemented_for("multigraph")
 @hybrid("cpp_dijkstra_multisource")
 def multi_source_dijkstra(G, sources, weight="weight", target=None):
-    return {source : single_source_dijkstra(G, source, weight, target) for source in sources}
+    return {
+        source: single_source_dijkstra(G, source, weight, target) for source in sources
+    }

@@ -14,6 +14,6 @@ try:
 
 except:
     print(
-        "Warning raise in module:classes. Please install torch before you use"
+        "Warning raise in module:classes. Please install Pytorch before you use"
         " functions related to Hypergraph"
     )
