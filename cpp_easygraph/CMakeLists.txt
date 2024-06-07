@@ -38,7 +38,7 @@ else()
 
 endif()
 
-target_link_libraries(cpp_easygraph
-    PRIVATE -static-libgcc
-    PRIVATE -static-libstdc++
+set_target_properties(cpp_easygraph  PROPERTIES
+    LINK_SEARCH_START_STATIC ON
+    LINK_SEARCH_END_STATIC ON
 )
