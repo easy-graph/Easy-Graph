@@ -20,7 +20,7 @@ target_include_directories(gpu_easygraph
     PRIVATE functions
 )
 
-target_link_libraries(gpu_easygraph
-    PRIVATE -static-libgcc
-    PRIVATE -static-libstdc++
+set_target_properties(gpu_easygraph  PROPERTIES
+    LINK_SEARCH_START_STATIC ON
+    LINK_SEARCH_END_STATIC ON
 )
