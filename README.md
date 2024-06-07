@@ -25,44 +25,39 @@ ___________________________________________________________________________
 - **PyPI Homepage:** https://pypi.org/project/Python-EasyGraph/
 - **Youtube channel:** https://www.youtube.com/@python-easygraph
 
-Introduction
-------------
+# Introduction
 **EasyGraph** is an open-source network analysis library. It is mainly written in Python and supports analysis for undirected networks and directed networks. EasyGraph supports various formats of network data and covers a series of important network analysis algorithms for community detection, structural hole spanner detection, network embedding, and motif detection. Moreover, EasyGraph implements some key elements using C++ and introduces multiprocessing optimization to achieve better efficiency.
 
-New Features in Version 1.1
---------------------------
+# New Features in Version 1.1
 - **Support for more hypergraph metrics and algorithms.** Such as [hypercoreness](https://www.nature.com/articles/s41467-023-41887-2), [vector-centrality](https://www.sciencedirect.com/science/article/pii/S0960077922006075), [s-centrality](https://epjds.epj.org/articles/epjdata/abs/2020/01/13688_2020_Article_231/13688_2020_Article_231.html), and so on.
-- **Support for more hypergraph datasets.** Static hypergraph datasets and dynamic datasets can be both loaded by calling corresponding dataset name.
+- **Support for more hypergraph datasets.** Static hypergraph datasets and dynamic datasets can be both loaded by calling the corresponding dataset name.
 - **Support for more flexible dynamic hypergraph visualization.** Users can define dynamic hypergraphs and visualize the structure of the hypergraph at each timestamp.
 - **Support for more efficient hypergraph computation and hypergraph learning.** Adoption of suitable storage structure and caching strategy for different metrics/hypergraph neural networks.
 
 If you need more details, please see our [documentation](https://easy-graph.github.io/) of the latest version.
 
 
-News
-----
+# News
 - [04-09-2024] We released EasyGraph 1.2! This version now fully supports Python 3.12.
 - [03-06-2024] We received the Shanghai Open Source Innovation Outstanding Achievement Award (Grand Prize)! [News](https://news.fudan.edu.cn/2024/0401/c2463a139799/page.htm)
 - [02-05-2024] We released EasyGraph 1.1! This version features hypergraph analysis and learning for higher-order network modeling and representation.
 - [08-17-2023] We released EasyGraph 1.0!
 - [08-08-2023] Our paper "EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis" was accepted by Patterns (Cell Press)!
 
-Stargazers
-----------
+# Stargazers
 
 [![Stars][star-image]][star-url]
 
 [star-image]:https://reporoster.com/stars/easy-graph/Easy-Graph
 [star-url]: https://github.com/easy-graph/Easy-Graph/stargazers
 
-Install
--------
+# Install
 
-- **Prerequisites**
+## Supported Versions
 
 ``3.8 <= Python <= 3.12`` is required.
 
-- **Installation with** ``pip``
+## Installation With pip
 ```
     $ pip install --upgrade Python-EasyGraph
 ```
@@ -70,21 +65,45 @@ The conda package is no longer updated or maintained.
 
 If you've installed EasyGraph this way before, please uninstall it with ``conda`` and install it with ``pip``.
 
-If prebuilt EasyGraph wheels are not supported for your platform (OS / CPU arch, check [here](https://pypi.org/simple/python-easygraph/)), you can build it locally this way:
-```
-    git clone https://github.com/easy-graph/Easy-Graph && cd Easy-Graph && git checkout pybind11
-    pip install pybind11
-    python3 setup.py build_ext
-    python3 setup.py install
-```
-- **Hint**
+## Build From Source
+If prebuilt EasyGraph wheels are not supported for your platform (OS / CPU arch, check [here](https://pypi.org/simple/python-easygraph/)), or you want to have GPU-based functions enabled, you can build it locally.
 
-    EasyGraph uses  1.12.1 <= [PyTorch](https://pytorch.org/get-started/locally/) < 2.0 for machine learning functions.
-    Note that this does not prevent your from running non-machine learning functions normally, if there is no PyTorch in your environment.
-    But you will receive some warnings which remind you some unavailable modules when they depend on it.
+### Prerequisites
+- CMake >= 3.23
+- A compiler that fully supports C++11
+- CUDA Toolkit 11.8 or later would be preferred (If need GPUs enabled)
 
-Simple Example
---------------
+### Installation
+#### On Linux
+```
+    git clone --recursive https://github.com/easy-graph/Easy-Graph
+    export EASYGRAPH_ENABLE_GPU="TRUE"  # for users who want to enable GPUs
+    pip install ./Easy-Graph
+```
+
+#### On Windows
+```
+    % For Windows users who want to enable GPU-based functions, %
+    % you must execute the commands below in cmd but not PowerShell. %
+    git clone --recursive https://github.com/easy-graph/Easy-Graph
+    set EASYGRAPH_ENABLE_GPU=TRUE   % for users who want to enable GPUs %
+    pip install ./Easy-Graph
+```
+
+#### On macOS
+```
+    # Since macOS doesn't support CUDA, we can't have GPUs enabled on macOS
+    git clone --recursive https://github.com/easy-graph/Easy-Graph
+    pip install ./Easy-Graph
+```
+
+## Hint
+
+EasyGraph uses  1.12.1 <= [PyTorch](https://pytorch.org/get-started/locally/) < 2.0 for machine learning functions.
+Note that this does not prevent your from running non-machine learning functions normally, if there is no PyTorch in your environment.
+But you will receive some warnings which remind you some unavailable modules when they depend on it.
+
+# Simple Example
 
 This example shows the general usage of methods in EasyGraph.
 ```python
@@ -111,8 +130,7 @@ using the [HIS](https://keg.cs.tsinghua.edu.cn/jietang/publications/WWW13-Lou&Ta
    6: {0: 0.83595703125}
   }
 ```
-Citation
---------
+# Citation
 
 If you use EasyGraph in a scientific publication, we would appreciate citations to the following paper:
 ```
