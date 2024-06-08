@@ -13,8 +13,6 @@ file(GLOB SOURCES
 
 add_library(gpu_easygraph OBJECT ${SOURCES})
 
-set_property(TARGET gpu_easygraph PROPERTY CUDA_ARCHITECTURES all)
-
 target_include_directories(gpu_easygraph
     PRIVATE common
     PRIVATE functions
