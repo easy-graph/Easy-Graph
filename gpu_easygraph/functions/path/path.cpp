@@ -1,3 +1,4 @@
+#include <limits>
 #include <vector>
 
 #include "path/sssp_dijkstra.cuh"
@@ -48,6 +49,13 @@ int sssp_dijkstra(
     int r = cuda_sssp_dijkstra(V.data(), E.data(), W.data(),
             sources.data(), len_V, len_E, sources.size(),
             target, warp_size, res.data());
+
+    double double_inf = std::numeric_limits<double>::infinity();
+    for (int i = 0; i < res.size(); ++i) {
+        if (res[i] >= EG_DOUBLE_INF) {
+            res[i] = double_inf;
+        }
+    }
 
     return r;
 }

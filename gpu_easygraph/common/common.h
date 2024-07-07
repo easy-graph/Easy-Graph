@@ -2,7 +2,7 @@
 
 #include "err.h"
 
-#define EG_DOUBLE_INF 1e20
+#define EG_DOUBLE_INF 1e100
 
 #define EXIT_IF_CUDA_FAILED(condition)              \
         cuda_ret = condition;                       \
