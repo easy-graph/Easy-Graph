@@ -1,6 +1,6 @@
 import itertools
 
-from easygraph.classes import Graph
+from easygraph.classes.graph import Graph
 from easygraph.utils import nodes_or_number
 from easygraph.utils import pairwise
 
