@@ -86,8 +86,8 @@ def louvain_communities(G, weight="weight", threshold=0.00002):
     louvain_partitions
     """
     d = louvain_partitions(G, weight, threshold)
-    q = deque(maxlen=1)
-    q.append(d)
+    q = deque(d,maxlen=1)
+#    q.append(d)
     return q.pop()
 
 
@@ -109,7 +109,7 @@ def louvain_partitions(G, weight="weight", threshold=0.0000001):
     Parameters
     ----------
     threshold
-    G : NetworkX graph
+    G : easygraph
     weight : string or None, optional (default="weight")
      The name of an edge attribute that holds the numerical value
      used as a weight. If None then each edge has weight 1.
@@ -171,7 +171,7 @@ def _one_level(G, m, partition, resolution=1, is_directed=False, seed=None, tes=
 
     Parameters
     ----------
-    G : NetworkX Graph/DiGraph
+    G : EasyGraph Graph/DiGraph
         The graph from which to detect communities
     m : number
         The size of the graph `G`.
