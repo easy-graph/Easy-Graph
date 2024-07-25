@@ -26,7 +26,7 @@ ___________________________________________________________________________
 - **Youtube channel:** https://www.youtube.com/@python-easygraph
 
 # Introduction
-**EasyGraph** is an open-source network analysis library. It is mainly written in Python and supports analysis for undirected networks and directed networks. EasyGraph supports various formats of network data and covers a series of important network analysis algorithms for community detection, structural hole spanner detection, network embedding, and motif detection. Moreover, EasyGraph implements some key elements using C++ and introduces multiprocessing optimization to achieve better efficiency.
+**EasyGraph** is an open-source network analysis library primarily written in Python. It supports both undirected and directed networks and accommodates various network data formats. EasyGraph includes a comprehensive suite of network analysis algorithms such as community detection, structural hole spanner detection, network embedding, and motif detection. Additionally, it optimizes performance by implementing key components in C++ and utilizing multiprocessing.
 
 # New Features in Version 1.1
 - **Support for more hypergraph metrics and algorithms.** Such as [hypercoreness](https://www.nature.com/articles/s41467-023-41887-2), [vector-centrality](https://www.sciencedirect.com/science/article/pii/S0960077922006075), [s-centrality](https://epjds.epj.org/articles/epjdata/abs/2020/01/13688_2020_Article_231/13688_2020_Article_231.html), and so on.
@@ -34,7 +34,7 @@ ___________________________________________________________________________
 - **Support for more flexible dynamic hypergraph visualization.** Users can define dynamic hypergraphs and visualize the structure of the hypergraph at each timestamp.
 - **Support for more efficient hypergraph computation and hypergraph learning.** Adoption of suitable storage structure and caching strategy for different metrics/hypergraph neural networks.
 
-If you need more details, please see our [documentation](https://easy-graph.github.io/) of the latest version.
+For more details, please refer to our [documentation](https://easy-graph.github.io/) page.
 
 
 # News
@@ -63,7 +63,7 @@ If you need more details, please see our [documentation](https://easy-graph.gith
 ```
 The conda package is no longer updated or maintained.
 
-If you've installed EasyGraph this way before, please uninstall it with ``conda`` and install it with ``pip``.
+If you've previously installed EasyGraph with conda, please uninstall it with ``conda`` and reinstall with ``pip``.
 
 ## Build From Source
 If prebuilt EasyGraph wheels are not supported for your platform (OS / CPU arch, check [here](https://pypi.org/simple/python-easygraph/)), or you want to have GPU-based functions enabled, you can build it locally.
@@ -105,7 +105,7 @@ But you will receive some warnings which remind you some unavailable modules whe
 
 # Simple Example
 
-This example shows the general usage of methods in EasyGraph.
+This example demonstrates the general usage of methods in EasyGraph.
 ```python
   >>> import easygraph as eg
   >>> G = eg.Graph()
@@ -132,7 +132,7 @@ using the [HIS](https://keg.cs.tsinghua.edu.cn/jietang/publications/WWW13-Lou&Ta
 ```
 # Citation
 
-If you use EasyGraph in a scientific publication, we would appreciate citations to the following paper:
+If you use EasyGraph in a scientific publication, we kindly request that you cite the following paper:
 ```
   @article{gao2023easygraph,
       title={{EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis}},
