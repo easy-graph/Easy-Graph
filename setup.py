@@ -131,7 +131,7 @@ setuptools.setup(
         "numpy>=1.19.5; python_version>='3.7' and python_version<='3.12'",
         "tqdm>=4.49.0",
         "joblib>=1.2.0",
-        "six>=1.15.0, <1.16.0",
+        "six>=1.16.0",
         "gensim>=4.1.2; python_version>='3.7'",
         "progressbar33>=2.4",
         "scikit-learn>=0.24.0, <=1.0.2; python_version=='3.7'",
