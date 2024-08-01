@@ -33,14 +33,19 @@ def ego_betweenness(G, node):
 
     """
     g = G.ego_subgraph(node)
-    n = len(g) + 1
-    A = np.matlib.zeros((n, n))
+    print(g.edges)
+    print(g.nodes)
+    n = len(g)
+
+    A = np.zeros((n, n))
+
     for i in range(n):
         for j in range(n):
-            if g.has_edge(i, j):
+            if g.has_edge(g.index2node[i], g.index2node[j]):
                 A[i, j] = 1
+
     B = A * A
-    C = 1 - A
+    C = np.identity(n) - A
     sum = 0
     flag = G.is_directed()
     for i in range(n):

@@ -763,6 +763,8 @@ class Graph:
         ... })
 
         """
+        if ("node_attr" in node_attr):
+            node_attr = node_attr.get("node_attr")
         self._add_one_node(node_for_adding, node_attr)
         self._clear_cache()
 
@@ -883,6 +885,8 @@ class Graph:
 
     def _add_one_node(self, one_node_for_adding, node_attr: dict = {}):
         node = one_node_for_adding
+        assert(node != None and (not isinstance(node, tuple))), "Nodes can not be None."
+        hash(node)
         if node not in self._node:
             self._node_index[node] = self._id
             self._id += 1
@@ -928,6 +932,8 @@ class Graph:
         ... })
 
         """
+        if("edge_attr" in edge_attr):
+            edge_attr = edge_attr.get("edge_attr")
         self._add_one_edge(u_of_edge, v_of_edge, edge_attr)
         self._clear_cache()
 
@@ -1053,12 +1059,12 @@ class Graph:
             else:
                 raise EasyGraphError(f"Edge tuple {e} must be a 2-tuple or 3-tuple.")
             if u not in self._node:
-                if u is None:
+                if u is None or isinstance(u, tuple):
                     raise ValueError("None cannot be a node")
                 self._adj[u] = self.adjlist_inner_dict_factory()
                 self._node[u] = self.node_attr_dict_factory()
             if v not in self._node:
-                if v is None:
+                if v is None or isinstance(v, tuple):
                     raise ValueError("None cannot be a node")
                 self._adj[v] = self.adjlist_inner_dict_factory()
                 self._node[v] = self.node_attr_dict_factory()
@@ -1259,6 +1265,7 @@ class Graph:
         >>> G.remove_node('Jack')
 
         """
+        assert(node_to_remove != None), "Nodes can not be None."
         try:
             neighbors = list(self._adj[node_to_remove])
             del self._node[node_to_remove]
@@ -1368,6 +1375,7 @@ class Graph:
         Bool : True (exist) or False (not exists)
 
         """
+        assert(node != None), "Nodes can not be None."
         return node in self._node
 
     def has_edge(self, u, v):
@@ -1384,6 +1392,7 @@ class Graph:
         Bool : True (exist) or False (not exists)
 
         """
+        assert(u != None and v != None), "Nodes can not be None."
         try:
             return v in self._adj[u]
         except KeyError:
@@ -1558,40 +1567,42 @@ class Graph:
         return eg.DiGraph
 
     def to_directed(self):
-        """Returns a directed representation of the graph.
+        """Creates and returns a directed graph from self.
 
         Returns
         -------
         G : DiGraph
-            A directed graph with the same name, same nodes, and with
-            each edge (u, v, data) replaced by two directed edges
-            (u, v, data) and (v, u, data).
+            A directed graph with identical name and nodes. Each undirected
+            edge (u, v, data) in the original graph is replaced by two directed
+            edges (u, v, data) and (v, u, data).
 
         Notes
         -----
-        This returns a "deepcopy" of the edge, node, and
-        graph attributes which attempts to completely copy
-        all of the data and references.
+        This function returns a deepcopy of the original graph, including
+        all nodes, edges, and graph. As a result, it fully duplicates
+        the data and references in the original graph.
 
-        This is in contrast to the similar D=DiGraph(G) which returns a
-        shallow copy of the data.
+        This function differs from D=DiGraph(G) which returns a
+        shallow copy.
 
-        See the Python copy module for more information on shallow
-        and deep copies, https://docs.python.org/3/library/copy.html.
+        For more details on shallow and deep copies, refer to the
+        Python `copy` module: https://docs.python.org/3/library/copy.html.
 
-        Warning: If you have subclassed Graph to use dict-like objects
-        in the data structure, those changes do not transfer to the
-        DiGraph created by this method.
+        Warning: If the original graph is a subclass of `Graph` using
+        custom dict-like objects for its data structure, those customizations
+        will not be preserved in the `DiGraph` created by this function.
 
         Examples
         --------
+        Converting an undirected graph to a directed graph:
+
         >>> G = eg.Graph()  # or MultiGraph, etc
         >>> G.add_edge(0, 1)
         >>> H = G.to_directed()
         >>> list(H.edges)
         [(0, 1), (1, 0)]
 
-        If already directed, return a (deep) copy
+        Creating a deep copy of an already directed graph:
 
         >>> G = eg.DiGraph()  # or MultiDiGraph, etc
         >>> G.add_edge(0, 1)

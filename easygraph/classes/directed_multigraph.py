@@ -145,8 +145,14 @@ class MultiDiGraph(MultiGraph, DiGraph):
         >>> ekey = G.add_edge(1, 2)
         >>> G[1][2][0].update({0: 5})
         >>> G.edges[1, 2, 0].update({0: 5})
+
+        >>>
+        >>>
         """
         u, v = u_for_edge, v_for_edge
+        if("attr" in attr):
+            temp = attr.get("attr")
+            attr = (temp if temp != None else {})
         # add nodes
         if u not in self._adj:
             if u is None:
@@ -411,7 +417,7 @@ class MultiDiGraph(MultiGraph, DiGraph):
             H.add_nodes_from((n, deepcopy(d)) for n, d in self._node.items())
             H.add_edges_from(
                 (v, u, k, deepcopy(d))
-                for u, v, k, d in self.edges(keys=True, data=True)
+                for u, v, k, d in self.edges
             )
             return H
         return eg.graphviews.reverse_view(self)
