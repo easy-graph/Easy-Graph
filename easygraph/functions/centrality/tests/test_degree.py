@@ -1,4 +1,5 @@
 import unittest
+
 import easygraph as eg
 
 
@@ -15,5 +16,5 @@ class Test_degree(unittest.TestCase):
             print(eg.functions.out_degree_centrality(i))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

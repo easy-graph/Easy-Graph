@@ -86,8 +86,8 @@ def louvain_communities(G, weight="weight", threshold=0.00002):
     louvain_partitions
     """
     d = louvain_partitions(G, weight, threshold)
-    q = deque(d,maxlen=1)
-#    q.append(d)
+    q = deque(d, maxlen=1)
+    #    q.append(d)
     return q.pop()
 
 

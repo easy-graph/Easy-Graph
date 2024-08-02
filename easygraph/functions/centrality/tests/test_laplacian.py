@@ -1,4 +1,5 @@
 import unittest
+
 import easygraph as eg
 
 
@@ -13,5 +14,5 @@ class Test_laplacian(unittest.TestCase):
             print(eg.functions.laplacian(i))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

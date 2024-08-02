@@ -1,4 +1,5 @@
 import unittest
+
 import easygraph as eg
 
 
@@ -13,5 +14,5 @@ class Test_egobetweenness(unittest.TestCase):
         print(eg.functions.ego_betweenness(self.test_graphs[-1], 4))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
