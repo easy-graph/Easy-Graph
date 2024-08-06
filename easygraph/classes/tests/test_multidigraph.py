@@ -19,7 +19,6 @@ class Test(unittest.TestCase):
         print(self.g.edges)
 
     def test_degree(self):
-        # error with _nodes
         print(self.g.degree)
         print(self.g.in_degree)
         print(self.g.out_degree)

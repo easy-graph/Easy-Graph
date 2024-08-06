@@ -150,9 +150,9 @@ class MultiDiGraph(MultiGraph, DiGraph):
         >>>
         """
         u, v = u_for_edge, v_for_edge
-        if "attr" in attr:
+        if("attr" in attr):
             temp = attr.get("attr")
-            attr = temp if temp != None else {}
+            attr = (temp if temp != None else {})
         # add nodes
         if u not in self._adj:
             if u is None:
@@ -263,7 +263,7 @@ class MultiDiGraph(MultiGraph, DiGraph):
     def degree(self, weight="weight"):
         degree = dict()
         if weight is None:
-            for n in self._nodes:
+            for n in self._node:
                 succs = self._adj[n]
                 preds = self._pred[n]
                 deg = sum(len(keys) for keys in succs.values()) + sum(
@@ -271,7 +271,7 @@ class MultiDiGraph(MultiGraph, DiGraph):
                 )
                 degree[n] = deg
         else:
-            for n in self._nodes:
+            for n in self._node:
                 succs = self._adj[n]
                 preds = self._pred[n]
                 deg = sum(
@@ -289,12 +289,12 @@ class MultiDiGraph(MultiGraph, DiGraph):
     def in_degree(self, weight="weight"):
         degree = dict()
         if weight is None:
-            for n in self._nodes:
+            for n in self._node:
                 preds = self._pred[n]
                 deg = sum(len(keys) for keys in preds.values())
                 degree[n] = deg
         else:
-            for n in self._nodes:
+            for n in self._node:
                 preds = self._pred[n]
                 deg = sum(
                     d.get(weight, 1)
@@ -307,12 +307,12 @@ class MultiDiGraph(MultiGraph, DiGraph):
     def out_degree(self, weight="weight"):
         degree = dict()
         if weight is None:
-            for n in self._nodes:
+            for n in self._node:
                 succs = self._adj[n]
                 deg = sum(len(keys) for keys in succs.values())
                 degree[n] = deg
         else:
-            for n in self._nodes:
+            for n in self._node:
                 succs = self._adj[n]
                 deg = sum(
                     d.get(weight, 1)
