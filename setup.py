@@ -11,6 +11,7 @@ import setuptools
 
 from setuptools.command.build_ext import build_ext
 
+
 # The following code is maily from https://github.com/pybind/cmake_example/tree/master
 
 # Convert distutils Windows platform specifiers to CMake -A arguments

@@ -1,9 +1,11 @@
-import time
-import tests
-import sys
 import os
+import sys
+import time
+
 # sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..', '..')))
 import easygraph as eg  # Spend 4.9s on importing this damn big lib.
+import tests
+
 
 """
 def test_iter():
@@ -46,6 +48,8 @@ test_iter()
 """
 
 from easygraph.datasets import get_graph_karateclub
+
+
 G = get_graph_karateclub()
 # Calculate five shs(Structural Hole Spanners) in G
 shs = eg.common_greedy(G, 5)
@@ -55,56 +59,50 @@ eg.draw_SHS_center(G, shs)
 eg.plot_Followers(G, shs)
 
 import easygraph as eg
-G=eg.Graph()
-G.add_edge(1,2)#Add a single edge
-print(G.edges)
-G.add_edges([(2, 3), (1, 3), (3, 4), (4, 5), ("string", "bool"), ((1, 2), (3, 4))])#Add edges
-print(G.nodes)
 
-G.add_node('hello world')
-G.add_node('Jack', node_attr={
-    'age': 10,
-    'gender': 'M'
-})
-print(G.nodes)
 
-#G.remove_nodes(['hello world','Tom','Lily','a','b'])#remove edges
-G.remove_nodes(['hello world'])
-print(G.nodes)
-
-G.remove_edge(4,5)
+G = eg.Graph()
+G.add_edge(1, 2)  # Add a single edge
 print(G.edges)
 
-print(len(G))#__len__(self)
-for x in G:#__iter__(self)
+G.add_edges([(2, 3), (1, 3), (3, 4), (4, 5)])  # Add edges
+print(G.edges)
+
+
+G.add_node("hello world")
+G.add_node("Jack", node_attr={"age": 10, "gender": "M"})
+print(G.nodes)
+
+# G.remove_nodes(['hello world','Tom','Lily','a','b'])#remove edges
+G.remove_nodes(["hello world"])
+print(G.nodes)
+
+G.remove_edge(4, 5)
+print(G.edges)
+
+print(len(G))  # __len__(self)
+for x in G:  # __iter__(self)
     print(x)
-print(G[1])# return list(self._adj[node].keys()) __contains__ __getitem__
+print(G[1])  # return list(self._adj[node].keys()) __contains__ __getitem__
 
 for neighbor in G.neighbors(node=2):
     print(neighbor)
 
-G.add_edges([(1,2), (2, 3),(1, 3), (3, 4), (4, 5)], edges_attr=[
-    {
-        'weight': 20
-    },
-    {
-        'weight': 10
-    },
-    {
-        'weight': 15
-    },
-    {
-        'weight': 8
-    },
-    {
-        'weight': 12
-    }
-])#add weighted edges
+G.add_edges(
+    [(1, 2), (2, 3), (1, 3), (3, 4), (4, 5)],
+    edges_attr=[
+        {"weight": 20},
+        {"weight": 10},
+        {"weight": 15},
+        {"weight": 8},
+        {"weight": 12},
+    ],
+)  # add weighted edges
 G.add_node(6)
 print(G.edges)
 
 print(G.degree())
-print(G.degree(weight='weight'))
+print(G.degree(weight="weight"))
 
 G_index_graph, index_of_node, node_of_index = G.to_index_node_graph()
 print(G_index_graph.adj)

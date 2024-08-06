@@ -1,6 +1,7 @@
+import unittest
+
 import easygraph as eg
 import pytest
-import unittest
 
 
 class Test(unittest.TestCase):
@@ -34,6 +35,6 @@ class Test(unittest.TestCase):
         print(self.g.edges)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
 # test()

@@ -763,7 +763,7 @@ class Graph:
         ... })
 
         """
-        if ("node_attr" in node_attr):
+        if "node_attr" in node_attr:
             node_attr = node_attr.get("node_attr")
         self._add_one_node(node_for_adding, node_attr)
         self._clear_cache()
@@ -885,7 +885,11 @@ class Graph:
 
     def _add_one_node(self, one_node_for_adding, node_attr: dict = {}):
         node = one_node_for_adding
+<<<<<<< HEAD
         assert(node != None and (not isinstance(node, tuple))), "Node can not be None or an instance of tuple."
+=======
+        assert node != None and (not isinstance(node, tuple)), "Nodes can not be None."
+>>>>>>> fbd7e6ea1e1a941e2f9147590acd70a70195b9d5
         hash(node)
         if node not in self._node:
             self._node_index[node] = self._id
@@ -932,7 +936,7 @@ class Graph:
         ... })
 
         """
-        if("edge_attr" in edge_attr):
+        if "edge_attr" in edge_attr:
             edge_attr = edge_attr.get("edge_attr")
         self._add_one_edge(u_of_edge, v_of_edge, edge_attr)
         self._clear_cache()
@@ -1265,7 +1269,7 @@ class Graph:
         >>> G.remove_node('Jack')
 
         """
-        assert(node_to_remove != None), "Nodes can not be None."
+        assert node_to_remove != None, "Nodes can not be None."
         try:
             neighbors = list(self._adj[node_to_remove])
             del self._node[node_to_remove]
@@ -1375,7 +1379,7 @@ class Graph:
         Bool : True (exist) or False (not exists)
 
         """
-        assert(node != None), "Nodes can not be None."
+        assert node != None, "Nodes can not be None."
         return node in self._node
 
     def has_edge(self, u, v):
@@ -1392,7 +1396,7 @@ class Graph:
         Bool : True (exist) or False (not exists)
 
         """
-        assert(u != None and v != None), "Nodes can not be None."
+        assert u != None and v != None, "Nodes can not be None."
         try:
             return v in self._adj[u]
         except KeyError:
