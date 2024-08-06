@@ -30,7 +30,7 @@ def plot_Followers(G, SHS):
     import matplotlib.pyplot as plt
     import numpy as np
     import statsmodels.api as sm
-
+    assert(len(SHS) < len(G.nodes)), "The number of SHS must be less than the number of nodes in the graph."
     OU = []
     for i in G:
         if i not in SHS:
@@ -148,12 +148,13 @@ def plot_Betweenness_Centrality(G, SHS):
         if i not in SHS:
             OU.append(i)
     bc = eg.betweenness_centrality(G)
+    bc = dict(zip(G.nodes, bc))
     sample1 = []
     sample2 = []
     for i in bc.keys():
         if i in OU:
             sample1.append(bc[i])
-        elif i in SHS:
+        else:
             sample2.append(bc[i])
     X1 = np.linspace(min(sample1), max(sample1))
     ecdf = sm.distributions.ECDF(sample1)

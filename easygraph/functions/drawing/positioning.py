@@ -190,6 +190,7 @@ def rescale_position(pos, scale=1):
         scaled positions. Each row is a position.
     """
     # Find max length over all dimensions
+    assert(len(pos.shape) != 1), "One-dimensional ndarray is not available for rescaling."
     lim = 0  # max coordinate for all axes
     for i in range(pos.shape[1]):
         pos[:, i] -= pos[:, i].mean()

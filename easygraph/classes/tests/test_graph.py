@@ -58,8 +58,8 @@ import easygraph as eg
 G=eg.Graph()
 G.add_edge(1,2)#Add a single edge
 print(G.edges)
-G.add_edges([(2, 3), (1, 3), (3, 4), (4, 5)])#Add edges
-print(G.edges)
+G.add_edges([(2, 3), (1, 3), (3, 4), (4, 5), ("string", "bool"), ((1, 2), (3, 4))])#Add edges
+print(G.nodes)
 
 G.add_node('hello world')
 G.add_node('Jack', node_attr={
