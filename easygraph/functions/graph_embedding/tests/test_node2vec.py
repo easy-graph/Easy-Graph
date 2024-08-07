@@ -1,7 +1,7 @@
 import easygraph as eg
 import unittest
 import numpy as np
-eg.plot_Betweenness_Centrality()
+
 
 class Test_Nobe(unittest.TestCase):
     def setUp(self):

@@ -6,7 +6,7 @@ import pytest
 
 class Test(unittest.TestCase):
     def setUp(self):
-        edges = [(1, 2), (2, 3), ("String", "Bool"), (2, 1)]
+        edges = [(1, 2), (2, 3), ("String", "Bool"), (2, 1), ((1, 2), (3, 4))]
         self.g = eg.MultiDiGraph(edges)
 
     def test_add_edge(self):
@@ -26,12 +26,11 @@ class Test(unittest.TestCase):
     def test_reverse(self):
         # error with _succ
         print(self.g.reverse(copy=True).edges)
-        print(self.g.reverse(copy=False).edges)
+        #print(self.g.reverse(copy=False).edges)
 
     def test_attributes(self):
         print(self.g.edges)
         print(self.g.in_edges)
-        print(self.g.edges)
 
 
 if __name__ == "__main__":

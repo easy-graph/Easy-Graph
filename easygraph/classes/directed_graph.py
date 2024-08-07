@@ -859,13 +859,13 @@ class DiGraph(Graph):
             else:
                 raise EasyGraphError(f"Edge tuple {e} must be a 2-tuple or 3-tuple.")
             if u not in self._adj:
-                if u is None or isinstance(u, tuple):
+                if (u is None):
                     raise ValueError("None cannot be a node")
                 self._adj[u] = self.adjlist_inner_dict_factory()
                 self._pred[u] = self.adjlist_inner_dict_factory()
                 self._node[u] = self.node_attr_dict_factory()
             if v not in self._adj:
-                if v is None or isinstance(v, tuple):
+                if (v is None):
                     raise ValueError("None cannot be a node")
                 self._adj[v] = self.adjlist_inner_dict_factory()
                 self._pred[v] = self.adjlist_inner_dict_factory()

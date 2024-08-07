@@ -5,7 +5,7 @@ import easygraph as eg
 
 class Test_egobetweenness(unittest.TestCase):
     def setUp(self):
-        self.edges = [(1, 4), (2, 4), ("String", "Bool"), (4, 1), (0, 4), (4, 256)]
+        self.edges = [(1, 4), (2, 4), ("String", "Bool"), (4, 1), (0, 4), (4, 256), ((None, None), (None, None))]
         self.test_graphs = [eg.Graph(), eg.DiGraph()]
         self.test_graphs.append(eg.classes.DiGraph(self.edges))
         print(self.test_graphs[-1].edges)

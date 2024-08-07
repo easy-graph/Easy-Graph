@@ -65,7 +65,7 @@ G = eg.Graph()
 G.add_edge(1, 2)  # Add a single edge
 print(G.edges)
 
-G.add_edges([(2, 3), (1, 3), (3, 4), (4, 5)])  # Add edges
+G.add_edges([(2, 3), (1, 3), (3, 4), (4, 5), ((1, 2), (3, 4))])  # Add edges
 print(G.edges)
 
 

@@ -885,11 +885,7 @@ class Graph:
 
     def _add_one_node(self, one_node_for_adding, node_attr: dict = {}):
         node = one_node_for_adding
-<<<<<<< HEAD
-        assert(node != None and (not isinstance(node, tuple))), "Node can not be None or an instance of tuple."
-=======
-        assert node != None and (not isinstance(node, tuple)), "Nodes can not be None."
->>>>>>> fbd7e6ea1e1a941e2f9147590acd70a70195b9d5
+        assert (node != None), "Nodes can not be None."
         hash(node)
         if node not in self._node:
             self._node_index[node] = self._id
@@ -1063,12 +1059,12 @@ class Graph:
             else:
                 raise EasyGraphError(f"Edge tuple {e} must be a 2-tuple or 3-tuple.")
             if u not in self._node:
-                if u is None or isinstance(u, tuple):
+                if u is None:
                     raise ValueError("None cannot be a node")
                 self._adj[u] = self.adjlist_inner_dict_factory()
                 self._node[u] = self.node_attr_dict_factory()
             if v not in self._node:
-                if v is None or isinstance(v, tuple):
+                if v is None:
                     raise ValueError("None cannot be a node")
                 self._adj[v] = self.adjlist_inner_dict_factory()
                 self._node[v] = self.node_attr_dict_factory()
