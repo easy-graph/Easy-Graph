@@ -3,7 +3,6 @@ import torch.nn as nn
 
 from easygraph.classes import Hypergraph
 
-
 class HGNNConv(nn.Module):
     r"""The HGNN convolution layer proposed in `Hypergraph Neural Networks <https://arxiv.org/pdf/1809.09401>`_ paper (AAAI 2019).
     Matrix Format:
@@ -41,20 +40,6 @@ class HGNNConv(nn.Module):
         self.drop = nn.Dropout(drop_rate)
         self.theta = nn.Linear(in_channels, out_channels, bias=bias)
 
-        # self.Theta1 = nn.Linear(in_size, hidden_dims)
-        # self.Theta2 = nn.Linear(hidden_dims, out_size)
-        # self.dropout = nn.Dropout(0.5)
-        #
-        # ###########################################################
-        # # (HIGHLIGHT) Compute the Laplacian with Sparse Matrix API
-        # ###########################################################
-        # d_V = H.sum(1)  # node degree
-        # d_E = H.sum(0)  # edge degree
-        # n_edges = d_E.shape[0]
-        # D_V_invsqrt = dglsp.diag(d_V ** -0.5)  # D_V ** (-1/2)
-        # D_E_inv = dglsp.diag(d_E ** -1)  # D_E ** (-1)
-        # W = dglsp.identity((n_edges, n_edges))
-        # self.laplacian = D_V_invsqrt @ H @ W @ D_E_inv @ H.T @ D_V_invsqrt
 
     def forward(self, X: torch.Tensor, hg: Hypergraph) -> torch.Tensor:
         r"""The forward function.

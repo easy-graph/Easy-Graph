@@ -56,6 +56,7 @@ class UniGCN(nn.Module):
         return X
 
 
+
 class UniGAT(nn.Module):
     r"""The UniGAT model proposed in `UniGNN: a Unified Framework for Graph and Hypergraph Neural Networks <https://arxiv.org/pdf/2105.00956.pdf>`_ paper (IJCAI 2021).
 

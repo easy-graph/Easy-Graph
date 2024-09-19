@@ -86,11 +86,14 @@ class Hypergraph(BaseHypergraph):
         edges_col = []
         indptr_list = []
         ptr = 0
+        # print("n_e_dict:",self.n_e_dict.items())
         for v in self.n_e_dict.values():
             edges_col.extend(v)
             indptr_list.append(ptr)
             ptr += len(v)
         indptr_list.append(ptr)
+        # print("edges_cols:",edges_col)
+        # print("indptr:",indptr_list)
 
         e_idx, v_idx = [], []
         for n, e in self.n_e_dict.items():
@@ -1747,6 +1750,11 @@ class Hypergraph(BaseHypergraph):
                 @ self.H_T
                 @ _d_v_neg_1_2
             )
+            # print("laplacian:",_tmp.to_dense())
+            # print("H:",self.H.to_dense())
+            # print("H_^:", self.H_T.to_dense())
+            # print("_d_v_neg_1_2:", _d_v_neg_1_2.to_dense())
+            # print("self.D_e_neg_1:",self.D_e_neg_1.to_dense())
             self.cache["L_HGNN"] = _tmp.to_sparse_csr()
         return self.cache["L_HGNN"]
 

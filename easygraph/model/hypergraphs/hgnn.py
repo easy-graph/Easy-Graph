@@ -3,7 +3,7 @@ import torch.nn as nn
 
 from easygraph.nn import HGNNConv
 
-
+    
 class HGNN(nn.Module):
     r"""The HGNN model proposed in `Hypergraph Neural Networks <https://arxiv.org/pdf/1809.09401>`_ paper (AAAI 2019).
 
@@ -39,11 +39,6 @@ class HGNN(nn.Module):
             ``X`` (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
             ``hg`` (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
         """
-        # import time
-        # X = self.laplacian @ self.Theta1(self.dropout(X))
-        # X = self.act(X)
-        # X = self.laplacian @ self.Theta2(X)
-        # return X
 
         for layer in self.layers:
             X = layer(X, hg)
