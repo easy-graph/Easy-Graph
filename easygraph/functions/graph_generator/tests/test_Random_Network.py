@@ -2,6 +2,7 @@ import unittest
 
 import easygraph as eg
 
+
 class test_random_network(unittest.TestCase):
     def setUp(self):
         self.G = eg.datasets.get_graph_karateclub()
@@ -22,5 +23,5 @@ class test_random_network(unittest.TestCase):
         print(eg.graph_Gnm(8, 5).nodes)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

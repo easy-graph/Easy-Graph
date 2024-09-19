@@ -1,5 +1,6 @@
-import easygraph as eg
 import unittest
+
+import easygraph as eg
 
 
 class TestGeometry(unittest.TestCase):
@@ -21,6 +22,6 @@ class TestGeometry(unittest.TestCase):
         eg.draw_kamada_kawai(self.G, rate=0.8, style="center")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
     # pretty awesome images

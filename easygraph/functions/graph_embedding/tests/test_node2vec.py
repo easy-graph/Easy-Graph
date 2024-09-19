@@ -1,5 +1,6 @@
-import easygraph as eg
 import unittest
+
+import easygraph as eg
 import numpy as np
 
 
@@ -21,5 +22,5 @@ class Test_Nobe(unittest.TestCase):
             eg.functions.NOBE_GA(i, K=1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

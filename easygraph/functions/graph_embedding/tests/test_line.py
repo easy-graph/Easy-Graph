@@ -1,5 +1,6 @@
-import easygraph as eg
 import unittest
+
+import easygraph as eg
 import numpy as np
 
 
@@ -8,5 +9,5 @@ class Test_Line(unittest.TestCase):
         pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

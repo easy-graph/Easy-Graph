@@ -1,5 +1,6 @@
-import easygraph as eg
 import unittest
+
+import easygraph as eg
 
 
 class Test_biconnected(unittest.TestCase):
@@ -29,5 +30,5 @@ class Test_biconnected(unittest.TestCase):
             eg.generator_articulation_points(i)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
