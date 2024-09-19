@@ -1,17 +1,20 @@
-import unittest
 import math
+import unittest
+
+from itertools import combinations
 
 import easygraph as eg
 import numpy as np
-from itertools import combinations
 
 
 class test_assortativity(unittest.TestCase):
     def setUp(self):
         self.g = eg.get_graph_karateclub()
         self.edges = [(8, 9), (1, 2), (8, 4), (3, 6), (1, 3), (6, 4)]
-        self.hg = [eg.Hypergraph(num_v=10, e_list=self.edges, e_property=None),
-                   eg.Hypergraph(num_v=2, e_list = [(0, 1)])]
+        self.hg = [
+            eg.Hypergraph(num_v=10, e_list=self.edges, e_property=None),
+            eg.Hypergraph(num_v=2, e_list=[(0, 1)]),
+        ]
         # checked -- num_v cannot be set to negative number
 
     def test_dynamical_assortativity(self):
@@ -34,5 +37,5 @@ class test_assortativity(unittest.TestCase):
             print(eg.degree_assortativity(i))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

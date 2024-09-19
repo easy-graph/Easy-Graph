@@ -8,5 +8,5 @@ class test_average_shortested_path_length(unittest.TestCase):
         pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

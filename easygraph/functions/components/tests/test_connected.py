@@ -1,6 +1,7 @@
-import easygraph as eg
-import unittest
 import inspect
+import unittest
+
+import easygraph as eg
 
 
 class TestConnected(unittest.TestCase):
@@ -30,5 +31,5 @@ class TestConnected(unittest.TestCase):
             print(eg.connected_component_of_node(i, 4))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

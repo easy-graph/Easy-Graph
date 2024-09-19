@@ -3,6 +3,7 @@ import torch.nn as nn
 
 from easygraph.classes import Hypergraph
 
+
 class HGNNConv(nn.Module):
     r"""The HGNN convolution layer proposed in `Hypergraph Neural Networks <https://arxiv.org/pdf/1809.09401>`_ paper (AAAI 2019).
     Matrix Format:
@@ -39,7 +40,6 @@ class HGNNConv(nn.Module):
         self.act = nn.ReLU(inplace=True)
         self.drop = nn.Dropout(drop_rate)
         self.theta = nn.Linear(in_channels, out_channels, bias=bias)
-
 
     def forward(self, X: torch.Tensor, hg: Hypergraph) -> torch.Tensor:
         r"""The forward function.

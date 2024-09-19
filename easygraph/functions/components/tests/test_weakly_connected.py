@@ -1,5 +1,6 @@
-import easygraph as eg
 import unittest
+
+import easygraph as eg
 
 
 class Test_weakly_connected(unittest.TestCase):
@@ -16,6 +17,5 @@ class Test_weakly_connected(unittest.TestCase):
         pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
-

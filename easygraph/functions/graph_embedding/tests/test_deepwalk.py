@@ -1,5 +1,6 @@
-import easygraph as eg
 import unittest
+
+import easygraph as eg
 import numpy as np
 
 
@@ -16,5 +17,5 @@ class Test_Deepwalk(unittest.TestCase):
             print(eg.deepwalk(i))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

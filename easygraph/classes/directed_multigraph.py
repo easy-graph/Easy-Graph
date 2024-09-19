@@ -150,9 +150,9 @@ class MultiDiGraph(MultiGraph, DiGraph):
         >>>
         """
         u, v = u_for_edge, v_for_edge
-        if("attr" in attr):
+        if "attr" in attr:
             temp = attr.get("attr")
-            attr = (temp if temp != None else {})
+            attr = temp if temp != None else {}
         # add nodes
         if u not in self._adj:
             if u is None:

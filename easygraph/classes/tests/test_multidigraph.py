@@ -26,7 +26,7 @@ class Test(unittest.TestCase):
     def test_reverse(self):
         # error with _succ
         print(self.g.reverse(copy=True).edges)
-        #print(self.g.reverse(copy=False).edges)
+        # print(self.g.reverse(copy=False).edges)
 
     def test_attributes(self):
         print(self.g.edges)

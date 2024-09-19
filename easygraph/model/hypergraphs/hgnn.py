@@ -3,7 +3,7 @@ import torch.nn as nn
 
 from easygraph.nn import HGNNConv
 
-    
+
 class HGNN(nn.Module):
     r"""The HGNN model proposed in `Hypergraph Neural Networks <https://arxiv.org/pdf/1809.09401>`_ paper (AAAI 2019).
 

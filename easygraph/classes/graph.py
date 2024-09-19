@@ -885,7 +885,7 @@ class Graph:
 
     def _add_one_node(self, one_node_for_adding, node_attr: dict = {}):
         node = one_node_for_adding
-        assert (node != None), "Nodes can not be None."
+        assert node != None, "Nodes can not be None."
         hash(node)
         if node not in self._node:
             self._node_index[node] = self._id

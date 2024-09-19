@@ -1,6 +1,7 @@
-import easygraph.functions.graph_embedding as fn
-import easygraph as eg
 import unittest
+
+import easygraph as eg
+import easygraph.functions.graph_embedding as fn
 import numpy as np
 
 
@@ -23,5 +24,6 @@ class Test_Nobe(unittest.TestCase):
         """
         fn.NOBE_GA(self.test_graphs[1], 1)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

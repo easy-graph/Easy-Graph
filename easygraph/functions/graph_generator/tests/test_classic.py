@@ -18,5 +18,5 @@ class test_classic(unittest.TestCase):
         eg.complete_graph(10, eg.DiGraph)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

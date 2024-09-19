@@ -30,7 +30,10 @@ def plot_Followers(G, SHS):
     import matplotlib.pyplot as plt
     import numpy as np
     import statsmodels.api as sm
-    assert(len(SHS) < len(G.nodes)), "The number of SHS must be less than the number of nodes in the graph."
+
+    assert len(SHS) < len(
+        G.nodes
+    ), "The number of SHS must be less than the number of nodes in the graph."
     OU = []
     for i in G:
         if i not in SHS:
