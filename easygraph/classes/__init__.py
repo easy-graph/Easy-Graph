@@ -6,7 +6,6 @@ from .graph import GraphC
 from .graphviews import *
 from .multigraph import MultiGraph
 from .operation import *
-from test_base_graph_class import *
 
 
 try:
