@@ -146,3 +146,4 @@ If you use EasyGraph in a scientific publication, we kindly request that you cit
       pages={100839},
   }
 ```
+If you notice anything unexpected, please open an issue and let us know. If you have any questions or require a specific feature, feel free to discuss them with us. We are motivated to constantly make EasyGraph even better.
