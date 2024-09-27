@@ -34,10 +34,11 @@ ___________________________________________________________________________
 - **Support for more flexible dynamic hypergraph visualization.** Users can define dynamic hypergraphs and visualize the structure of the hypergraph at each timestamp.
 - **Support for more efficient hypergraph computation and hypergraph learning.** Adoption of suitable storage structure and caching strategy for different metrics/hypergraph neural networks.
 -->
-For more details, please refer to our [documentation](https://easy-graph.github.io/) page.
+👉 For more details, please refer to our [documentation](https://easy-graph.github.io/) page.
 
 
 # News
+- [09-27-2024] 🎉 Thanks to our amazing community! EasyGraph has reached 500,000 downloads!
 - [09-20-2024] We released EasyGraph 1.4! This version features GPU-powered functions for efficient large network analysis.
 - [05-27-2024] We released EasyGraph 1.3! This version has resolved several issues related to hypergraph analysis and visualization.
 - [04-09-2024] We released EasyGraph 1.2! This version now fully supports Python 3.12.
@@ -146,4 +147,4 @@ If you use EasyGraph in a scientific publication, we kindly request that you cit
       pages={100839},
   }
 ```
-If you notice anything unexpected, please open an issue and let us know. If you have any questions or require a specific feature, feel free to discuss them with us. We are motivated to constantly make EasyGraph even better.
+📢 If you notice anything unexpected, please open an issue and let us know. If you have any questions or require a specific feature, feel free to discuss them with us. We are motivated to constantly make EasyGraph even better and let more developers benefit!
