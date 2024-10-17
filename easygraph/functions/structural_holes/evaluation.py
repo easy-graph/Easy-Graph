@@ -255,7 +255,7 @@ def constraint(G, nodes=None, weight=None, n_workers=None):
 
     def compute_constraint_of_v(v):
         neighbors_of_v = set(G.all_neighbors(v))
-        if len(neighbors_of_v) == 0:
+        if len(G[v]) == 0:
             constraint_of_v = float("nan")
         else:
             constraint_of_v = sum(
