@@ -162,8 +162,7 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
         else:
             for v in nodes:
                 # Effective size is not defined for isolated nodes
-                # Check both in-degree and out-degree for directed graphs
-                if G.in_degree(v) == 0 and G.out_degree(v) == 0:
+                if len(G[v]) == 0:
                     effective_size[v] = float("nan")
                     continue
                 effective_size[v] = sum(
