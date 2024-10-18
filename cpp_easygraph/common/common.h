@@ -23,7 +23,7 @@
 namespace py = pybind11;
 
 typedef int node_t;
-typedef float weight_t;
+typedef double weight_t;
 typedef std::map<std::string, weight_t> node_attr_dict_factory; //(weight_key, value)
 typedef std::map<std::string, weight_t> edge_attr_dict_factory; //(weight_key, value)
 typedef std::unordered_map<node_t, node_attr_dict_factory> node_dict_factory; //(node, node_attr)
