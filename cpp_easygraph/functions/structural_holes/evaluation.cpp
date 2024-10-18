@@ -1,6 +1,10 @@
 #include "evaluation.h"
 #include <iomanip>  // 需要引入该头文件来使用 std::setprecision
 
+#ifdef EASYGRAPH_ENABLE_GPU
+#include <gpu_easygraph.h>
+#endif
+
 #include "../../classes/graph.h"
 #include "../../classes/directed_graph.h"
 #include "../../common/utils.h"
@@ -166,7 +170,7 @@ std::pair<node_t, weight_t> directed_compute_constraint_of_v(DiGraph& G, node_t 
     return std::make_pair(v, constraint_of_v);
 }
 
-py::object constraint(py::object G, py::object nodes, py::object weight, py::object n_workers) {
+py::object invoke_cpp_constraint(py::object G, py::object nodes, py::object weight) {
     std::string weight_key = weight_to_string(weight);
     rec_type sum_nmw_rec, local_constraint_rec;
     if (nodes.is_none()) {
@@ -197,6 +201,45 @@ py::object constraint(py::object G, py::object nodes, py::object weight, py::obj
     py::dict constraint = py::dict(constraint_results);
     return constraint;
 }
+
+#ifdef EASYGRAPH_ENABLE_GPU
+static py::object invoke_gpu_constraint(py::object G, py::object nodes, py::object weight) {
+    Graph& G_ = G.cast<Graph&>();
+    if (weight.is_none()) {
+        G_.gen_CSR();
+    } else {
+        G_.gen_CSR(weight_to_string(weight));
+    }
+    auto csr_graph = G_.csr_graph;
+    std::vector<int>& E = csr_graph->E;
+    std::vector<int>& V = csr_graph->V;
+
+    std::vector<double> *W_p = weight.is_none() ? &(csr_graph->unweighted_W) 
+                                : csr_graph->W_map.find(weight_to_string(weight))->second.get();
+    std::unordered_map<node_t, int>& node2idx = csr_graph->node2idx;
+
+    
+    std::vector<double> constraint_results;
+    int gpu_r = gpu_easygraph::constraint(V, E, *W_p, constraint_results);
+    if (gpu_r != gpu_easygraph::EG_GPU_SUCC) {
+        py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
+    }
+    py::array::ShapeContainer ret_shape{(int)constraint_results.size()};
+    py::array_t<double> ret(ret_shape, constraint_results.data());
+
+    return ret;
+}
+#endif
+
+
+py::object constraint(py::object G, py::object nodes, py::object weight, py::object n_workers) {
+#ifdef EASYGRAPH_ENABLE_GPU
+    return invoke_gpu_constraint(G, nodes, weight);
+#else
+    return invoke_cpp_constraint(G, nodes, weight);
+#endif
+}
+
 
 weight_t redundancy(Graph& G, node_t u, node_t v, std::string weight, rec_type& sum_nmw_rec, rec_type& max_nmw_rec) {
     weight_t r = 0;
