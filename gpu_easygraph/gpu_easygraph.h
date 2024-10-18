@@ -53,4 +53,11 @@ int pagerank(
     std::vector<double>& PR
 );
 
+int constraint(
+    const std::vector<int>& V,
+    const std::vector<int>& E,
+    const std::vector<double>& W,
+    std::vector<double>& constraint
+);
+
 } // namespace gpu_easygraph
