@@ -241,17 +241,23 @@ py::object constraint(py::object G, py::object nodes, py::object weight, py::obj
 }
 
 
-weight_t redundancy(Graph& G, node_t u, node_t v, std::string weight, rec_type& sum_nmw_rec, rec_type& max_nmw_rec) {
+weight_t redundancy(DiGraph& G, node_t u, node_t v, std::string weight, rec_type& sum_nmw_rec, rec_type& max_nmw_rec) {
     weight_t r = 0;
-    for (const auto& neighbor_info : G.adj[u]) {
-        node_t w = neighbor_info.first;
-        r += normalized_mutual_weight(G, u, w, weight, sum, sum_nmw_rec) * normalized_mutual_weight(G, v, w, weight, max, max_nmw_rec);
+    std::unordered_set<node_t> neighbors;
+    for (const auto& n : G.adj[v]) {
+        neighbors.insert(n.first);
+    }
+    for (const auto& n : G.pred[v]) {
+        neighbors.insert(n.first);
+    }
+    for (const auto& w : neighbors) {
+        r += directed_normalized_mutual_weight(G, u, w, weight, sum, sum_nmw_rec) * directed_normalized_mutual_weight(G, v, w, weight, max, max_nmw_rec);
     }
     return 1 - r;
 }
 
 py::object effective_size(py::object G, py::object nodes, py::object weight, py::object n_workers) {
-    Graph& G_ = G.cast<Graph&>();
+    // Graph& G_ = G.cast<Graph&>();
     rec_type sum_nmw_rec, max_nmw_rec;
     py::dict effective_size = py::dict();
     if (nodes.is_none()) {
@@ -272,6 +278,7 @@ py::object effective_size(py::object G, py::object nodes, py::object weight, py:
             effective_size[v] = py::len(E) - (2 * size) / py::len(E);
         }
     } else {
+        DiGraph& G_ = G.cast<DiGraph&>();
         std::string weight_key = weight_to_string(weight);
         int nodes_len = py::len(nodes);
         for (int i = 0; i < nodes_len; i++) {
@@ -282,8 +289,14 @@ py::object effective_size(py::object G, py::object nodes, py::object weight, py:
             }
             weight_t redundancy_sum = 0;
             node_t v_id = G_.node_to_id[v].cast<node_t>();
-            for (const auto& neighbor_info : G_.adj[v_id]) {
-                node_t u_id = neighbor_info.first;
+            std::unordered_set<node_t> neighbors;
+            for (const auto& n : G_.adj[v_id]) {
+                neighbors.insert(n.first);
+            }
+            for (const auto& n : G_.pred[v_id]) {
+                neighbors.insert(n.first);
+            }
+            for (const auto& u_id : neighbors) {
                 redundancy_sum += redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
             }
             effective_size[v] = redundancy_sum;
