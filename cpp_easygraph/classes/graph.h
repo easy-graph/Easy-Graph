@@ -3,6 +3,7 @@
 #include "../common/common.h"
 #include "csr_graph.h"
 #include "linkgraph.h"
+#include "coo_graph.h"
 
 // old version
 struct Graph {
@@ -14,7 +15,7 @@ struct Graph {
     node_t id;
     bool dirty_nodes, dirty_adj, linkgraph_dirty;
     py::object nodes_cache, adj_cache;
-    
+    std::shared_ptr<COOGraph> coo_graph;
 
     Graph();
     py::object get_nodes();
@@ -32,7 +33,8 @@ struct Graph {
     std::shared_ptr<CSRGraph> gen_CSR(const std::string& weight);
     std::shared_ptr<CSRGraph> gen_CSR();
     std::shared_ptr<std::vector<int>> gen_CSR_sources(const py::object& py_sources);
-
+    std::shared_ptr<COOGraph> gen_COO();
+    std::shared_ptr<COOGraph> gen_COO(const std::string& weight);
 };
 
 py::object Graph__init__(py::args args, py::kwargs kwargs);
