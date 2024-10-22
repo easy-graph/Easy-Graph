@@ -7,147 +7,168 @@
 namespace gpu_easygraph {
 
 static __device__ double mutual_weight(
-    const int* V,
-    const int* E,
+    const int* row,
+    const int* col,
     const double* W,
     int u,
-    int v
+    int v,
+    int num_edges,
+    bool is_directed
 ) {
     double a_uv = 0.0, a_vu = 0.0;
-    for (int idx = V[u]; idx < V[u + 1]; ++idx) {
-        if (E[idx] == v) {
-            a_uv = W[idx];
-            break;
+    for (int i = 0; i < num_edges; i++) {
+        if (row[i] == u && col[i] == v) {
+            a_uv = W[i]; // 找到边 (u, v)，记录其权重
         }
-    }
-    for (int idx = V[v]; idx < V[v + 1]; ++idx) {
-        if (E[idx] == u) {
-            a_vu = W[idx];
-            break;
+        if (row[i] == v && col[i] == u) {
+            a_vu = W[i]; // 找到边 (v, u)，记录其权重
         }
     }
     return a_uv + a_vu;
 }
 
-__global__ void normalized_mutual_weight(
-    const int* V, 
-    const int* E, 
+static __device__ double normalized_mutual_weight(
+    const int* row, 
+    const int* col, 
     const double* W, 
-    double* nmw_results, 
-    int num_nodes
+    int num_edges,
+    int u,
+    int v,
+    bool is_directed
+    // double* nmw_result
+    // bool norm 
 ) {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx >= num_nodes) return;
-    int u = idx;
-    double scale; 
-    for (int i = V[u]; i < V[u + 1]; ++i) {
-        int v = E[i]; 
-        double weight_uv = mutual_weight(V, E, W, u, v); 
-        scale = 0.0; 
-        for (int j = V[u]; j < V[u + 1]; ++j) {
-            int k = E[j]; 
-            scale += mutual_weight(V, E, W, u, k); 
-        }
+    double weight_uv = mutual_weight(row, col, W, u, v, num_edges,is_directed);
 
-        if (scale == 0) {
-            nmw_results[i] = 0.0;
-        } else {
-            nmw_results[i] = weight_uv / scale; 
+    double scale = 0.0;
+
+    for (int i = 0; i < num_edges; i++) {
+        if (row[i] == u) {
+            int neighbor = col[i];
+            double weight_uw = mutual_weight(row, col, W, u, neighbor, num_edges,is_directed);
+            scale += weight_uw;
         }
+        if(is_directed){
+            if (col[i] == u) {
+                int neighbor = row[i];
+                double weight_wu = mutual_weight(row, col, W, u, neighbor, num_edges,is_directed);
+                scale += weight_wu;
+            }
+        }
+    }
+    if (scale == 0.0) {
+        // *nmw_result = 0.0;
+        return 0.0;
+    } else {
+        // *nmw_result = weight_uv / scale;
+        return weight_uv / scale;
     }
 }
 
-static __device__ void calculate_constraint_of_v(
-    const int* V, 
-    const int* E, 
-    const double* W, 
-    const double* nmw_results, 
-    int v_id, 
-    double* constraint_result
+static __device__ double local_constraint(
+    const int* row, 
+    const int* col, 
+    const double* W,
+    int num_edges,
+    int u,
+    int v,
+    bool is_directed
+    // double* local_constraint
 ) {
-
-    double constraint_of_v = 0.0;
-
-    for (int i = V[v_id]; i < V[v_id + 1]; ++i) {
-        int v = E[i];
-        if(v == v_id) continue;
-        double direct = nmw_results[i];  // get p_{uv}
-
-        double indirect_weight = 0.0;
-
-        for (int j = V[v_id]; j < V[v_id + 1]; ++j) {
-            int w = E[j];
-            double p_uw = nmw_results[j];
-
-            for (int k = V[w]; k < V[w + 1]; ++k) {
-                if (E[k] == v) {
-                    double p_wv = nmw_results[k];     
-                    indirect_weight += p_uw * p_wv;
-                }
+    double direct = normalized_mutual_weight(row,col,W,num_edges,u,v,is_directed);
+    double indirect = 0.0;
+    for (int i = 0; i < num_edges; i++) {
+        if (row[i] == u) {
+            int neighbor = col[i];
+            indirect += normalized_mutual_weight(row,col,W,num_edges,u,neighbor,is_directed)*normalized_mutual_weight(row,col,W,num_edges,neighbor,v,is_directed);
+        }
+        if(is_directed){
+            if (col[i] == u) {
+                int neighbor = row[i];
+                indirect += normalized_mutual_weight(row,col,W,num_edges,u,neighbor,is_directed)*normalized_mutual_weight(row,col,W,num_edges,neighbor,v,is_directed);
             }
         }
-        double local_constraint_of_uv = (direct + indirect_weight) * (direct + indirect_weight);
-        constraint_of_v += local_constraint_of_uv;
     }
-
-    *constraint_result = constraint_of_v;
+    double local_constraint_of_uv = (direct + indirect) * (direct + indirect);
+    // printf("Local constraint of (%d, %d): direct = %f, indirect = %f, local_constraint = %f\n",
+    //        u, v, direct, indirect, local_constraint_of_uv);
+    return local_constraint_of_uv;
+    // *local_constraint = constraint_of_v;
 }
 
 __global__ void calculate_constraints(
-    const int* V, 
-    const int* E, 
-    const double* W, 
-    const double* nmw_results, 
+    const int* row, 
+    const int* col, 
+    const double* W,  
     int num_nodes,
+    int num_edges,
+    bool is_directed,
     double* constraint_results
 ) {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx >= num_nodes) return;
-    calculate_constraint_of_v(V, E, W, nmw_results, idx, &constraint_results[idx]);
+    int v = blockIdx.x * blockDim.x + threadIdx.x;
+    if (v >= num_nodes) return;
+    double constraint_of_v = 0.0;
+    bool is_nan = true;
+    for (int i = 0; i < num_edges; i++) {
+        if (row[i] == v) {
+            is_nan = false;
+            int neighbor = col[i];
+            constraint_of_v += local_constraint(row,col,W,num_edges,v,neighbor,is_directed);
+        }
+        if(is_directed){
+            if (col[i] == v) {
+                int neighbor = row[i];
+                constraint_of_v += local_constraint(row,col,W,num_edges,v,neighbor,is_directed);
+            }
+        }
+    }
+    if(is_nan==true){
+        constraint_results[v] = NAN;
+    }else{
+        constraint_results[v] = constraint_of_v;
+    }
 }
 
 int cuda_constraint(
-    _IN_ const int* V,
-    _IN_ const int* E,
+    _IN_ const int* row,
+    _IN_ const int* col,
     _IN_ const double* W,
-    _IN_ int len_V,
-    _IN_ int len_E,
+    _IN_ int num_nodes,
+    _IN_ int num_edges,
+    _IN_ bool is_directed,
     _OUT_ double* constraint_results
 ) {
-    int* d_V;
-    int* d_E;
+    int* d_row;
+    int* d_col;
     double* d_W;
-    double* d_nmw_results;
     double* d_constraint_results;
 
     // 分配CUDA设备内存
-    cudaMalloc((void**)&d_V, (len_V + 1) * sizeof(int));
-    cudaMalloc((void**)&d_E, len_E * sizeof(int));
-    cudaMalloc((void**)&d_W, len_E * sizeof(double));
-    cudaMalloc((void**)&d_nmw_results, len_E * sizeof(double));
-    cudaMalloc((void**)&d_constraint_results, len_V * sizeof(double));
+    cudaMalloc((void**)&d_row, num_edges * sizeof(int));
+    cudaMalloc((void**)&d_col, num_edges * sizeof(int));
+    cudaMalloc((void**)&d_W, num_edges * sizeof(double));
+    cudaMalloc((void**)&d_constraint_results, num_nodes * sizeof(double));
 
     // 将数据从主机拷贝到设备
-    cudaMemcpy(d_V, V, (len_V + 1) * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_E, E, len_E * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_W, W, len_E * sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_row, row, num_edges * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_col, col, num_edges * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_W, W, num_edges * sizeof(double), cudaMemcpyHostToDevice);
 
-    // 计算归一化权重
-    normalized_mutual_weight<<<1, len_V + 1>>>(d_V, d_E, d_W, d_nmw_results, len_V);
+    // // 计算归一化权重
+    // normalized_mutual_weight<<<1, 1>>>(d_row, d_col, d_W, d_nmw_results);
 
-    // 对所有节点 v_id 计算约束
-    int threadsPerBlock = 256;
-    int blocksPerGrid = (len_V + threadsPerBlock - 1) / threadsPerBlock;
-    calculate_constraints<<<blocksPerGrid, threadsPerBlock>>>(d_V, d_E, d_W, d_nmw_results, len_V, d_constraint_results);
+    // // 对所有节点 v_id 计算约束
+    // int threadsPerBlock = 256;
+    // int blocksPerGrid = (len_V + threadsPerBlock - 1) / threadsPerBlock;
+    calculate_constraints<<<1, num_nodes>>>(d_row, d_col, d_W, num_nodes, num_edges, is_directed, d_constraint_results);
 
-    // 将结果从设备拷贝回主机
-    cudaMemcpy(constraint_results, d_constraint_results, len_V * sizeof(double), cudaMemcpyDeviceToHost);
+    // // 将结果从设备拷贝回主机
+    cudaMemcpy(constraint_results, d_constraint_results, num_nodes * sizeof(double), cudaMemcpyDeviceToHost);
 
     // 释放设备内存
-    cudaFree(d_V);
-    cudaFree(d_E);
+    cudaFree(d_row);
+    cudaFree(d_col);
     cudaFree(d_W);
-    cudaFree(d_nmw_results);
     cudaFree(d_constraint_results);
 
     return 0; 

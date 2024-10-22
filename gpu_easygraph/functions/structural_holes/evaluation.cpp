@@ -31,18 +31,21 @@ static int decide_warp_size(
 
 
 int constraint(
-    _IN_ const vector<int>& V,
-    _IN_ const vector<int>& E,
+    _IN_ const vector<int>& row,
+    _IN_ const vector<int>& col,
+    _IN_ int num_nodes,
     _IN_ const vector<double>& W,
+    _IN_ bool is_directed,
     _OUT_ std::vector<double>& constraint
 ) {
     // printf("V size: %zu, E size: %zu, W size: %zu, v_id: %d\n", V.size(), E.size(), W.size(), v_id);
-    int len_V = V.size() - 1;
-    int len_E = E.size();
-    int warp_size = decide_warp_size(len_V, len_E);
+    int num_edges = row.size();
+    // printf("edge num: %d\n", num_edges);
+    // int len_E = E.size();
+    // int warp_size = decide_warp_size(len_V, len_E);
     
-    constraint = vector<double>(len_V);
-    int r = cuda_constraint(V.data(), E.data(), W.data(), len_V, len_E, constraint.data());
+    constraint = vector<double>(num_nodes);
+    int r = cuda_constraint(row.data(), col.data(), W.data(), num_nodes, num_edges, is_directed, constraint.data());
 
     return r;  // 成功
 }
