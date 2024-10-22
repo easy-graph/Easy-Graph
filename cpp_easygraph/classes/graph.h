@@ -35,6 +35,7 @@ struct Graph {
     std::shared_ptr<std::vector<int>> gen_CSR_sources(const py::object& py_sources);
     std::shared_ptr<COOGraph> gen_COO();
     std::shared_ptr<COOGraph> gen_COO(const std::string& weight);
+    std::shared_ptr<COOGraph> transfer_csr_to_coo(const std::shared_ptr<CSRGraph>& csr_graph);
 };
 
 py::object Graph__init__(py::args args, py::kwargs kwargs);

@@ -207,27 +207,40 @@ static py::object invoke_gpu_constraint(py::object G, py::object nodes, py::obje
     Graph& G_ = G.cast<Graph&>();
     if (weight.is_none()) {
         G_.gen_CSR();
+        // G_.gen_COO();
+        // G_.transfer_csr_to_coo();
     } else {
         G_.gen_CSR(weight_to_string(weight));
+        // G_.gen_COO(weight_to_string(weight));
+        // G_.transfer_csr_to_coo(weight_to_string(weight));
     }
     auto csr_graph = G_.csr_graph;
-    std::vector<int>& E = csr_graph->E;
+    auto coo_graph = G_.transfer_csr_to_coo(csr_graph);
+    // auto coo_graph = G_.coo_graph;
     std::vector<int>& V = csr_graph->V;
-
-    std::vector<double> *W_p = weight.is_none() ? &(csr_graph->unweighted_W) 
-                                : csr_graph->W_map.find(weight_to_string(weight))->second.get();
-    std::unordered_map<node_t, int>& node2idx = csr_graph->node2idx;
-
-    
+    std::vector<int>& E = csr_graph->E;
+    std::vector<int>& row = coo_graph->row;
+    std::vector<int>& col = coo_graph->col;
+    std::vector<double> *W_p = weight.is_none() ? &(coo_graph->unweighted_W) 
+                            : coo_graph->W_map.find(weight_to_string(weight))->second.get();
+    std::unordered_map<node_t, int>& node2idx = coo_graph->node2idx;
+    int num_nodes = coo_graph->node2idx.size();
+    bool is_directed = G.attr("is_directed")().cast<bool>();
     std::vector<double> constraint_results;
-    int gpu_r = gpu_easygraph::constraint(V, E, *W_p, constraint_results);
+    int gpu_r = gpu_easygraph::constraint(V, E, row, col, num_nodes, *W_p, is_directed, constraint_results);
     if (gpu_r != gpu_easygraph::EG_GPU_SUCC) {
         py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
     }
-    py::array::ShapeContainer ret_shape{(int)constraint_results.size()};
-    py::array_t<double> ret(ret_shape, constraint_results.data());
-
-    return ret;
+    py::dict constraint_dict;
+    for (const auto& node_pair : node2idx) {
+        node_t node_id = node_pair.first;  
+        int idx = node_pair.second;      
+        
+        py::object node_name = G_.id_to_node.attr("get")(py::cast(node_id));
+        
+        constraint_dict[node_name] = py::cast(constraint_results[idx]);
+    }
+    return constraint_dict;
 }
 #endif
 

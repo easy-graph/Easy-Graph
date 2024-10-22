@@ -56,7 +56,11 @@ int pagerank(
 int constraint(
     const std::vector<int>& V,
     const std::vector<int>& E,
+    const std::vector<int>& row,
+    const std::vector<int>& col,
+    int num_nodes,
     const std::vector<double>& W,
+    bool is_directed,
     std::vector<double>& constraint
 );
 
