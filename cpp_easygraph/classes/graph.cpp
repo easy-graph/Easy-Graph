@@ -14,6 +14,7 @@ Graph::Graph() {
     this->graph = py::dict();
     this->nodes_cache = py::dict();
     this->adj_cache = py::dict();
+    this->coo_graph = nullptr;
 }
 
 py::object Graph__init__(py::args args, py::kwargs kwargs) {
@@ -846,4 +847,129 @@ std::shared_ptr<std::vector<int>> Graph::gen_CSR_sources(const py::object& py_so
     }
 
     return sources;
+}
+
+std::shared_ptr<COOGraph> Graph::gen_COO() {
+    if (coo_graph != nullptr) {
+        if (coo_graph->unweighted_W.size() != coo_graph->row.size()) {
+            coo_graph->unweighted_W = std::vector<double>(coo_graph->row.size(), 1.0);
+        }
+    } else {
+        // the graph has been modified
+
+        coo_graph = std::make_shared<COOGraph>();
+
+        std::vector<node_t>& nodes = coo_graph->nodes;
+        for (auto it = node.begin(); it != node.end(); ++it) {
+            nodes.push_back(it->first);
+        }
+
+        // 对节点进行排序
+        std::sort(nodes.begin(), nodes.end());
+
+        // 建立节点到索引的映射
+        std::unordered_map<node_t, int>& node2idx = coo_graph->node2idx;
+        for (int i = 0; i < nodes.size(); ++i) {
+            node2idx[nodes[i]] = i;
+        }
+
+        // 定义 COO 的行和列以及无权重数组
+        std::vector<int>& row = coo_graph->row;
+        std::vector<int>& col = coo_graph->col;
+        std::vector<double>& unweighted_W = coo_graph->unweighted_W;
+
+        // 遍历每个节点及其邻居
+        for (int idx = 0; idx < nodes.size(); ++idx) {
+            node_t n = nodes[idx];
+
+            // 如果节点 n 不在邻接表中，会抛出异常
+            const auto& n_adjs = adj.find(n)->second;
+
+            for (auto adj_it = n_adjs.begin(); adj_it != n_adjs.end(); ++adj_it) {
+                // 获取邻居节点
+                node_t neighbor = adj_it->first;
+
+                // 将邻居添加到 COO 的行和列中
+                row.push_back(idx);                // 源节点的索引
+                col.push_back(node2idx[neighbor]); // 目标节点的索引
+
+                // 默认无权图，初始化权重为 1.0
+                unweighted_W.push_back(1.0);
+            }
+        }
+    }
+
+    return coo_graph;
+}
+
+std::shared_ptr<COOGraph> Graph::gen_COO(const std::string& weight) {
+    // 如果 COO 图已经存在，检查 W_map 是否有指定的 weight
+    if (coo_graph != nullptr) {
+        if (coo_graph->W_map.find(weight) == coo_graph->W_map.end()) {
+            auto W = std::make_shared<std::vector<double>>();
+
+            // 遍历每个节点及其邻居，收集指定 weight 类型的权重
+            for (node_t n : coo_graph->nodes) {
+                // 如果 n 不在邻接表中，会抛出异常
+                const auto& n_adjs = adj.find(n)->second;
+
+                for (auto adj_it = n_adjs.begin(); adj_it != n_adjs.end(); ++adj_it) {
+                    const edge_attr_dict_factory& edge_attr = adj_it->second;
+                    auto edge_it = edge_attr.find(weight);
+                    weight_t w = edge_it != edge_attr.end() ? edge_it->second : 1.0;
+
+                    W->push_back(w);  // 添加权重
+                }
+            }
+
+            coo_graph->W_map[weight] = W;
+        }
+    } else {
+        // 图已经被修改，需要重新生成 COO 图
+        coo_graph = std::make_shared<COOGraph>();
+
+        std::vector<node_t>& nodes = coo_graph->nodes;
+        for (auto it = node.begin(); it != node.end(); ++it) {
+            nodes.push_back(it->first);
+        }
+
+        // 排序节点
+        std::sort(nodes.begin(), nodes.end());
+
+        std::unordered_map<node_t, int>& node2idx = coo_graph->node2idx;
+        for (int i = 0; i < nodes.size(); ++i) {
+            node2idx[nodes[i]] = i;
+        }
+
+        // 定义 COO 图的行、列和权重数组
+        std::vector<int>& row = coo_graph->row;
+        std::vector<int>& col = coo_graph->col;
+        auto W = std::make_shared<std::vector<double>>();
+
+        // 遍历每个节点及其邻居
+        for (int idx = 0; idx < nodes.size(); ++idx) {
+            node_t n = nodes[idx];
+
+            // 如果节点 n 不在邻接表中，会抛出异常
+            const auto& n_adjs = adj.find(n)->second;
+
+            for (auto adj_it = n_adjs.begin(); adj_it != n_adjs.end(); ++adj_it) {
+                const edge_attr_dict_factory& edge_attr = adj_it->second;
+                auto edge_it = edge_attr.find(weight);
+                weight_t w = edge_it != edge_attr.end() ? edge_it->second : 1.0;
+
+                // 填充行和列数组
+                row.push_back(idx);  // 当前节点的索引
+                col.push_back(node2idx[adj_it->first]);  // 邻居节点的索引
+
+                // 填充权重数组
+                W->push_back(w);
+            }
+        }
+
+        // 将权重数组存储到 W_map 中
+        coo_graph->W_map[weight] = W;
+    }
+
+    return coo_graph;
 }
