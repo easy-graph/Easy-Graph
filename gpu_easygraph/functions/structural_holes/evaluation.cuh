@@ -7,6 +7,8 @@ namespace gpu_easygraph {
 int cuda_constraint(
     _IN_ const int* V,
     _IN_ const int* E,
+    _IN_ const int* row,
+    _IN_ const int* col,
     _IN_ const double* W,
     _IN_ int num_nodes,
     _IN_ int num_edges,

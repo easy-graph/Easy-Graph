@@ -206,11 +206,19 @@ py::object invoke_cpp_constraint(py::object G, py::object nodes, py::object weig
 static py::object invoke_gpu_constraint(py::object G, py::object nodes, py::object weight) {
     Graph& G_ = G.cast<Graph&>();
     if (weight.is_none()) {
-        G_.gen_COO();
+        G_.gen_CSR();
+        // G_.gen_COO();
+        // G_.transfer_csr_to_coo();
     } else {
-        G_.gen_COO(weight_to_string(weight));
+        G_.gen_CSR(weight_to_string(weight));
+        // G_.gen_COO(weight_to_string(weight));
+        // G_.transfer_csr_to_coo(weight_to_string(weight));
     }
-    auto coo_graph = G_.coo_graph;
+    auto csr_graph = G_.csr_graph;
+    auto coo_graph = G_.transfer_csr_to_coo(csr_graph);
+    // auto coo_graph = G_.coo_graph;
+    std::vector<int>& V = csr_graph->V;
+    std::vector<int>& E = csr_graph->E;
     std::vector<int>& row = coo_graph->row;
     std::vector<int>& col = coo_graph->col;
     std::vector<double> *W_p = weight.is_none() ? &(coo_graph->unweighted_W) 
@@ -224,7 +232,7 @@ static py::object invoke_gpu_constraint(py::object G, py::object nodes, py::obje
     // py::print("W_p: ", py::cast(*W_p));
     // py::print("num_nodes: ", py::cast(num_nodes));
     std::vector<double> constraint_results;
-    int gpu_r = gpu_easygraph::constraint(row, col, num_nodes, *W_p, is_directed, constraint_results);
+    int gpu_r = gpu_easygraph::constraint(V, E, row, col, num_nodes, *W_p, is_directed, constraint_results);
     if (gpu_r != gpu_easygraph::EG_GPU_SUCC) {
         py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
     }

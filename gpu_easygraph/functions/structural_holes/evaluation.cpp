@@ -31,6 +31,8 @@ static int decide_warp_size(
 
 
 int constraint(
+    _IN_ const vector<int>& V,
+    _IN_ const vector<int>& E,
     _IN_ const vector<int>& row,
     _IN_ const vector<int>& col,
     _IN_ int num_nodes,
@@ -45,7 +47,7 @@ int constraint(
     // int warp_size = decide_warp_size(len_V, len_E);
     
     constraint = vector<double>(num_nodes);
-    int r = cuda_constraint(row.data(), col.data(), W.data(), num_nodes, num_edges, is_directed, constraint.data());
+    int r = cuda_constraint(V.data(), E.data(), row.data(), col.data(), W.data(), num_nodes, num_edges, is_directed, constraint.data());
 
     return r;  // 成功
 }

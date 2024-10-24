@@ -973,3 +973,84 @@ std::shared_ptr<COOGraph> Graph::gen_COO(const std::string& weight) {
 
     return coo_graph;
 }
+
+// std::shared_ptr<COOGraph> Graph::transfer_csr_to_coo(const std::shared_ptr<CSRGraph>& csr_graph) {
+//     auto coo_graph = std::make_shared<COOGraph>();
+
+//     // 初始化 COO 图的节点
+//     coo_graph->nodes = csr_graph->nodes;
+//     coo_graph->node2idx = csr_graph->node2idx;
+
+//     const std::vector<int>& V = csr_graph->V;
+//     const std::vector<int>& E = csr_graph->E;
+
+//     // 定义 COO 图的行、列和无权重数组
+//     std::vector<int>& row = coo_graph->row;
+//     std::vector<int>& col = coo_graph->col;
+    
+//     // 遍历 CSR 图，将 CSR 的 V 和 E 转换为 COO 的 row 和 col
+//     for (int i = 0; i < V.size() - 1; ++i) {
+//         int start_idx = V[i];
+//         int end_idx = V[i + 1];
+
+//         // 遍历从 V[i] 到 V[i+1] 之间的所有边
+//         for (int j = start_idx; j < end_idx; ++j) {
+//             row.push_back(i);        // 行索引为源节点 i
+//             col.push_back(E[j]);     // 列索引为目标节点
+//         }
+//     }
+
+//     // 如果 CSR 有无权重的 W 数组，直接复制到 COO 图
+//     if (!csr_graph->unweighted_W.empty()) {
+//         coo_graph->unweighted_W = csr_graph->unweighted_W;
+//     }else{
+
+//         // 如果 CSR 有带权重的 W_map，则复制权重映射
+//         for (const auto& [weight_name, W] : csr_graph->W_map) {
+//             coo_graph->W_map[weight_name] = W;
+//         }
+//     }
+
+//     return coo_graph;
+// }
+
+std::shared_ptr<COOGraph> Graph::transfer_csr_to_coo(const std::shared_ptr<CSRGraph>& csr_graph) {
+    auto coo_graph = std::make_shared<COOGraph>();
+
+    // 初始化 COO 图的节点
+    coo_graph->nodes = csr_graph->nodes;
+    coo_graph->node2idx = csr_graph->node2idx;
+
+    const std::vector<int>& V = csr_graph->V;
+    const std::vector<int>& E = csr_graph->E;
+    int num_edges = E.size(); // 预先知道的边数
+
+    // 预分配 COO 的行和列数组的大小
+    coo_graph->row.reserve(num_edges);
+    coo_graph->col.reserve(num_edges);
+
+    std::vector<int>& row = coo_graph->row;
+    std::vector<int>& col = coo_graph->col;
+
+    // 遍历 CSR 图，将 CSR 的 V 和 E 转换为 COO 的 row 和 col
+    for (int i = 0; i < V.size() - 1; ++i) {
+        int start_idx = V[i];
+        int end_idx = V[i + 1];
+
+        // 遍历从 V[i] 到 V[i+1] 之间的所有边
+        for (int j = start_idx; j < end_idx; ++j) {
+            row.push_back(i);        // 行索引为源节点 i
+            col.push_back(E[j]);     // 列索引为目标节点
+        }
+    }
+
+    // 直接复制权重
+    if (!csr_graph->unweighted_W.empty()) {
+        coo_graph->unweighted_W = csr_graph->unweighted_W;
+    } else {
+        // 复制 CSR 的 W_map 中的权重
+        coo_graph->W_map = csr_graph->W_map;
+    }
+
+    return coo_graph;
+}
