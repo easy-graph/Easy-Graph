@@ -24,7 +24,9 @@ def vlen(vector):
 
 
 def common_tangent_radian(r1, r2, d):
-    alpha = math.acos(abs(r2 - r1) / d)
+    value = abs(r2 - r1) / d
+    alpha = math.acos(value)
+    print("alpha:",alpha)
     alpha = alpha if r1 > r2 else pi - alpha
     return alpha
 

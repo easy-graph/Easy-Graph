@@ -86,14 +86,11 @@ class Hypergraph(BaseHypergraph):
         edges_col = []
         indptr_list = []
         ptr = 0
-        # print("n_e_dict:",self.n_e_dict.items())
         for v in self.n_e_dict.values():
             edges_col.extend(v)
             indptr_list.append(ptr)
             ptr += len(v)
         indptr_list.append(ptr)
-        # print("edges_cols:",edges_col)
-        # print("indptr:",indptr_list)
 
         e_idx, v_idx = [], []
         for n, e in self.n_e_dict.items():
@@ -1436,6 +1433,7 @@ class Hypergraph(BaseHypergraph):
             ).coalesce()
         return self.group_cache[group_name]["D_v_neg_1_2"]
 
+
     @property
     def D_e(self) -> torch.Tensor:
         r"""Return the hyperedge degree matrix :math:`\mathbf{D}_e` with ``torch.sparse_coo_tensor`` format.
@@ -1513,31 +1511,6 @@ class Hypergraph(BaseHypergraph):
             ).coalesce()
         return self.group_cache[group_name]["D_e_neg_1"]
 
-    def _fetch_H(self):
-        r"""Fetch the H matrix of the specified hyperedge group with ``torch.sparse_coo_tensor`` format.
-
-        Args:
-            ``direction`` (``str``): The direction of hyperedges can be either ``'v2e'`` or ``'e2v'``.
-            ``group_name`` (``str``): The name of the group.
-        """
-        # assert (
-        #     group_name in self.group_names
-        # ), f"The specified {group_name} is not in existing hyperedge groups."
-        # assert direction in ["v2e", "e2v"], "direction must be one of ['v2e', 'e2v']"
-        # if direction == "v2e":
-        #     select_idx = 0
-        # else:
-        #     select_idx = 1
-        if self.cache.get("main_H") is None:
-            num_e = len(self._raw_groups["main"])
-            self.cache["main_H"] = torch.sparse_coo_tensor(
-                ([self.cache["v_idx"], self.cache["e_idx"]]),
-                torch.ones(len(self.cache["v_idx"])),
-                torch.Size([self.num_v, num_e]),
-                device=self.device,
-            ).coalesce()
-
-        return self.cache["main_H"]
 
     def N_e(self, v_idx: int) -> torch.Tensor:
         r"""Return the neighbor hyperedges of the specified vertex with ``torch.Tensor`` format.
@@ -1750,11 +1723,6 @@ class Hypergraph(BaseHypergraph):
                 @ self.H_T
                 @ _d_v_neg_1_2
             )
-            # print("laplacian:",_tmp.to_dense())
-            # print("H:",self.H.to_dense())
-            # print("H_^:", self.H_T.to_dense())
-            # print("_d_v_neg_1_2:", _d_v_neg_1_2.to_dense())
-            # print("self.D_e_neg_1:",self.D_e_neg_1.to_dense())
             self.cache["L_HGNN"] = _tmp.to_sparse_csr()
         return self.cache["L_HGNN"]
 
@@ -2408,6 +2376,10 @@ class Hypergraph(BaseHypergraph):
             self.cache["clique_expansion"] = graph
 
         return self.cache["clique_expansion"]
+
+    def cluster_coefficient(self):
+        g = self.get_linegraph()
+        return eg.clustering(g)
 
     def s_connected_components(self, s=1, edges=True, return_singletons=False):
         """

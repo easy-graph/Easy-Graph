@@ -119,7 +119,7 @@ def hypergraph_local_clustering_coefficient(H):
     -------
     >>> import easygraph as eg
     >>> H = eg.random_hypergraph(3, [1, 1])
-    >>> cc = eg.local_clustering_coefficient(H)
+    >>> cc = eg.hypergraph_local_clustering_coefficient(H)
     >>> cc
     {0: 1.0, 1: 1.0, 2: 1.0}
 

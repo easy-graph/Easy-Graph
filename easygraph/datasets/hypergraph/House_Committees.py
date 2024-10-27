@@ -51,6 +51,9 @@ class House_Committees:
             final_lst.append(data)
         return final_lst
 
+    def __getitem__(self, key: str):
+        return self._content[key]
+
     @property
     def node_labels(self):
         return self._node_labels
