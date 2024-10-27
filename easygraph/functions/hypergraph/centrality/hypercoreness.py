@@ -36,7 +36,7 @@ def size_independent_hypercoreness(h):
     size = list([len(data[j]) for j in range(L)])
 
     X = eg.Hypergraph(num_v=initial_node_num, e_list=data)
-    IDX = list(range(1, X.num_v+1))
+    IDX = list(range(1, X.num_v + 1))
 
     M = range(2, size_max + 1)
     k_step = 1

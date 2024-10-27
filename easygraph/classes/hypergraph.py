@@ -1433,7 +1433,6 @@ class Hypergraph(BaseHypergraph):
             ).coalesce()
         return self.group_cache[group_name]["D_v_neg_1_2"]
 
-
     @property
     def D_e(self) -> torch.Tensor:
         r"""Return the hyperedge degree matrix :math:`\mathbf{D}_e` with ``torch.sparse_coo_tensor`` format.
@@ -1510,7 +1509,6 @@ class Hypergraph(BaseHypergraph):
                 _mat._indices(), _val, _mat.size(), device=self.device
             ).coalesce()
         return self.group_cache[group_name]["D_e_neg_1"]
-
 
     def N_e(self, v_idx: int) -> torch.Tensor:
         r"""Return the neighbor hyperedges of the specified vertex with ``torch.Tensor`` format.

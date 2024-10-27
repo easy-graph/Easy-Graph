@@ -145,7 +145,7 @@ class Simulator:
         f = f.sum(axis=1)  # (n, 2)
         return f
 
-    def _edge_repulsion(self, e_center, H, e2e_dist, k=1.0, min_dist = 1e-6):
+    def _edge_repulsion(self, e_center, H, e2e_dist, k=1.0, min_dist=1e-6):
         import numpy as np
 
         """
