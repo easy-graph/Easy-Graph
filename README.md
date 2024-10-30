@@ -58,7 +58,7 @@ ___________________________________________________________________________
 
 ## Supported Versions
 
-``3.8 <= Python <= 3.12`` is required.
+``3.8 <= Python <= 3.13`` is required.
 
 ## Installation With pip
 ```
