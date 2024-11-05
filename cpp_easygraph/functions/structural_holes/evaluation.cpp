@@ -269,7 +269,7 @@ weight_t redundancy(DiGraph& G, node_t u, node_t v, std::string weight, rec_type
     return 1 - r;
 }
 
-py::object effective_size(py::object G, py::object nodes, py::object weight, py::object n_workers) {
+py::object invoke_cpp_effective_size(py::object G, py::object nodes, py::object weight) {
     // Graph& G_ = G.cast<Graph&>();
     rec_type sum_nmw_rec, max_nmw_rec;
     py::dict effective_size = py::dict();
@@ -316,6 +316,83 @@ py::object effective_size(py::object G, py::object nodes, py::object weight, py:
         }
     }
     return effective_size;
+}
+
+#ifdef EASYGRAPH_ENABLE_GPU
+static py::object invoke_gpu_effective_size(py::object G, py::object nodes, py::object weight) {
+    // 获取图的引用并生成 CSR 和 COO 格式的边列表
+    Graph& G_ = G.cast<Graph&>();
+    py::dict effective_size = py::dict();
+    if (nodes.is_none()) {
+        nodes = G;
+    }
+    nodes = py::list(nodes);
+    if (!G.attr("is_directed")().cast<bool>() && weight.is_none()) {
+        int nodes_len = py::len(nodes);
+        for (int i = 0; i < nodes_len; i++) {
+            py::object v = nodes[py::cast(i)];
+            if (py::len(G[v]) == 0) {
+                effective_size[v] = py::cast(Py_NAN);
+                continue;
+            }
+            py::object E = G.attr("ego_subgraph")(v);
+            E.attr("remove_node")(v);
+            weight_t size = E.attr("size")().cast<weight_t>();
+            effective_size[v] = py::len(E) - (2 * size) / py::len(E);
+        }
+        return effective_size;
+    }else{
+        if (weight.is_none()) {
+            G_.gen_CSR();
+        } else {
+            G_.gen_CSR(weight_to_string(weight));
+        }
+        auto csr_graph = G_.csr_graph;
+        auto coo_graph = G_.transfer_csr_to_coo(csr_graph);
+
+        // 从 CSR 和 COO 中提取 V 和 E
+        std::vector<int>& V = csr_graph->V;
+        std::vector<int>& E = csr_graph->E;
+        std::vector<int>& row = coo_graph->row;
+        std::vector<int>& col = coo_graph->col;
+
+        // 获取权重向量
+        std::vector<double>* W_p = weight.is_none() ? &(coo_graph->unweighted_W)
+                                                    : coo_graph->W_map.find(weight_to_string(weight))->second.get();
+
+        std::unordered_map<node_t, int>& node2idx = coo_graph->node2idx;
+        int num_nodes = coo_graph->node2idx.size();
+        
+        // 分配结果向量
+        std::vector<double> effective_size_results(num_nodes);
+        bool is_directed = G.attr("is_directed")().cast<bool>();
+        // 调用 GPU 计算 effective size
+        int gpu_r = gpu_easygraph::effective_size(V, E, row, col, num_nodes, *W_p, is_directed, effective_size_results);
+
+        if (gpu_r != gpu_easygraph::EG_GPU_SUCC) {
+            py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
+        }
+
+        // 将结果转换为 Python 字典格式
+
+        for (const auto& node_pair : node2idx) {
+            node_t node_id = node_pair.first;
+            int idx = node_pair.second;
+
+            py::object node_name = G_.id_to_node.attr("get")(py::cast(node_id));
+            effective_size[node_name] = py::cast(effective_size_results[idx]);
+        }
+        return effective_size;
+    }
+}
+#endif
+
+py::object effective_size(py::object G, py::object nodes, py::object weight, py::object n_workers) {
+#ifdef EASYGRAPH_ENABLE_GPU
+    return invoke_gpu_effective_size(G, nodes, weight);
+#else
+    return invoke_cpp_effective_size(G, nodes, weight);
+#endif
 }
 
 void hierarchy_parallel(Graph* G, std::vector<node_t>* nodes, std::string weight, std::unordered_map<node_t, weight_t>* ret) {

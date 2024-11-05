@@ -29,6 +29,23 @@ using std::vector;
 //     return warp_size_cand.back();
 // }
 
+int effective_size(
+    _IN_ const vector<int>& V,
+    _IN_ const vector<int>& E,
+    _IN_ const vector<int>& row,
+    _IN_ const vector<int>& col,
+    _IN_ int num_nodes,
+    _IN_ const vector<double>& W,
+    _IN_ bool is_directed,
+    _OUT_ vector<double>& effective_size
+) {
+    int num_edges = row.size();
+    
+    effective_size = vector<double>(num_nodes);
+    int r = cuda_effective_size(V.data(), E.data(), row.data(), col.data(), W.data(), num_nodes, num_edges, is_directed, effective_size.data());
+
+    return r;  // 成功
+}
 
 int constraint(
     _IN_ const vector<int>& V,
@@ -38,7 +55,7 @@ int constraint(
     _IN_ int num_nodes,
     _IN_ const vector<double>& W,
     _IN_ bool is_directed,
-    _OUT_ std::vector<double>& constraint
+    _OUT_ vector<double>& constraint
 ) {
     int num_edges = row.size();
     
