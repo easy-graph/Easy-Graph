@@ -52,10 +52,10 @@ class Hypergraph(BaseHypergraph):
     def __init__(
         self,
         num_v: int,
-        v_property: Optional[Union[Dict, List[Dict]]] = None,
+        v_property: Optional[Union[List[Dict]]] = None,
         e_list: Optional[Union[List[int], List[List[int]]]] = None,
         e_weight: Optional[Union[float, List[float]]] = None,
-        e_property: Optional[Union[Dict, List[Dict]]] = None,
+        e_property: Optional[Union[List[Dict]]] = None,
         merge_op: str = "mean",
         device: torch.device = torch.device("cpu"),
     ):
