@@ -265,8 +265,9 @@ def watts_strogatz_hypergraph(n, d, k, l, p, seed=None):
         if np.random.random() < p:
             to_remove.append(e)
             node = min(e)
-            neighbors = np.random.choice(H.v, size=d - 1)
-            to_add.append(np.append(neighbors, node))
+            neighbors = set(np.random.choice(H.v, size=d - 1))
+            neighbors.add(node)
+            to_add.append(list(neighbors))
     H.remove_hyperedges(to_remove)
     H.add_hyperedges(to_add)
     return H
