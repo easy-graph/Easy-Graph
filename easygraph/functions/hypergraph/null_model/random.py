@@ -222,7 +222,8 @@ def dcsbm_hypergraph(k1, k2, g1, g2, omega, seed=None):
                         if r < q / p:
                             # no duplicates
                             if v < len(tmp_hyperedges):
-                                tmp_hyperedges[v].append(u)
+                                if u not in tmp_hyperedges[v]:
+                                    tmp_hyperedges[v].append(u)
                             else:
                                 tmp_hyperedges.append([u])
 
