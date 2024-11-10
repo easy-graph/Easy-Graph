@@ -313,6 +313,162 @@ __global__ void directed_calculate_effective_size(
     effective_size_results[u] = is_nan ? NAN : redundancy_sum;
 }
 
+__global__ void calculate_hierarchy(
+    const int* V, 
+    const int* E, 
+    const double* W,
+    int num_nodes,
+    double* hierarchy_results
+) {
+    int v = blockIdx.x * blockDim.x + threadIdx.x;
+    if (v >= num_nodes) return;
+    int n = V[v + 1] - V[v];  
+    double *c = new double[n]; 
+    double C = 0.0;
+    double hierarchy_sum = 0.0;
+    int neighbor = 0;
+    for (int i = V[v]; i < V[v + 1]; i++) {
+        int w = E[i];
+        c[neighbor] = local_constraint(V, E, W, v, w);
+        C += c[neighbor++];
+    }
+    __syncthreads();
+    if (n > 1) {
+        for (int i = 0; i < neighbor; i++) {
+            hierarchy_sum += (c[i] / C) * n * logf((c[i] / C) * n) / (n * logf(n));
+        }
+        hierarchy_results[v] = hierarchy_sum;
+    }else{
+        hierarchy_results[v] = 0;
+    }
+    delete[] c;
+}
+
+__global__ void directed_calculate_hierarchy(
+    const int* V,
+    const int* E,
+    const int* row,
+    const int* col,
+    const double* W, 
+    const int num_nodes,
+    const int num_edges,
+    double* hierarchy_results
+) {
+    int v = blockIdx.x * blockDim.x + threadIdx.x;
+    if (v >= num_nodes) return;
+    int in_neighbor = V[v + 1] - V[v];  
+    int out_neighbor = 0;
+    double C = 0.0;
+    double hierarchy_sum = 0.0;
+    int neighbor = 0;
+    for (int i = 0; i < num_edges; i++) {
+        if (col[i] == v) {
+            out_neighbor++;
+        }
+    }
+    double *c = new double[in_neighbor+out_neighbor]; 
+    for (int i = V[v]; i < V[v + 1]; i++) {
+        int w = E[i];
+        c[neighbor] = directed_local_constraint(V, E, row, col, W, num_edges, v, w);
+        C += c[neighbor];
+        neighbor++;
+    }
+    for (int i = 0; i < num_edges; i++) {
+        if (col[i] == v) {
+            int w = row[i];
+            c[neighbor] = directed_local_constraint(V, E, row, col, W, num_edges, v, w);
+            C += c[neighbor];
+            neighbor++;
+        }
+    }
+    __syncthreads();
+    if (neighbor > 1) {
+        for (int i = 0; i < neighbor; i++) {
+            hierarchy_sum += (c[i] / C) * neighbor * logf((c[i] / C) * neighbor) / (neighbor * logf(neighbor));
+        }
+        hierarchy_results[v] = hierarchy_sum;
+    }else{
+        hierarchy_results[v] = 0;
+    }
+    delete[] c;
+}
+
+
+
+int cuda_hierarchy(
+    _IN_ const int* V,
+    _IN_ const int* E,
+    _IN_ const int* row,
+    _IN_ const int* col,
+    _IN_ const double* W,
+    _IN_ int num_nodes,
+    _IN_ int num_edges,
+    _IN_ bool is_directed,
+    _OUT_ double* hierarchy_results
+){
+    int cuda_ret = cudaSuccess;
+    int EG_ret = EG_GPU_SUCC;
+    int min_grid_size = 0;
+    int block_size = 0;
+    
+    cudaOccupancyMaxPotentialBlockSize(&min_grid_size, &block_size, calculate_constraints, 0, 0);
+    int grid_size = (num_nodes + block_size - 1) / block_size;
+    
+    int* d_V;
+    int* d_E;
+    int* d_row;
+    int* d_col;
+    double* d_W;
+    double* d_hierarchy_results;
+
+    // 分配CUDA设备内存
+    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_V, (num_nodes+1) * sizeof(int)));
+    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_E, num_edges * sizeof(int)));
+    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_row, num_edges * sizeof(int)));
+    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_col, num_edges * sizeof(int)));
+    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_W, num_edges * sizeof(double)));
+    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_hierarchy_results, num_nodes * sizeof(double)));
+
+    // 将数据从主机拷贝到设备
+    EXIT_IF_CUDA_FAILED(cudaMemcpy(d_V, V, (num_nodes+1) * sizeof(int), cudaMemcpyHostToDevice));
+    EXIT_IF_CUDA_FAILED(cudaMemcpy(d_E, E, num_edges * sizeof(int), cudaMemcpyHostToDevice));
+    EXIT_IF_CUDA_FAILED(cudaMemcpy(d_row, row, num_edges * sizeof(int), cudaMemcpyHostToDevice));
+    EXIT_IF_CUDA_FAILED(cudaMemcpy(d_col, col, num_edges * sizeof(int), cudaMemcpyHostToDevice));
+    EXIT_IF_CUDA_FAILED(cudaMemcpy(d_W, W, num_edges * sizeof(double), cudaMemcpyHostToDevice));
+
+
+    // 调用 CUDA 内核
+    if(is_directed){
+        directed_calculate_hierarchy<<<grid_size, block_size>>>(d_V, d_E, d_row, d_col, d_W, num_nodes, num_edges, d_hierarchy_results);
+    }else{
+        calculate_hierarchy<<<grid_size, block_size>>>(d_V, d_E, d_W, num_nodes, d_hierarchy_results);
+    }
+
+    EXIT_IF_CUDA_FAILED(cudaMemcpy(hierarchy_results, d_hierarchy_results, num_nodes * sizeof(double), cudaMemcpyDeviceToHost));
+exit:
+
+    cudaFree(d_V);
+    cudaFree(d_E);
+    cudaFree(d_row);
+    cudaFree(d_col);
+    cudaFree(d_W);
+    cudaFree(d_hierarchy_results);
+    if (cuda_ret != cudaSuccess) {
+        switch (cuda_ret) {
+            case cudaErrorMemoryAllocation:
+                EG_ret = EG_GPU_FAILED_TO_ALLOCATE_DEVICE_MEM;
+                break;
+            default:
+                EG_ret = EG_GPU_DEVICE_ERR;
+                break;
+        }
+    }
+
+    return EG_ret; 
+}
+
+
+
 int cuda_effective_size(
     _IN_ const int* V,
     _IN_ const int* E,
@@ -332,7 +488,7 @@ int cuda_effective_size(
     
     // cudaOccupancyMaxPotentialBlockSize(&min_grid_size, &block_size, 
     // is_directed ? directed_calculate_effective_size : undirected_calculate_effective_size, 0, 0);
-    cudaOccupancyMaxPotentialBlockSize(&min_grid_size, &block_size, directed_calculate_effective_size, 0, 0);
+    cudaOccupancyMaxPotentialBlockSize(&min_grid_size, &block_size, calculate_effective_size, 0, 0);
     int grid_size = (num_nodes + block_size - 1) / block_size;
 
     int* d_V;

@@ -65,4 +65,22 @@ int constraint(
     return r;  // 成功
 }
 
+int hierarchy(
+    _IN_ const vector<int>& V,
+    _IN_ const vector<int>& E,
+    _IN_ const vector<int>& row,
+    _IN_ const vector<int>& col,
+    _IN_ int num_nodes,
+    _IN_ const vector<double>& W,
+    _IN_ bool is_directed,
+    _OUT_ vector<double>& hierarchy
+) {
+    int num_edges = row.size();
+    
+    hierarchy = vector<double>(num_nodes);
+    int r = cuda_hierarchy(V.data(), E.data(), row.data(), col.data(), W.data(), num_nodes, num_edges, is_directed, hierarchy.data());
+
+    return r;  // 成功
+}
+
 } // namespace gpu_easygraph

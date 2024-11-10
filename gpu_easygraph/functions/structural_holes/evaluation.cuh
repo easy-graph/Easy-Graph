@@ -28,4 +28,15 @@ int cuda_constraint(
     _OUT_ double* constraint_results
 );
 
+int cuda_hierarchy(
+    _IN_ const int* V,
+    _IN_ const int* E,
+    _IN_ const int* row,
+    _IN_ const int* col,
+    _IN_ const double* W,
+    _IN_ int num_nodes,
+    _IN_ int num_edges,
+    _IN_ bool is_directed,
+    _OUT_ double* hierarchy_results
+);
 } // namespace gpu_easygraph
