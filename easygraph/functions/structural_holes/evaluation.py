@@ -172,6 +172,7 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
 
 
 @not_implemented_for("multigraph")
+@hybrid("cpp_efficiency")
 def efficiency(G, nodes=None, weight=None):
     """Burt's metric - Efficiency.
     Parameters

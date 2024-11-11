@@ -253,8 +253,22 @@ py::object constraint(py::object G, py::object nodes, py::object weight, py::obj
 #endif
 }
 
+weight_t redundancy(Graph& G, node_t u, node_t v, std::string weight, rec_type& sum_nmw_rec, rec_type& max_nmw_rec) {
+    weight_t r = 0;
+    std::unordered_set<node_t> neighbors;
+    for (const auto& n : G.adj[v]) {
+        neighbors.insert(n.first);
+    }
+    // for (const auto& n : G.pred[v]) {
+    //     neighbors.insert(n.first);
+    // }
+    for (const auto& w : neighbors) {
+        r += normalized_mutual_weight(G, u, w, weight, sum, sum_nmw_rec) * normalized_mutual_weight(G, v, w, weight, max, max_nmw_rec);
+    }
+    return 1 - r;
+}
 
-weight_t redundancy(DiGraph& G, node_t u, node_t v, std::string weight, rec_type& sum_nmw_rec, rec_type& max_nmw_rec) {
+weight_t directed_redundancy(DiGraph& G, node_t u, node_t v, std::string weight, rec_type& sum_nmw_rec, rec_type& max_nmw_rec) {
     weight_t r = 0;
     std::unordered_set<node_t> neighbors;
     for (const auto& n : G.adj[v]) {
@@ -270,14 +284,28 @@ weight_t redundancy(DiGraph& G, node_t u, node_t v, std::string weight, rec_type
 }
 
 py::object invoke_cpp_effective_size(py::object G, py::object nodes, py::object weight) {
-    // Graph& G_ = G.cast<Graph&>();
     rec_type sum_nmw_rec, max_nmw_rec;
     py::dict effective_size = py::dict();
     if (nodes.is_none()) {
         nodes = G;
     }
     nodes = py::list(nodes);
-    if (!G.attr("is_directed")().cast<bool>() && weight.is_none()) {
+    // if (!G.attr("is_directed")().cast<bool>() && weight.is_none()) {
+    //     int nodes_len = py::len(nodes);
+    //     for (int i = 0; i < nodes_len; i++) {
+    //         py::object v = nodes[py::cast(i)];
+    //         if (py::len(G[v]) == 0) {
+    //             effective_size[v] = py::cast(Py_NAN);
+    //             continue;
+    //         }
+    //         py::object E = G.attr("ego_subgraph")(v);
+    //         E.attr("remove_node")(v);
+    //         weight_t size = E.attr("size")().cast<weight_t>();
+    //         effective_size[v] = py::len(E) - (2 * size) / py::len(E);
+    //     }
+    if (!G.attr("is_directed")().cast<bool>()){
+        Graph& G_ = G.cast<Graph&>();
+        std::string weight_key = weight_to_string(weight);
         int nodes_len = py::len(nodes);
         for (int i = 0; i < nodes_len; i++) {
             py::object v = nodes[py::cast(i)];
@@ -285,12 +313,15 @@ py::object invoke_cpp_effective_size(py::object G, py::object nodes, py::object 
                 effective_size[v] = py::cast(Py_NAN);
                 continue;
             }
-            py::object E = G.attr("ego_subgraph")(v);
-            E.attr("remove_node")(v);
-            weight_t size = E.attr("size")().cast<weight_t>();
-            effective_size[v] = py::len(E) - (2 * size) / py::len(E);
+            weight_t redundancy_sum = 0;
+            node_t v_id = G_.node_to_id[v].cast<node_t>();
+            for (const auto& neighbor_info : G_.adj[v_id]) {
+                node_t u_id = neighbor_info.first;
+                redundancy_sum += redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
+            }
+            effective_size[v] = redundancy_sum;
         }
-    } else {
+    } else{
         DiGraph& G_ = G.cast<DiGraph&>();
         std::string weight_key = weight_to_string(weight);
         int nodes_len = py::len(nodes);
@@ -302,15 +333,13 @@ py::object invoke_cpp_effective_size(py::object G, py::object nodes, py::object 
             }
             weight_t redundancy_sum = 0;
             node_t v_id = G_.node_to_id[v].cast<node_t>();
-            std::unordered_set<node_t> neighbors;
-            for (const auto& n : G_.adj[v_id]) {
-                neighbors.insert(n.first);
+            for (const auto& neighbor_info : G_.adj[v_id]) {
+                node_t u_id = neighbor_info.first;
+                redundancy_sum += directed_redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
             }
-            for (const auto& n : G_.pred[v_id]) {
-                neighbors.insert(n.first);
-            }
-            for (const auto& u_id : neighbors) {
-                redundancy_sum += redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
+            for (const auto& neighbor_info : G_.pred[v_id]) {
+                node_t u_id = neighbor_info.first;
+                redundancy_sum += directed_redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
             }
             effective_size[v] = redundancy_sum;
         }
@@ -392,6 +421,48 @@ py::object effective_size(py::object G, py::object nodes, py::object weight, py:
     return invoke_gpu_effective_size(G, nodes, weight);
 #else
     return invoke_cpp_effective_size(G, nodes, weight);
+#endif
+}
+
+py::object invoke_cpp_efficiency(py::object G, py::object nodes, py::object weight) {
+    py::dict effective_size_dict = invoke_cpp_effective_size(G, nodes, weight);
+
+    py::dict degree;
+    if (weight.is_none()) {
+        degree = G.attr("degree")(py::none()).cast<py::dict>();
+    } else {
+        degree = G.attr("degree")(weight).cast<py::dict>();
+    }
+
+    py::dict efficiency_dict;
+    for (auto item : effective_size_dict) {
+        int node = py::reinterpret_borrow<py::int_>(item.first).cast<int>();
+        double eff_size = py::reinterpret_borrow<py::float_>(item.second).cast<double>();
+
+        if (!degree.contains(py::cast(node))) {
+            continue;
+        }
+
+        double node_degree = py::reinterpret_borrow<py::float_>(degree[py::cast(node)]).cast<double>();
+        if (node_degree == 0.0) {
+            efficiency_dict[py::cast(node)] = py::cast(Py_NAN);
+        } else {
+            double efficiency_value = eff_size / node_degree;
+            efficiency_dict[py::cast(node)] = py::cast(efficiency_value);
+        }
+    }
+
+    return efficiency_dict;
+}
+
+
+
+
+py::object efficiency(py::object G, py::object nodes, py::object weight, py::object n_workers) {
+#ifdef EASYGRAPH_ENABLE_GPU
+    return invoke_gpu_efficiency(G, nodes, weight);
+#else
+    return invoke_cpp_efficiency(G, nodes, weight);
 #endif
 }
 
@@ -572,3 +643,5 @@ py::object hierarchy(py::object G, py::object nodes, py::object weight, py::obje
     return invoke_cpp_hierarchy(G, nodes, weight, n_workers);
 #endif
 }
+
+
