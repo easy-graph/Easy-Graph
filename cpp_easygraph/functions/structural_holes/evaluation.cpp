@@ -290,19 +290,6 @@ py::object invoke_cpp_effective_size(py::object G, py::object nodes, py::object 
         nodes = G;
     }
     nodes = py::list(nodes);
-    // if (!G.attr("is_directed")().cast<bool>() && weight.is_none()) {
-    //     int nodes_len = py::len(nodes);
-    //     for (int i = 0; i < nodes_len; i++) {
-    //         py::object v = nodes[py::cast(i)];
-    //         if (py::len(G[v]) == 0) {
-    //             effective_size[v] = py::cast(Py_NAN);
-    //             continue;
-    //         }
-    //         py::object E = G.attr("ego_subgraph")(v);
-    //         E.attr("remove_node")(v);
-    //         weight_t size = E.attr("size")().cast<weight_t>();
-    //         effective_size[v] = py::len(E) - (2 * size) / py::len(E);
-    //     }
     if (!G.attr("is_directed")().cast<bool>()){
         Graph& G_ = G.cast<Graph&>();
         std::string weight_key = weight_to_string(weight);
@@ -356,21 +343,6 @@ static py::object invoke_gpu_effective_size(py::object G, py::object nodes, py::
         nodes = G;
     }
     nodes = py::list(nodes);
-    // if (!G.attr("is_directed")().cast<bool>() && weight.is_none()) {
-    //     int nodes_len = py::len(nodes);
-    //     for (int i = 0; i < nodes_len; i++) {
-    //         py::object v = nodes[py::cast(i)];
-    //         if (py::len(G[v]) == 0) {
-    //             effective_size[v] = py::cast(Py_NAN);
-    //             continue;
-    //         }
-    //         py::object E = G.attr("ego_subgraph")(v);
-    //         E.attr("remove_node")(v);
-    //         weight_t size = E.attr("size")().cast<weight_t>();
-    //         effective_size[v] = py::len(E) - (2 * size) / py::len(E);
-    //     }
-    //     return effective_size;
-    // }else{
     if (weight.is_none()) {
         G_.gen_CSR();
     } else {
@@ -379,30 +351,25 @@ static py::object invoke_gpu_effective_size(py::object G, py::object nodes, py::
     auto csr_graph = G_.csr_graph;
     auto coo_graph = G_.transfer_csr_to_coo(csr_graph);
 
-    // 从 CSR 和 COO 中提取 V 和 E
     std::vector<int>& V = csr_graph->V;
     std::vector<int>& E = csr_graph->E;
     std::vector<int>& row = coo_graph->row;
     std::vector<int>& col = coo_graph->col;
 
-    // 获取权重向量
     std::vector<double>* W_p = weight.is_none() ? &(coo_graph->unweighted_W)
                                                 : coo_graph->W_map.find(weight_to_string(weight))->second.get();
 
     std::unordered_map<node_t, int>& node2idx = coo_graph->node2idx;
     int num_nodes = coo_graph->node2idx.size();
     
-    // 分配结果向量
     std::vector<double> effective_size_results(num_nodes);
     bool is_directed = G.attr("is_directed")().cast<bool>();
-    // 调用 GPU 计算 effective size
     int gpu_r = gpu_easygraph::effective_size(V, E, row, col, num_nodes, *W_p, is_directed, effective_size_results);
 
     if (gpu_r != gpu_easygraph::EG_GPU_SUCC) {
         py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
     }
 
-    // 将结果转换为 Python 字典格式
 
     for (const auto& node_pair : node2idx) {
         node_t node_id = node_pair.first;
@@ -423,6 +390,39 @@ py::object effective_size(py::object G, py::object nodes, py::object weight, py:
     return invoke_cpp_effective_size(G, nodes, weight);
 #endif
 }
+
+#ifdef EASYGRAPH_ENABLE_GPU
+static py::object invoke_gpu_efficiency(py::object G, py::object nodes, py::object weight) {
+    py::dict effective_size_dict = invoke_gpu_effective_size(G, nodes, weight);
+
+    py::dict degree;
+    if (weight.is_none()) {
+        degree = G.attr("degree")(py::none()).cast<py::dict>();
+    } else {
+        degree = G.attr("degree")(weight).cast<py::dict>();
+    }
+
+    py::dict efficiency_dict;
+    for (auto item : effective_size_dict) {
+        int node = py::reinterpret_borrow<py::int_>(item.first).cast<int>();
+        double eff_size = py::reinterpret_borrow<py::float_>(item.second).cast<double>();
+
+        if (!degree.contains(py::cast(node))) {
+            continue;
+        }
+
+        double node_degree = py::reinterpret_borrow<py::float_>(degree[py::cast(node)]).cast<double>();
+        if (node_degree == 0.0) {
+            efficiency_dict[py::cast(node)] = py::cast(Py_NAN);
+        } else {
+            double efficiency_value = eff_size / node_degree;
+            efficiency_dict[py::cast(node)] = py::cast(efficiency_value);
+        }
+    }
+
+    return efficiency_dict;
+}
+#endif
 
 py::object invoke_cpp_efficiency(py::object G, py::object nodes, py::object weight) {
     py::dict effective_size_dict = invoke_cpp_effective_size(G, nodes, weight);
@@ -454,9 +454,6 @@ py::object invoke_cpp_efficiency(py::object G, py::object nodes, py::object weig
 
     return efficiency_dict;
 }
-
-
-
 
 py::object efficiency(py::object G, py::object nodes, py::object weight, py::object n_workers) {
 #ifdef EASYGRAPH_ENABLE_GPU
@@ -643,5 +640,3 @@ py::object hierarchy(py::object G, py::object nodes, py::object weight, py::obje
     return invoke_cpp_hierarchy(G, nodes, weight, n_workers);
 #endif
 }
-
-
