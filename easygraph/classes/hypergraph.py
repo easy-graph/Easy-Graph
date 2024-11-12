@@ -580,11 +580,11 @@ class Hypergraph(BaseHypergraph):
                 self._raw_groups[group_name].pop(e_code, None)
 
         self.edge_index = -1
+        self.n_e_dict = {i: [] for i in range(self.num_v)}
         for e in self.e[0]:
             self.edge_index += 1
-        for i in range(self.num_v):
-            self.n_e_dict[i] = []
-
+            for n_id in e:
+                self.n_e_dict[n_id].append(self.edge_index)
         self._clear_cache(group_name)
 
     def remove_group(self, group_name: str):
