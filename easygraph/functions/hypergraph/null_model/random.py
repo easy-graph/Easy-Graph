@@ -222,7 +222,8 @@ def dcsbm_hypergraph(k1, k2, g1, g2, omega, seed=None):
                         if r < q / p:
                             # no duplicates
                             if v < len(tmp_hyperedges):
-                                tmp_hyperedges[v].append(u)
+                                if u not in tmp_hyperedges[v]:
+                                    tmp_hyperedges[v].append(u)
                             else:
                                 tmp_hyperedges.append([u])
 
@@ -278,6 +279,7 @@ def watts_strogatz_hypergraph(n, d, k, l, p, seed=None):
     # H.remove_hyperedges(to_remove)
     # print("watts_strogatz:",H.e)
     # H.add_hyperedges(to_add)
+
     return H
 
 
