@@ -14,7 +14,6 @@ from typing import Union
 import easygraph as eg
 import numpy as np
 import torch
-
 from easygraph.classes.base import BaseHypergraph
 from easygraph.functions.drawing import draw_hypergraph
 from easygraph.utils.exception import EasyGraphError
@@ -39,6 +38,8 @@ class Hypergraph(BaseHypergraph):
     ----------
         num_v  : (int) The number of vertices in the hypergraph
         e_list : (Union[List[int], List[List[int]]], optional) A list of hyperedges describes how the vertices point to the hyperedges. Defaults to ``None``
+        v_property: Optional[List[Dict]], A list of node properties. Defaults to ``None``
+        e_property: Optional[List[Dict]], A list of hyperedges properties. Defaults to ``None``
         e_weight : (Union[float, List[float]], optional)  A list of weights for hyperedges. If set to None, the value ``1`` is used for all hyperedges. Defaults to None
         merge_op : (str) The operation to merge those conflicting hyperedges in the same hyperedge group, which can be ``'mean'``, ``'sum'`` or ``'max'``. Defaults to ``'mean'``
         device : (torch.device, optional) The device to store the hypergraph. Defaults to torch.device('cpu')
@@ -52,10 +53,10 @@ class Hypergraph(BaseHypergraph):
     def __init__(
         self,
         num_v: int,
-        v_property: Optional[Union[Dict, List[Dict]]] = None,
+        v_property: Optional[List[Dict]] = None,
         e_list: Optional[Union[List[int], List[List[int]]]] = None,
         e_weight: Optional[Union[float, List[float]]] = None,
-        e_property: Optional[Union[Dict, List[Dict]]] = None,
+        e_property: Optional[List[Dict]] = None,
         merge_op: str = "mean",
         device: torch.device = torch.device("cpu"),
     ):
@@ -449,7 +450,6 @@ class Hypergraph(BaseHypergraph):
 
         for _idx in range(len(e_list)):
             flag = True
-
             if (
                 group_name not in self._raw_groups
                 or self._hyperedge_code(e_list[_idx], e_list[_idx])
@@ -468,6 +468,7 @@ class Hypergraph(BaseHypergraph):
                 self.deg_v_dict[n_id] += 1
                 if flag is False:
                     self.n_e_dict[n_id].append(self.edge_index)
+
             if e_property != None:
                 if type(e_property) == dict:
                     e_property = [e_property]
@@ -577,6 +578,13 @@ class Hypergraph(BaseHypergraph):
                         )
                 e_code = self._hyperedge_code(e_list[_idx], e_list[_idx])
                 self._raw_groups[group_name].pop(e_code, None)
+
+        self.edge_index = -1
+        for e in self.e[0]:
+            self.edge_index += 1
+        for i in range(self.num_v):
+            self.n_e_dict[i] = []
+
         self._clear_cache(group_name)
 
     def remove_group(self, group_name: str):
@@ -995,7 +1003,6 @@ class Hypergraph(BaseHypergraph):
                 indptr_list.append(ptr)
                 self.cache["edges_col"] = np.array(edges_col)
                 self.cache["indptr_list"] = np.array(indptr_list)
-
             H = csr_matrix(
                 (
                     [1] * len(self.cache["edges_col"]),
@@ -1080,7 +1087,7 @@ class Hypergraph(BaseHypergraph):
         """
         if self.cache.get("adjacency_matrix") == None:
             tmp_H = self.incidence_matrix
-            A = tmp_H @ (tmp_H.T)
+            A = tmp_H @ tmp_H.T
             A[np.diag_indices_from(A)] = 0
             if not weight:
                 A = (A >= s) * 1
@@ -2436,3 +2443,75 @@ class Hypergraph(BaseHypergraph):
             if not return_singletons and len(c) == 1:
                 continue
             yield c
+
+    @staticmethod
+    def from_hypergraph_hypergcn(
+            hypergraph,
+            feature,
+            with_mediator=False,
+            remove_selfloop=True,
+    ):
+
+        r"""Construct a graph from a hypergraph with methods proposed in `HyperGCN: A New Method of Training Graph Convolutional Networks on Hypergraphs <https://arxiv.org/pdf/1809.02589.pdf>`_ paper .
+
+        Args:
+            ``hypergraph`` (``Hypergraph``): The source hypergraph.
+            ``feature`` (``torch.Tensor``): The feature of the vertices.
+            ``with_mediator`` (``str``): Whether to use mediator to transform the hyperedges to edges in the graph. Defaults to ``False``.
+            ``remove_selfloop`` (``bool``): Whether to remove self-loop. Defaults to ``True``.
+            ``device`` (``torch.device``): The device to store the graph. Defaults to ``torch.device("cpu")``.
+        """
+
+        num_v = hypergraph.num_v
+        assert (
+                num_v == feature.shape[0]
+        ), "The number of vertices in hypergraph and feature.shape[0] must be equal!"
+        e_list, new_e_list, new_e_weight = hypergraph.e[0], [], []
+        rv = torch.rand((feature.shape[1], 1), device=feature.device)
+        for e in e_list:
+            num_v_in_e = len(e)
+            assert (
+                    num_v_in_e >= 2
+            ), "The number of vertices in an edge must be greater than or equal to 2!"
+            p = torch.mm(feature[e, :], rv).squeeze()
+            v_a_idx, v_b_idx = torch.argmax(p), torch.argmin(p)
+            if not with_mediator:
+                new_e_list.append((e[v_a_idx], e[v_b_idx]))
+                new_e_weight.append(1.0 / num_v_in_e)
+            else:
+                w = 1.0 / (2 * num_v_in_e - 3)
+                for mid_v_idx in range(num_v_in_e):
+                    if mid_v_idx != v_a_idx and mid_v_idx != v_b_idx:
+                        new_e_list.append([e[v_a_idx], e[mid_v_idx]])
+                        new_e_weight.append(w)
+                        new_e_list.append([e[v_b_idx], e[mid_v_idx]])
+                        new_e_weight.append(w)
+        # remove selfloop
+        if remove_selfloop:
+            new_e_list = torch.tensor(new_e_list, dtype=torch.long)
+            new_e_weight = torch.tensor(new_e_weight, dtype=torch.float)
+            e_mask = (new_e_list[:, 0] != new_e_list[:, 1]).bool()
+            new_e_list = new_e_list[e_mask].numpy().tolist()
+            new_e_weight = new_e_weight[e_mask].numpy().tolist()
+
+        _g = Graph()
+
+        _g.add_nodes(list(range(0, num_v)))
+        for (
+                e,
+                w,
+        ) in zip(new_e_list, new_e_weight):
+            if _g.has_edge(e[0], e[1]):
+                _g.add_edge(e[0], e[1], weight=(w + _g.adj[e[0]][e[1]]["weight"]))
+            else:
+                _g.add_edge(e[0], e[1], weight=w)
+        now_edges = []
+        now_weight = []
+        for e in _g.edges:
+            now_edges.append((e[0], e[1]))
+            now_weight.append(e[2]["weight"])
+        now_edges.extend([(i, i) for i in range(num_v)])
+        now_weight.extend([1.0] * num_v)
+        _g.cache["e_both_side"] = (now_edges, now_weight)
+
+        return _g
