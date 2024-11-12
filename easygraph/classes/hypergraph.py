@@ -14,6 +14,7 @@ from typing import Union
 import easygraph as eg
 import numpy as np
 import torch
+
 from easygraph.classes.base import BaseHypergraph
 from easygraph.functions.drawing import draw_hypergraph
 from easygraph.utils.exception import EasyGraphError
@@ -2446,12 +2447,11 @@ class Hypergraph(BaseHypergraph):
 
     @staticmethod
     def from_hypergraph_hypergcn(
-            hypergraph,
-            feature,
-            with_mediator=False,
-            remove_selfloop=True,
+        hypergraph,
+        feature,
+        with_mediator=False,
+        remove_selfloop=True,
     ):
-
         r"""Construct a graph from a hypergraph with methods proposed in `HyperGCN: A New Method of Training Graph Convolutional Networks on Hypergraphs <https://arxiv.org/pdf/1809.02589.pdf>`_ paper .
 
         Args:
@@ -2464,14 +2464,14 @@ class Hypergraph(BaseHypergraph):
 
         num_v = hypergraph.num_v
         assert (
-                num_v == feature.shape[0]
+            num_v == feature.shape[0]
         ), "The number of vertices in hypergraph and feature.shape[0] must be equal!"
         e_list, new_e_list, new_e_weight = hypergraph.e[0], [], []
         rv = torch.rand((feature.shape[1], 1), device=feature.device)
         for e in e_list:
             num_v_in_e = len(e)
             assert (
-                    num_v_in_e >= 2
+                num_v_in_e >= 2
             ), "The number of vertices in an edge must be greater than or equal to 2!"
             p = torch.mm(feature[e, :], rv).squeeze()
             v_a_idx, v_b_idx = torch.argmax(p), torch.argmin(p)
@@ -2498,8 +2498,8 @@ class Hypergraph(BaseHypergraph):
 
         _g.add_nodes(list(range(0, num_v)))
         for (
-                e,
-                w,
+            e,
+            w,
         ) in zip(new_e_list, new_e_weight):
             if _g.has_edge(e[0], e[1]):
                 _g.add_edge(e[0], e[1], weight=(w + _g.adj[e[0]][e[1]]["weight"]))

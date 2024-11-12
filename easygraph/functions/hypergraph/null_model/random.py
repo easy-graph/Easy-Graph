@@ -275,7 +275,7 @@ def watts_strogatz_hypergraph(n, d, k, l, p, seed=None):
     for e in to_add:
         H_edges.append(e)
 
-    H = eg.Hypergraph(num_v = n, e_list= H_edges)
+    H = eg.Hypergraph(num_v=n, e_list=H_edges)
     # H.remove_hyperedges(to_remove)
     # print("watts_strogatz:",H.e)
     # H.add_hyperedges(to_add)

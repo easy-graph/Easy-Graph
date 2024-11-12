@@ -61,10 +61,12 @@ class UniGCNConv(nn.Module):
         # compute the special degree of hyperedges
         _De = torch.zeros(hg.num_e, device=hg.device)
         _Dv = hg.D_v._values()[hg.v2e_src]
-        _De = (_De.scatter_reduce(
-            0, index=hg.v2e_dst, src=_Dv, reduce="mean"
-        )/_De.scatter_reduce(
-            0, index=hg.v2e_dst, src=(_Dv != 0).float(), reduce="sum")).pow(-0.5)
+        _De = (
+            _De.scatter_reduce(0, index=hg.v2e_dst, src=_Dv, reduce="mean")
+            / _De.scatter_reduce(
+                0, index=hg.v2e_dst, src=(_Dv != 0).float(), reduce="sum"
+            )
+        ).pow(-0.5)
 
         _De[_De.isinf()] = 1
         Y = _De.view(-1, 1) * Y

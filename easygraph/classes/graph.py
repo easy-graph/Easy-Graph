@@ -177,8 +177,6 @@ class Graph:
         self.cache["e_both_side"] = (edges, weights)
         return self.cache["e_both_side"]
 
-
-
     @property
     def A(self):
         r"""Return the adjacency matrix :math:`\mathbf{A}` of the sample graph with ``torch.sparse_coo_tensor`` format. Size :math:`(|\mathcal{V}|, |\mathcal{V}|)`.
