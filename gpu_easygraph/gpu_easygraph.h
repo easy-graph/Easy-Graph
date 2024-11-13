@@ -61,6 +61,7 @@ int constraint(
     int num_nodes,
     const std::vector<double>& W,
     bool is_directed,
+    std::vector<int>& node_mask,  // 添加节点掩码参数
     std::vector<double>& constraint
 );
 
@@ -72,6 +73,7 @@ int hierarchy(
     int num_nodes,
     const std::vector<double>& W,
     bool is_directed,
+    std::vector<int>& node_mask, 
     std::vector<double>& hierarchy
 );
 
@@ -83,6 +85,7 @@ int effective_size(
     int num_nodes,
     const std::vector<double>& W,
     bool is_directed,
+    std::vector<int>& node_mask, 
     std::vector<double>& effective_size
 );
 

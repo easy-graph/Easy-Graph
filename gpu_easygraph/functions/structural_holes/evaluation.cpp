@@ -37,12 +37,13 @@ int effective_size(
     _IN_ int num_nodes,
     _IN_ const vector<double>& W,
     _IN_ bool is_directed,
+    _IN_ vector<int>& node_mask,  // 添加节点掩码参数
     _OUT_ vector<double>& effective_size
 ) {
     int num_edges = row.size();
     
     effective_size = vector<double>(num_nodes);
-    int r = cuda_effective_size(V.data(), E.data(), row.data(), col.data(), W.data(), num_nodes, num_edges, is_directed, effective_size.data());
+    int r = cuda_effective_size(V.data(), E.data(), row.data(), col.data(), W.data(), num_nodes, num_edges, is_directed, node_mask.data(), effective_size.data());
 
     return r;  // 成功
 }
@@ -55,12 +56,13 @@ int constraint(
     _IN_ int num_nodes,
     _IN_ const vector<double>& W,
     _IN_ bool is_directed,
+    _IN_ vector<int>& node_mask,  // 添加节点掩码参数
     _OUT_ vector<double>& constraint
 ) {
     int num_edges = row.size();
     
     constraint = vector<double>(num_nodes);
-    int r = cuda_constraint(V.data(), E.data(), row.data(), col.data(), W.data(), num_nodes, num_edges, is_directed, constraint.data());
+    int r = cuda_constraint(V.data(), E.data(), row.data(), col.data(), W.data(), num_nodes, num_edges, is_directed, node_mask.data(), constraint.data());
 
     return r;  // 成功
 }
@@ -73,12 +75,13 @@ int hierarchy(
     _IN_ int num_nodes,
     _IN_ const vector<double>& W,
     _IN_ bool is_directed,
+    _IN_ vector<int>& node_mask,  // 添加节点掩码参数
     _OUT_ vector<double>& hierarchy
 ) {
     int num_edges = row.size();
     
     hierarchy = vector<double>(num_nodes);
-    int r = cuda_hierarchy(V.data(), E.data(), row.data(), col.data(), W.data(), num_nodes, num_edges, is_directed, hierarchy.data());
+    int r = cuda_hierarchy(V.data(), E.data(), row.data(), col.data(), W.data(), num_nodes, num_edges, is_directed, node_mask.data(), hierarchy.data());
 
     return r;  // 成功
 }

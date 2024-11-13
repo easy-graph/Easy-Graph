@@ -76,10 +76,11 @@ __global__ void calculate_constraints(
     const int* E,
     const double* W, 
     const int num_nodes, 
+    const int* node_mask,
     double* constraint_results
 ) {
     int v = blockIdx.x * blockDim.x + threadIdx.x;
-    if (v >= num_nodes) return;
+    if (v >= num_nodes || !node_mask[v]) return;
     double constraint_of_v = 0.0;
     bool is_nan = true;
     for (int i = V[v]; i < V[v+1]; i++) {
@@ -199,10 +200,11 @@ __global__ void directed_calculate_constraints(
     const double* W,  
     int num_nodes,
     int num_edges,
+    int* node_mask,
     double* constraint_results
 ) {
     int v = blockIdx.x * blockDim.x + threadIdx.x;
-    if (v >= num_nodes) return;
+    if (v >= num_nodes || !node_mask[v]) return;
     double constraint_of_v = 0.0;
     bool is_nan = true;
     for (int i = V[v]; i < V[v+1]; i++) {
@@ -230,9 +232,32 @@ static __device__ double redundancy(
     double r = 0.0;
     for (int i = V[v]; i < V[v + 1]; i++) {
         int w = E[i];
-        r += normalized_mutual_weight(V, E, W, u, w,SUM) * normalized_mutual_weight(V, E, W, v, w,MAX);
+        r += normalized_mutual_weight(V, E, W, u, w, SUM) * normalized_mutual_weight(V, E, W, v, w, MAX);
     }
     return 1-r;
+}
+
+__global__ void calculate_effective_size(
+    const int* V,
+    const int* E,
+    const double* W,
+    const int num_nodes,
+    const int* node_mask,
+    double* effective_size_results
+) {
+    int u = blockIdx.x * blockDim.x + threadIdx.x;
+    if (u >= num_nodes || !node_mask[u]) return;
+    double redundancy_sum = 0.0;
+    bool is_nan = true;
+
+    // 遍历 v 的所有邻居
+    for (int i = V[u]; i < V[u + 1]; i++) {
+        int v = E[i];
+        if (v == u) continue; // 排除自连接的情况
+        is_nan = false;
+        redundancy_sum += redundancy(V,E,W,num_nodes,u,v);
+    }
+    effective_size_results[u] = is_nan ? NAN : redundancy_sum;
 }
 
 static __device__ double directed_redundancy(
@@ -260,28 +285,6 @@ static __device__ double directed_redundancy(
     return 1-r;
 }
 
-__global__ void calculate_effective_size(
-    const int* V,
-    const int* E,
-    const double* W,
-    const int num_nodes,
-    double* effective_size_results
-) {
-    int u = blockIdx.x * blockDim.x + threadIdx.x;
-    if (u >= num_nodes) return;
-    double redundancy_sum = 0.0;
-    bool is_nan = true;
-
-    // 遍历 v 的所有邻居
-    for (int i = V[u]; i < V[u + 1]; i++) {
-        int v = E[i];
-        if (v == u) continue; // 排除自连接的情况
-        is_nan = false;
-        redundancy_sum += redundancy(V,E,W,num_nodes,u,v);
-    }
-    effective_size_results[u] = is_nan ? NAN : redundancy_sum;
-}
-
 __global__ void directed_calculate_effective_size(
     const int* V,
     const int* E,
@@ -290,10 +293,11 @@ __global__ void directed_calculate_effective_size(
     const double* W, 
     const int num_nodes,
     const int num_edges,
+    const int* node_mask,
     double* effective_size_results
 ) {
     int u = blockIdx.x * blockDim.x + threadIdx.x;
-    if (u >= num_nodes) return;
+    if (u >= num_nodes || !node_mask[u]) return;
     double redundancy_sum = 0.0;
     bool is_nan = true;
 
@@ -318,10 +322,11 @@ __global__ void calculate_hierarchy(
     const int* E, 
     const double* W,
     int num_nodes,
+    const int* node_mask,
     double* hierarchy_results
 ) {
     int v = blockIdx.x * blockDim.x + threadIdx.x;
-    if (v >= num_nodes) return;
+    if (v >= num_nodes || !node_mask[v]) return;
     int n = V[v + 1] - V[v];  
     double *c = new double[n]; 
     double C = 0.0;
@@ -352,10 +357,11 @@ __global__ void directed_calculate_hierarchy(
     const double* W, 
     const int num_nodes,
     const int num_edges,
+    const int* node_mask,
     double* hierarchy_results
 ) {
     int v = blockIdx.x * blockDim.x + threadIdx.x;
-    if (v >= num_nodes) return;
+    if (v >= num_nodes || !node_mask[v]) return;
     int in_neighbor = V[v + 1] - V[v];  
     int out_neighbor = 0;
     double C = 0.0;
@@ -404,6 +410,7 @@ int cuda_hierarchy(
     _IN_ int num_nodes,
     _IN_ int num_edges,
     _IN_ bool is_directed,
+    _IN_ int* node_mask,
     _OUT_ double* hierarchy_results
 ){
     int cuda_ret = cudaSuccess;
@@ -419,6 +426,7 @@ int cuda_hierarchy(
     int* d_row;
     int* d_col;
     double* d_W;
+    int* d_node_mask;
     double* d_hierarchy_results;
 
     // 分配CUDA设备内存
@@ -427,6 +435,7 @@ int cuda_hierarchy(
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_row, num_edges * sizeof(int)));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_col, num_edges * sizeof(int)));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_W, num_edges * sizeof(double)));
+    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_node_mask, num_nodes * sizeof(int)));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_hierarchy_results, num_nodes * sizeof(double)));
 
     // 将数据从主机拷贝到设备
@@ -434,14 +443,15 @@ int cuda_hierarchy(
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_E, E, num_edges * sizeof(int), cudaMemcpyHostToDevice));
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_row, row, num_edges * sizeof(int), cudaMemcpyHostToDevice));
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_col, col, num_edges * sizeof(int), cudaMemcpyHostToDevice));
+    EXIT_IF_CUDA_FAILED(cudaMemcpy(d_node_mask, node_mask, num_nodes * sizeof(int), cudaMemcpyHostToDevice));
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_W, W, num_edges * sizeof(double), cudaMemcpyHostToDevice));
 
 
     // 调用 CUDA 内核
     if(is_directed){
-        directed_calculate_hierarchy<<<grid_size, block_size>>>(d_V, d_E, d_row, d_col, d_W, num_nodes, num_edges, d_hierarchy_results);
+        directed_calculate_hierarchy<<<grid_size, block_size>>>(d_V, d_E, d_row, d_col, d_W, num_nodes, num_edges, d_node_mask, d_hierarchy_results);
     }else{
-        calculate_hierarchy<<<grid_size, block_size>>>(d_V, d_E, d_W, num_nodes, d_hierarchy_results);
+        calculate_hierarchy<<<grid_size, block_size>>>(d_V, d_E, d_W, num_nodes, d_node_mask, d_hierarchy_results);
     }
 
     EXIT_IF_CUDA_FAILED(cudaMemcpy(hierarchy_results, d_hierarchy_results, num_nodes * sizeof(double), cudaMemcpyDeviceToHost));
@@ -452,6 +462,7 @@ exit:
     cudaFree(d_row);
     cudaFree(d_col);
     cudaFree(d_W);
+    cudaFree(d_node_mask);
     cudaFree(d_hierarchy_results);
     if (cuda_ret != cudaSuccess) {
         switch (cuda_ret) {
@@ -478,6 +489,7 @@ int cuda_effective_size(
     _IN_ int num_nodes,
     _IN_ int num_edges,
     _IN_ bool is_directed,
+    _IN_ int* node_mask,
     _OUT_ double* effective_size_results
 ) {
     int cuda_ret = cudaSuccess;
@@ -496,6 +508,7 @@ int cuda_effective_size(
     int* d_row;
     int* d_col;
     double* d_W;
+    int* d_node_mask;
     double* d_effective_size_results;
 
     // 分配 CUDA 设备内存
@@ -504,6 +517,7 @@ int cuda_effective_size(
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_row, num_edges * sizeof(int)));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_col, num_edges * sizeof(int)));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_W, num_edges * sizeof(double)));
+    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_node_mask, num_nodes * sizeof(int)));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_effective_size_results, num_nodes * sizeof(double)));
 
     // 将数据从主机拷贝到设备
@@ -511,12 +525,13 @@ int cuda_effective_size(
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_E, E, num_edges * sizeof(int), cudaMemcpyHostToDevice));
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_row, row, num_edges * sizeof(int), cudaMemcpyHostToDevice));
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_col, col, num_edges * sizeof(int), cudaMemcpyHostToDevice));
+    EXIT_IF_CUDA_FAILED(cudaMemcpy(d_node_mask, node_mask, num_nodes * sizeof(int), cudaMemcpyHostToDevice));
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_W, W, num_edges * sizeof(double), cudaMemcpyHostToDevice));
 
     if(is_directed){
-        directed_calculate_effective_size<<<grid_size, block_size>>>(d_V, d_E, d_row, d_col, d_W, num_nodes, num_edges, d_effective_size_results);
+        directed_calculate_effective_size<<<grid_size, block_size>>>(d_V, d_E, d_row, d_col, d_W, num_nodes, num_edges, d_node_mask, d_effective_size_results);
     }else{
-        calculate_effective_size<<<grid_size, block_size>>>(d_V, d_E, d_W, num_nodes, d_effective_size_results);
+        calculate_effective_size<<<grid_size, block_size>>>(d_V, d_E, d_W, num_nodes, d_node_mask, d_effective_size_results);
         
     }
 
@@ -528,6 +543,7 @@ exit:
     cudaFree(d_row);
     cudaFree(d_col);
     cudaFree(d_W);
+    cudaFree(d_node_mask);
     cudaFree(d_effective_size_results);
 
     if (cuda_ret != cudaSuccess) {
@@ -553,6 +569,7 @@ int cuda_constraint(
     _IN_ int num_nodes,
     _IN_ int num_edges,
     _IN_ bool is_directed,
+    _IN_ int* node_mask,
     _OUT_ double* constraint_results
 ) {
     int cuda_ret = cudaSuccess;
@@ -570,6 +587,7 @@ int cuda_constraint(
     int* d_row;
     int* d_col;
     double* d_W;
+    int* d_node_mask;
     double* d_constraint_results;
 
     // 分配CUDA设备内存
@@ -578,6 +596,7 @@ int cuda_constraint(
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_row, num_edges * sizeof(int)));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_col, num_edges * sizeof(int)));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_W, num_edges * sizeof(double)));
+    EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_node_mask, num_nodes * sizeof(int)));
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_constraint_results, num_nodes * sizeof(double)));
 
     // 将数据从主机拷贝到设备
@@ -585,14 +604,15 @@ int cuda_constraint(
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_E, E, num_edges * sizeof(int), cudaMemcpyHostToDevice));
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_row, row, num_edges * sizeof(int), cudaMemcpyHostToDevice));
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_col, col, num_edges * sizeof(int), cudaMemcpyHostToDevice));
+    EXIT_IF_CUDA_FAILED(cudaMemcpy(d_node_mask, node_mask, num_nodes * sizeof(int), cudaMemcpyHostToDevice));
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_W, W, num_edges * sizeof(double), cudaMemcpyHostToDevice));
 
 
     // 调用 CUDA 内核
     if(is_directed){
-        directed_calculate_constraints<<<grid_size, block_size>>>(d_V, d_E, d_row, d_col, d_W, num_nodes, num_edges, d_constraint_results);
+        directed_calculate_constraints<<<grid_size, block_size>>>(d_V, d_E, d_row, d_col, d_W, num_nodes, num_edges, d_node_mask, d_constraint_results);
     }else{
-        calculate_constraints<<<grid_size, block_size>>>(d_V, d_E, d_W, num_nodes, d_constraint_results);
+        calculate_constraints<<<grid_size, block_size>>>(d_V, d_E, d_W, num_nodes, d_node_mask, d_constraint_results);
     }
 
     EXIT_IF_CUDA_FAILED(cudaMemcpy(constraint_results, d_constraint_results, num_nodes * sizeof(double), cudaMemcpyDeviceToHost));
@@ -603,6 +623,7 @@ exit:
     cudaFree(d_row);
     cudaFree(d_col);
     cudaFree(d_W);
+    cudaFree(d_node_mask);
     cudaFree(d_constraint_results);
     if (cuda_ret != cudaSuccess) {
         switch (cuda_ret) {

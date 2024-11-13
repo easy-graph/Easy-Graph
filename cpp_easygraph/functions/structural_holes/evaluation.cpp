@@ -204,19 +204,40 @@ py::object invoke_cpp_constraint(py::object G, py::object nodes, py::object weig
 
 #ifdef EASYGRAPH_ENABLE_GPU
 static py::object invoke_gpu_constraint(py::object G, py::object nodes, py::object weight) {
+    py::object eg = py::module::import("easygraph");
+    py::object louvain_func = eg.attr("louvain_communities");
+    py::object clusters = louvain_func(G);
+    // 将 clusters 转换为 C++ 的 std::vector，方便处理
+    // std::vector<py::list> cluster_list = clusters.cast<std::vector<py::list>>();
+    
+    // // 社区的数量
+    // int num_clusters = cluster_list.size();
+    // std::cout << "社区数量: " << num_clusters << std::endl;
+
+    // // 计算每个社区的大小
+    // std::vector<int> community_sizes;
+    // for (const auto& cluster : cluster_list) {
+    //     community_sizes.push_back(cluster.size());
+    // }
+
+    // // 排序以获取最大的五个社区
+    // std::sort(community_sizes.begin(), community_sizes.end(), std::greater<int>());
+
+    // // 输出最大的五个社区大小
+    // std::cout << "最大的五个社区大小: ";
+    // for (int i = 0; i < std::min(5, static_cast<int>(community_sizes.size())); ++i) {
+    //     std::cout << community_sizes[i] << " ";
+    // }
+    // std::cout << std::endl;
+
     Graph& G_ = G.cast<Graph&>();
     if (weight.is_none()) {
         G_.gen_CSR();
-        // G_.gen_COO();
-        // G_.transfer_csr_to_coo();
     } else {
         G_.gen_CSR(weight_to_string(weight));
-        // G_.gen_COO(weight_to_string(weight));
-        // G_.transfer_csr_to_coo(weight_to_string(weight));
     }
     auto csr_graph = G_.csr_graph;
     auto coo_graph = G_.transfer_csr_to_coo(csr_graph);
-    // auto coo_graph = G_.coo_graph;
     std::vector<int>& V = csr_graph->V;
     std::vector<int>& E = csr_graph->E;
     std::vector<int>& row = coo_graph->row;
@@ -226,18 +247,33 @@ static py::object invoke_gpu_constraint(py::object G, py::object nodes, py::obje
     std::unordered_map<node_t, int>& node2idx = coo_graph->node2idx;
     int num_nodes = coo_graph->node2idx.size();
     bool is_directed = G.attr("is_directed")().cast<bool>();
-    std::vector<double> constraint_results;
-    int gpu_r = gpu_easygraph::constraint(V, E, row, col, num_nodes, *W_p, is_directed, constraint_results);
+    std::vector<double> constraint_results(num_nodes, 0.0);
+
+    // 如果指定了节点列表，将其转换为布尔掩码数组
+    std::vector<int> node_mask(num_nodes, 0);
+    py::list nodes_list;
+    if (!nodes.is_none()) {
+        nodes_list = py::list(nodes);
+        for (auto node : nodes_list) {
+            int node_id = node2idx[G_.node_to_id[node].cast<node_t>()];
+            node_mask[node_id] = 1;  // 标记需要计算的节点
+        }
+    } else {
+        nodes_list = py::list(G.attr("nodes"));
+        std::fill(node_mask.begin(), node_mask.end(), 1);  // 如果没有提供节点列表，则计算所有节点
+    }
+
+    int gpu_r = gpu_easygraph::constraint(V, E, row, col, num_nodes, *W_p, is_directed, node_mask, constraint_results);
     if (gpu_r != gpu_easygraph::EG_GPU_SUCC) {
         py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
     }
+
     py::dict constraint_dict;
-    for (const auto& node_pair : node2idx) {
-        node_t node_id = node_pair.first;  
-        int idx = node_pair.second;      
-        
+    for (auto node : nodes_list) {
+        int node_id = G_.node_to_id[node].cast<node_t>();
+        int idx = node2idx[node_id];
+
         py::object node_name = G_.id_to_node.attr("get")(py::cast(node_id));
-        
         constraint_dict[node_name] = py::cast(constraint_results[idx]);
     }
     return constraint_dict;
@@ -339,10 +375,10 @@ static py::object invoke_gpu_effective_size(py::object G, py::object nodes, py::
     // 获取图的引用并生成 CSR 和 COO 格式的边列表
     Graph& G_ = G.cast<Graph&>();
     py::dict effective_size = py::dict();
-    if (nodes.is_none()) {
-        nodes = G;
-    }
-    nodes = py::list(nodes);
+    // if (nodes.is_none()) {
+    //     nodes = G;
+    // }
+    // nodes = py::list(nodes);
     if (weight.is_none()) {
         G_.gen_CSR();
     } else {
@@ -361,25 +397,38 @@ static py::object invoke_gpu_effective_size(py::object G, py::object nodes, py::
 
     std::unordered_map<node_t, int>& node2idx = coo_graph->node2idx;
     int num_nodes = coo_graph->node2idx.size();
-    
     std::vector<double> effective_size_results(num_nodes);
     bool is_directed = G.attr("is_directed")().cast<bool>();
-    int gpu_r = gpu_easygraph::effective_size(V, E, row, col, num_nodes, *W_p, is_directed, effective_size_results);
+
+    // 设置节点掩码数组
+    std::vector<int> node_mask(num_nodes, 0);
+    py::list nodes_list;
+    if (!nodes.is_none()) {
+        nodes_list = py::list(nodes);
+        for (auto node : nodes_list) {
+            int node_id = node2idx[G_.node_to_id[node].cast<node_t>()];
+            node_mask[node_id] = 1;  // 标记需要计算的节点
+        }
+    } else {
+        nodes_list = py::list(G.attr("nodes"));
+        std::fill(node_mask.begin(), node_mask.end(), 1);  // 计算所有节点
+    }
+
+    int gpu_r = gpu_easygraph::effective_size(V, E, row, col, num_nodes, *W_p, is_directed, node_mask, effective_size_results);
 
     if (gpu_r != gpu_easygraph::EG_GPU_SUCC) {
         py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
     }
 
-
-    for (const auto& node_pair : node2idx) {
-        node_t node_id = node_pair.first;
-        int idx = node_pair.second;
+    py::dict effective_size_dict;
+    for (auto node : nodes_list) {
+        int node_id = G_.node_to_id[node].cast<node_t>();
+        int idx = node2idx[node_id];
 
         py::object node_name = G_.id_to_node.attr("get")(py::cast(node_id));
-        effective_size[node_name] = py::cast(effective_size_results[idx]);
+        effective_size_dict[node_name] = py::cast(effective_size_results[idx]);
     }
-    return effective_size;
-    // }
+    return effective_size_dict;
 }
 #endif
 
@@ -616,20 +665,33 @@ static py::object invoke_gpu_hierarchy(py::object G, py::object nodes, py::objec
     int num_nodes = coo_graph->node2idx.size();
     bool is_directed = G.attr("is_directed")().cast<bool>();
     std::vector<double> hierarchy_results;
-    int gpu_r = gpu_easygraph::hierarchy(V, E, row, col, num_nodes, *W_p, is_directed, hierarchy_results);
+    // 设置节点掩码数组
+    std::vector<int> node_mask(num_nodes, 0);
+    py::list nodes_list;
+    if (!nodes.is_none()) {
+        nodes_list = py::list(nodes);
+        for (auto node : nodes_list) {
+            int node_id = node2idx[G_.node_to_id[node].cast<node_t>()];
+            node_mask[node_id] = 1;
+        }
+    } else {
+        nodes_list = py::list(G.attr("nodes"));
+        std::fill(node_mask.begin(), node_mask.end(), 1);  // 计算所有节点
+    }
+
+    int gpu_r = gpu_easygraph::hierarchy(V, E, row, col, num_nodes, *W_p, is_directed, node_mask, hierarchy_results);
     if (gpu_r != gpu_easygraph::EG_GPU_SUCC) {
         py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
     }
-    py::dict hierarchy;
-    for (const auto& node_pair : node2idx) {
-        node_t node_id = node_pair.first;  
-        int idx = node_pair.second;      
-        
+    py::dict hierarchy_dict;
+    for (auto node : nodes_list) {
+        int node_id = G_.node_to_id[node].cast<node_t>();
+        int idx = node2idx[node_id];
+
         py::object node_name = G_.id_to_node.attr("get")(py::cast(node_id));
-        
-        hierarchy[node_name] = py::cast(hierarchy_results[idx]);
+        hierarchy_dict[node_name] = py::cast(hierarchy_results[idx]);
     }
-    return hierarchy;
+    return hierarchy_dict;
 }
 #endif
 

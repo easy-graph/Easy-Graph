@@ -13,6 +13,7 @@ int cuda_effective_size(
     _IN_ int num_nodes,
     _IN_ int num_edges,
     _IN_ bool is_directed,
+    _IN_ int* node_mask,
     _OUT_ double* effective_size_results
 );
 
@@ -25,6 +26,7 @@ int cuda_constraint(
     _IN_ int num_nodes,
     _IN_ int num_edges,
     _IN_ bool is_directed,
+    _IN_ int* node_mask,
     _OUT_ double* constraint_results
 );
 
@@ -37,6 +39,7 @@ int cuda_hierarchy(
     _IN_ int num_nodes,
     _IN_ int num_edges,
     _IN_ bool is_directed,
+    _IN_ int* node_mask,
     _OUT_ double* hierarchy_results
 );
 } // namespace gpu_easygraph
