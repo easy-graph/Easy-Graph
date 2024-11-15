@@ -204,32 +204,6 @@ py::object invoke_cpp_constraint(py::object G, py::object nodes, py::object weig
 
 #ifdef EASYGRAPH_ENABLE_GPU
 static py::object invoke_gpu_constraint(py::object G, py::object nodes, py::object weight) {
-    py::object eg = py::module::import("easygraph");
-    py::object louvain_func = eg.attr("louvain_communities");
-    py::object clusters = louvain_func(G);
-    // 将 clusters 转换为 C++ 的 std::vector，方便处理
-    // std::vector<py::list> cluster_list = clusters.cast<std::vector<py::list>>();
-    
-    // // 社区的数量
-    // int num_clusters = cluster_list.size();
-    // std::cout << "社区数量: " << num_clusters << std::endl;
-
-    // // 计算每个社区的大小
-    // std::vector<int> community_sizes;
-    // for (const auto& cluster : cluster_list) {
-    //     community_sizes.push_back(cluster.size());
-    // }
-
-    // // 排序以获取最大的五个社区
-    // std::sort(community_sizes.begin(), community_sizes.end(), std::greater<int>());
-
-    // // 输出最大的五个社区大小
-    // std::cout << "最大的五个社区大小: ";
-    // for (int i = 0; i < std::min(5, static_cast<int>(community_sizes.size())); ++i) {
-    //     std::cout << community_sizes[i] << " ";
-    // }
-    // std::cout << std::endl;
-
     Graph& G_ = G.cast<Graph&>();
     if (weight.is_none()) {
         G_.gen_CSR();
@@ -372,13 +346,8 @@ py::object invoke_cpp_effective_size(py::object G, py::object nodes, py::object 
 
 #ifdef EASYGRAPH_ENABLE_GPU
 static py::object invoke_gpu_effective_size(py::object G, py::object nodes, py::object weight) {
-    // 获取图的引用并生成 CSR 和 COO 格式的边列表
     Graph& G_ = G.cast<Graph&>();
     py::dict effective_size = py::dict();
-    // if (nodes.is_none()) {
-    //     nodes = G;
-    // }
-    // nodes = py::list(nodes);
     if (weight.is_none()) {
         G_.gen_CSR();
     } else {

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "common.h"
+#define NODES_PER_BLOCK 1
 
 namespace gpu_easygraph {
 
@@ -79,17 +80,41 @@ __global__ void calculate_constraints(
     const int* node_mask,
     double* constraint_results
 ) {
-    int v = blockIdx.x * blockDim.x + threadIdx.x;
-    if (v >= num_nodes || !node_mask[v]) return;
-    double constraint_of_v = 0.0;
-    bool is_nan = true;
-    for (int i = V[v]; i < V[v+1]; i++) {
-        is_nan = false;
-        int neighbor = E[i]; 
+    int start_node = blockIdx.x * NODES_PER_BLOCK;  // 当前块处理的起始节点
+    int end_node = min(start_node + NODES_PER_BLOCK, num_nodes);  // 结束节点，确保不越界
 
-        constraint_of_v += local_constraint(V, E, W, v, neighbor);
+    for (int v = start_node; v < end_node; ++v) {
+        if (!node_mask[v]) continue;
+
+        double constraint_of_v = 0.0;
+        bool is_nan = true;
+
+        // 使用所有线程并行处理邻居
+        __shared__ double shared_constraint[256];  // 假设 blockDim.x <= 256
+        double local_sum = 0.0;
+
+        for (int i = V[v] + threadIdx.x; i < V[v + 1]; i += blockDim.x) {
+            is_nan = false;
+            int neighbor = E[i];
+            local_sum += local_constraint(V, E, W, v, neighbor);
+        }
+
+        // 归约邻居结果到一个值
+        shared_constraint[threadIdx.x] = local_sum;
+        __syncthreads();
+
+        for (int offset = blockDim.x / 2; offset > 0; offset /= 2) {
+            if (threadIdx.x < offset) {
+                shared_constraint[threadIdx.x] += shared_constraint[threadIdx.x + offset];
+            }
+            __syncthreads();
+        }
+
+        // 保存最终结果
+        if (threadIdx.x == 0) {
+            constraint_results[v] = (is_nan) ? NAN : shared_constraint[0];
+        }
     }
-    constraint_results[v] = (is_nan) ? NAN : constraint_of_v;
 }
 
 static __device__ double directed_mutual_weight(
@@ -203,22 +228,52 @@ __global__ void directed_calculate_constraints(
     int* node_mask,
     double* constraint_results
 ) {
-    int v = blockIdx.x * blockDim.x + threadIdx.x;
-    if (v >= num_nodes || !node_mask[v]) return;
-    double constraint_of_v = 0.0;
-    bool is_nan = true;
-    for (int i = V[v]; i < V[v+1]; i++) {
-        is_nan = false;
-        int neighbor = E[i]; 
-        constraint_of_v += directed_local_constraint(V, E, row, col, W, num_edges, v, neighbor);
-    }
-    for (int i = 0; i < num_edges; i++) {
-        if (col[i] == v) {
-            int neighbor = row[i];
-            constraint_of_v += directed_local_constraint(V, E, row, col, W, num_edges, v, neighbor);
+    int start_node = blockIdx.x * NODES_PER_BLOCK;  // 当前块处理的起始节点
+    int end_node = min(start_node + NODES_PER_BLOCK, num_nodes);  // 结束节点，确保不越界
+
+    for (int v = start_node; v < end_node; ++v) {
+        if (!node_mask[v]) continue;
+
+        double constraint_of_v = 0.0;
+        bool is_nan = true;
+
+        // 使用所有线程并行处理邻居
+        __shared__ double shared_constraint[256];  // 假设 blockDim.x <= 256
+        double local_sum = 0.0;
+
+        // 计算出邻居约束（out-neighbors）
+        for (int i = V[v] + threadIdx.x; i < V[v + 1]; i += blockDim.x) {
+            is_nan = false;
+            int neighbor = E[i];
+            local_sum += directed_local_constraint(V, E, row, col, W, num_edges, v, neighbor);
+        }
+
+        // 计算入邻居约束（in-neighbors）
+        for (int i = threadIdx.x; i < num_edges; i += blockDim.x) {
+            if (col[i] == v) {
+                // is_nan = false;
+                int neighbor = row[i];
+                local_sum += directed_local_constraint(V, E, row, col, W, num_edges, v, neighbor);
+            }
+        }
+
+        // 将所有线程的局部结果写入共享内存
+        shared_constraint[threadIdx.x] = local_sum;
+        __syncthreads();
+
+        // 归约邻居结果到一个值
+        for (int offset = blockDim.x / 2; offset > 0; offset /= 2) {
+            if (threadIdx.x < offset) {
+                shared_constraint[threadIdx.x] += shared_constraint[threadIdx.x + offset];
+            }
+            __syncthreads();
+        }
+
+        // 保存最终结果
+        if (threadIdx.x == 0) {
+            constraint_results[v] = (is_nan) ? NAN : shared_constraint[0];
         }
     }
-    constraint_results[v] = (is_nan) ? NAN : constraint_of_v;
 }
 
 static __device__ double redundancy(
@@ -237,6 +292,29 @@ static __device__ double redundancy(
     return 1-r;
 }
 
+// __global__ void calculate_effective_size(
+//     const int* V,
+//     const int* E,
+//     const double* W,
+//     const int num_nodes,
+//     const int* node_mask,
+//     double* effective_size_results
+// ) {
+//     int u = blockIdx.x * blockDim.x + threadIdx.x;
+//     if (u >= num_nodes || !node_mask[u]) return;
+//     double redundancy_sum = 0.0;
+//     bool is_nan = true;
+
+//     // 遍历 v 的所有邻居
+//     for (int i = V[u]; i < V[u + 1]; i++) {
+//         int v = E[i];
+//         if (v == u) continue; // 排除自连接的情况
+//         is_nan = false;
+//         redundancy_sum += redundancy(V,E,W,num_nodes,u,v);
+//     }
+//     effective_size_results[u] = is_nan ? NAN : redundancy_sum;
+// }
+
 __global__ void calculate_effective_size(
     const int* V,
     const int* E,
@@ -245,19 +323,41 @@ __global__ void calculate_effective_size(
     const int* node_mask,
     double* effective_size_results
 ) {
-    int u = blockIdx.x * blockDim.x + threadIdx.x;
-    if (u >= num_nodes || !node_mask[u]) return;
-    double redundancy_sum = 0.0;
-    bool is_nan = true;
+    int start_node = blockIdx.x * NODES_PER_BLOCK;  // 当前块处理的起始节点
+    int end_node = min(start_node + NODES_PER_BLOCK, num_nodes);  // 结束节点，确保不越界
 
-    // 遍历 v 的所有邻居
-    for (int i = V[u]; i < V[u + 1]; i++) {
-        int v = E[i];
-        if (v == u) continue; // 排除自连接的情况
-        is_nan = false;
-        redundancy_sum += redundancy(V,E,W,num_nodes,u,v);
+    for (int u = start_node; u < end_node; ++u) {
+        if (!node_mask[u]) continue;
+
+        bool is_nan = true;  // 用于标记是否存在有效邻居
+        extern __shared__ double shared_redundancy[];  // 假设 blockDim.x <= 256
+        double local_redundancy_sum = 0.0;
+
+        // 并行处理 u 的所有邻居
+        for (int i = V[u] + threadIdx.x; i < V[u + 1]; i += blockDim.x) {
+            int v = E[i];
+            if (v == u) continue;  // 排除自连接的情况
+            is_nan = false;  // 标记 u 有有效邻居
+            local_redundancy_sum += redundancy(V, E, W, num_nodes, u, v);
+        }
+
+        // 将线程的局部结果写入共享内存
+        shared_redundancy[threadIdx.x] = local_redundancy_sum;
+        __syncthreads();
+
+        // 归约邻居的冗余值到一个总值
+        for (int offset = blockDim.x / 2; offset > 0; offset /= 2) {
+            if (threadIdx.x < offset) {
+                shared_redundancy[threadIdx.x] += shared_redundancy[threadIdx.x + offset];
+            }
+            __syncthreads();
+        }
+
+        // 保存最终结果
+        if (threadIdx.x == 0) {
+            effective_size_results[u] = is_nan ? NAN : shared_redundancy[0];
+        }
     }
-    effective_size_results[u] = is_nan ? NAN : redundancy_sum;
 }
 
 static __device__ double directed_redundancy(
@@ -347,6 +447,23 @@ __global__ void calculate_hierarchy(
         hierarchy_results[v] = 0;
     }
     delete[] c;
+}
+
+static __device__ double atomicAdd (
+    _OUT_ double* address, 
+    _IN_ double val
+)
+{
+	unsigned long long int* address_as_ull =
+		(unsigned long long int*)address;
+	unsigned long long int old = *address_as_ull, assumed;
+	do {
+		assumed = old;
+		old = atomicCAS(address_as_ull, assumed,
+			__double_as_longlong(val +
+			__longlong_as_double(assumed)));
+	} while (assumed != old);
+	return __longlong_as_double(old);
 }
 
 __global__ void directed_calculate_hierarchy(
@@ -451,6 +568,9 @@ int cuda_hierarchy(
     if(is_directed){
         directed_calculate_hierarchy<<<grid_size, block_size>>>(d_V, d_E, d_row, d_col, d_W, num_nodes, num_edges, d_node_mask, d_hierarchy_results);
     }else{
+        // int block_size = 256;  // 每个块的线程数，可以根据设备进行调整
+        // int grid_size = (num_nodes + NODES_PER_BLOCK - 1) / NODES_PER_BLOCK;  // 调整为每个块处理NODES_PER_BLOCK个节点
+        // int shared_memory_size = block_size * sizeof(double); 
         calculate_hierarchy<<<grid_size, block_size>>>(d_V, d_E, d_W, num_nodes, d_node_mask, d_hierarchy_results);
     }
 
@@ -531,7 +651,10 @@ int cuda_effective_size(
     if(is_directed){
         directed_calculate_effective_size<<<grid_size, block_size>>>(d_V, d_E, d_row, d_col, d_W, num_nodes, num_edges, d_node_mask, d_effective_size_results);
     }else{
-        calculate_effective_size<<<grid_size, block_size>>>(d_V, d_E, d_W, num_nodes, d_node_mask, d_effective_size_results);
+        int block_size = 256;  // 每个块的线程数，可以根据设备进行调整
+        int grid_size = (num_nodes + NODES_PER_BLOCK - 1) / NODES_PER_BLOCK;  // 调整为每个块处理NODES_PER_BLOCK个节点
+        int shared_memory_size = block_size * sizeof(double); 
+        calculate_effective_size<<<grid_size, block_size,shared_memory_size>>>(d_V, d_E, d_W, num_nodes, d_node_mask, d_effective_size_results);
         
     }
 
@@ -574,13 +697,10 @@ int cuda_constraint(
 ) {
     int cuda_ret = cudaSuccess;
     int EG_ret = EG_GPU_SUCC;
-    int min_grid_size = 0;
-    int block_size = 0;
     
-    cudaOccupancyMaxPotentialBlockSize(&min_grid_size, &block_size, calculate_constraints, 0, 0);
-    // cudaOccupancyMaxPotentialBlockSize(&min_grid_size, &block_size, 
-    // is_directed ? directed_calculate_constraints : calculate_constraints, 0, 0);
-    int grid_size = (num_nodes + block_size - 1) / block_size;
+    
+
+    // calculate_constraints<<<grid_size, block_size>>>(d_V, d_E, d_W, num_nodes, d_node_mask, d_constraint_results);
     
     int* d_V;
     int* d_E;
@@ -589,6 +709,8 @@ int cuda_constraint(
     double* d_W;
     int* d_node_mask;
     double* d_constraint_results;
+    int block_size = 256;  // 每个块的线程数，可以根据设备进行调整
+    int grid_size = (num_nodes + NODES_PER_BLOCK - 1) / NODES_PER_BLOCK;  // 调整为每个块处理NODES_PER_BLOCK个节点
 
     // 分配CUDA设备内存
     EXIT_IF_CUDA_FAILED(cudaMalloc((void**)&d_V, (num_nodes+1) * sizeof(int)));
@@ -607,11 +729,16 @@ int cuda_constraint(
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_node_mask, node_mask, num_nodes * sizeof(int), cudaMemcpyHostToDevice));
     EXIT_IF_CUDA_FAILED(cudaMemcpy(d_W, W, num_edges * sizeof(double), cudaMemcpyHostToDevice));
 
-
+    
     // 调用 CUDA 内核
     if(is_directed){
+        // int min_grid_size = 0;
+        // int block_size = 0;
+        // cudaOccupancyMaxPotentialBlockSize(&min_grid_size, &block_size, calculate_constraints, 0, 0);
+        // int grid_size = (num_nodes + block_size - 1) / block_size;
         directed_calculate_constraints<<<grid_size, block_size>>>(d_V, d_E, d_row, d_col, d_W, num_nodes, num_edges, d_node_mask, d_constraint_results);
     }else{
+        
         calculate_constraints<<<grid_size, block_size>>>(d_V, d_E, d_W, num_nodes, d_node_mask, d_constraint_results);
     }
 
