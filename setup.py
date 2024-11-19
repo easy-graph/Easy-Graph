@@ -109,7 +109,7 @@ with open("README.md") as fh:
 CYTHON_STR = "Cython"
 setuptools.setup(
     name="Python-EasyGraph",
-    version="1.4",
+    version="1.4.1",
     author="Fudan DataNET Group",
     author_email="mgao21@m.fudan.edu.cn",
     description="Easy Graph",
@@ -127,7 +127,7 @@ setuptools.setup(
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.8, <=3.13",
+    python_requires=">=3.8, <3.14",
     install_requires=[
         "numpy>=1.23.1; python_version>='3.10'",
         "numpy>=1.19.5; python_version>='3.7' and python_version<='3.13'",

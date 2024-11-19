@@ -347,7 +347,7 @@ def maximum_spanning_edges(
 
     Examples
     --------
-    >>> from easygraph.functions.basic import mst
+    >>> from easygraph.functions.path import mst
 
     Find maximum spanning edges by Kruskal's algorithm
 

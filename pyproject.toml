@@ -173,7 +173,14 @@ exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
 # installing torch is very time consuming
 # test-requires = ["pytest", "lxml", "torch"]
 # test-command = "pytest"
-build = ["cp38-*", "cp39-*", "cp310-*", "cp311-*", "cp312-*"]
+free-threaded-support = true
+
+# Skip building free-threaded compatible wheels on Windows
+skip = "*t-win*"
+
+build = ["cp38-*", "cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*"]
+
+
 
 # https://cibuildwheel.readthedocs.io/en/stable/faq/#cibw-options-alternatives-deps
 [build-system]
