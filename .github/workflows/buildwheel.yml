@@ -49,11 +49,6 @@ jobs:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: dist/
 
-        - uses: actions/upload-artifact@v4
-          with:
-            python-version: ${{ matrix.python-version }}
-            name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
-            path: dist/*.tar.gz
 
 
   upload_pypi:
