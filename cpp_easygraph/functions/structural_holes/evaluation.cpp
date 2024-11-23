@@ -535,82 +535,176 @@ py::object invoke_cpp_hierarchy(py::object G, py::object nodes, py::object weigh
         nodes = G.attr("nodes");
     }
     py::list nodes_list = py::list(nodes);
-
-    Graph& G_ = G.cast<Graph&>();
-    py::dict hierarchy = py::dict();
     int nodes_list_len = py::len(nodes_list);
-    if (!n_workers.is_none()) {
-        std::vector<node_t> node_ids;
-        int n_workers_num = n_workers.cast<unsigned>();
-        for (int i = 0;i < py::len(nodes_list);i++) {
-            py::object node = nodes_list[i];
-            node_ids.push_back(G_.node_to_id[node].cast<node_t>());
-        }
-        std::shuffle(node_ids.begin(), node_ids.end(), std::random_device());
-        std::vector<std::vector<node_t> > split_nodes;
-        if (node_ids.size() > n_workers_num * 30000) {
-            split_nodes = split_len(node_ids, 30000);
-        }
-        else {
-            split_nodes = split(node_ids, n_workers_num);
-        }
-        while (split_nodes.size() < n_workers_num) {
-            split_nodes.push_back(std::vector<node_t>());
-        }
-        std::vector<std::unordered_map<node_t, weight_t> > rets(n_workers_num);
-        Py_BEGIN_ALLOW_THREADS
+    // Graph& G_ = G.cast<Graph&>();
+    py::dict hierarchy = py::dict();
+    
+    if(G.attr("is_directed")().cast<bool>()){
+        DiGraph& G_ = G.cast<DiGraph&>();
+        // if (!n_workers.is_none()) {
+        //     std::vector<node_t> node_ids;
+        //     int n_workers_num = n_workers.cast<unsigned>();
+        //     for (int i = 0;i < py::len(nodes_list);i++) {
+        //         py::object node = nodes_list[i];
+        //         node_ids.push_back(G_.node_to_id[node].cast<node_t>());
+        //     }
+        //     std::shuffle(node_ids.begin(), node_ids.end(), std::random_device());
+        //     std::vector<std::vector<node_t> > split_nodes;
+        //     if (node_ids.size() > n_workers_num * 30000) {
+        //         split_nodes = split_len(node_ids, 30000);
+        //     }
+        //     else {
+        //         split_nodes = split(node_ids, n_workers_num);
+        //     }
+        //     while (split_nodes.size() < n_workers_num) {
+        //         split_nodes.push_back(std::vector<node_t>());
+        //     }
+        //     std::vector<std::unordered_map<node_t, weight_t> > rets(n_workers_num);
+        //     Py_BEGIN_ALLOW_THREADS
 
-            std::vector<std::thread> threads;
-            for (int i = 0;i < n_workers_num; i++) {
-                threads.push_back(std::thread(hierarchy_parallel, &G_, &split_nodes[i], weight_key, &rets[i]));
-            }
-            for (int i = 0;i < n_workers_num;i++) {
-                threads[i].join();
-            }
+        //         std::vector<std::thread> threads;
+        //         for (int i = 0;i < n_workers_num; i++) {
+        //             threads.push_back(std::thread(hierarchy_parallel, &G_, &split_nodes[i], weight_key, &rets[i]));
+        //         }
+        //         for (int i = 0;i < n_workers_num;i++) {
+        //             threads[i].join();
+        //         }
 
-        Py_END_ALLOW_THREADS
+        //     Py_END_ALLOW_THREADS
 
-        for (int i = 1;i < rets.size();i++) {
-            rets[0].insert(rets[i].begin(), rets[i].end());
-        }
-        for (const auto& hierarchy_pair : rets[0]) {
-            py::object node = G_.id_to_node[py::cast(hierarchy_pair.first)];
-            hierarchy[node] = hierarchy_pair.second;
-        }
-    }
-    else {
+        //     for (int i = 1;i < rets.size();i++) {
+        //         rets[0].insert(rets[i].begin(), rets[i].end());
+        //     }
+        //     for (const auto& hierarchy_pair : rets[0]) {
+        //         py::object node = G_.id_to_node[py::cast(hierarchy_pair.first)];
+        //         hierarchy[node] = hierarchy_pair.second;
+        //     }
+        // }
+        // else {
         for (int i = 0; i < nodes_list_len; i++) {
             py::object v = nodes_list[i];
-            py::object E = G.attr("ego_subgraph")(v);
+            // py::object E = G.attr("ego_subgraph")(v);
 
-            int n = py::len(E) - 1;
+            // int n = py::len(E) - 1;
 
             weight_t C = 0;
             std::map<node_t, weight_t> c;
-            py::list neighbors_of_v = py::list(G.attr("neighbors")(v));
-            int neighbors_of_v_len = py::len(neighbors_of_v);
-            for (int j = 0; j < neighbors_of_v_len; j++) {
-                py::object w = neighbors_of_v[j];
-                node_t v_id = G_.node_to_id[v].cast<node_t>();
-                node_t w_id = G_.node_to_id[w].cast<node_t>();
-                C += local_constraint(G_, v_id, w_id, weight_key, local_constraint_rec, sum_nmw_rec);
-                c[w_id] = local_constraint(G_, v_id, w_id, weight_key, local_constraint_rec, sum_nmw_rec);
+
+            // 获取 successors 和 predecessors
+            py::list successors_of_v = py::list(G.attr("successors")(v));
+            py::list predecessors_of_v = py::list(G.attr("predecessors")(v));
+
+            // 使用 set 去重合并
+            std::set<node_t> neighbors_of_v;
+            for (const auto& w : successors_of_v) {
+                neighbors_of_v.insert(G_.node_to_id[w].cast<node_t>());
             }
+            for (const auto& w : predecessors_of_v) {
+                neighbors_of_v.insert(G_.node_to_id[w].cast<node_t>());
+            }
+
+            // 遍历 neighbors_of_v
+            for (const auto& w_id : neighbors_of_v) {
+                node_t v_id = G_.node_to_id[v].cast<node_t>();
+                // std::cout << "Node: " << v_id << ", Neighbor: " << w_id << std::endl;
+
+                // 计算约束值并存储
+                C += directed_local_constraint(G_, v_id, w_id, weight_key, local_constraint_rec, sum_nmw_rec);
+                c[w_id] = directed_local_constraint(G_, v_id, w_id, weight_key, local_constraint_rec, sum_nmw_rec);
+            }
+            int n = neighbors_of_v.size();
+            // 如果邻居数大于 1，计算层级性
             if (n > 1) {
                 weight_t hierarchy_sum = 0;
-                int neighbors_of_v_len = py::len(neighbors_of_v);
-                for (int k = 0; k < neighbors_of_v_len; k++) {
-                    py::object w = neighbors_of_v[k];
-                    node_t w_id = G_.node_to_id[w].cast<node_t>();
+                for (const auto& w_id : neighbors_of_v) {
                     hierarchy_sum += c[w_id] / C * n * log(c[w_id] / C * n) / (n * log(n));
                 }
                 hierarchy[v] = hierarchy_sum;
             }
+
+            // 如果层级性未定义，设置为 0
             if (!hierarchy.contains(v)) {
                 hierarchy[v] = 0;
             }
         }
+        // }
+    }else{
+        Graph& G_ = G.cast<Graph&>();
+        if (!n_workers.is_none()) {
+            std::vector<node_t> node_ids;
+            int n_workers_num = n_workers.cast<unsigned>();
+            for (int i = 0;i < py::len(nodes_list);i++) {
+                py::object node = nodes_list[i];
+                node_ids.push_back(G_.node_to_id[node].cast<node_t>());
+            }
+            std::shuffle(node_ids.begin(), node_ids.end(), std::random_device());
+            std::vector<std::vector<node_t> > split_nodes;
+            if (node_ids.size() > n_workers_num * 30000) {
+                split_nodes = split_len(node_ids, 30000);
+            }
+            else {
+                split_nodes = split(node_ids, n_workers_num);
+            }
+            while (split_nodes.size() < n_workers_num) {
+                split_nodes.push_back(std::vector<node_t>());
+            }
+            std::vector<std::unordered_map<node_t, weight_t> > rets(n_workers_num);
+            Py_BEGIN_ALLOW_THREADS
+
+                std::vector<std::thread> threads;
+                for (int i = 0;i < n_workers_num; i++) {
+                    threads.push_back(std::thread(hierarchy_parallel, &G_, &split_nodes[i], weight_key, &rets[i]));
+                }
+                for (int i = 0;i < n_workers_num;i++) {
+                    threads[i].join();
+                }
+
+            Py_END_ALLOW_THREADS
+
+            for (int i = 1;i < rets.size();i++) {
+                rets[0].insert(rets[i].begin(), rets[i].end());
+            }
+            for (const auto& hierarchy_pair : rets[0]) {
+                py::object node = G_.id_to_node[py::cast(hierarchy_pair.first)];
+                hierarchy[node] = hierarchy_pair.second;
+            }
+        }
+        else {
+            for (int i = 0; i < nodes_list_len; i++) {
+                py::object v = nodes_list[i];
+                py::object E = G.attr("ego_subgraph")(v);
+
+                int n = py::len(E) - 1;
+
+                weight_t C = 0;
+                std::map<node_t, weight_t> c;
+                py::list neighbors_of_v = py::list(G.attr("neighbors")(v));
+                int neighbors_of_v_len = py::len(neighbors_of_v);
+                for (int j = 0; j < neighbors_of_v_len; j++) {
+                    py::object w = neighbors_of_v[j];
+                    node_t v_id = G_.node_to_id[v].cast<node_t>();
+                    node_t w_id = G_.node_to_id[w].cast<node_t>();
+                    C += local_constraint(G_, v_id, w_id, weight_key, local_constraint_rec, sum_nmw_rec);
+                    c[w_id] = local_constraint(G_, v_id, w_id, weight_key, local_constraint_rec, sum_nmw_rec);
+                }
+                if (n > 1) {
+                    weight_t hierarchy_sum = 0;
+                    int neighbors_of_v_len = py::len(neighbors_of_v);
+                    for (int k = 0; k < neighbors_of_v_len; k++) {
+                        py::object w = neighbors_of_v[k];
+                        node_t w_id = G_.node_to_id[w].cast<node_t>();
+                        hierarchy_sum += c[w_id] / C * n * log(c[w_id] / C * n) / (n * log(n));
+                    }
+                    hierarchy[v] = hierarchy_sum;
+                }
+                if (!hierarchy.contains(v)) {
+                    hierarchy[v] = 0;
+                }
+            }
+        }
     }
+
+
     return hierarchy;
 }
 

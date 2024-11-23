@@ -67,7 +67,10 @@ def effective_size_borgatti_parallel(nodes, G, weight):
             continue
         E = G.ego_subgraph(node)
         E.remove_node(node)
-        ret.append([node, len(E) - (2 * E.size()) / len(E)])
+        if E.size() == 0:
+            ret.append([node, 1.0])
+        else:
+            ret.append([node, len(E) - (2 * E.size()) / len(E)])
     return ret
 
 
@@ -177,7 +180,7 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
 
 @not_implemented_for("multigraph")
 @hybrid("cpp_efficiency")
-def efficiency(G, nodes=None, weight=None):
+def efficiency(G, nodes=None, weight=None, n_workers=None):
     """Burt's metric - Efficiency.
     Parameters
     ----------
@@ -201,7 +204,7 @@ def efficiency(G, nodes=None, weight=None):
     .. [1] Burt R S. Structural holes: The social structure of competition[M].
        Harvard university press, 2009.
     """
-    e_size = effective_size(G, nodes=nodes, weight=weight)
+    e_size = effective_size(G, nodes=nodes, weight=weight, n_workers=n_workers)
     degree = G.degree(weight=weight)
     efficiency = {n: v / degree[n] for n, v in e_size.items()}
     return efficiency
