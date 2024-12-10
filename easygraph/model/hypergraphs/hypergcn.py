@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from easygraph.classes import Graph
+from easygraph.classes import Hypergraph
 from easygraph.nn import HyperGCNConv
 
 
@@ -56,7 +56,7 @@ class HyperGCN(nn.Module):
         """
         if self.fast:
             if self.cached_g is None:
-                self.cached_g = Graph.from_hypergraph_hypergcn(
+                self.cached_g = Hypergraph.from_hypergraph_hypergcn(
                     hg, X, self.with_mediator
                 )
             for layer in self.layers:

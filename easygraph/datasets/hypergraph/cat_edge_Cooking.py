@@ -22,10 +22,10 @@ class cat_edge_Cooking:
         self.edge_labels_path = "https://gitlab.com/easy-graph/easygraph-data-cat-edge-cooking/-/raw/main/hyperedge-labels.txt?ref_type=heads&inline=false"
         self.node_names_path = "https://gitlab.com/easy-graph/easygraph-data-cat-edge-cooking/-/raw/main/main/node-labels.txt?ref_type=heads&inline=false"
         self.label_names_path = "https://gitlab.com/easy-graph/easygraph-data-cat-edge-cooking/-/raw/main/hyperedge-label-identities.txt?ref_type=heads&inline=false"
-        self.hyperedges_path = []
-        self.edge_labels_path = []
-        self.node_names_path = []
-        self.label_names_path = []
+        # self.hyperedges_path = []
+        # self.edge_labels_path = []
+        # self.node_names_path = []
+        # self.label_names_path = []
         self.generate_hypergraph(
             hyperedges_path=self.hyperedges_path,
             edge_labels_path=self.edge_labels_path,
@@ -89,27 +89,19 @@ class cat_edge_Cooking:
             self._hyperedges.append(tuple(hyperedge))
         # print(self.hyperedges)
 
-        edge_labels_info = request_text_from_url(edge_labels_path)
+        edge_labels_info = request_text_from_url(self.edge_labels_path)
         process_node_labels_info = self.process_label_txt(
             node_labels_info, transform_fun=fun
         )
-        self._edge_labels = process_edge_labels_info
-        # print("process_node_labels_info:", process_node_labels_info)
+        self._edge_labels = process_edge_labels_info()
 
         node_names_info = request_text_from_url(node_names_path)
         process_node_names_info = self.process_label_txt(node_names_info)
         self._node_names = process_node_names_info
 
-        # print("process_node_names_info:", process_node_names_info)
         label_names_info = request_text_from_url(label_names_path)
         process_label_names_info = self.process_label_txt(label_names_info)
         self._label_names = process_label_names_info
-        # print("process_label_names_info:", process_label_names_info)
 
 
-#
-# if __name__ == "__main__":
-#     a = House_Committees()
-#     print(a.node_labels)
-#     print(a.label_names)
-#     print(a.node_names)
+
