@@ -173,28 +173,14 @@ exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
 # installing torch is very time consuming
 # test-requires = ["pytest", "lxml", "torch"]
 # test-command = "pytest"
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+build = ["cp38-*", "cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*"]
+
+
 free-threaded-support = true
 
 # Skip building free-threaded compatible wheels on Windows
 skip = "*t-win*"
-
-build = ["cp38-*", "cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*"]
-
-
-=======
-build = ["cp38-*", "cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*"]
-
-=======
->>>>>>> 539d2f8 (chore: test workflow)
-free-threaded-support = true
-
-# Skip building free-threaded compatible wheels on Windows
-skip = "*t-win*"
->>>>>>> 2fa1a40 (chore: test workflow)
-
-build = ["cp38-*", "cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*"]
 
 
 

@@ -102,6 +102,3 @@ class cat_edge_Cooking:
         label_names_info = request_text_from_url(label_names_path)
         process_label_names_info = self.process_label_txt(label_names_info)
         self._label_names = process_label_names_info
-
-
-
