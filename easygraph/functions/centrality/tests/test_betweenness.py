@@ -21,6 +21,12 @@ class Test_betweenness(unittest.TestCase):
         for i in self.test_graphs:
             print(eg.functions.betweenness_centrality(i))
 
+    def test_k_sample_betweenness(self):
+        for i in self.test_graphs:
+            approx = eg.functions.betweenness_centrality(i, k=len(i))
+            actual = eg.functions.betweenness_centrality(i)
+            assert approx == actual
+
 
 if __name__ == "__main__":
     unittest.main()

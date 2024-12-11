@@ -18,7 +18,13 @@ def betweenness_centrality_parallel(nodes, G, path_length, accumulate):
 @not_implemented_for("multigraph")
 @hybrid("cpp_betweenness_centrality")
 def betweenness_centrality(
-    G, weight=None, sources=None, normalized=True, endpoints=False, n_workers=None
+    G,
+    k=None,
+    weight=None,
+    sources=None,
+    normalized=True,
+    endpoints=False,
+    n_workers=None,
 ):
     r"""Compute the shortest-basic betweenness centrality for nodes.
 
@@ -56,6 +62,11 @@ def betweenness_centrality(
       If None, all nodes are considered.
       Otherwise,the set of source vertices to consider when calculating shortest paths.
 
+    k : None or int, optional (default=None)
+        If None, all nodes are considered.
+        Otherwise, the set of vertices uniqued sampled k times from source vertices
+        when calculating shortest paths.
+
     normalized : bool, optional
       If True the betweenness values are normalized by `2/((n-1)(n-2))`
       for graphs, and `1/((n-1)(n-2))` for directed graphs where `n`
@@ -89,6 +100,13 @@ def betweenness_centrality(
         nodes = sources
     else:
         nodes = G.nodes
+
+    if k is not None:
+        import random
+
+        nodes = list(nodes)
+        nodes = random.sample(nodes, k=min(k, len(nodes)))
+
     betweenness = dict.fromkeys(G, 0.0)
 
     if n_workers is not None:
