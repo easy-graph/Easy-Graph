@@ -144,6 +144,7 @@ def betweenness_centrality(
         betweenness,
         len(G),
         normalized=normalized,
+        k=k,
         directed=G.is_directed(),
         endpoints=endpoints,
     )
@@ -153,7 +154,7 @@ def betweenness_centrality(
     return ret
 
 
-def _rescale(betweenness, n, normalized, directed=False, endpoints=False):
+def _rescale(betweenness, n, normalized, k=None, directed=False, endpoints=False):
     if normalized:
         if endpoints:
             if n < 2:
@@ -171,6 +172,8 @@ def _rescale(betweenness, n, normalized, directed=False, endpoints=False):
         else:
             scale = None
     if scale is not None:
+        if k is not None:
+            scale = scale * n / k
         for v in betweenness:
             betweenness[v] *= scale
     return betweenness
