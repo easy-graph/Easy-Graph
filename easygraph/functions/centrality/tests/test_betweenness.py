@@ -1,6 +1,13 @@
 import unittest
 
 import easygraph as eg
+import easygraph.functions as F
+import networkx as nx
+import numpy as np
+
+
+def convert_nx_mapping(mapping):
+    return list(mapping.values())
 
 
 class Test_betweenness(unittest.TestCase):
@@ -14,18 +21,21 @@ class Test_betweenness(unittest.TestCase):
             (4, 256),
             ((None, None), (None, None)),
         ]
-        self.test_graphs = [eg.Graph(), eg.DiGraph()]
-        self.test_graphs.append(eg.classes.DiGraph(self.edges))
+
+    def is_eq(self, edges, nx_cls, eg_cls, k=None):
+        G_nx = nx_cls(edges)
+        G_eg = eg_cls(edges)
+
+        C_nx = convert_nx_mapping(nx.betweenness_centrality(G_nx, k=k))
+        C_eg = F.betweenness_centrality(G_eg, k=k)
+
+        return C_nx == C_eg
 
     def test_betweenness(self):
-        for i in self.test_graphs:
-            print(eg.functions.betweenness_centrality(i))
-
-    def test_k_sample_betweenness(self):
-        for i in self.test_graphs:
-            approx = eg.functions.betweenness_centrality(i, k=len(i))
-            actual = eg.functions.betweenness_centrality(i)
-            assert approx == actual
+        assert self.is_eq([], nx.Graph, eg.Graph)
+        assert self.is_eq([], nx.DiGraph, eg.DiGraph)
+        assert self.is_eq(self.edges, nx.Graph, eg.Graph)
+        assert self.is_eq(self.edges, nx.DiGraph, eg.DiGraph)
 
 
 if __name__ == "__main__":
