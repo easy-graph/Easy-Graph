@@ -1,3 +1,0 @@
-[submodule "cpp_easygraph/pybind11"]
-	path = cpp_easygraph/pybind11
-	url = https://github.com/pybind/pybind11.git
