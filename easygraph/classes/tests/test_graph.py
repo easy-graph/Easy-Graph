@@ -4,7 +4,6 @@ import time
 
 # sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..', '..')))
 import easygraph as eg  # Spend 4.9s on importing this damn big lib.
-import tests
 
 
 """
