@@ -76,6 +76,9 @@ def betweenness_centrality(
     endpoints : bool, optional
       If True include the endpoints in the shortest basic counts.
 
+    seed : int, optional
+      If provided then `random` will be seeded with `seed`
+
     Returns
     -------
 
