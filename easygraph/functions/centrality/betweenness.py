@@ -25,6 +25,7 @@ def betweenness_centrality(
     normalized=True,
     endpoints=False,
     n_workers=None,
+    seed=None,
 ):
     r"""Compute the shortest-basic betweenness centrality for nodes.
 
@@ -85,6 +86,7 @@ def betweenness_centrality(
     """
 
     import functools
+    import random
 
     if weight is not None:
         path_length = functools.partial(_single_source_dijkstra_path, weight=weight)
@@ -101,17 +103,16 @@ def betweenness_centrality(
     else:
         nodes = G.nodes
 
-    if k is not None:
-        import random
+    if seed is not None:
+        random.seed(seed)
 
-        nodes = list(nodes)
-        nodes = random.sample(nodes, k=min(k, len(nodes)))
+    if k is not None:
+        nodes = random.sample(list(nodes), k)
 
     betweenness = dict.fromkeys(G, 0.0)
 
     if n_workers is not None:
         #  use the parallel version for large graph
-        import random
 
         from functools import partial
         from multiprocessing import Pool
@@ -148,8 +149,9 @@ def betweenness_centrality(
         directed=G.is_directed(),
         endpoints=endpoints,
     )
-    ret = [0.0 for i in range(len(G))]
-    for i in range(len(ret)):
+
+    ret = [0.0 for _ in range(len(G))]
+    for i in range(len(G)):
         ret[i] = betweenness[G.index2node[i]]
     return ret
 
