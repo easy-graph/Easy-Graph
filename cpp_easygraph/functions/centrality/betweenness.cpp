@@ -105,9 +105,9 @@ static double calc_scale(int len_V, int is_directed, int normalized, int endpoin
 
 
 
-static py::object invoke_cpp_betweenness_centrality(py::object G, py::object weight, 
+static py::object invoke_cpp_betweenness_centrality(py::object G, py::object k, py::object weight, 
                                     py::object cutoff, py::object sources, 
-                                    py::object normalized, py::object endpoints){
+                                    py::object normalized, py::object endpoints, py::object seed){
     Graph& G_ = G.cast<Graph&>();
     int cutoff_ = -1;
     if (!cutoff.is_none()){
@@ -142,6 +142,22 @@ static py::object invoke_cpp_betweenness_centrality(py::object G, py::object wei
             node_t source_id = G_.node_to_id.attr("get")(sources_list[i]).cast<node_t>();
             betweenness_dijkstra(G_l, source_id, bc, cutoff_, segment_tree_zkw, endpoints_);
         }
+        for(int i = 1; i <= N; i++){
+            BC.push_back(scale * bc[i]);
+        }
+    }
+    // TODO: make own implementation of random that matches python
+    else if(!k.is_none()){
+        auto random = py::module::import("random");
+        random.attr("seed")(seed);
+
+        for(auto node: random.attr("sample")(py::list(G_.node_to_id), k)){
+            node_t node_id = G_.node_to_id.attr("get")(node).cast<node_t>();
+            betweenness_dijkstra(G_l, node_id, bc, cutoff_,segment_tree_zkw, endpoints_);
+        }
+
+        scale *= (double(N) / double(k.cast<int>()));
+
         for(int i = 1; i <= N; i++){
             BC.push_back(scale * bc[i]);
         }
@@ -196,12 +212,12 @@ static py::object invoke_gpu_betweenness_centrality(py::object G, py::object wei
 #endif
 
 
-py::object betweenness_centrality(py::object G, py::object weight, py::object cutoff, py::object sources, 
-                                    py::object normalized, py::object endpoints) {
+py::object betweenness_centrality(py::object G, py::object k, py::object weight, py::object cutoff, py::object sources, 
+                                    py::object normalized, py::object endpoints, py::object seed) {
 #ifdef EASYGRAPH_ENABLE_GPU
     return invoke_gpu_betweenness_centrality(G, weight, sources, normalized, endpoints);
 #else
-    return invoke_cpp_betweenness_centrality(G, weight, cutoff, sources, normalized, endpoints);
+    return invoke_cpp_betweenness_centrality(G, k, weight, cutoff, sources, normalized, endpoints, seed);
 #endif
 }
 
