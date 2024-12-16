@@ -2,6 +2,7 @@ import unittest
 
 import easygraph as eg
 import networkx as nx
+import numpy as np
 
 
 def convert_nx_mapping(mapping):
@@ -20,14 +21,14 @@ class Test_betweenness(unittest.TestCase):
             ((None, None), (None, None)),
         ]
 
-    def is_eq(self, edges, nx_cls, eg_cls, k=None):
+    def is_eq(self, edges, nx_cls, eg_cls, **kwargs):
         G_nx = nx_cls(edges)
         G_eg = eg_cls(edges)
 
-        C_nx = convert_nx_mapping(nx.betweenness_centrality(G_nx, k=k, seed=42))
-        C_eg = eg.functions.betweenness_centrality(G_eg, k=k, seed=42)
+        C_nx = convert_nx_mapping(nx.betweenness_centrality(G_nx, **kwargs))
+        C_eg = eg.functions.betweenness_centrality(G_eg, **kwargs)
 
-        return C_nx == C_eg
+        np.testing.assert_almost_equal(C_nx, C_eg)
 
     def test_betweenness(self):
         assert self.is_eq([], nx.Graph, eg.Graph)
