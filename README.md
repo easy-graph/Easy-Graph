@@ -38,9 +38,10 @@ ___________________________________________________________________________
 
 
 # News
+- [12-21-2024] 🎉 Thanks to our amazing community! EasyGraph has reached 600,000 downloads!
 - [12-04-2024] 🎉 We received the "Top Open Source Certificate" by International Open Benchmark Council!
 - [11-22-2024] We released EasyGraph 1.4.1! This version now fully supports Python 3.13.
-- [09-27-2024] 🎉 Thanks to our amazing community! EasyGraph has reached 500,000 downloads!
+- [09-27-2024] 🎉 EasyGraph has reached 500,000 downloads!
 - [09-20-2024] We released EasyGraph 1.4! This version features GPU-powered functions for efficient large network analysis.
 - [05-27-2024] We released EasyGraph 1.3! This version has resolved several issues related to hypergraph analysis and visualization.
 - [04-09-2024] We released EasyGraph 1.2! This version now fully supports Python 3.12.
