@@ -44,6 +44,8 @@ int sssp_dijkstra(
     std::vector<double>& res
 );
 
+
+
 int pagerank(
     const std::vector<int>& V,
     const std::vector<int>& E,
@@ -53,6 +55,8 @@ int pagerank(
     std::vector<double>& PR
 );
 
+
+
 int constraint(
     const std::vector<int>& V,
     const std::vector<int>& E,
@@ -61,9 +65,11 @@ int constraint(
     int num_nodes,
     const std::vector<double>& W,
     bool is_directed,
-    std::vector<int>& node_mask,  // 添加节点掩码参数
+    std::vector<int>& node_mask,
     std::vector<double>& constraint
 );
+
+
 
 int hierarchy(
     const std::vector<int>& V,
@@ -76,6 +82,8 @@ int hierarchy(
     std::vector<int>& node_mask, 
     std::vector<double>& hierarchy
 );
+
+
 
 int effective_size(
     const std::vector<int>& V,

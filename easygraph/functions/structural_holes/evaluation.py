@@ -144,10 +144,9 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
                 E = G.ego_subgraph(v)
                 E.remove_node(v)
                 if E.size() == 0:
-                    effective_size[v] = 1.0  # 或者设定其他默认值
+                    effective_size[v] = 1.0 
                 else:
                     effective_size[v] = len(E) - (2 * E.size()) / len(E)
-                # effective_size[v] = len(E) - (2 * E.size()) / len(E)
     else:
         if n_workers is not None:
             import random

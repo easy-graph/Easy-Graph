@@ -1,6 +1,5 @@
 #include "evaluation.h"
-#include <iomanip>  // 需要引入该头文件来使用 std::setprecision
-
+#include <iomanip>
 #ifdef EASYGRAPH_ENABLE_GPU
 #include <gpu_easygraph.h>
 #endif
@@ -37,7 +36,6 @@ weight_t mutual_weight(Graph& G, node_t u, node_t v, std::string weight) {
     }
     return a_uv + a_vu;
 }
-
 
 weight_t directed_mutual_weight(DiGraph& G, node_t u, node_t v, std::string weight) {
     weight_t a_uv = 0, a_vu = 0;
@@ -173,33 +171,40 @@ std::pair<node_t, weight_t> directed_compute_constraint_of_v(DiGraph& G, node_t 
 py::object invoke_cpp_constraint(py::object G, py::object nodes, py::object weight) {
     std::string weight_key = weight_to_string(weight);
     rec_type sum_nmw_rec, local_constraint_rec;
+
     if (nodes.is_none()) {
         nodes = G.attr("nodes");
     }
+
     py::list nodes_list = py::list(nodes);
-    py::list constraint_results = py::list();
     int nodes_list_len = py::len(nodes_list);
-    if(G.attr("is_directed")().cast<bool>()){
+    std::vector<double> constraint_results(nodes_list_len, 0.0);
+
+    if (G.attr("is_directed")().cast<bool>()) {
         DiGraph& G_ = G.cast<DiGraph&>();
         for (int i = 0; i < nodes_list_len; i++) {
             py::object v = nodes_list[i];
             node_t v_id = G_.node_to_id[v].cast<node_t>();
-            std::pair<node_t, weight_t> constraint_pair = directed_compute_constraint_of_v(G_, v_id, weight_key, local_constraint_rec, sum_nmw_rec);
-            py::tuple constraint_of_v = py::make_tuple(G_.id_to_node[py::cast(constraint_pair.first)], constraint_pair.second);
-            constraint_results.append(constraint_of_v);
+            std::pair<node_t, weight_t> constraint_pair =
+                directed_compute_constraint_of_v(G_, v_id, weight_key, local_constraint_rec, sum_nmw_rec);
+            constraint_results[i] = constraint_pair.second;
         }
-    }else{
+    } else {
         Graph& G_ = G.cast<Graph&>();
         for (int i = 0; i < nodes_list_len; i++) {
             py::object v = nodes_list[i];
             node_t v_id = G_.node_to_id[v].cast<node_t>();
-            std::pair<node_t, weight_t> constraint_pair = compute_constraint_of_v(G_, v_id, weight_key, local_constraint_rec, sum_nmw_rec);
-            py::tuple constraint_of_v = py::make_tuple(G_.id_to_node[py::cast(constraint_pair.first)], constraint_pair.second);
-            constraint_results.append(constraint_of_v);
+            std::pair<node_t, weight_t> constraint_pair =
+                compute_constraint_of_v(G_, v_id, weight_key, local_constraint_rec, sum_nmw_rec);
+            constraint_results[i] = constraint_pair.second;
         }
     }
-    py::dict constraint = py::dict(constraint_results);
-    return constraint;
+
+    std::reverse(constraint_results.begin(), constraint_results.end());
+
+    py::array::ShapeContainer ret_shape{nodes_list_len};
+    py::array_t<double> ret(ret_shape, constraint_results.data());
+    return ret;
 }
 
 #ifdef EASYGRAPH_ENABLE_GPU
@@ -223,18 +228,17 @@ static py::object invoke_gpu_constraint(py::object G, py::object nodes, py::obje
     bool is_directed = G.attr("is_directed")().cast<bool>();
     std::vector<double> constraint_results(num_nodes, 0.0);
 
-    // 如果指定了节点列表，将其转换为布尔掩码数组
     std::vector<int> node_mask(num_nodes, 0);
     py::list nodes_list;
     if (!nodes.is_none()) {
         nodes_list = py::list(nodes);
         for (auto node : nodes_list) {
             int node_id = node2idx[G_.node_to_id[node].cast<node_t>()];
-            node_mask[node_id] = 1;  // 标记需要计算的节点
+            node_mask[node_id] = 1;
         }
     } else {
         nodes_list = py::list(G.attr("nodes"));
-        std::fill(node_mask.begin(), node_mask.end(), 1);  // 如果没有提供节点列表，则计算所有节点
+        std::fill(node_mask.begin(), node_mask.end(), 1);
     }
 
     int gpu_r = gpu_easygraph::constraint(V, E, row, col, num_nodes, *W_p, is_directed, node_mask, constraint_results);
@@ -242,18 +246,12 @@ static py::object invoke_gpu_constraint(py::object G, py::object nodes, py::obje
         py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
     }
 
-    py::dict constraint_dict;
-    for (auto node : nodes_list) {
-        int node_id = G_.node_to_id[node].cast<node_t>();
-        int idx = node2idx[node_id];
+    py::array::ShapeContainer ret_shape{(int)constraint_results.size()};
+    py::array_t<double> ret(ret_shape, constraint_results.data());
 
-        py::object node_name = G_.id_to_node.attr("get")(py::cast(node_id));
-        constraint_dict[node_name] = py::cast(constraint_results[idx]);
-    }
-    return constraint_dict;
+    return ret;
 }
 #endif
-
 
 py::object constraint(py::object G, py::object nodes, py::object weight, py::object n_workers) {
 #ifdef EASYGRAPH_ENABLE_GPU
@@ -269,9 +267,6 @@ weight_t redundancy(Graph& G, node_t u, node_t v, std::string weight, rec_type& 
     for (const auto& n : G.adj[v]) {
         neighbors.insert(n.first);
     }
-    // for (const auto& n : G.pred[v]) {
-    //     neighbors.insert(n.first);
-    // }
     for (const auto& w : neighbors) {
         r += normalized_mutual_weight(G, u, w, weight, sum, sum_nmw_rec) * normalized_mutual_weight(G, v, w, weight, max, max_nmw_rec);
     }
@@ -294,42 +289,43 @@ weight_t directed_redundancy(DiGraph& G, node_t u, node_t v, std::string weight,
 }
 
 py::object invoke_cpp_effective_size(py::object G, py::object nodes, py::object weight) {
+    std::string weight_key = weight_to_string(weight);
     rec_type sum_nmw_rec, max_nmw_rec;
-    py::dict effective_size = py::dict();
+
     if (nodes.is_none()) {
-        nodes = G;
+        nodes = G.attr("nodes");
     }
-    nodes = py::list(nodes);
+
+    py::list nodes_list = py::list(nodes);
+    int nodes_list_len = py::len(nodes_list);
+    std::vector<double> effective_size_results(nodes_list_len, 0.0);
+    
     if (!G.attr("is_directed")().cast<bool>()){
         Graph& G_ = G.cast<Graph&>();
-        std::string weight_key = weight_to_string(weight);
-        int nodes_len = py::len(nodes);
-        for (int i = 0; i < nodes_len; i++) {
-            py::object v = nodes[py::cast(i)];
+        for (int i = 0; i < nodes_list_len; i++) {
+            weight_t redundancy_sum = 0;
+            py::object v = nodes_list[i];
+            node_t v_id = G_.node_to_id[v].cast<node_t>();
             if (py::len(G[v]) == 0) {
-                effective_size[v] = py::cast(Py_NAN);
+                effective_size_results[i] = Py_NAN;
                 continue;
             }
-            weight_t redundancy_sum = 0;
-            node_t v_id = G_.node_to_id[v].cast<node_t>();
             for (const auto& neighbor_info : G_.adj[v_id]) {
                 node_t u_id = neighbor_info.first;
                 redundancy_sum += redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
             }
-            effective_size[v] = redundancy_sum;
+            effective_size_results[i] = redundancy_sum;
         }
     } else{
         DiGraph& G_ = G.cast<DiGraph&>();
-        std::string weight_key = weight_to_string(weight);
-        int nodes_len = py::len(nodes);
-        for (int i = 0; i < nodes_len; i++) {
-            py::object v = nodes[py::cast(i)];
+        for (int i = 0; i < nodes_list_len; i++) {
+            weight_t redundancy_sum = 0;
+            py::object v = nodes_list[i];
+            node_t v_id = G_.node_to_id[v].cast<node_t>();
             if (py::len(G[v]) == 0) {
-                effective_size[v] = py::cast(Py_NAN);
+                effective_size_results[i] = Py_NAN;
                 continue;
             }
-            weight_t redundancy_sum = 0;
-            node_t v_id = G_.node_to_id[v].cast<node_t>();
             for (const auto& neighbor_info : G_.adj[v_id]) {
                 node_t u_id = neighbor_info.first;
                 redundancy_sum += directed_redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
@@ -338,14 +334,78 @@ py::object invoke_cpp_effective_size(py::object G, py::object nodes, py::object 
                 node_t u_id = neighbor_info.first;
                 redundancy_sum += directed_redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
             }
-            effective_size[v] = redundancy_sum;
+            effective_size_results[i] = redundancy_sum;
         }
     }
-    return effective_size;
+
+    std::reverse(effective_size_results.begin(), effective_size_results.end());
+    
+    py::array::ShapeContainer ret_shape{nodes_list_len};
+    py::array_t<double> ret(ret_shape, effective_size_results.data());
+    return ret;
 }
 
 #ifdef EASYGRAPH_ENABLE_GPU
 static py::object invoke_gpu_effective_size(py::object G, py::object nodes, py::object weight) {
+    Graph& G_ = G.cast<Graph&>();
+
+    if (weight.is_none()) {
+        G_.gen_CSR();
+    } else {
+        G_.gen_CSR(weight_to_string(weight));
+    }
+    auto csr_graph = G_.csr_graph;
+    auto coo_graph = G_.transfer_csr_to_coo(csr_graph);
+
+    std::vector<int>& V = csr_graph->V;
+    std::vector<int>& E = csr_graph->E;
+    std::vector<int>& row = coo_graph->row;
+    std::vector<int>& col = coo_graph->col;
+
+    std::vector<double>* W_p = weight.is_none() ? &(coo_graph->unweighted_W)
+                                                : coo_graph->W_map.find(weight_to_string(weight))->second.get();
+
+    std::unordered_map<node_t, int>& node2idx = coo_graph->node2idx;
+    int num_nodes = coo_graph->node2idx.size();
+    std::vector<double> effective_size_results(num_nodes);
+    bool is_directed = G.attr("is_directed")().cast<bool>();
+
+    std::vector<int> node_mask(num_nodes, 0);
+    py::list nodes_list;
+    if (!nodes.is_none()) {
+        nodes_list = py::list(nodes);
+        for (auto node : nodes_list) {
+            int node_id = node2idx[G_.node_to_id[node].cast<node_t>()];
+            node_mask[node_id] = 1;
+        }
+    } else {
+        nodes_list = py::list(G.attr("nodes"));
+        std::fill(node_mask.begin(), node_mask.end(), 1);
+    }
+
+    int gpu_r = gpu_easygraph::effective_size(V, E, row, col, num_nodes, *W_p, is_directed, node_mask, effective_size_results);
+
+    if (gpu_r != gpu_easygraph::EG_GPU_SUCC) {
+        py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
+    }
+
+    py::array::ShapeContainer ret_shape{(int)effective_size_results.size()};
+    py::array_t<double> ret(ret_shape, effective_size_results.data());
+
+    return ret;
+}
+#endif
+
+py::object effective_size(py::object G, py::object nodes, py::object weight, py::object n_workers) {
+#ifdef EASYGRAPH_ENABLE_GPU
+    return invoke_gpu_effective_size(G, nodes, weight);
+#else
+    return invoke_cpp_effective_size(G, nodes, weight);
+#endif
+}
+
+#ifdef EASYGRAPH_ENABLE_GPU
+static py::object invoke_gpu_efficiency(py::object G, py::object nodes, py::object weight) {
     Graph& G_ = G.cast<Graph&>();
     py::dict effective_size = py::dict();
     if (weight.is_none()) {
@@ -369,18 +429,17 @@ static py::object invoke_gpu_effective_size(py::object G, py::object nodes, py::
     std::vector<double> effective_size_results(num_nodes);
     bool is_directed = G.attr("is_directed")().cast<bool>();
 
-    // 设置节点掩码数组
     std::vector<int> node_mask(num_nodes, 0);
     py::list nodes_list;
     if (!nodes.is_none()) {
         nodes_list = py::list(nodes);
         for (auto node : nodes_list) {
             int node_id = node2idx[G_.node_to_id[node].cast<node_t>()];
-            node_mask[node_id] = 1;  // 标记需要计算的节点
+            node_mask[node_id] = 1; 
         }
     } else {
         nodes_list = py::list(G.attr("nodes"));
-        std::fill(node_mask.begin(), node_mask.end(), 1);  // 计算所有节点
+        std::fill(node_mask.begin(), node_mask.end(), 1);
     }
 
     int gpu_r = gpu_easygraph::effective_size(V, E, row, col, num_nodes, *W_p, is_directed, node_mask, effective_size_results);
@@ -397,23 +456,7 @@ static py::object invoke_gpu_effective_size(py::object G, py::object nodes, py::
         py::object node_name = G_.id_to_node.attr("get")(py::cast(node_id));
         effective_size_dict[node_name] = py::cast(effective_size_results[idx]);
     }
-    return effective_size_dict;
-}
-#endif
-
-py::object effective_size(py::object G, py::object nodes, py::object weight, py::object n_workers) {
-#ifdef EASYGRAPH_ENABLE_GPU
-    return invoke_gpu_effective_size(G, nodes, weight);
-#else
-    return invoke_cpp_effective_size(G, nodes, weight);
-#endif
-}
-
-#ifdef EASYGRAPH_ENABLE_GPU
-static py::object invoke_gpu_efficiency(py::object G, py::object nodes, py::object weight) {
-    py::dict effective_size_dict = invoke_gpu_effective_size(G, nodes, weight);
-
-    py::dict degree;
+        py::dict degree;
     if (weight.is_none()) {
         degree = G.attr("degree")(py::none()).cast<py::dict>();
     } else {
@@ -442,8 +485,55 @@ static py::object invoke_gpu_efficiency(py::object G, py::object nodes, py::obje
 }
 #endif
 
+
 py::object invoke_cpp_efficiency(py::object G, py::object nodes, py::object weight) {
-    py::dict effective_size_dict = invoke_cpp_effective_size(G, nodes, weight);
+    rec_type sum_nmw_rec, max_nmw_rec;
+    py::dict effective_size_dict = py::dict();
+    if (nodes.is_none()) {
+        nodes = G;
+    }
+    nodes = py::list(nodes);
+    if (!G.attr("is_directed")().cast<bool>()){
+        Graph& G_ = G.cast<Graph&>();
+        std::string weight_key = weight_to_string(weight);
+        int nodes_len = py::len(nodes);
+        for (int i = 0; i < nodes_len; i++) {
+            py::object v = nodes[py::cast(i)];
+            if (py::len(G[v]) == 0) {
+                effective_size_dict[v] = py::cast(Py_NAN);
+                continue;
+            }
+            weight_t redundancy_sum = 0;
+            node_t v_id = G_.node_to_id[v].cast<node_t>();
+            for (const auto& neighbor_info : G_.adj[v_id]) {
+                node_t u_id = neighbor_info.first;
+                redundancy_sum += redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
+            }
+            effective_size_dict[v] = redundancy_sum;
+        }
+    } else{
+        DiGraph& G_ = G.cast<DiGraph&>();
+        std::string weight_key = weight_to_string(weight);
+        int nodes_len = py::len(nodes);
+        for (int i = 0; i < nodes_len; i++) {
+            py::object v = nodes[py::cast(i)];
+            if (py::len(G[v]) == 0) {
+                effective_size_dict[v] = py::cast(Py_NAN);
+                continue;
+            }
+            weight_t redundancy_sum = 0;
+            node_t v_id = G_.node_to_id[v].cast<node_t>();
+            for (const auto& neighbor_info : G_.adj[v_id]) {
+                node_t u_id = neighbor_info.first;
+                redundancy_sum += directed_redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
+            }
+            for (const auto& neighbor_info : G_.pred[v_id]) {
+                node_t u_id = neighbor_info.first;
+                redundancy_sum += directed_redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
+            }
+            effective_size_dict[v] = redundancy_sum;
+        }
+    }
 
     py::dict degree;
     if (weight.is_none()) {
@@ -536,65 +626,18 @@ py::object invoke_cpp_hierarchy(py::object G, py::object nodes, py::object weigh
     }
     py::list nodes_list = py::list(nodes);
     int nodes_list_len = py::len(nodes_list);
-    // Graph& G_ = G.cast<Graph&>();
     py::dict hierarchy = py::dict();
     
     if(G.attr("is_directed")().cast<bool>()){
         DiGraph& G_ = G.cast<DiGraph&>();
-        // if (!n_workers.is_none()) {
-        //     std::vector<node_t> node_ids;
-        //     int n_workers_num = n_workers.cast<unsigned>();
-        //     for (int i = 0;i < py::len(nodes_list);i++) {
-        //         py::object node = nodes_list[i];
-        //         node_ids.push_back(G_.node_to_id[node].cast<node_t>());
-        //     }
-        //     std::shuffle(node_ids.begin(), node_ids.end(), std::random_device());
-        //     std::vector<std::vector<node_t> > split_nodes;
-        //     if (node_ids.size() > n_workers_num * 30000) {
-        //         split_nodes = split_len(node_ids, 30000);
-        //     }
-        //     else {
-        //         split_nodes = split(node_ids, n_workers_num);
-        //     }
-        //     while (split_nodes.size() < n_workers_num) {
-        //         split_nodes.push_back(std::vector<node_t>());
-        //     }
-        //     std::vector<std::unordered_map<node_t, weight_t> > rets(n_workers_num);
-        //     Py_BEGIN_ALLOW_THREADS
-
-        //         std::vector<std::thread> threads;
-        //         for (int i = 0;i < n_workers_num; i++) {
-        //             threads.push_back(std::thread(hierarchy_parallel, &G_, &split_nodes[i], weight_key, &rets[i]));
-        //         }
-        //         for (int i = 0;i < n_workers_num;i++) {
-        //             threads[i].join();
-        //         }
-
-        //     Py_END_ALLOW_THREADS
-
-        //     for (int i = 1;i < rets.size();i++) {
-        //         rets[0].insert(rets[i].begin(), rets[i].end());
-        //     }
-        //     for (const auto& hierarchy_pair : rets[0]) {
-        //         py::object node = G_.id_to_node[py::cast(hierarchy_pair.first)];
-        //         hierarchy[node] = hierarchy_pair.second;
-        //     }
-        // }
-        // else {
         for (int i = 0; i < nodes_list_len; i++) {
             py::object v = nodes_list[i];
-            // py::object E = G.attr("ego_subgraph")(v);
-
-            // int n = py::len(E) - 1;
-
             weight_t C = 0;
             std::map<node_t, weight_t> c;
 
-            // 获取 successors 和 predecessors
             py::list successors_of_v = py::list(G.attr("successors")(v));
             py::list predecessors_of_v = py::list(G.attr("predecessors")(v));
 
-            // 使用 set 去重合并
             std::set<node_t> neighbors_of_v;
             for (const auto& w : successors_of_v) {
                 neighbors_of_v.insert(G_.node_to_id[w].cast<node_t>());
@@ -603,17 +646,14 @@ py::object invoke_cpp_hierarchy(py::object G, py::object nodes, py::object weigh
                 neighbors_of_v.insert(G_.node_to_id[w].cast<node_t>());
             }
 
-            // 遍历 neighbors_of_v
             for (const auto& w_id : neighbors_of_v) {
                 node_t v_id = G_.node_to_id[v].cast<node_t>();
-                // std::cout << "Node: " << v_id << ", Neighbor: " << w_id << std::endl;
 
-                // 计算约束值并存储
                 C += directed_local_constraint(G_, v_id, w_id, weight_key, local_constraint_rec, sum_nmw_rec);
                 c[w_id] = directed_local_constraint(G_, v_id, w_id, weight_key, local_constraint_rec, sum_nmw_rec);
             }
             int n = neighbors_of_v.size();
-            // 如果邻居数大于 1，计算层级性
+
             if (n > 1) {
                 weight_t hierarchy_sum = 0;
                 for (const auto& w_id : neighbors_of_v) {
@@ -622,12 +662,11 @@ py::object invoke_cpp_hierarchy(py::object G, py::object nodes, py::object weigh
                 hierarchy[v] = hierarchy_sum;
             }
 
-            // 如果层级性未定义，设置为 0
             if (!hierarchy.contains(v)) {
                 hierarchy[v] = 0;
             }
         }
-        // }
+
     }else{
         Graph& G_ = G.cast<Graph&>();
         if (!n_workers.is_none()) {
@@ -728,7 +767,6 @@ static py::object invoke_gpu_hierarchy(py::object G, py::object nodes, py::objec
     int num_nodes = coo_graph->node2idx.size();
     bool is_directed = G.attr("is_directed")().cast<bool>();
     std::vector<double> hierarchy_results;
-    // 设置节点掩码数组
     std::vector<int> node_mask(num_nodes, 0);
     py::list nodes_list;
     if (!nodes.is_none()) {
@@ -739,7 +777,7 @@ static py::object invoke_gpu_hierarchy(py::object G, py::object nodes, py::objec
         }
     } else {
         nodes_list = py::list(G.attr("nodes"));
-        std::fill(node_mask.begin(), node_mask.end(), 1);  // 计算所有节点
+        std::fill(node_mask.begin(), node_mask.end(), 1); 
     }
 
     int gpu_r = gpu_easygraph::hierarchy(V, E, row, col, num_nodes, *W_p, is_directed, node_mask, hierarchy_results);
