@@ -1114,7 +1114,44 @@ class Hypergraph(BaseHypergraph):
         if not weight:
             A = (A >= s) * 1
         return csr_array(A)
-        # return A
+
+    def _fetch_H(self, direction="v2e", group_name="main"):
+        r"""Fetch the H matrix of the specified hyperedge group with ``torch.sparse_coo_tensor`` format.
+        Args:
+            ``direction`` (``str``): The direction of hyperedges can be either ``'v2e'`` or ``'e2v'``.
+            ``group_name`` (``str``): The name of the group.
+        """
+        assert (
+            group_name in self.group_names
+        ), f"The specified {group_name} is not in existing hyperedge groups."
+        assert direction in ["v2e", "e2v"], "direction must be one of ['v2e', 'e2v']"
+        if direction == "v2e":
+            select_idx = 0
+        else:
+            select_idx = 1
+        num_e = len(self._raw_groups[group_name])
+        e_idx, v_idx = [], []
+        for _e_idx, e in enumerate(self._raw_groups[group_name].keys()):
+            sub_e = e[select_idx]
+            v_idx.extend(sub_e)
+            e_idx.extend([_e_idx] * len(sub_e))
+
+        H = torch.sparse_coo_tensor(
+            torch.tensor([v_idx, e_idx], dtype=torch.long),
+            torch.ones(len(v_idx)),
+            torch.Size([self.num_v, num_e]),
+            device=self.device,
+        ).coalesce()
+        return H
+        # if self.cache.get("main_H") is None:
+        #     num_e = len(self._raw_groups[group_name])
+        #     self.cache["main_H"] = torch.sparse_coo_tensor(
+        #         ([self.cache["v_idx"], self.cache["e_idx"]]),
+        #         torch.ones(len(self.cache["v_idx"])),
+        #         torch.Size([self.num_v, num_e]),
+        #         device=self.device,
+        #     ).coalesce()
+        # return self.cache["main_H"]
 
     def H_of_group(self, group_name: str) -> torch.Tensor:
         r"""Return the hypergraph incidence matrix :math:`\mathbf{H}` of the specified hyperedge group with ``torch.Tensor`` format.
