@@ -38,16 +38,18 @@ ___________________________________________________________________________
 
 
 # News
+- [12-21-2024] 🎉 Thanks to our amazing community! EasyGraph has reached 600,000 downloads!
 - [12-04-2024] 🎉 We received the "Top Open Source Certificate" by International Open Benchmark Council!
 - [11-22-2024] We released EasyGraph 1.4.1! This version now fully supports Python 3.13.
-- [09-27-2024] 🎉 Thanks to our amazing community! EasyGraph has reached 500,000 downloads!
+- [09-27-2024] 🎉 EasyGraph has reached 500,000 downloads!
 - [09-20-2024] We released EasyGraph 1.4! This version features GPU-powered functions for efficient large network analysis.
 - [05-27-2024] We released EasyGraph 1.3! This version has resolved several issues related to hypergraph analysis and visualization.
 - [04-09-2024] We released EasyGraph 1.2! This version now fully supports Python 3.12.
 - [03-06-2024] 🎉 We received the Shanghai Open Source Innovation Outstanding Achievement Award (Grand Prize)! [News](https://news.fudan.edu.cn/2024/0401/c2463a139799/page.htm)
 - [02-05-2024] We released EasyGraph 1.1! This version features hypergraph analysis and learning for higher-order network modeling and representation.
 - [08-17-2023] We released EasyGraph 1.0!
-- [08-08-2023] 🎉 Our paper "EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis" was accepted by Patterns (Cell Press)!
+- [08-08-2023] 🎉 Our paper "EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis" was accepted by Patterns (Cell Press)!、
+- [07-22-2020] First public release of EasyGraph!
 
 # Stargazers
 
