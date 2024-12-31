@@ -93,7 +93,6 @@ class Hypergraph(BaseHypergraph):
             indptr_list.append(ptr)
             ptr += len(v)
         indptr_list.append(ptr)
-
         e_idx, v_idx = [], []
         for n, e in self.n_e_dict.items():
             v_idx.extend([n] * len(e))

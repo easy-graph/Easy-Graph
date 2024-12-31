@@ -217,6 +217,7 @@ def _draw_single_dynamic_hypergraph(
         font_family,
         v_size,
         v_color,
+        v_color,
         v_line_width,
     )
     plt.title(group_name, fontsize=title_font_size)

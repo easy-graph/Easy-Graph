@@ -64,8 +64,6 @@ class BaseHypergraph:
             isinstance(num_v, int) and num_v > 0
         ), "num_v should be a positive integer"
         self.clear()
-        self._rows = []
-        self._cols = []
         self._num_v = num_v
         self.device = device
         if v_property == None:
@@ -209,7 +207,8 @@ class BaseHypergraph:
         else:
             raise TypeError("e_list must be List[int] or List[List[int]].")
         for _idx in range(len(e_list)):
-            e_list[_idx] = tuple(sorted(e_list[_idx]))
+            e_list[_idx] = tuple(sorted(list(set(e_list[_idx]))))
+
         return e_list
 
     def _format_e_property_list(self, e_num, e_property_list: Union[Dict, List[Dict]]):
