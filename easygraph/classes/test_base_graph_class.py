@@ -2,7 +2,7 @@ import os
 import sys
 import time
 
-import tests
+import easygraph as eg
 
 
 print(
