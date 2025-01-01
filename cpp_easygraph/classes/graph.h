@@ -11,6 +11,7 @@ struct Graph {
     adj_dict_factory adj;
     Graph_L linkgraph_structure;
     std::shared_ptr<CSRGraph> csr_graph;
+    std::shared_ptr<CSRGraph> in_csr_graph;
     py::kwargs node_to_id, id_to_node, graph;
     node_t id;
     bool dirty_nodes, dirty_adj, linkgraph_dirty;
@@ -32,10 +33,13 @@ struct Graph {
 
     std::shared_ptr<CSRGraph> gen_CSR(const std::string& weight);
     std::shared_ptr<CSRGraph> gen_CSR();
+    std::shared_ptr<CSRGraph> gen_reverse_CSR(const std::string& weight);
+    std::shared_ptr<CSRGraph> gen_reverse_CSR();
     std::shared_ptr<std::vector<int>> gen_CSR_sources(const py::object& py_sources);
     std::shared_ptr<COOGraph> gen_COO();
     std::shared_ptr<COOGraph> gen_COO(const std::string& weight);
     std::shared_ptr<COOGraph> transfer_csr_to_coo(const std::shared_ptr<CSRGraph>& csr_graph);
+    std::shared_ptr<CSRGraph> gen_CSR_fast(const std::string& weight_key);
 };
 
 py::object Graph__init__(py::args args, py::kwargs kwargs);

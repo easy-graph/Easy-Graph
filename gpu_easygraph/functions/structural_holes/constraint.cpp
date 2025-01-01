@@ -10,20 +10,22 @@ namespace gpu_easygraph {
 using std::vector;
 
 int constraint(
-    _IN_ const vector<int>& V,
-    _IN_ const vector<int>& E,
-    _IN_ const vector<int>& row,
-    _IN_ const vector<int>& col,
     _IN_ int num_nodes,
-    _IN_ const vector<double>& W,
+    _IN_ const std::vector<int>& rowPtrOut,
+    _IN_ const std::vector<int>& colIdxOut,
+    _IN_ const std::vector<double>& valOut,
+    _IN_ const std::vector<int>& rowPtrIn,
+    _IN_ const std::vector<int>& colIdxIn,
+    _IN_ const std::vector<double>& valIn,
     _IN_ bool is_directed,
     _IN_ vector<int>& node_mask,
-    _OUT_ vector<double>& constraint
+    _OUT_ vector<double>& constraints
 ) {
-    int num_edges = row.size();
+    int len_rowPtrOut = rowPtrOut.size();
+    int len_colIdxOut = colIdxOut.size();
     
-    constraint = vector<double>(num_nodes);
-    int r = cuda_constraint(V.data(), E.data(), row.data(), col.data(), W.data(), num_nodes, num_edges, is_directed, node_mask.data(), constraint.data());
+    constraints = vector<double>(num_nodes);
+    int r = cuda_constraint(num_nodes, len_rowPtrOut, len_colIdxOut, rowPtrOut.data(), colIdxOut.data(), valOut.data(), rowPtrIn.data(), colIdxIn.data(), valIn.data(), is_directed, node_mask.data(), constraints.data());
 
     return r;
 }

@@ -212,22 +212,27 @@ static py::object invoke_gpu_constraint(py::object G, py::object nodes, py::obje
     Graph& G_ = G.cast<Graph&>();
     if (weight.is_none()) {
         G_.gen_CSR();
+        G_.gen_reverse_CSR();
     } else {
         G_.gen_CSR(weight_to_string(weight));
+        G_.gen_reverse_CSR(weight_to_string(weight));
     }
-    auto csr_graph = G_.csr_graph;
-    auto coo_graph = G_.transfer_csr_to_coo(csr_graph);
-    std::vector<int>& V = csr_graph->V;
-    std::vector<int>& E = csr_graph->E;
-    std::vector<int>& row = coo_graph->row;
-    std::vector<int>& col = coo_graph->col;
-    std::vector<double> *W_p = weight.is_none() ? &(coo_graph->unweighted_W) 
-                            : coo_graph->W_map.find(weight_to_string(weight))->second.get();
-    std::unordered_map<node_t, int>& node2idx = coo_graph->node2idx;
-    int num_nodes = coo_graph->node2idx.size();
+    // G_.gen_CSR_fast(weight_to_string(weight));
+    auto out_csr_graph = G_.csr_graph;
+    auto in_csr_graph = G_.in_csr_graph;
+    std::vector<int>& rowPtrOut = out_csr_graph->V;
+    std::vector<int>& colIdxOut = out_csr_graph->E;
+    std::vector<double> *valOut = weight.is_none() ? &(out_csr_graph->unweighted_W) 
+                            : out_csr_graph->W_map.find(weight_to_string(weight))->second.get();
+    std::vector<int>& rowPtrIn = in_csr_graph->V;
+    
+    std::vector<int>& colIdxIn = in_csr_graph->E;
+    std::vector<double> *valIn = weight.is_none() ? &(in_csr_graph->unweighted_W) 
+                            : in_csr_graph->W_map.find(weight_to_string(weight))->second.get();
+    std::unordered_map<node_t, int>& node2idx = out_csr_graph->node2idx;
+    int num_nodes = out_csr_graph->node2idx.size();
     bool is_directed = G.attr("is_directed")().cast<bool>();
     std::vector<double> constraint_results(num_nodes, 0.0);
-
     std::vector<int> node_mask(num_nodes, 0);
     py::list nodes_list;
     if (!nodes.is_none()) {
@@ -240,8 +245,11 @@ static py::object invoke_gpu_constraint(py::object G, py::object nodes, py::obje
         nodes_list = py::list(G.attr("nodes"));
         std::fill(node_mask.begin(), node_mask.end(), 1);
     }
-
-    int gpu_r = gpu_easygraph::constraint(V, E, row, col, num_nodes, *W_p, is_directed, node_mask, constraint_results);
+    
+    int gpu_r = gpu_easygraph::constraint(num_nodes,
+        rowPtrOut, colIdxOut, *valOut,
+        rowPtrIn, colIdxIn, *valIn,
+        is_directed, node_mask, constraint_results);
     if (gpu_r != gpu_easygraph::EG_GPU_SUCC) {
         py::pybind11_fail(gpu_easygraph::err_code_detail(gpu_r));
     }
