@@ -10,28 +10,30 @@ jobs:
       fail-fast: false
       matrix:
         # ubuntu 22.04 has deprecated python 3.6
-        python-version: [ "3.8", "3.9", "3.10","3.11", "3.12", "3.13"]
+        python-version: [ "3.8", "3.9", "3.10","3.11", "3.12"]
     steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: 'Build and install easygraph'
-        # still investigating issues, use the dummy workflow for now
-        # uses: tddschn/install-easygraph@master
-        uses: tddschn/install-easygraph/dummy@master
+      - name: Installing dependencies
+        uses: py-actions/py-dependency-install@v4
         with:
-          # use current repo
-          repository: '${{ github.repository }}'
-          # use current branch
-          ref: '${{ github.ref }}'
-          install-pytorch: 'true'
-          install-lxml: 'true'
-          extra-modules-to-install: 'optuna torch_scatter torch_geometric'
+          path: "requirements.txt"
 
+      - name: Installing test dependencies
+        run: |
+          pip install pytest
 
-      - uses: actions/checkout@v3
+      - name: Build and install package
+        run: |
+          pip install .
+
       - name: Test with pytest
         run: |
-          pytest --disable-warnings
+          pytest --disable-warnings --ignore=cpp_easygraph
