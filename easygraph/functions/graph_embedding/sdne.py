@@ -1,7 +1,6 @@
 from argparse import ArgumentDefaultsHelpFormatter
 from argparse import ArgumentParser
 
-import easygraph as eg
 import numpy as np
 import torch
 import torch.nn as nn

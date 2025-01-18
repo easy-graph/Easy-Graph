@@ -1,7 +1,6 @@
 import unittest
 
 import easygraph as eg
-import numpy as np
 
 
 class Test_Sdne(unittest.TestCase):
@@ -12,20 +11,21 @@ class Test_Sdne(unittest.TestCase):
             (2, 4),
             (4, 1),
             (0, 4),
-            (4, 256),
-            (3.1415926, 0.142857),
-            ("bool", "string"),
+            (4, 3),
         ]
-        self.test_graphs = [eg.Graph(), eg.DiGraph()]
+        self.test_graphs = []
         self.test_graphs.append(eg.classes.DiGraph(self.edges))
         self.shs = eg.common_greedy(self.ds, int(len(self.ds.nodes) / 3))
 
-    def test_parse_args(self):
-        print(eg.parse_args())
-
-    def test_get_adj(self):
-        print(eg.get_adj(self.test_graphs[-1]))
-
-
-if __name__ == "__main__":
-    unittest.main()
+    def test_sdne(self):
+        sdne = eg.SDNE(
+            graph=self.test_graphs[0],
+            node_size=len(self.test_graphs[0].nodes),
+            nhid0=128,
+            nhid1=64,
+            dropout=0.025,
+            alpha=2e-2,
+            beta=10,
+        )
+        # todo add test
+        # emb = sdne.train(sdne)

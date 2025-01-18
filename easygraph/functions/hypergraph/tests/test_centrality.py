@@ -5,7 +5,7 @@ import pytest
 @pytest.fixture()
 def g1():
     e_list = [(0, 1, 2, 5), (0, 1), (2, 3, 4), (1, 2, 4)]
-    g = eg.Hypergraph(6, e_list)
+    g = eg.Hypergraph(6, e_list=e_list)
     return g
 
 
@@ -13,7 +13,7 @@ def g1():
 def g2():
     e_list = [(1, 2, 3), (0, 1, 3), (0, 1), (2, 4, 3), (2, 3)]
     e_weight = [0.5, 1, 0.5, 1, 0.5]
-    g = eg.Hypergraph(5, e_list, e_weight)
+    g = eg.Hypergraph(5, e_list=e_list, e_weight=e_weight)
     return g
 
 

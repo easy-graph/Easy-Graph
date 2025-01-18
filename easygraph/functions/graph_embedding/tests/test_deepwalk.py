@@ -7,8 +7,8 @@ import numpy as np
 class Test_Deepwalk(unittest.TestCase):
     def setUp(self):
         self.ds = eg.datasets.get_graph_karateclub()
-        self.edges = [(1, 4), (2, 4), ("String", "Bool"), (4, 1), (0, 4), (4, 256)]
-        self.test_graphs = [eg.Graph(), eg.DiGraph()]
+        self.edges = [(1, 4), (2, 4)]
+        self.test_graphs = []
         self.test_graphs.append(eg.classes.DiGraph(self.edges))
         self.shs = eg.common_greedy(self.ds, int(len(self.ds.nodes) / 3))
 

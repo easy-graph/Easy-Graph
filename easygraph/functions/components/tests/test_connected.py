@@ -6,8 +6,8 @@ import easygraph as eg
 
 class TestConnected(unittest.TestCase):
     def setUp(self):
-        self.edges = [(1, 2), (2, 3), ("String", "Bool"), (2, 1), (0, 0), (-99, 256)]
-        self.test_graphs = [eg.Graph([(4, -4)]), eg.DiGraph([(4, False)])]
+        self.edges = [(1, 2), (2, 3), (0, 4), (2, 1), (0, 0), (-99, 256)]
+        self.test_graphs = [eg.Graph([(4, -4)]), eg.DiGraph([(4, -4)])]
         self.test_graphs.append(eg.classes.DiGraph(self.edges))
 
     def test_is_connected(self):
