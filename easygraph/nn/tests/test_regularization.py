@@ -2,10 +2,12 @@ import easygraph as eg
 import pytest
 import torch
 
+from easygraph.nn.regularization import EmbeddingRegularization
+
 
 def test_embedding_reg():
     print("EmbeddingRegularization" in eg.__dir__())
-    emb_reg = eg.EmbeddingRegularization(p=2, weight_decay=1e-4)
+    emb_reg = EmbeddingRegularization(p=2, weight_decay=1e-4)
     embs = [torch.randn(10, 3), torch.randn(10, 3)]
     loss = emb_reg(*embs)
     true_loss = 0
