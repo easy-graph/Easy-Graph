@@ -8,8 +8,11 @@ pandas>=2.0.1
 nose>=1.3.7
 pybind11>=2.10.4
 pydsge
-torch-geometric
-torch-sparse
+torch==2.3.0
+pyg_lib
 torch-scatter
-torch >= 1.12.1
+-f https://data.pyg.org/whl/torch-2.3.0+cpu.html
 requests
+six>=1.15.0
+optuna
+gensim>=4.1.2

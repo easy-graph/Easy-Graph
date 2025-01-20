@@ -103,7 +103,7 @@ known_third_party = ["poetry.core"]
 
 
 [tool.black]
-target-version = ['py37']
+target-version = ['py39']
 preview = true
 force-exclude = '''
 .*/setup\.py$

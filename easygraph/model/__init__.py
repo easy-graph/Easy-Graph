@@ -12,6 +12,6 @@ try:
 except:
     print(
         "Warning raise in module:model.Please install "
-        "Pytorch before you use functions"
+        "Pytorch before you use hypergraph neural networks"
         " related to Hypergraph"
     )
