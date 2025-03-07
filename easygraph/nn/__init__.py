@@ -2,6 +2,7 @@ try:
     from .convs.common import MLP
     from .convs.common import MultiHeadWrapper
     from .convs.hypergraphs import HGNNConv
+    from .convs.hypergraphs import HWNNConv
     from .convs.hypergraphs import HGNNPConv
     from .convs.hypergraphs import HNHNConv
     from .convs.hypergraphs import HyperGCNConv

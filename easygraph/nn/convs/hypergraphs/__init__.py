@@ -1,5 +1,6 @@
 from .dhcf_conv import JHConv
 from .hgnn_conv import HGNNConv
+from .hwnn_conv import HWNNConv
 from .hgnnp_conv import HGNNPConv
 from .hnhn_conv import HNHNConv
 from .hypergcn_conv import HyperGCNConv

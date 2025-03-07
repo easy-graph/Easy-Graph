@@ -1843,6 +1843,76 @@ class Hypergraph(BaseHypergraph):
             L_HGNN = self.L_HGNN_of_group(group_name)
         return L_HGNN.mm(X)
 
+    def smoothing_with_HWNN_approx(
+        self, X: torch.Tensor, par: torch.nn.Parameter, W_d: torch.nn.Parameter, K1: int, K2:int, W: torch.nn.Parameter
+    ) -> torch.Tensor:
+        r"""Return the smoothed feature matrix with the approximated HWNN Laplacian matrix :math:`\mathcal{L}_{HGNN}`.
+
+            .. math::
+                \mathbf{X} = \mathbf{theta}_{sum} \mathbf{Lambda}_{beta} \mathbf{theta'}_{sum}
+
+        Parameters:
+            ``X`` (``torch.Tensor``): The feature matrix. Size :math:`(|\mathcal{V}|, C)`.
+            ``par`` (``torch.nn.Parameter``): A learnable parameter used in the HWNN approximation.
+            ``W_d`` (``torch.nn.Parameter``): A trainable weight matrix for feature transformation.
+            ``K1`` (``int``): The order of approximation for the first transformation step.
+            ``K2`` (``int``): The order of approximation for the second transformation step.
+            ``W`` (``torch.nn.Parameter``): A learnable weight matrix applied in the feature transformation step.
+        """
+        if self.device != X.device:
+            X = X.to(self.device)
+        if self.device != W_d.device:
+            W_d = W_d.to(self.device)
+        if self.device != W.device:
+            W = W.to(self.device)
+        ncount = X.size()[0]
+        W_d = torch.diag(W_d)
+        Theta = self.L_HGNN
+        Theta_t = torch.transpose(Theta, 0, 1)
+        poly = par[0] * torch.eye(ncount).to(self.device)
+        Theta_mul = torch.eye(ncount).to(self.device)
+        for ind in range(1, K1):
+            Theta_mul = Theta_mul @ Theta
+            poly = poly + par[ind] * Theta_mul
+        poly_t = par[K1] * torch.eye(ncount).to(self.device)
+        Theta_mul = torch.eye(ncount).to(self.device)
+        for ind in range(K1 + 1, K1 + K2):
+            Theta_mul = Theta_mul @ Theta_t
+            poly_t = poly_t + par[ind] * Theta_mul
+        return poly @ W_d @ poly_t @ X @ W
+    
+    def smoothing_with_HWNN_wavelet(
+            self, X: torch.Tensor, W_d: torch.nn.Parameter, W: torch.nn.Parameter
+        ) -> torch.Tensor:
+        r"""Return the smoothed feature matrix with original HWNN Laplacian matrix :
+
+
+            .. math::
+                \mathbf{X} = \mathbf{Psi}_{s} \mathbf{Lambda}_{beta} \mathbf{Psi}_{s}^{-1}
+
+        Parameters:
+            ``X`` (``torch.Tensor``): The feature matrix. Size :math:`(|\mathcal{V}|, C)`.
+            ``par`` (``torch.nn.Parameter``): A learnable parameter used in the HWNN approximation.
+            ``W_d`` (``torch.nn.Parameter``): A trainable weight matrix for feature transformation.
+            ``K1`` (``int``): The order of approximation for the first transformation step.
+            ``K2`` (``int``): The order of approximation for the second transformation step.
+            ``W`` (``torch.nn.Parameter``): A learnable weight matrix applied in the feature transformation step.
+        """
+        if self.device != X.device:
+            X = X.to(self.device)
+        if self.device != W_d.device:
+            W_d = W_d.to(self.device)
+        if self.device != W.device:
+            W = W.to(self.device)
+        W_d = torch.diag(W_d)
+        Theta = self.L_HGNN
+        Laplacian = torch.eye(Theta.size()[0]) - Theta
+        fourier_e, fourier_v = torch.linalg.eigh(Laplacian, UPLO='U')
+        wavelets = fourier_v @ torch.diag(torch.exp(-1.0 * fourier_e)) @ torch.transpose(fourier_v, 0, 1)
+        wavelets_inv = fourier_v @ torch.diag(torch.exp(fourier_e)) @ torch.transpose(fourier_v, 0, 1)
+        wavelets[wavelets < 0.00001] = 0
+        wavelets_inv[wavelets_inv < 0.00001] = 0
+        return wavelets @ W_d @ wavelets_inv @ X @ W
     # =====================================================================================
     # spatial-based convolution/message-passing
     # general message passing functions

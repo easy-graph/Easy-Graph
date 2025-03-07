@@ -1,5 +1,6 @@
 from .dhcf import DHCF
 from .hgnn import HGNN
+from .hwnn import HWNN
 from .hgnnp import HGNNP
 from .hnhn import HNHN
 from .hypergcn import HyperGCN
