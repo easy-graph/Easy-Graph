@@ -1,6 +1,6 @@
 import torch
-import torch.nn.functional as F
 import torch.nn as nn
+import torch.nn.functional as F
 
 from easygraph.nn import HWNNConv
 
@@ -28,8 +28,12 @@ class HWNN(nn.Module):
     ) -> None:
         super().__init__()
         self.drop_rate = drop_rate
-        self.convolution_1 = HWNNConv(in_channels, hid_channels, ncount, K1=3, K2=3, approx=True)
-        self.convolution_2 = HWNNConv(hid_channels, num_classes, ncount, K1=3, K2=3, approx=True)
+        self.convolution_1 = HWNNConv(
+            in_channels, hid_channels, ncount, K1=3, K2=3, approx=True
+        )
+        self.convolution_2 = HWNNConv(
+            hid_channels, num_classes, ncount, K1=3, K2=3, approx=True
+        )
         self.par = torch.nn.Parameter(torch.Tensor(hyper_snapshot_num))
         torch.nn.init.uniform_(self.par, 0, 0.99)
 
@@ -44,9 +48,9 @@ class HWNN(nn.Module):
         hyper_snapshot_num = len(hgs)
         for snap_index in range(hyper_snapshot_num):
             hg = hgs[snap_index]
-            Y = F.relu(self.convolution_1(X,hg))
+            Y = F.relu(self.convolution_1(X, hg))
             Y = F.dropout(Y, self.drop_rate)
-            Y = self.convolution_2(Y,hg)
+            Y = self.convolution_2(Y, hg)
             Y = F.log_softmax(Y, dim=1)
             channel.append(Y)
         X = torch.zeros_like(channel[0])

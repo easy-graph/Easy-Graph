@@ -1844,7 +1844,13 @@ class Hypergraph(BaseHypergraph):
         return L_HGNN.mm(X)
 
     def smoothing_with_HWNN_approx(
-        self, X: torch.Tensor, par: torch.nn.Parameter, W_d: torch.nn.Parameter, K1: int, K2:int, W: torch.nn.Parameter
+        self,
+        X: torch.Tensor,
+        par: torch.nn.Parameter,
+        W_d: torch.nn.Parameter,
+        K1: int,
+        K2: int,
+        W: torch.nn.Parameter,
     ) -> torch.Tensor:
         r"""Return the smoothed feature matrix with the approximated HWNN Laplacian matrix :math:`\mathcal{L}_{HGNN}`.
 
@@ -1880,10 +1886,10 @@ class Hypergraph(BaseHypergraph):
             Theta_mul = Theta_mul @ Theta_t
             poly_t = poly_t + par[ind] * Theta_mul
         return poly @ W_d @ poly_t @ X @ W
-    
+
     def smoothing_with_HWNN_wavelet(
-            self, X: torch.Tensor, W_d: torch.nn.Parameter, W: torch.nn.Parameter
-        ) -> torch.Tensor:
+        self, X: torch.Tensor, W_d: torch.nn.Parameter, W: torch.nn.Parameter
+    ) -> torch.Tensor:
         r"""Return the smoothed feature matrix with original HWNN Laplacian matrix :
 
 
@@ -1907,12 +1913,21 @@ class Hypergraph(BaseHypergraph):
         W_d = torch.diag(W_d)
         Theta = self.L_HGNN
         Laplacian = torch.eye(Theta.size()[0]) - Theta
-        fourier_e, fourier_v = torch.linalg.eigh(Laplacian, UPLO='U')
-        wavelets = fourier_v @ torch.diag(torch.exp(-1.0 * fourier_e)) @ torch.transpose(fourier_v, 0, 1)
-        wavelets_inv = fourier_v @ torch.diag(torch.exp(fourier_e)) @ torch.transpose(fourier_v, 0, 1)
+        fourier_e, fourier_v = torch.linalg.eigh(Laplacian, UPLO="U")
+        wavelets = (
+            fourier_v
+            @ torch.diag(torch.exp(-1.0 * fourier_e))
+            @ torch.transpose(fourier_v, 0, 1)
+        )
+        wavelets_inv = (
+            fourier_v
+            @ torch.diag(torch.exp(fourier_e))
+            @ torch.transpose(fourier_v, 0, 1)
+        )
         wavelets[wavelets < 0.00001] = 0
         wavelets_inv[wavelets_inv < 0.00001] = 0
         return wavelets @ W_d @ wavelets_inv @ X @ W
+
     # =====================================================================================
     # spatial-based convolution/message-passing
     # general message passing functions
