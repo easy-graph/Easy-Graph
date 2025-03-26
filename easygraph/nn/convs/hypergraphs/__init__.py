@@ -2,6 +2,7 @@ from .dhcf_conv import JHConv
 from .hgnn_conv import HGNNConv
 from .hgnnp_conv import HGNNPConv
 from .hnhn_conv import HNHNConv
+from .hwnn_conv import HWNNConv
 from .hypergcn_conv import HyperGCNConv
 from .unignn_conv import UniGATConv
 from .unignn_conv import UniGCNConv

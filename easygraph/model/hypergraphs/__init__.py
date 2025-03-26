@@ -2,6 +2,7 @@ from .dhcf import DHCF
 from .hgnn import HGNN
 from .hgnnp import HGNNP
 from .hnhn import HNHN
+from .hwnn import HWNN
 from .hypergcn import HyperGCN
 from .setgnn import SetGNN
 from .unignn import UniGAT
