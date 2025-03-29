@@ -1,7 +1,7 @@
 EasyGraph
 ==================
 
-Copyright (C) <2020-2024> by [DataNET Group, Fudan University](https://fudan-datanet.mysxl.cn/)
+Copyright (C) <2020-2025> by [DataNET Group, Fudan University](https://fudan-datanet.mysxl.cn/)
 
 ___________________________________________________________________________
 
@@ -38,7 +38,7 @@ ___________________________________________________________________________
 
 
 # News
-- [12-21-2024] 🎉 Thanks to our amazing community! EasyGraph has reached 600,000 downloads!
+- [03-28-2024] 🎉 Thanks to our amazing community! EasyGraph has reached 700,000 downloads!
 - [12-04-2024] 🎉 We received the "Top Open Source Certificate" by International Open Benchmark Council!
 - [11-22-2024] We released EasyGraph 1.4.1! This version now fully supports Python 3.13.
 - [09-27-2024] 🎉 EasyGraph has reached 500,000 downloads!
