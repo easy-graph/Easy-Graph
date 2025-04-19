@@ -5,7 +5,7 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   pytest:
     name: Test with pytest
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:

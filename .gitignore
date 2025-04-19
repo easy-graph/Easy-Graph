@@ -5,7 +5,7 @@ test/
 related-repos/
 tmp_test/test.py
 tmp_test/dynamic_hypergraph.pdf
-hypergraph_tutorial.py
+tmp_test/hypergraph_learning_tutorial.py
 tmp_test/visulation_test.py
 hypergraph-bench/
 # Created by https://www.toptal.com/developers/gitignore/api/python

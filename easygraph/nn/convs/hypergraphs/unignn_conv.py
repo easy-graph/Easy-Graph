@@ -59,7 +59,8 @@ class UniGCNConv(nn.Module):
         X = self.theta(X)
         Y = hg.v2e(X, aggr="mean")
         # compute the special degree of hyperedges
-        _De = torch.zeros(hg.num_e, device=hg.device)
+        # _De = torch.zeros(hg.num_e, device=hg.device)
+        _De = torch.zeros(hg.num_e)
         _Dv = hg.D_v._values()[hg.v2e_src]
         _De = (
             _De.scatter_reduce(0, index=hg.v2e_dst, src=_Dv, reduce="mean")

@@ -9,6 +9,9 @@ from easygraph.datapipe import to_tensor
 from easygraph.datasets.hypergraph.hypergraph_dataset_base import BaseData
 
 
+__all__ = ["CoauthorshipCora", "CoauthorshipDBLP"]
+
+
 class CoauthorshipCora(BaseData):
     r"""The Co-authorship Cora dataset is a citation network dataset for vertex classification task.
     More details see the `HyperGCN <https://papers.nips.cc/paper/2019/file/1efa39bcaec6f3900149160693694536-Paper.pdf>`_ paper.

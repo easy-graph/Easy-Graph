@@ -4,6 +4,18 @@ from easygraph.utils.exception import EasyGraphError
 
 
 def request_text_from_url(url):
+    """
+    Requests text content from the given URL.
+
+    Args:
+        url (str): The URL from which to request text data.
+
+    Returns:
+        str: The text content of the response if the request is successful.
+
+    Raises:
+        EasyGraphError: If a connection error occurs during the request or if the HTTP response status code is not OK.
+    """
     try:
         r = requests.get(url)
     except requests.ConnectionError:
@@ -16,9 +28,36 @@ def request_text_from_url(url):
 
 
 class walmart_trips:
-    def __init__(self, data_root=None, local_path=None):
-        # if local_path is not None:
+    """
+    A class for loading and processing the Walmart trips hypergraph dataset.
 
+    This class fetches hyperedge, node label, and label name data from predefined URLs,
+    processes the data, and generates a hypergraph representation. It also provides access
+    to various dataset attributes through properties and indexing.
+
+    Attributes:
+        data_root (str): The root URL for the data. If provided during initialization, it is set to "https://";
+                         otherwise, it is None.
+        hyperedges_path (str): The URL of the file containing hyperedge information.
+        node_labels_path (str): The URL of the file containing node label information.
+        label_names_path (str): The URL of the file containing label name information.
+        _hyperedges (list): A list of tuples representing hyperedges.
+        _node_labels (list): A list of node labels.
+        _label_names (list): A list of label names.
+        _node_names (list): An empty list reserved for node names (currently unused).
+        _content (dict): A dictionary containing dataset statistics and data, such as the number of classes,
+                         vertices, edges, the edge list, and node labels.
+    """
+
+    def __init__(self, data_root=None, local_path=None):
+        """
+        Initializes an instance of the walmart_trips class.
+
+        Args:
+            data_root (str, optional): The root URL for the data. If provided, it is set to "https://";
+                                       otherwise, it is None. Defaults to None.
+            local_path (str, optional): Currently unused. Defaults to None.
+        """
         self.data_root = "https://" if data_root is not None else data_root
         self.hyperedges_path = "https://gitlab.com/easy-graph/easygraph-data-walmart-trips/-/raw/main/hyperedges-walmart-trips.txt?inline=false"
         self.node_labels_path = "https://gitlab.com/easy-graph/easygraph-data-walmart-trips/-/raw/main/node-labels-walmart-trips.txt?ref_type=heads&inline=false"
@@ -45,9 +84,30 @@ class walmart_trips:
         }
 
     def __getitem__(self, key: str):
+        """
+        Retrieves a value from the _content dictionary using the specified key.
+
+        Args:
+            key (str): The key used to access the _content dictionary.
+
+        Returns:
+            Any: The value corresponding to the key in the _content dictionary.
+        """
         return self._content[key]
 
     def process_label_txt(self, data_str, delimiter="\n", transform_fun=str):
+        """
+        Processes a string containing label data into a list of transformed values.
+
+        Args:
+            data_str (str): The input string containing label data.
+            delimiter (str, optional): The delimiter used to split the input string. Defaults to "\n".
+            transform_fun (callable, optional): A function used to transform each label value.
+                                                Defaults to the str function.
+
+        Returns:
+            list: A list of transformed label values.
+        """
         data_str = data_str.strip()
         data_lst = data_str.split(delimiter)
         final_lst = []
@@ -59,6 +119,12 @@ class walmart_trips:
 
     @property
     def node_labels(self):
+        """
+        Gets the list of node labels.
+
+        Returns:
+            list: A list of node labels.
+        """
         return self._node_labels
 
     """
@@ -69,10 +135,22 @@ class walmart_trips:
 
     @property
     def label_names(self):
+        """
+        Gets the list of label names.
+
+        Returns:
+            list: A list of label names.
+        """
         return self._label_names
 
     @property
     def hyperedges(self):
+        """
+        Gets the list of hyperedges.
+
+        Returns:
+            list: A list of tuples representing hyperedges.
+        """
         return self._hyperedges
 
     def generate_hypergraph(
@@ -82,7 +160,28 @@ class walmart_trips:
         # node_names_path=None,
         label_names_path=None,
     ):
+        """
+        Generates a hypergraph by fetching and processing data from the specified URLs.
+
+        Args:
+            hyperedges_path (str, optional): The URL of the file containing hyperedge information.
+                                             Defaults to None.
+            node_labels_path (str, optional): The URL of the file containing node label information.
+                                              Defaults to None.
+            label_names_path (str, optional): The URL of the file containing label name information.
+                                              Defaults to None.
+        """
+
         def fun(data):
+            """
+            Converts a string to an integer and subtracts 1.
+
+            Args:
+                data (str): The input string to be converted.
+
+            Returns:
+                int: The converted integer value minus 1.
+            """
             data = int(data) - 1
             return data
 
