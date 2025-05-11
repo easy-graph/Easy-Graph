@@ -44,6 +44,8 @@ int sssp_dijkstra(
     std::vector<double>& res
 );
 
+
+
 int pagerank(
     const std::vector<int>& V,
     const std::vector<int>& E,
@@ -51,6 +53,48 @@ int pagerank(
     int max_iter_num,
     double threshold,
     std::vector<double>& PR
+);
+
+
+
+int constraint(
+    const std::vector<int>& V,
+    const std::vector<int>& E,
+    const std::vector<int>& row,
+    const std::vector<int>& col,
+    int num_nodes,
+    const std::vector<double>& W,
+    bool is_directed,
+    std::vector<int>& node_mask,
+    std::vector<double>& constraint
+);
+
+
+
+int hierarchy(
+    const std::vector<int>& V,
+    const std::vector<int>& E,
+    const std::vector<int>& row,
+    const std::vector<int>& col,
+    int num_nodes,
+    const std::vector<double>& W,
+    bool is_directed,
+    std::vector<int>& node_mask, 
+    std::vector<double>& hierarchy
+);
+
+
+
+int effective_size(
+    const std::vector<int>& V,
+    const std::vector<int>& E,
+    const std::vector<int>& row,
+    const std::vector<int>& col,
+    int num_nodes,
+    const std::vector<double>& W,
+    bool is_directed,
+    std::vector<int>& node_mask, 
+    std::vector<double>& effective_size
 );
 
 } // namespace gpu_easygraph
