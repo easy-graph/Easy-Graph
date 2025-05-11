@@ -144,7 +144,7 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
                 E = G.ego_subgraph(v)
                 E.remove_node(v)
                 if E.size() == 0:
-                    effective_size[v] = 1.0 
+                    effective_size[v] = 1.0
                 else:
                     effective_size[v] = len(E) - (2 * E.size()) / len(E)
     else:
