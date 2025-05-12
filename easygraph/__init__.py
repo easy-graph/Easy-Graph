@@ -2,6 +2,7 @@ import easygraph.classes
 import easygraph.convert
 import easygraph.datapipe
 import easygraph.datasets
+import easygraph.exception
 import easygraph.experiments
 import easygraph.functions
 import easygraph.ml_metrics
@@ -14,6 +15,7 @@ from easygraph.classes import *
 from easygraph.convert import *
 from easygraph.datapipe import *
 from easygraph.datasets import *
+from easygraph.exception import *
 from easygraph.experiments import *
 from easygraph.functions import *
 from easygraph.ml_metrics import *

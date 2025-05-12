@@ -58,14 +58,14 @@ class BaseHypergraph:
         e_property: Optional[Union[Dict, List[Dict]]] = None,
         e_weight: Optional[Union[float, List[float]]] = None,
         extra_selfloop: bool = False,
-        device: torch.device = torch.device("cpu"),
+        device: str = "cpu",
     ):
         assert (
             isinstance(num_v, int) and num_v > 0
         ), "num_v should be a positive integer"
         self.clear()
         self._num_v = num_v
-        self.device = device
+        # self.device = torch.cuda.device(device)
         if v_property == None:
             self._v_property = [{} for i in range(num_v)]
         else:
@@ -140,13 +140,13 @@ class BaseHypergraph:
     def clone(self) -> "BaseHypergraph":
         r"""Return a copy of this type of hypergraph."""
 
-    def to(self, device: torch.device):
+    def to(self, device: str = "cpu") -> "BaseHypergraph":
         r"""Move the hypergraph to the specified device.
 
         Args:
             ``device`` (``torch.device``): The device to store the hypergraph.
         """
-        self.device = device
+        # self.device = torch.device
         for v in self.vars_for_DL:
             if v in self.cache and self.cache[v] is not None:
                 self.cache[v] = self.cache[v].to(device)

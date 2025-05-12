@@ -1,4 +1,3 @@
-from easygraph.exception import *
 from easygraph.functions.basic import *
 from easygraph.functions.centrality import *
 from easygraph.functions.community import *

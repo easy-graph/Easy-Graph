@@ -1,6 +1,7 @@
 __all__ = ["ego_graph"]
 
-import easygraph as eg
+# import easygraph as eg
+from easygraph.functions.path import single_source_dijkstra
 
 
 def ego_graph(G, n, radius=1, center=True, undirected=False, distance=None):
@@ -53,13 +54,12 @@ def ego_graph(G, n, radius=1, center=True, undirected=False, distance=None):
         """
     else:
         if distance is not None:
-            sp = eg.single_source_dijkstra(G, n, weight=distance)
+            sp = single_source_dijkstra(G, n, weight=distance)
         else:
-            sp = eg.single_source_dijkstra(G, n)
+            sp = single_source_dijkstra(G, n)
     nodes = [key for key, value in sp.items() if value <= radius]
     nodes = list(nodes)
-    # for i,wd in sp.items():
-    #    print(i,wd)
+
     H = G.nodes_subgraph(nodes)
     if not center:
         H.remove_node(n)
