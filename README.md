@@ -36,6 +36,14 @@ ___________________________________________________________________________
 -->
 👉 For more details, please refer to our [documentation](https://easy-graph.github.io/) page.
 
+## EasyHypergraph
+
+---
+**EasyHypergraph** is a comprehensive, computation-effective, and storage-saving hypergraph computation tool designed not only for in-depth hypergraph analysis but also for the growing field of hypergraph learning. 
+It bridges the gap between EasyGraph and higher-order relationships. EasyHypergraph is developed as an integrated module within the EasyGraph framework, maintaining full compatibility with its core architecture.
+
+👉 For more details, please refer to its [documentation](https://easy-graph.github.io/docs/hypergraph.html) page.
+
 
 # News
 - [03-28-2025] 🎉 Thanks to our amazing community! EasyGraph has reached 700,000 downloads!
