@@ -73,7 +73,7 @@ class Hypergraph(BaseHypergraph):
         self.deg_v_dict = self.degree_data_dict()
         self.n_e_dict = {}
         self.edge_index = -1
-
+        self.device = device
         for i in range(num_v):
             self.deg_v_dict[i] = 0
             self.n_e_dict[i] = []
