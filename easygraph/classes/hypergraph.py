@@ -1829,8 +1829,6 @@ class Hypergraph(BaseHypergraph):
         assert (
             group_name in self.group_names
         ), f"The specified {group_name} is not in existing hyperedge groups."
-        if self.device != X.device:
-            X = X.to(self.device)
         if drop_rate > 0.0:
             L_HGNN = sparse_dropout(self.L_HGNN_of_group(group_name), drop_rate)
         else:
@@ -1859,8 +1857,8 @@ class Hypergraph(BaseHypergraph):
             ``K2`` (``int``): The order of approximation for the second transformation step.
             ``W`` (``torch.nn.Parameter``): A learnable weight matrix applied in the feature transformation step.
         """
-        if self.device != X.device:
-            X = X.to(self.device)
+        # if self.device != X.device:
+        #     X = X.to(self.device)
         if self.device != W_d.device:
             W_d = W_d.to(self.device)
         if self.device != W.device:
@@ -1898,8 +1896,8 @@ class Hypergraph(BaseHypergraph):
             ``K2`` (``int``): The order of approximation for the second transformation step.
             ``W`` (``torch.nn.Parameter``): A learnable weight matrix applied in the feature transformation step.
         """
-        if self.device != X.device:
-            X = X.to(self.device)
+        # if self.device != X.device:
+        #     X = X.to(self.device)
         if self.device != W_d.device:
             W_d = W_d.to(self.device)
         if self.device != W.device:
@@ -2005,8 +2003,8 @@ class Hypergraph(BaseHypergraph):
             group_name in self.group_names
         ), f"The specified {group_name} is not in existing hyperedge groups."
         assert aggr in ["mean", "sum", "softmax_then_sum"]
-        if self.device != X.device:
-            self.to(X.device)
+        # if self.device != X.device:
+        #     self.to(X.device)
         if v2e_weight is None:
             if drop_rate > 0.0:
                 P = sparse_dropout(self.H_T_of_group(group_name), drop_rate)
