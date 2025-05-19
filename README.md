@@ -62,7 +62,7 @@ It bridges the gap between EasyGraph and higher-order relationships. EasyHypergr
 - [03-06-2024] 🎉 We received the Shanghai Open Source Innovation Outstanding Achievement Award (Grand Prize)! [News](https://news.fudan.edu.cn/2024/0401/c2463a139799/page.htm)
 - [02-05-2024] We released EasyGraph 1.1! This version features hypergraph analysis and learning for higher-order network modeling and representation.
 - [08-17-2023] We released EasyGraph 1.0!
-- [08-08-2023] 🎉 Our paper "EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis" was accepted by Patterns (Cell Press)!、
+- [08-08-2023] 🎉 Our paper "EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis" was accepted by Patterns (Cell Press)!
 - [07-22-2020] First public release of EasyGraph!
 
 # Stargazers
