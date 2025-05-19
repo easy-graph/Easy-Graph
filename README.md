@@ -47,7 +47,7 @@ It bridges the gap between EasyGraph and higher-order relationships. EasyHypergr
 👉 For more details, please refer to its [documentation](https://easy-graph.github.io/docs/hypergraph.html) page.
 
 ---
-**EGGPU** is a GPU-accelerated network analysis library that supports essential functions such as betweenness centrality, k-core centrality, and single-source shortest path. Built on top of the EasyGraph library, EGGPU delivers a user-friendly Python API while achieving remarkable speedups for large-scale network analysis.
+**EGGPU** is a high-performance GPU-accelerated network analysis library that supports essential functions such as betweenness centrality, k-core centrality, and single-source shortest path,as well as structural hole metrics like constraint. Built on top of the EasyGraph library, EGGPU features an efficient system architecture and native CUDA implementation, while providing a user-friendly Python API and significant speedups for large-scale network analysis.
 
 👉 For more details, please refer to its [documentation](https://easy-graph.github.io/docs/eggpu.html) page.
 
