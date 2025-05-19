@@ -26,6 +26,9 @@ ___________________________________________________________________________
 - **Youtube channel:** https://www.youtube.com/@python-easygraph
 
 # Introduction
+The framework of EasyGraph is composed of four components: **EasyGraph (Core)**, **EasyHypergraph**, **EGGPU**, and **EasyGNN**. 
+![Framework of EasyGraph.](EG_framework.png)
+
 **EasyGraph** is an open-source network analysis library primarily written in Python. It supports both undirected and directed networks and accommodates various network data formats. EasyGraph includes a comprehensive suite of network analysis algorithms such as community detection, structural hole spanner detection, network embedding, and motif detection. Additionally, it optimizes performance by implementing key components in C++ and utilizing multiprocessing.
 
 <!-- # New Features in Version 1.3
@@ -37,13 +40,14 @@ ___________________________________________________________________________
 👉 For more details, please refer to our [documentation](https://easy-graph.github.io/) page.
 
 
-## EasyHypergraph
-
 ---
 **EasyHypergraph** is a comprehensive, computation-effective, and storage-saving hypergraph computation tool designed not only for in-depth hypergraph analysis but also for the growing field of hypergraph learning. 
 It bridges the gap between EasyGraph and higher-order relationships. EasyHypergraph is developed as an integrated module within the EasyGraph framework, maintaining full compatibility with its core architecture.
-
 👉 For more details, please refer to its [documentation](https://easy-graph.github.io/docs/hypergraph.html) page.
+
+---
+**EGGPU** is a GPU-accelerated network analysis library that supports essential functions such as betweenness centrality, k-core centrality, and single-source shortest path. Built on top of the EasyGraph library, EGGPU delivers a user-friendly Python API while achieving remarkable speedups for large-scale network analysis.
+👉 For more details, please refer to its [documentation](https://easy-graph.github.io/docs/eggpu.html) page.
 
 # News
 - [03-28-2025] 🎉 Thanks to our amazing community! EasyGraph has reached 700,000 downloads!
