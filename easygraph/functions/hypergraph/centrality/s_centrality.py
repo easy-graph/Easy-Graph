@@ -4,7 +4,7 @@ import easygraph as eg
 __all__ = ["s_betweenness", "s_closeness", "s_eccentricity"]
 
 
-def s_betweenness(H, s=1, n_workers=None):
+def s_betweenness(H, s=1, weight=False, n_workers=None):
     """Computes the betweenness centrality for each edge in the hypergraph.
 
     Computes the betweenness centrality for each edge in the hypergraph.
@@ -25,12 +25,12 @@ def s_betweenness(H, s=1, n_workers=None):
 
     """
 
-    linegraph = H.get_linegraph(s=s)
+    linegraph = H.get_linegraph(s=s, weight=weight)
     results = eg.betweenness_centrality(linegraph, n_workers=n_workers)
     return results
 
 
-def s_closeness(H, s=1, n_workers=None):
+def s_closeness(H, s=1, weight=False, n_workers=None):
     """
     Compute the closeness centrality for each edge in the hypergraph.
 
@@ -43,7 +43,7 @@ def s_closeness(H, s=1, n_workers=None):
     -------
     dict. The closeness centrality for each edge in the hypergraph. The keys are the edges and the values are the closeness centrality.
     """
-    linegraph = H.get_linegraph(s=s)
+    linegraph = H.get_linegraph(s=s, weight=weight)
     results = eg.closeness_centrality(linegraph, n_workers=n_workers)
     return results
 

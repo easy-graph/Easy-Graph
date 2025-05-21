@@ -36,7 +36,7 @@ def size_independent_hypercoreness(h):
     size = list([len(data[j]) for j in range(L)])
 
     X = eg.Hypergraph(num_v=initial_node_num, e_list=data)
-    IDX = list(range(1, X.num_v + 1))
+    IDX = list(range(0, X.num_v))
 
     M = range(2, size_max + 1)
     k_step = 1
@@ -156,6 +156,8 @@ def size_independent_hypercoreness(h):
 
             shell_kk = list(sorted(set(prev_shell) - set(IDX)))
             for j in shell_kk:
+                # if j not in idx_n_remove:
+                #     continue
                 k_shell_dict[j][x] = kk - k_step
 
             node_set = set()
@@ -209,7 +211,7 @@ def frequency_based_hypercoreness(h):
     size = list([len(data[j]) for j in range(L)])
 
     X = eg.Hypergraph(num_v=initial_node_num, e_list=data)
-    IDX = list(range(1, X.num_v))
+    IDX = list(range(0, X.num_v))
 
     M = range(2, size_max + 1)
     k_step = 1
@@ -308,7 +310,6 @@ def frequency_based_hypercoreness(h):
                 sizes = [len(X.e[0][i]) for i in IDX_e]
 
                 idx_e_remove = [IDX_e[i] for i in range(len(IDX_e)) if sizes[i] < m]
-                # print("m:",m)
                 now_e_list = X.e[0]
                 new_e_list = []
                 for i in range(len(now_e_list)):
@@ -323,7 +324,6 @@ def frequency_based_hypercoreness(h):
                 IDX = list(node_set)
 
             shell_kk = list(sorted(set(prev_shell) - set(IDX)))
-            # print("fun shell_kk:",len(shell_kk))
             for j in shell_kk:
                 k_shell_dict[j][x] = kk - k_step
 

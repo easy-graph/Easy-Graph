@@ -81,6 +81,7 @@ PYBIND11_MODULE(cpp_easygraph, m) {
     m.def("cpp_density", &density, py::arg("G"));
     m.def("cpp_constraint", &constraint, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
     m.def("cpp_effective_size", &effective_size, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
+    m.def("cpp_efficiency", &efficiency, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
     m.def("cpp_hierarchy", &hierarchy, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
     m.def("cpp_pagerank", &_pagerank, py::arg("G"), py::arg("alpha") = 0.85, py::arg("max_iterator") = 500, py::arg("threshold") = 1e-6);
     m.def("cpp_dijkstra_multisource", &_dijkstra_multisource, py::arg("G"), py::arg("sources"), py::arg("weight") = "weight", py::arg("target") = py::none());    

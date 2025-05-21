@@ -13,10 +13,6 @@ __all__ = [
 ]
 
 
-SmallestCycles = set()
-CycleRatio = {}
-
-
 def my_all_shortest_paths(G, source, target):
     pred = eg.predecessor(G, source)
     if target not in pred:
@@ -48,7 +44,7 @@ def my_all_shortest_paths(G, source, target):
             top -= 1
 
 
-def getandJudgeSimpleCircle(objectList):  #
+def getandJudgeSimpleCircle(objectList, G):  # 这里添加 G 作为参数
     numEdge = 0
     for eleArr in list(itertools.combinations(objectList, 2)):
         if G.has_edge(eleArr[0], eleArr[1]):
@@ -61,7 +57,6 @@ def getandJudgeSimpleCircle(objectList):  #
 
 def getSmallestCycles(G, NodeGirth, Coreness, DEF_IMPOSSLEN):
     NodeList = list(G.nodes)
-    # print(NodeList)
     NodeList.sort()
     # setp 1
     curCyc = list()
@@ -80,7 +75,7 @@ def getSmallestCycles(G, NodeGirth, Coreness, DEF_IMPOSSLEN):
                     if G.has_edge(kx, ix):
                         curCyc.append(kx)
                         if G.has_edge(kx, jx):
-                            SmallestCycles.add(tuple(curCyc))
+                            yield tuple(curCyc)  # 这里改为 yield
                             for i in curCyc:
                                 NodeGirth[i] = 3
                         curCyc.pop()
@@ -115,23 +110,21 @@ def getSmallestCycles(G, NodeGirth, Coreness, DEF_IMPOSSLEN):
                         for path in my_all_shortest_paths(G, nod, nei):
                             lenPath = len(path)
                             path.sort()
-                            SmallestCycles.add(tuple(path))
+                            yield tuple(path)  # 这里改为 yield
                             for i in path:
                                 if NodeGirth[i] > lenPath:
                                     NodeGirth[i] = lenPath
                     G.add_edge(nod, nei)
 
-    return SmallestCycles
 
-
-def StatisticsAndCalculateIndicators(SmallestCyclesOfNodes, CycLenDict):  #
-    global NumSmallCycles
+def StatisticsAndCalculateIndicators(SmallestCyclesOfNodes, CycLenDict, SmallestCycles):
     NumSmallCycles = len(SmallestCycles)
     for cyc in SmallestCycles:
         lenCyc = len(cyc)
         CycLenDict[lenCyc] += 1
         for nod in cyc:
             SmallestCyclesOfNodes[nod].add(cyc)
+    CycleRatio = {}  # 这里将 CycleRatio 作为局部变量
     for objNode, SmaCycs in SmallestCyclesOfNodes.items():
         if len(SmaCycs) == 0:
             continue
@@ -171,24 +164,21 @@ def cycle_ratio_centrality(G):
     {1: 4.083333333333333, 2: 4.083333333333333, 3: 2.6666666666666665, 4: 2.6666666666666665, 5: 1.5}
 
     """
-    CycLenDict = dict()
     NumNode = G.number_of_nodes()  # update
     DEF_IMPOSSLEN = NumNode + 1  # Impossible simple cycle length
     NodeGirth = dict()
     CycLenDict = dict()
 
-    SmallestCyclesOfNodes = {}  #
+    SmallestCyclesOfNodes = {}
     removeNodes = set()
     Coreness = dict(zip(list(G.nodes), eg.k_core(G)))
-    for i in list(G.nodes):  #
+    for i in list(G.nodes):
         SmallestCyclesOfNodes[i] = set()
-        CycleRatio[i] = 0
         if G.degree()[i] <= 1 or Coreness[i] <= 1:
             NodeGirth[i] = 0
             removeNodes.add(i)
         else:
             NodeGirth[i] = DEF_IMPOSSLEN
-    # print('NodeGirth:', NodeGirth)
 
     G.remove_nodes_from(removeNodes)
 
@@ -196,6 +186,8 @@ def cycle_ratio_centrality(G):
     for i in range(3, NodeNum + 2):
         CycLenDict[i] = 0
 
-    getSmallestCycles(G, NodeGirth, Coreness, DEF_IMPOSSLEN)
-    cycle_ratio = StatisticsAndCalculateIndicators(SmallestCyclesOfNodes, CycLenDict)
+    SmallestCycles = set(getSmallestCycles(G, NodeGirth, Coreness, DEF_IMPOSSLEN))
+    cycle_ratio = StatisticsAndCalculateIndicators(
+        SmallestCyclesOfNodes, CycLenDict, SmallestCycles
+    )
     return cycle_ratio

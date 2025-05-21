@@ -1,7 +1,7 @@
 EasyGraph
 ==================
 
-Copyright (C) <2020-2024> by [DataNET Group, Fudan University](https://fudan-datanet.mysxl.cn/)
+Copyright (C) <2020-2025> by [DataNET Group, Fudan University](https://fudan-datanet.mysxl.cn/)
 
 ___________________________________________________________________________
 
@@ -26,6 +26,9 @@ ___________________________________________________________________________
 - **Youtube channel:** https://www.youtube.com/@python-easygraph
 
 # Introduction
+The framework of EasyGraph is composed of four components: **EasyGraph (Core)**, **EasyHypergraph**, **EGGPU**, and **EasyGNN**. 
+![Framework of EasyGraph.](EG_framework.png)
+
 **EasyGraph** is an open-source network analysis library primarily written in Python. It supports both undirected and directed networks and accommodates various network data formats. EasyGraph includes a comprehensive suite of network analysis algorithms such as community detection, structural hole spanner detection, network embedding, and motif detection. Additionally, it optimizes performance by implementing key components in C++ and utilizing multiprocessing.
 
 <!-- # New Features in Version 1.3
@@ -37,8 +40,19 @@ ___________________________________________________________________________
 👉 For more details, please refer to our [documentation](https://easy-graph.github.io/) page.
 
 
+---
+**EasyHypergraph** is a comprehensive, computation-effective, and storage-saving hypergraph computation tool designed not only for in-depth hypergraph analysis but also for the growing field of hypergraph learning. 
+It bridges the gap between EasyGraph and higher-order relationships. EasyHypergraph is developed as an integrated module within the EasyGraph framework, maintaining full compatibility with its core architecture.
+
+👉 For more details, please refer to its [documentation](https://easy-graph.github.io/docs/hypergraph.html) page.
+
+---
+**EGGPU** is a high-performance GPU-accelerated network analysis library that supports essential functions such as betweenness centrality, k-core centrality, and single-source shortest path,as well as structural hole metrics like constraint. Built on top of the EasyGraph library, EGGPU features an efficient system architecture and native CUDA implementation, while providing a user-friendly Python API and significant speedups for large-scale network analysis.
+
+👉 For more details, please refer to its [documentation](https://easy-graph.github.io/docs/eggpu.html) page.
+
 # News
-- [12-21-2024] 🎉 Thanks to our amazing community! EasyGraph has reached 600,000 downloads!
+- [03-28-2025] 🎉 Thanks to our amazing community! EasyGraph has reached 700,000 downloads!
 - [12-04-2024] 🎉 We received the "Top Open Source Certificate" by International Open Benchmark Council!
 - [11-22-2024] We released EasyGraph 1.4.1! This version now fully supports Python 3.13.
 - [09-27-2024] 🎉 EasyGraph has reached 500,000 downloads!
@@ -48,7 +62,7 @@ ___________________________________________________________________________
 - [03-06-2024] 🎉 We received the Shanghai Open Source Innovation Outstanding Achievement Award (Grand Prize)! [News](https://news.fudan.edu.cn/2024/0401/c2463a139799/page.htm)
 - [02-05-2024] We released EasyGraph 1.1! This version features hypergraph analysis and learning for higher-order network modeling and representation.
 - [08-17-2023] We released EasyGraph 1.0!
-- [08-08-2023] 🎉 Our paper "EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis" was accepted by Patterns (Cell Press)!、
+- [08-08-2023] 🎉 Our paper "EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis" was accepted by Patterns (Cell Press)!
 - [07-22-2020] First public release of EasyGraph!
 
 # Stargazers

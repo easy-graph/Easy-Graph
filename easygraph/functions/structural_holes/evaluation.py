@@ -67,7 +67,10 @@ def effective_size_borgatti_parallel(nodes, G, weight):
             continue
         E = G.ego_subgraph(node)
         E.remove_node(node)
-        ret.append([node, len(E) - (2 * E.size()) / len(E)])
+        if E.size() == 0:
+            ret.append([node, 1.0])
+        else:
+            ret.append([node, len(E) - (2 * E.size()) / len(E)])
     return ret
 
 
@@ -140,7 +143,10 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
                     continue
                 E = G.ego_subgraph(v)
                 E.remove_node(v)
-                effective_size[v] = len(E) - (2 * E.size()) / len(E)
+                if E.size() == 0:
+                    effective_size[v] = 1.0
+                else:
+                    effective_size[v] = len(E) - (2 * E.size()) / len(E)
     else:
         if n_workers is not None:
             import random
@@ -162,8 +168,7 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
         else:
             for v in nodes:
                 # Effective size is not defined for isolated nodes
-                # Check both in-degree and out-degree for directed graphs
-                if G.in_degree(v) == 0 and G.out_degree(v) == 0:
+                if len(G[v]) == 0:
                     effective_size[v] = float("nan")
                     continue
                 effective_size[v] = sum(
@@ -173,7 +178,8 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
 
 
 @not_implemented_for("multigraph")
-def efficiency(G, nodes=None, weight=None):
+@hybrid("cpp_efficiency")
+def efficiency(G, nodes=None, weight=None, n_workers=None):
     """Burt's metric - Efficiency.
     Parameters
     ----------
@@ -197,7 +203,7 @@ def efficiency(G, nodes=None, weight=None):
     .. [1] Burt R S. Structural holes: The social structure of competition[M].
        Harvard university press, 2009.
     """
-    e_size = effective_size(G, nodes=nodes, weight=weight)
+    e_size = effective_size(G, nodes=nodes, weight=weight, n_workers=n_workers)
     degree = G.degree(weight=weight)
     efficiency = {n: v / degree[n] for n, v in e_size.items()}
     return efficiency
@@ -255,7 +261,7 @@ def constraint(G, nodes=None, weight=None, n_workers=None):
 
     def compute_constraint_of_v(v):
         neighbors_of_v = set(G.all_neighbors(v))
-        if len(neighbors_of_v) == 0:
+        if len(G[v]) == 0:
             constraint_of_v = float("nan")
         else:
             constraint_of_v = sum(

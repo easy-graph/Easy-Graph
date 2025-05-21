@@ -73,7 +73,7 @@ class Hypergraph(BaseHypergraph):
         self.deg_v_dict = self.degree_data_dict()
         self.n_e_dict = {}
         self.edge_index = -1
-
+        self.device = device
         for i in range(num_v):
             self.deg_v_dict[i] = 0
             self.n_e_dict[i] = []
@@ -971,7 +971,6 @@ class Hypergraph(BaseHypergraph):
                 ),
                 torch.ones(len(self.cache["v_idx"])),
                 torch.Size([self.num_v, num_e]),
-                device=self.device,
             ).coalesce()
 
         return self.cache["H"]
@@ -1323,7 +1322,6 @@ class Hypergraph(BaseHypergraph):
                 torch.arange(0, _num_e).view(1, -1).repeat(2, 1),
                 _tmp,
                 torch.Size([_num_e, _num_e]),
-                device=self.device,
             ).coalesce()
 
         return self.cache["W_e"]
@@ -1367,7 +1365,6 @@ class Hypergraph(BaseHypergraph):
                 torch.arange(0, self.num_v).view(1, -1).repeat(2, 1),
                 self.cache["D_v_value"],
                 torch.Size([self.num_v, self.num_v]),
-                device=self.device,
             ).coalesce()
         return self.cache["D_v"]
 
@@ -1392,7 +1389,7 @@ class Hypergraph(BaseHypergraph):
                 torch.arange(0, _num_v).view(1, -1).repeat(2, 1),
                 _tmp,
                 torch.Size([_num_v, _num_v]),
-                device=self.device,
+                # device=self.device,
             ).coalesce()
         return self.group_cache[group_name]["D_v"]
 
@@ -1414,7 +1411,7 @@ class Hypergraph(BaseHypergraph):
                 torch.arange(0, _num_v),
                 _val,
                 torch.Size([_num_v, _num_v]),
-                device=self.device,
+                # device=self.device,
             )
 
         return self.cache["D_v_neg_1"]
@@ -1454,7 +1451,6 @@ class Hypergraph(BaseHypergraph):
                 torch.arange(0, self.num_v),
                 _mat,
                 torch.Size([self.num_v, self.num_v]),
-                device=self.device,
             )
 
         return self.cache["D_v_neg_1_2"]
@@ -1489,7 +1485,6 @@ class Hypergraph(BaseHypergraph):
                 torch.arange(0, _num_e),
                 _tmp,
                 torch.Size([_num_e, _num_e]),
-                device=self.device,
             )
 
         return self.cache["D_e"]
@@ -1531,7 +1526,6 @@ class Hypergraph(BaseHypergraph):
                 torch.arange(0, _num_e),
                 _val,
                 torch.Size([_num_e, _num_e]),
-                device=self.device,
             )
 
         return self.cache["D_e_neg_1"]
@@ -1810,8 +1804,8 @@ class Hypergraph(BaseHypergraph):
             ``X`` (``torch.Tensor``): The feature matrix. Size :math:`(|\mathcal{V}|, C)`.
             ``drop_rate`` (``float``): Dropout rate. Randomly dropout the connections in incidence matrix with probability ``drop_rate``. Default: ``0.0``.
         """
-        if self.device != X.device:
-            X = X.to(self.device)
+        # if self.device != X.device:
+        #     X = X.to(self.device)
 
         if drop_rate > 0.0:
             L_HGNN = sparse_dropout(self.L_HGNN, drop_rate)
@@ -1835,8 +1829,6 @@ class Hypergraph(BaseHypergraph):
         assert (
             group_name in self.group_names
         ), f"The specified {group_name} is not in existing hyperedge groups."
-        if self.device != X.device:
-            X = X.to(self.device)
         if drop_rate > 0.0:
             L_HGNN = sparse_dropout(self.L_HGNN_of_group(group_name), drop_rate)
         else:
@@ -1865,8 +1857,8 @@ class Hypergraph(BaseHypergraph):
             ``K2`` (``int``): The order of approximation for the second transformation step.
             ``W`` (``torch.nn.Parameter``): A learnable weight matrix applied in the feature transformation step.
         """
-        if self.device != X.device:
-            X = X.to(self.device)
+        # if self.device != X.device:
+        #     X = X.to(self.device)
         if self.device != W_d.device:
             W_d = W_d.to(self.device)
         if self.device != W.device:
@@ -1904,8 +1896,8 @@ class Hypergraph(BaseHypergraph):
             ``K2`` (``int``): The order of approximation for the second transformation step.
             ``W`` (``torch.nn.Parameter``): A learnable weight matrix applied in the feature transformation step.
         """
-        if self.device != X.device:
-            X = X.to(self.device)
+        # if self.device != X.device:
+        #     X = X.to(self.device)
         if self.device != W_d.device:
             W_d = W_d.to(self.device)
         if self.device != W.device:
@@ -1946,8 +1938,8 @@ class Hypergraph(BaseHypergraph):
             ``v2e_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (vertices point to hyperedges). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
             ``drop_rate`` (``float``): Dropout rate. Randomly dropout the connections in incidence matrix with probability ``drop_rate``. Default: ``0.0``.
         """
-        if self.device != X.device:
-            self.to(X.device)
+        # if self.device != X.device:
+        #     self.to(X.device)
         if v2e_weight is None:
             if drop_rate > 0.0:
                 P = sparse_dropout(self.H_T, drop_rate)
@@ -2011,8 +2003,8 @@ class Hypergraph(BaseHypergraph):
             group_name in self.group_names
         ), f"The specified {group_name} is not in existing hyperedge groups."
         assert aggr in ["mean", "sum", "softmax_then_sum"]
-        if self.device != X.device:
-            self.to(X.device)
+        # if self.device != X.device:
+        #     self.to(X.device)
         if v2e_weight is None:
             if drop_rate > 0.0:
                 P = sparse_dropout(self.H_T_of_group(group_name), drop_rate)
@@ -2066,8 +2058,8 @@ class Hypergraph(BaseHypergraph):
             ``X`` (``torch.Tensor``): Hyperedge feature matrix. Size :math:`(|\mathcal{E}|, C)`.
             ``e_weight`` (``torch.Tensor``, optional): The hyperedge weight vector. If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
         """
-        if self.device != X.device:
-            self.to(X.device)
+        # if self.device != X.device:
+        #     self.to(X.device)
         if e_weight is None:
             X = torch.sparse.mm(self.W_e, X)
         else:
@@ -2091,8 +2083,8 @@ class Hypergraph(BaseHypergraph):
         assert (
             group_name in self.group_names
         ), f"The specified {group_name} is not in existing hyperedge groups."
-        if self.device != X.device:
-            self.to(X.device)
+        # if self.device != X.device:
+        #     self.to(X.device)
         if e_weight is None:
             X = torch.sparse.mm(self.W_e_of_group(group_name), X)
         else:
@@ -2169,8 +2161,8 @@ class Hypergraph(BaseHypergraph):
             ``e2v_weight`` (``torch.Tensor``, optional): The weight vector attached to connections (hyperedges point to vertices). If not specified, the function will use the weights specified in hypergraph construction. Defaults to ``None``.
             ``drop_rate`` (``float``): Dropout rate. Randomly dropout the connections in incidence matrix with probability ``drop_rate``. Default: ``0.0``.
         """
-        if self.device != X.device:
-            self.to(X.device)
+        # if self.device != X.device:
+        #     self.to(X.device)
         if e2v_weight is None:
             if drop_rate > 0.0:
                 P = sparse_dropout(self.H, drop_rate)
@@ -2192,7 +2184,10 @@ class Hypergraph(BaseHypergraph):
                 e2v_weight.shape[0] == self.e2v_weight.shape[0]
             ), "The size of e2v_weight must be equal to the size of self.e2v_weight."
             P = torch.sparse_coo_tensor(
-                self.H._indices(), e2v_weight, self.H.shape, device=self.device
+                self.H._indices(),
+                e2v_weight,
+                self.H.shape,
+                # device=self.device
             ).coalesce()
 
             if drop_rate > 0.0:
@@ -2233,8 +2228,8 @@ class Hypergraph(BaseHypergraph):
             group_name in self.group_names
         ), f"The specified {group_name} is not in existing hyperedge groups."
         assert aggr in ["mean", "sum", "softmax_then_sum"]
-        if self.device != X.device:
-            self.to(X.device)
+        # if self.device != X.device:
+        #     self.to(X.device)
         if e2v_weight is None:
             if drop_rate > 0.0:
                 P = sparse_dropout(self.H_of_group(group_name), drop_rate)
@@ -2287,8 +2282,8 @@ class Hypergraph(BaseHypergraph):
         Parameters:
             ``X`` (``torch.Tensor``): Vertex feature matrix. Size :math:`(|\mathcal{V}|, C)`.
         """
-        if self.device != X.device:
-            self.to(X.device)
+        # if self.device != X.device:
+        #     self.to(X.device)
         return X
 
     def e2v_update_of_group(self, group_name: str, X: torch.Tensor):
@@ -2301,8 +2296,8 @@ class Hypergraph(BaseHypergraph):
         assert (
             group_name in self.group_names
         ), f"The specified {group_name} is not in existing hyperedge groups."
-        if self.device != X.device:
-            self.to(X.device)
+        # if self.device != X.device:
+        #     self.to(X.device)
         return X
 
     def e2v(
@@ -2591,9 +2586,9 @@ class Hypergraph(BaseHypergraph):
         rv = torch.rand((feature.shape[1], 1), device=feature.device)
         for e in e_list:
             num_v_in_e = len(e)
-            assert (
-                num_v_in_e >= 2
-            ), "The number of vertices in an edge must be greater than or equal to 2!"
+            # assert (
+            #     num_v_in_e >= 2
+            # ), "The number of vertices in an edge must be greater than or equal to 2!"
             p = torch.mm(feature[e, :], rv).squeeze()
             v_a_idx, v_b_idx = torch.argmax(p), torch.argmin(p)
             if not with_mediator:
@@ -2615,7 +2610,7 @@ class Hypergraph(BaseHypergraph):
             new_e_list = new_e_list[e_mask].numpy().tolist()
             new_e_weight = new_e_weight[e_mask].numpy().tolist()
 
-        _g = Graph()
+        _g = eg.Graph()
 
         _g.add_nodes(list(range(0, num_v)))
         for (

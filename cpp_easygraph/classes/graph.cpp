@@ -14,6 +14,7 @@ Graph::Graph() {
     this->graph = py::dict();
     this->nodes_cache = py::dict();
     this->adj_cache = py::dict();
+    this->coo_graph = nullptr;
 }
 
 py::object Graph__init__(py::args args, py::kwargs kwargs) {
@@ -846,4 +847,144 @@ std::shared_ptr<std::vector<int>> Graph::gen_CSR_sources(const py::object& py_so
     }
 
     return sources;
+}
+
+std::shared_ptr<COOGraph> Graph::gen_COO() {
+    if (coo_graph != nullptr) {
+        if (coo_graph->unweighted_W.size() != coo_graph->row.size()) {
+            coo_graph->unweighted_W = std::vector<double>(coo_graph->row.size(), 1.0);
+        }
+    } else {
+
+        coo_graph = std::make_shared<COOGraph>();
+
+        std::vector<node_t>& nodes = coo_graph->nodes;
+        for (auto it = node.begin(); it != node.end(); ++it) {
+            nodes.push_back(it->first);
+        }
+
+        std::sort(nodes.begin(), nodes.end());
+
+        std::unordered_map<node_t, int>& node2idx = coo_graph->node2idx;
+        for (int i = 0; i < nodes.size(); ++i) {
+            node2idx[nodes[i]] = i;
+        }
+
+        std::vector<int>& row = coo_graph->row;
+        std::vector<int>& col = coo_graph->col;
+        std::vector<double>& unweighted_W = coo_graph->unweighted_W;
+
+        for (int idx = 0; idx < nodes.size(); ++idx) {
+            node_t n = nodes[idx];
+
+            const auto& n_adjs = adj.find(n)->second;
+
+            for (auto adj_it = n_adjs.begin(); adj_it != n_adjs.end(); ++adj_it) {
+                node_t neighbor = adj_it->first;
+
+                row.push_back(idx);            
+                col.push_back(node2idx[neighbor]);
+
+                unweighted_W.push_back(1.0);
+            }
+        }
+    }
+
+    return coo_graph;
+}
+
+std::shared_ptr<COOGraph> Graph::gen_COO(const std::string& weight) {
+    if (coo_graph != nullptr) {
+        if (coo_graph->W_map.find(weight) == coo_graph->W_map.end()) {
+            auto W = std::make_shared<std::vector<double>>();
+
+            for (node_t n : coo_graph->nodes) {
+                const auto& n_adjs = adj.find(n)->second;
+
+                for (auto adj_it = n_adjs.begin(); adj_it != n_adjs.end(); ++adj_it) {
+                    const edge_attr_dict_factory& edge_attr = adj_it->second;
+                    auto edge_it = edge_attr.find(weight);
+                    weight_t w = edge_it != edge_attr.end() ? edge_it->second : 1.0;
+
+                    W->push_back(w);
+                }
+            }
+
+            coo_graph->W_map[weight] = W;
+        }
+    } else {
+        coo_graph = std::make_shared<COOGraph>();
+
+        std::vector<node_t>& nodes = coo_graph->nodes;
+        for (auto it = node.begin(); it != node.end(); ++it) {
+            nodes.push_back(it->first);
+        }
+
+        std::sort(nodes.begin(), nodes.end());
+
+        std::unordered_map<node_t, int>& node2idx = coo_graph->node2idx;
+        for (int i = 0; i < nodes.size(); ++i) {
+            node2idx[nodes[i]] = i;
+        }
+
+        std::vector<int>& row = coo_graph->row;
+        std::vector<int>& col = coo_graph->col;
+        auto W = std::make_shared<std::vector<double>>();
+
+        for (int idx = 0; idx < nodes.size(); ++idx) {
+            node_t n = nodes[idx];
+
+            const auto& n_adjs = adj.find(n)->second;
+
+            for (auto adj_it = n_adjs.begin(); adj_it != n_adjs.end(); ++adj_it) {
+                const edge_attr_dict_factory& edge_attr = adj_it->second;
+                auto edge_it = edge_attr.find(weight);
+                weight_t w = edge_it != edge_attr.end() ? edge_it->second : 1.0;
+
+                row.push_back(idx);
+                col.push_back(node2idx[adj_it->first]); 
+
+                W->push_back(w);
+            }
+        }
+
+        coo_graph->W_map[weight] = W;
+    }
+
+    return coo_graph;
+}
+
+std::shared_ptr<COOGraph> Graph::transfer_csr_to_coo(const std::shared_ptr<CSRGraph>& csr_graph) {
+    auto coo_graph = std::make_shared<COOGraph>();
+
+    coo_graph->nodes = csr_graph->nodes;
+    coo_graph->node2idx = csr_graph->node2idx;
+
+    const std::vector<int>& V = csr_graph->V;
+    const std::vector<int>& E = csr_graph->E;
+    int num_edges = E.size();
+
+    coo_graph->row.reserve(num_edges);
+    coo_graph->col.reserve(num_edges);
+
+    std::vector<int>& row = coo_graph->row;
+    std::vector<int>& col = coo_graph->col;
+
+    for (int i = 0; i < V.size() - 1; ++i) {
+        int start_idx = V[i];
+        int end_idx = V[i + 1];
+
+        for (int j = start_idx; j < end_idx; ++j) {
+            row.push_back(i);      
+            col.push_back(E[j]);   
+        }
+    }
+
+    if (!csr_graph->unweighted_W.empty()) {
+        coo_graph->unweighted_W = csr_graph->unweighted_W;
+    } else {
+        coo_graph->W_map = csr_graph->W_map;
+    }
+
+    return coo_graph;
 }

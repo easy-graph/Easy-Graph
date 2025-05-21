@@ -37,8 +37,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-#         os: [ubuntu-20.04, windows-latest, macos-latest]
-        os: [ubuntu-20.04]
+#         os: [ubuntu-22.04, windows-latest, macos-latest]
+        os: [ubuntu-22.04]
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
@@ -88,7 +88,7 @@ jobs:
   build_sdist:
     name: Build source distribution
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
         with:
@@ -114,7 +114,7 @@ jobs:
   #   runs-on: ${{ matrix.os }}
   #   strategy:
   #     matrix:
-  #       os: [ubuntu-20.04, windows-latest, macos-latest]
+  #       os: [ubuntu-22.04, windows-latest, macos-latest]
   #       python-version: ["3.6", "3.7", "3.8", "3.9"]
   #       # python-version: ["3.8", "3.9"]
 
@@ -143,7 +143,7 @@ jobs:
     name: Upload to Test PyPI
     if: inputs.upload == 'test_pypi'
     needs: [build_wheels, build_sdist]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     # upload to PyPI on every tag starting with 'v'
     # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
     # if: startsWith(github.event.ref, 'refs/tags/v')
@@ -170,7 +170,7 @@ jobs:
     if: inputs.upload == 'pypi'
     # needs: [build_wheels, build_sdist, upload_test_pypi, verify_installation]
     needs: [build_wheels, build_sdist]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     # upload to PyPI on every tag starting with 'v'
     # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
     # if: startsWith(github.event.ref, 'refs/tags/v')

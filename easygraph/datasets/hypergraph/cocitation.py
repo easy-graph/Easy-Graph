@@ -106,15 +106,15 @@ class CocitationCiteseer(BaseData):
     The content of the Co-citation Citaseer dataset includes the following:
 
     - ``num_classes``: The number of classes: :math:`6`.
-    - ``num_vertices``: The number of vertices: :math:`3,327`.
+    - ``num_vertices``: The number of vertices: :math:`3,312`.
     - ``num_edges``: The number of edges: :math:`1,079`.
     - ``dim_features``: The dimension of features: :math:`3,703`.
-    - ``features``: The vertex feature matrix. ``torch.Tensor`` with size :math:`(3,327 \times 3,703)`.
+    - ``features``: The vertex feature matrix. ``torch.Tensor`` with size :math:`(3,312 \times 3,703)`.
     - ``edge_list``: The edge list. ``List`` with length :math:`1,079`.
-    - ``labels``: The label list. ``torch.LongTensor`` with size :math:`(3,327, )`.
-    - ``train_mask``: The train mask. ``torch.BoolTensor`` with size :math:`(3,327, )`.
-    - ``val_mask``: The validation mask. ``torch.BoolTensor`` with size :math:`(3,327, )`.
-    - ``test_mask``: The test mask. ``torch.BoolTensor`` with size :math:`(3,327, )`.
+    - ``labels``: The label list. ``torch.LongTensor`` with size :math:`(3,312, )`.
+    - ``train_mask``: The train mask. ``torch.BoolTensor`` with size :math:`(3,312, )`.
+    - ``val_mask``: The validation mask. ``torch.BoolTensor`` with size :math:`(3,312, )`.
+    - ``test_mask``: The test mask. ``torch.BoolTensor`` with size :math:`(3,312, )`.
 
     Args:
         ``data_root`` (``str``, optional): The ``data_root`` has stored the data. If set to ``None``, this function will auto-download from server and save into the default direction ``~/.dhg/datasets/``. Defaults to ``None``.
