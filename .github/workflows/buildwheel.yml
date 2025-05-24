@@ -33,9 +33,7 @@ jobs:
       - uses: actions/setup-python@v5
 
       - name: Upload pybind11
-      - run: cd /project/
-              git submodule add https://github.com/pybind/pybind11 cpp_easygraph/pybind11
-              git submodule update --init --recursive
+      - run: cd /project/ && git submodule add https://github.com/pybind/pybind11 cpp_easygraph/pybind11 && git submodule update --init --recursive
               
       # You can test your matrix by printing the current Python version
       - name: Display Python version
