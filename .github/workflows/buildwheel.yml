@@ -29,7 +29,8 @@ jobs:
       # 检出代码
       - name: Checkout code
         uses: actions/checkout@v3
-            - uses: actions/setup-python@v5
+      
+      - uses: actions/setup-python@v5
 
       # You can test your matrix by printing the current Python version
       - name: Display Python version
