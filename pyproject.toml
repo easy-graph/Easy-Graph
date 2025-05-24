@@ -177,7 +177,7 @@ exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
 build = ["cp38-*", "cp39-*", "cp310-*", "cp311-*", "cp312-*"]
 
 
-free-threaded-support = true
+# free-threaded-support = true
 
 # Skip building free-threaded compatible wheels on Windows
 skip = "*t-win*"
