@@ -24,7 +24,7 @@ jobs:
         matrix:
           # macos-13 is an intel runner, macos-14 is apple silicon
 #          os: [ ubuntu-latest, windows-latest, macos-latest, macos-13, macos-14]
-           os: [ ubuntu-latest]
+           os: [ ubuntu-latest, windows-latest]
 
 #          modify python version in project.toml
       steps: 
@@ -47,7 +47,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.23.3
         with:
           output-dir: dist/
-
+          merge-multiple: true
 
 
       - name: Upload wheels
@@ -55,6 +55,7 @@ jobs:
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: dist/
+          merge-multiple: true
 
 
   upload_pypi:
