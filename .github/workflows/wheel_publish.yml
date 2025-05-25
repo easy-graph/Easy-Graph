@@ -1,7 +1,5 @@
-name: Build and download wheel
+name: Build,download and publish wheels
 on: workflow_dispatch
-
-
 jobs:
   build_sdist:
     name: Build source distribution
@@ -23,9 +21,7 @@ jobs:
       strategy:
         matrix:
           # macos-13 is an intel runner, macos-14 is apple silicon
-#          os: [ ubuntu-latest, windows-latest, macos-latest, macos-13, macos-14]
-           os: [ ubuntu-latest, windows-latest]
-
+          os: [ ubuntu-latest, windows-latest, macos-latest, macos-13, macos-14]
 #          modify python version in project.toml
       steps: 
       # 检出代码
@@ -45,17 +41,16 @@ jobs:
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.23.3
-#        with:
-#          output-dir: dist/
-#          merge-multiple: true
+        with:
+          output-dir: dist/
+          merge-multiple: true
 
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
-          path: dist
-          merge-multiple: true
+          path: dist/*.whl
 
 
   upload_pypi:
