@@ -117,7 +117,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/easy-graph/Easy-Graph",
     packages=setuptools.find_packages(),
-    license = "BSD License",
+    license = "BSD",
     classifiers=[
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
