@@ -109,7 +109,8 @@ force-exclude = '''
 .*/setup\.py$
 '''
 
-
+[tool.setuptools]
+license-files = []
 # [tool.mypy]
 # files = "src"
 # mypy_path = "src"
