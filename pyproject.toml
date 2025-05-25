@@ -8,7 +8,8 @@
 # maintainers = [
 #     "Teddy Xinyuan Chen <45612704+tddschn@users.noreply.github.com>"
 # ]
-license = "BSD 3-Clause"
+[tool.setuptools]
+license-files = [ "LICENSE.txt" ]
 
 # readme = "README.md"
 
