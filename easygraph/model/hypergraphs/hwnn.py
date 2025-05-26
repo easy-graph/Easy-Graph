@@ -6,15 +6,15 @@ from easygraph.nn import HWNNConv
 
 
 class HWNN(nn.Module):
-    r"""The HGNN model proposed in `Hypergraph Neural Networks <https://arxiv.org/pdf/1809.09401>`_ paper (AAAI 2019).
+    r"""The HWNN model proposed in `Heterogeneous Hypergraph Embedding for Graph Classification <https://arxiv.org/abs/2010.10728>`_ paper (WSDM 2021).
 
     Parameters:
-        ``in_channels`` (``int``): :math:`C_{in}` is the number of input channels.
-        ``hid_channels`` (``int``): :math:`C_{hid}` is the number of hidden channels.
-        ``num_classes`` (``int``): The Number of class of the classification task.
-        ``ncount`` (``int``): The Number of node in the hypergraph.
-        ``hyper_snapshot_num`` (``int``): The Number of snapshots splited from hypergraph.
-        ``drop_rate`` (``float``, optional): Dropout ratio. Defaults to 0.5.
+        ``in_channels`` (``int``): Number of input feature channels. :math:`C_{in}` is the dimension of input features.
+        ``num_classes`` (``int``): Number of target classes for classification.
+        ``ncount`` (``int``): Total number of nodes in the hypergraph.
+        ``hyper_snapshot_num`` (``int``, optional): Number of temporal snapshots for dynamic hypergraph. Defaults to 1 (static hypergraph).
+        ``hid_channels`` (``int``, optional): Number of hidden units. :math:`C_{hid}` is the dimension of hidden representations. Defaults to 128.
+        ``drop_rate`` (``float``, optional): Dropout probability for regularization. Defaults to 0.01.
     """
 
     def __init__(
