@@ -59,3 +59,99 @@ class TestMultiGraph:
         assert G.adj == {1: {2: {0: {}}}, 2: {1: {0: {}}}}
         with pytest.raises(eg.EasyGraphError):
             G.remove_node(-1)
+class TestMultiGraphExtended:
+
+    def test_add_multiple_edges_and_keys(self):
+        G = eg.MultiGraph()
+        k0 = G.add_edge(1, 2)
+        k1 = G.add_edge(1, 2)
+        assert k0 == 0
+        assert k1 == 1
+        assert G.number_of_edges(1, 2) == 2
+
+    def test_add_edge_with_key_and_attributes(self):
+        G = eg.MultiGraph()
+        k = G.add_edge(1, 2, key='custom', weight=3, label='test')
+        assert k == 'custom'
+        assert G.get_edge_data(1, 2, 'custom') == {'weight': 3, 'label': 'test'}
+
+    def test_add_edges_from_various_formats(self):
+        G = eg.MultiGraph()
+        edges = [
+            (1, 2),                                # 2-tuple
+            (2, 3, {'weight': 7}),                 # 3-tuple with attr
+            (3, 4, 'k1', {'color': 'red'}),        # 4-tuple
+        ]
+        keys = G.add_edges_from(edges, capacity=100)
+        assert len(keys) == 3
+        assert G.get_edge_data(3, 4, 'k1')['color'] == 'red'
+        assert G.get_edge_data(2, 3, 0)['capacity'] == 100
+
+    def test_remove_edge_with_key(self):
+        G = eg.MultiGraph()
+        G.add_edge(1, 2, key='a')
+        G.add_edge(1, 2, key='b')
+        G.remove_edge(1, 2, key='a')
+        assert not G.has_edge(1, 2, key='a')
+        assert G.has_edge(1, 2, key='b')
+
+    def test_remove_edge_arbitrary(self):
+        G = eg.MultiGraph()
+        G.add_edge(1, 2)
+        G.add_edge(1, 2)
+        G.remove_edge(1, 2)
+        assert G.number_of_edges(1, 2) == 1
+
+    def test_remove_edges_from_mixed(self):
+        G = eg.MultiGraph()
+        keys = G.add_edges_from([(1, 2), (1, 2), (2, 3)])
+        G.remove_edges_from([(1, 2), (2, 3)])
+        assert G.number_of_edges(1, 2) == 1
+        assert G.number_of_edges(2, 3) == 0
+
+    def test_to_directed_graph(self):
+        G = eg.MultiGraph()
+        G.add_edge(0, 1, weight=10)
+        D = G.to_directed()
+        assert D.is_directed()
+        assert D.has_edge(0, 1)
+        assert D.has_edge(1, 0)
+        assert D.get_edge_data(0, 1, 0)['weight'] == 10
+
+    def test_copy_graph(self):
+        G = eg.MultiGraph()
+        G.add_edge(1, 2, key='x', weight=9)
+        H = G.copy()
+        assert H.get_edge_data(1, 2, 'x') == {'weight': 9}
+        assert H is not G
+        assert H.get_edge_data(1, 2, 'x') is not G.get_edge_data(1, 2, 'x')
+
+    def test_has_edge_variants(self):
+        G = eg.MultiGraph()
+        G.add_edge(1, 2)
+        G.add_edge(1, 2, key='z')
+        assert G.has_edge(1, 2)
+        assert G.has_edge(1, 2, key='z')
+        assert not G.has_edge(2, 1, key='nonexistent')
+
+    def test_number_of_edges_specific_and_total(self):
+        G = eg.MultiGraph()
+        G.add_edges_from([(1, 2), (1, 2), (2, 3)])
+        assert G.number_of_edges() == 3
+        assert G.number_of_edges(1, 2) == 2
+        assert G.number_of_edges(2, 1) == 2  # undirected
+                                             # invalid self.nodes HAORAN
+                                             # solution self.node or self.node.items
+
+    def test_get_edge_data_defaults(self):
+        G = eg.MultiGraph()
+        assert G.get_edge_data(10, 20) is None
+        assert G.get_edge_data(10, 20, key='any', default='missing') == 'missing'
+
+    def test_edge_property_returns_all_edges(self):
+        G = eg.MultiGraph()
+        G.add_edge(0, 1, key=5, label="important")
+        G.add_edge(1, 0, key=3, label="also important")
+        edges = list(G.edges)
+        assert any((0, 1, 5, {'label': 'important'}) == e for e in edges)
+        assert any((0, 1, 3, {'label': 'also important'}) == e for e in edges)
