@@ -12,7 +12,7 @@ class HWNN(nn.Module):
         ``in_channels`` (``int``): Number of input feature channels. :math:`C_{in}` is the dimension of input features.
         ``num_classes`` (``int``): Number of target classes for classification.
         ``ncount`` (``int``): Total number of nodes in the hypergraph.
-        ``hyper_snapshot_num`` (``int``, optional): Number of temporal snapshots for dynamic hypergraph. Defaults to 1 (static hypergraph).
+        ``hyper_snapshot_num`` (``int``, optional): number of sementic snapshots for the given heterogeneous hypergraph.
         ``hid_channels`` (``int``, optional): Number of hidden units. :math:`C_{hid}` is the dimension of hidden representations. Defaults to 128.
         ``drop_rate`` (``float``, optional): Dropout probability for regularization. Defaults to 0.01.
     """
@@ -40,6 +40,7 @@ class HWNN(nn.Module):
     def forward(self, X: torch.Tensor, hgs: list) -> torch.Tensor:
         r"""The forward function.
         Parameters:
+        
             ``X`` (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
             ``hg`` (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
             ``hgs`` (``list`` of ``Hypergraph``): A list of hypergraph structures whcih stands for snapshots.
