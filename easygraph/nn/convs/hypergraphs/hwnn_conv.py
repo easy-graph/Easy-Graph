@@ -5,7 +5,7 @@ from easygraph.classes import Hypergraph
 
 
 class HWNNConv(nn.Module):
-    r"""The HWNNConv model proposed in `Heterogeneous Hypergraph Embedding for Graph Classification <https://arxiv.org/pdf/2010.10728>`_ paper (ACM 2021).
+    r"""The HWNNConv model proposed in `Heterogeneous Hypergraph Embedding for Graph Classification <https://arxiv.org/pdf/2010.10728>`_ paper (WSDM 2021).
 
     Parameters:
         ``in_channels`` (``int``): :math:`C_{in}` is the number of input channels.
