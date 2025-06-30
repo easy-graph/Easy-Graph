@@ -47,6 +47,7 @@ def NOBE(G, K):
 
 
 @not_implemented_for("multigraph")
+@only_implemented_for_UnDirected_graph
 def NOBE_GA(G, K):
     """Graph embedding via NOBE-GA[1].
 
