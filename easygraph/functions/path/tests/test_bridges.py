@@ -1,6 +1,7 @@
 import unittest
 
 import easygraph as eg
+from easygraph.utils.exception import EasyGraphNotImplemented
 
 
 class test_bridges(unittest.TestCase):
@@ -89,6 +90,66 @@ class test_bridges(unittest.TestCase):
 
     def test_has_bridges(self):
         print(eg.has_bridges(self.g2))
+    
+    def test_empty_graph(self):
+        g = eg.Graph()
+        self.assertFalse(eg.has_bridges(g))
+        self.assertEqual(list(eg.bridges(g)), [])
+
+    def test_single_node_graph(self):
+        g = eg.Graph()
+        g.add_node(1)
+        self.assertFalse(eg.has_bridges(g))
+        self.assertEqual(list(eg.bridges(g)), [])
+
+    def test_disconnected_graph(self):
+        g = eg.Graph()
+        g.add_edges_from([(0, 1), (2, 3)])
+        self.assertTrue(eg.has_bridges(g))
+        self.assertCountEqual(list(eg.bridges(g)), [(0, 1), (2, 3)])
+
+    def test_cycle_graph(self):
+        g = eg.DiGraph([(1, 2), (2, 3), (3, 1)])
+        self.assertFalse(eg.has_bridges(g))
+        self.assertEqual(list(eg.bridges(g)), [])
+
+    def test_path_graph(self):
+        g = eg.path_graph(4)
+        self.assertTrue(eg.has_bridges(g))
+        self.assertCountEqual(list(eg.bridges(g)), [(0, 1), (1, 2), (2, 3)])
+
+    def test_star_graph(self):
+        g = eg.Graph()
+        g.add_edges_from([(0, i) for i in range(1, 5)])
+
+        expected = [(0, 1), (0, 2), (0, 3), (0, 4)]
+        self.assertTrue(eg.has_bridges(g))
+        self.assertCountEqual(list(eg.bridges(g)), expected)
+
+    def test_complete_graph(self):
+        g = eg.complete_graph(5)
+        self.assertFalse(eg.has_bridges(g))
+        self.assertEqual(list(eg.bridges(g)), [])
+
+    def test_graph_with_invalid_root(self):
+        g = eg.path_graph(3)
+        with self.assertRaises(eg.NodeNotFound):
+            list(eg.bridges(g, root=10))
+
+    def test_multigraph_exception(self):
+        g = eg.MultiGraph()
+        g.add_edges_from([(0, 1), (1, 2)])
+        with self.assertRaises(EasyGraphNotImplemented):
+            list(eg.bridges(g))
+        with self.assertRaises(EasyGraphNotImplemented):
+            eg.has_bridges(g)
+
+    def test_weighted_graph_should_ignore_weights(self):
+        g = eg.Graph()
+        g.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 0)], edges_attr=[
+            {"weight": 10}, {"weight": 20}, {"weight": 30}, {"weight": 40}
+        ])
+        self.assertFalse(eg.has_bridges(g))
 
 
 if __name__ == "__main__":

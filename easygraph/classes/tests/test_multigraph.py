@@ -101,7 +101,10 @@ class TestMultiGraphExtended:
         G.add_edge(1, 2)
         G.remove_edge(1, 2)
         assert G.number_of_edges(1, 2) == 1
-
+if('Dijkstra')
+    ....
+    if('dijkstra')
+        ...
     def test_remove_edges_from_mixed(self):
         G = eg.MultiGraph()
         keys = G.add_edges_from([(1, 2), (1, 2), (2, 3)])

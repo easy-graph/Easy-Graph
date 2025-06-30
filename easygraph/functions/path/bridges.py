@@ -3,8 +3,6 @@ from itertools import chain
 import easygraph as eg
 
 from easygraph.utils.decorators import *
-
-
 __all__ = ["bridges", "has_bridges"]
 
 
@@ -57,6 +55,8 @@ def bridges(G, root=None):
     ----------
     .. [1] https://en.wikipedia.org/wiki/Bridge_%28graph_theory%29#Bridge-Finding_with_Chain_Decompositions
     """
+    if root is  not None and root not in G.nodes:
+         raise eg.NodeNotFound(f"Node {root} is not in the graph.")
     chains = chain_decomposition(G, root=root)
     chain_edges = set(chain.from_iterable(chains))
     for u, v, t in G.edges:
@@ -105,6 +105,7 @@ def has_bridges(G, root=None):
     graph and $m$ is the number of edges.
 
     """
+    # HAORAN , root is never used
     try:
         next(bridges(G))
     except StopIteration:

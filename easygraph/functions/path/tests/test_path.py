@@ -131,6 +131,66 @@ class test_path(unittest.TestCase):
         except ValueError as e:
             print(e)
         print()
+    def test_dijkstra_negative_weights_raises(self):
+        with self.assertRaises(ValueError):
+            eg.Dijkstra(self.g4, node=0)
+
+    def test_dijkstra_disconnected_graph(self):
+        g = eg.Graph()
+        g.add_edges([(1, 2)], edges_attr=[{"weight": 3}])
+        g.add_node(3)  # disconnected
+        result = eg.Dijkstra(g, node=1)
+        self.assertIn(3, g.nodes)
+        self.assertNotIn(3, result)
+
+    def test_floyd_disconnected_graph(self):
+        g = eg.Graph()
+        g.add_edges([(1, 2)], edges_attr=[{"weight": 3}])
+        g.add_node(3)
+        result = eg.Floyd(g)
+        self.assertEqual(result[1][3], float("inf"))
+        self.assertEqual(result[3][3], 0)
+
+    def test_prim_disconnected_graph(self):
+        g = eg.Graph()
+        g.add_edges([(0, 1), (2, 3)], edges_attr=[{"weight": 1}, {"weight": 1}])
+        result = eg.Prim(g)
+        count = sum(len(v) for v in result.values())
+        self.assertLess(count, len(g.nodes) - 1)  # not enough edges to connect all nodes
+
+    def test_kruskal_disconnected_graph(self):
+        g = eg.Graph()
+        g.add_edges([(0, 1), (2, 3)], edges_attr=[{"weight": 1}, {"weight": 1}])
+        result = eg.Kruskal(g)
+        count = sum(len(v) for v in result.values())
+        self.assertLess(count, len(g.nodes) - 1)
+
+    def test_spfa_always_errors(self):
+        with self.assertRaises(eg.EasyGraphError):
+            eg.Spfa(self.g2, 0)
+
+    def test_single_source_bfs_no_target(self):
+        result = eg.single_source_bfs(self.g2, 1)
+        self.assertIn(0, result.values())  # BFS level exists
+        self.assertIsInstance(result, dict)
+
+    def test_single_source_bfs_target_not_found(self):
+        g = eg.Graph()
+        g.add_edges([(1, 2)], edges_attr=[{"weight": 1}])
+        g.add_node(99)
+        result = eg.single_source_bfs(g, 1, target=99)
+        self.assertNotIn(99, result)
+
+    def test_multi_source_dijkstra_empty_sources(self):
+        result = eg.multi_source_dijkstra(self.g2, sources=[])
+        self.assertEqual(result, {})
+
+    def test_multi_source_dijkstra_matches_single(self):
+        sources = [1, 2]
+        multi = eg.multi_source_dijkstra(self.g2, sources)
+        for s in sources:
+            single = eg.single_source_dijkstra(self.g2, s)
+            self.assertEqual(multi[s], single)
 
 
 if __name__ == "__main__":
