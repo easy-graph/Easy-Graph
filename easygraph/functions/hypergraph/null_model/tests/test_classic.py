@@ -1,5 +1,6 @@
 import easygraph as eg
 import pytest
+from easygraph.utils.exception import EasyGraphError
 
 
 class TestClassic:
@@ -46,3 +47,40 @@ class TestClassic:
         H3 = eg.uniform_HPPM(10, 6, 0.9, 10, 0.9)
 
         print("H3:", H3)
+class TestHypergraphGenerators:
+
+    def test_empty_hypergraph_default(self):
+        hg = eg.empty_hypergraph()
+        assert hg.num_v == 1
+        assert len(hg.e[0]) == 0
+
+    def test_empty_hypergraph_custom_size(self):
+        hg = eg.empty_hypergraph(5)
+        assert hg.num_v == 5
+        assert len(hg.e[0]) == 0
+
+    def test_complete_hypergraph_zero_nodes_raises(self):
+        with pytest.raises(EasyGraphError):
+            eg.complete_hypergraph(0)
+
+    def test_complete_hypergraph_n_1_excludes_singletons(self):
+        hg = eg.complete_hypergraph(1, include_singleton=False)
+        assert hg.num_v == 1
+        assert len(hg.e[0]) == 0
+
+    def test_complete_hypergraph_n_3_excludes_singletons(self):
+        hg = eg.complete_hypergraph(3, include_singleton=False)
+        expected_edges = [
+            [0, 1], [0, 2], [1, 2],
+            [0, 1, 2]
+        ]
+        assert sorted(sorted(e) for e in hg.e[0]) == sorted(sorted(e) for e in expected_edges)
+
+    def test_complete_hypergraph_n_3_includes_singletons(self):
+        hg = eg.complete_hypergraph(3, include_singleton=True)
+        expected_edges = [
+            [0], [1], [2],
+            [0, 1], [0, 2], [1, 2],
+            [0, 1, 2]
+        ]
+        assert sorted(sorted(e) for e in hg.e[0]) == sorted(sorted(e) for e in expected_edges)

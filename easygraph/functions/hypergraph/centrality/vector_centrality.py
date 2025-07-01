@@ -36,7 +36,7 @@ def vector_centrality(H):
     LG = H.get_linegraph()
     if not eg.is_connected(LG):
         raise EasyGraphError("This method is not defined for disconnected hypergraphs.")
-    LGcent = eg.eigenvector_centrality(LG)
+    LGcent = eigenvector_centrality(LG)
 
     vc = {node: [] for node in range(0, H.num_v)}
 
@@ -64,3 +64,27 @@ def vector_centrality(H):
             vc[node].append(c_i[node])
 
     return vc
+
+def eigenvector_centrality(G, max_iter=100, tol=1.0e-6):
+    from collections import defaultdict
+
+    nodes = list(G.nodes)
+    n = len(nodes)
+    x = {v: 1.0 for v in nodes}
+
+    for _ in range(max_iter):
+        x_new = defaultdict(float)
+        for v in G:
+            for nbr in G.neighbors(v):
+                x_new[v] += x[nbr]
+
+        # Normalize
+        norm = sum(v ** 2 for v in x_new.values()) ** 0.5
+        if norm == 0:
+            return x_new
+        x_new = {k: v / norm for k, v in x_new.items()}
+
+        # Check convergence
+        if all(abs(x_new[v] - x[v]) < tol for v in nodes):
+            return x_new
+        x = x_new

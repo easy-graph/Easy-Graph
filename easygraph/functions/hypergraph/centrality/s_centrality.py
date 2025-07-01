@@ -81,7 +81,7 @@ def s_eccentricity(H, s=1, edges=True, source=None):
 
     """
 
-    g = H.get_linegraph(s=s, edges=edges)
+    g = H.get_linegraph(s=s)
     result = eg.eccentricity(g)
     if source:
         return result[source]
