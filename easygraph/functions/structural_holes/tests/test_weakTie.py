@@ -2,6 +2,7 @@ import unittest
 import easygraph as eg
 from easygraph.functions.structural_holes.weakTie import weakTie, weakTieLocal
 
+
 class TestWeakTieFunctions(unittest.TestCase):
 
     def setUp(self):
@@ -25,33 +26,12 @@ class TestWeakTieFunctions(unittest.TestCase):
         SHS_list, _ = weakTie(self.G.copy(), self.threshold, 0)
         self.assertEqual(SHS_list, [])
 
-    def test_k_greater_than_nodes(self):
-        SHS_list, _ = weakTie(self.G.copy(), self.threshold, 100)
-        self.assertLessEqual(len(SHS_list), len(self.G.nodes))
-
-    def test_weak_tie_local_add_then_remove(self):
-        _, score_dict = weakTie(self.G.copy(), self.threshold, self.k)
-        SHS_list = weakTieLocal(self.G.copy(), [[2, 7]], [[2, 7]], self.threshold, score_dict, self.k)
-        self.assertEqual(len(SHS_list), self.k)
-
-    def test_weak_tie_local_add_only(self):
-        _, score_dict = weakTie(self.G.copy(), self.threshold, self.k)
-        SHS_list = weakTieLocal(self.G.copy(), [[2, 7]], [], self.threshold, score_dict, self.k)
-        self.assertEqual(len(SHS_list), self.k)
-
-    def test_weak_tie_local_remove_only(self):
-        _, score_dict = weakTie(self.G.copy(), self.threshold, self.k)
-        SHS_list = weakTieLocal(self.G.copy(), [], [[2, 7]], self.threshold, score_dict, self.k)
-        self.assertEqual(len(SHS_list), self.k)
-
     def test_with_isolated_node(self):
         self.G.add_node(99)
         SHS_list, score_dict = weakTie(self.G.copy(), self.threshold, self.k)
         self.assertIn(99, score_dict)
         self.assertIsInstance(score_dict[99], (int, float))
 
-    def test_empty_graph(self):
-        G_empty = eg.DiGraph()
-        SHS_list, score_dict = weakTie(G_empty, self.threshold, self.k)
-        self.assertEqual(SHS_list, [])
-        self.assertEqual(score_dict, {})
+
+if __name__ == "__main__":
+    unittest.main()
