@@ -6,3 +6,4 @@ from .ICC import *
 from .MaxD import *
 from .metrics import *
 from .NOBE import *
+from .maxBlock import *

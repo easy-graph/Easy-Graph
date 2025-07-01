@@ -36,6 +36,10 @@ def NOBE_SH(G, K, topk):
     .. [1] https://www.researchgate.net/publication/325004496_On_Spectral_Graph_Embedding_A_Non-Backtracking_Perspective_and_Graph_Approximation
 
     """
+    if K <= 0:
+        raise ValueError("Embedding dimension K must be a positive integer.")
+    if topk <= 0:
+        raise ValueError("Parameter topk must be a positive integer.")
     from sklearn.cluster import KMeans
 
     Y = eg.graph_embedding.NOBE(G, K)
@@ -101,6 +105,10 @@ def NOBE_GA_SH(G, K, topk):
     .. [1] https://www.researchgate.net/publication/325004496_On_Spectral_Graph_Embedding_A_Non-Backtracking_Perspective_and_Graph_Approximation
 
     """
+    if K <= 0:
+        raise ValueError("Embedding dimension K must be a positive integer.")
+    if topk <= 0:
+        raise ValueError("Parameter topk must be a positive integer.")    
     from sklearn.cluster import KMeans
 
     Y = eg.NOBE_GA(G, K)

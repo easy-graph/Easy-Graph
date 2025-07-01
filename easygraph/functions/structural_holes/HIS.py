@@ -68,7 +68,14 @@ def get_structural_holes_HIS(G, C: List[frozenset], epsilon=1e-4, weight="weight
         S.extend(list(combinations(range(len(C)), community_subset_size)))
     # I: dict[node][cmnt_index]
     # H: dict[node][subset_index]
+
+    if not G.nodes or not C:
+        return [], {}, {}
+
     I, H = initialize(G, C, S, weight=weight)
+
+    if not S:
+        return S, I, H
 
     alphas = [0.3 for i in range(len(C))]  # list[cmnt_index]
     betas = [(0.5 - math.pow(0.5, len(subset))) for subset in S]  # list[subset_index]
