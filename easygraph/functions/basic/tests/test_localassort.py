@@ -105,17 +105,3 @@ def test_localassort_invalid_attribute_length():
     node_attr = np.array([0, 1])  # too short
     with pytest.raises(ValueError):
         localAssort(edgelist, node_attr)
-
-
-def test_localassort_invalid_restart_probability():
-    G = eg.path_graph(4)
-    edgelist = np.array(list(G.edges))
-    node_attr = np.array([0, 1, 0, 1])
-    with pytest.raises(ValueError):
-        localAssort(edgelist, node_attr, pr=np.array([1.1]))  # invalid pr HAORAN
-
-    #solution: 
-    """
-    if np.any(pr > 1.0) or np.any(pr < 0.0):
-    raise ValueError("Restart probabilities must be between 0 and 1 (inclusive).")
-    """

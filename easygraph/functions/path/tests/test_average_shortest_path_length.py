@@ -15,9 +15,7 @@ class TestAverageShortestPathLength(unittest.TestCase):
         G.add_edge(0, 1, weight=1)
         G.add_edge(1, 2, weight=2)
         G.add_edge(2, 3, weight=3)
-        result = average_shortest_path_length(G, weight="weight", method="Dijkstra") # HAORAN dijkstra and Dijkstra
-        # Expected paths: 0→1 (1), 0→2 (3), 0→3 (6), etc...
-        # Sum = 1+3+6 + 1+2+5 + 2+3+3 + 3+5+6 = 40, avg = 40 / 12 = 3.333...
+        result = average_shortest_path_length(G, weight="weight", method="dijkstra")
         self.assertAlmostEqual(result, 3.333, places=3)
 
     def test_trivial_graph(self):

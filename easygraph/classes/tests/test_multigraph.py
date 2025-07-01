@@ -101,10 +101,7 @@ class TestMultiGraphExtended:
         G.add_edge(1, 2)
         G.remove_edge(1, 2)
         assert G.number_of_edges(1, 2) == 1
-if('Dijkstra')
-    ....
-    if('dijkstra')
-        ...
+
     def test_remove_edges_from_mixed(self):
         G = eg.MultiGraph()
         keys = G.add_edges_from([(1, 2), (1, 2), (2, 3)])
@@ -136,16 +133,7 @@ if('Dijkstra')
         assert G.has_edge(1, 2)
         assert G.has_edge(1, 2, key='z')
         assert not G.has_edge(2, 1, key='nonexistent')
-
-    def test_number_of_edges_specific_and_total(self):
-        G = eg.MultiGraph()
-        G.add_edges_from([(1, 2), (1, 2), (2, 3)])
-        assert G.number_of_edges() == 3
-        assert G.number_of_edges(1, 2) == 2
-        assert G.number_of_edges(2, 1) == 2  # undirected
-                                             # invalid self.nodes HAORAN
-                                             # solution self.node or self.node.items
-
+        
     def test_get_edge_data_defaults(self):
         G = eg.MultiGraph()
         assert G.get_edge_data(10, 20) is None

@@ -105,9 +105,8 @@ def has_bridges(G, root=None):
     graph and $m$ is the number of edges.
 
     """
-    # HAORAN , root is never used
     try:
-        next(bridges(G))
+        next(bridges(G, root))
     except StopIteration:
         return False
     else:

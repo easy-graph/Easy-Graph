@@ -124,32 +124,4 @@ def test_topological_generations_branching():
     # Valid topological generations: [1], [2, 3], [4]
     assert generations[0] == [1]
     assert set(generations[1]) == {2, 3}
-    assert generations[2] == [4] # HAORAN
-                                 # solution: 
-                                #  def topological_sort(G):
-                                #     for generation in topological_generations(G):
-                                #         yield from generation
-
-                                # def topological_generations(G):
-                                #     if not G.is_directed():
-                                #         raise AssertionError("Topological sort not defined on undirected graphs.")
-                                #     indegree_map = {v: d for v, d in G.in_degree().items() if d > 0}
-                                #     zero_indegree = [v for v, d in G.in_degree().items() if d == 0]
-                                #     while zero_indegree:
-                                #         this_generation = zero_indegree
-                                #         zero_indegree = []
-                                #         for node in this_generation:
-                                #             if node not in G:
-                                #                 raise RuntimeError("Graph changed during iteration")
-                                #             for child in G.neighbors(node):
-                                #                 try:
-                                #                     indegree_map[child] -= 1
-                                #                 except KeyError as err:
-                                #                     raise RuntimeError("Graph changed during iteration") from err
-                                #                 if indegree_map[child] == 0:
-                                #                     zero_indegree.append(child) 
-                                #                     del indegree_map[child]
-                                #         yield this_generation
-
-                                #     if indegree_map:
-                                #         raise AssertionError("Graph contains a cycle or graph changed during iteration")
+    assert generations[2] == [4]
