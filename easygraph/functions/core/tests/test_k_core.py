@@ -1,6 +1,8 @@
-import pytest
 import easygraph as eg
+import pytest
+
 from easygraph import k_core
+
 
 @pytest.mark.parametrize(
     "edges,k",
@@ -24,8 +26,9 @@ def test_k_core(edges, k):
     G_nx.add_edges_from(edges)
 
     H = k_core(G)
-    H_nx = nx.core_number(G_nx) 
+    H_nx = nx.core_number(G_nx)
     assert H == list(H_nx.values())
+
 
 def test_k_core_empty_graph():
     G = eg.Graph()
@@ -77,6 +80,7 @@ def test_k_core_all_zero_core():
     result = k_core(G)
     assert all(isinstance(v, int) or isinstance(v, float) for v in result)
     assert max(result) <= 2
+
 
 def test_k_core_index_to_node_mapping_consistency():
     G = eg.Graph()

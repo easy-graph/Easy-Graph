@@ -24,7 +24,6 @@ class Test_Deepwalk(unittest.TestCase):
         for i in self.test_graphs:
             print(eg.deepwalk(i))
 
-
     def test_deepwalk_output_structure(self):
         emb, sim = eg.deepwalk(
             self.graph,
@@ -96,5 +95,7 @@ class Test_Deepwalk(unittest.TestCase):
             epochs=2,
         )
         self.assertEqual(len(emb), len(self.graph.nodes))
+
+
 if __name__ == "__main__":
     unittest.main()

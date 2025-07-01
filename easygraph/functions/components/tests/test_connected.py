@@ -2,14 +2,14 @@ import inspect
 import unittest
 
 import easygraph as eg
-from easygraph import (
-    is_connected,
-    number_connected_components,
-    connected_components,
-    connected_components_directed,
-    connected_component_of_node,
-)
+
+from easygraph import connected_component_of_node
+from easygraph import connected_components
+from easygraph import connected_components_directed
+from easygraph import is_connected
+from easygraph import number_connected_components
 from easygraph.utils.exception import EasyGraphNotImplemented
+
 
 class TestConnected(unittest.TestCase):
     def setUp(self):
@@ -36,7 +36,7 @@ class TestConnected(unittest.TestCase):
     def test_connected_component_of_node(self):
         for i in self.test_graphs:
             print(eg.connected_component_of_node(i, 4))
-    
+
     def test_empty_graph(self):
         G = eg.Graph()
         with self.assertRaises(AssertionError):
@@ -106,6 +106,7 @@ class TestConnected(unittest.TestCase):
             list(connected_components(G))
         with self.assertRaises(EasyGraphNotImplemented):
             connected_component_of_node(G, 1)
+
 
 if __name__ == "__main__":
     unittest.main()

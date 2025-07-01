@@ -1,7 +1,9 @@
 import unittest
+
 import easygraph as eg
-from easygraph.functions.centrality import closeness_centrality
+
 from easygraph.classes.multigraph import MultiGraph
+from easygraph.functions.centrality import closeness_centrality
 
 
 class Test_closeness(unittest.TestCase):
@@ -36,9 +38,7 @@ class Test_closeness(unittest.TestCase):
         self.single_node_graph.add_node(42)
 
         self.mixed_nodes_graph = eg.Graph()
-        self.mixed_nodes_graph.add_edges_from([
-            (1, 2), ("X", "Y"), ((1, 2), (3, 4))
-        ])
+        self.mixed_nodes_graph.add_edges_from([(1, 2), ("X", "Y"), ((1, 2), (3, 4))])
 
     def test_closeness(self):
         for i in self.test_graphs:

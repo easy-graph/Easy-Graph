@@ -1,8 +1,9 @@
-import easygraph as eg
 import unittest
 
-class TestEasyGraph(unittest.TestCase):
+import easygraph as eg
 
+
+class TestEasyGraph(unittest.TestCase):
     def setUp(self):
         self.G = eg.Graph()
 
@@ -66,7 +67,7 @@ class TestEasyGraph(unittest.TestCase):
         self.assertIn(4, ego.nodes)
 
     def test_to_index_node_graph(self):
-        self.G.add_edges([('a', 'b'), ('b', 'c')])
+        self.G.add_edges([("a", "b"), ("b", "c")])
         G_index, index_of_node, node_of_index = self.G.to_index_node_graph()
         self.assertEqual(len(G_index.nodes), 3)
         self.assertTrue(all(isinstance(k, int) for k in G_index.nodes))

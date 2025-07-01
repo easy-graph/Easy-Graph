@@ -1,6 +1,7 @@
 import unittest
 
 import easygraph as eg
+
 from easygraph.utils.exception import EasyGraphNotImplemented
 
 
@@ -18,7 +19,7 @@ class Test_egobetweenness(unittest.TestCase):
         self.test_graphs = [eg.Graph(), eg.DiGraph()]
         self.test_graphs.append(eg.classes.DiGraph(self.edges))
         print(self.test_graphs[-1].edges)
-        
+
         self.graph = eg.Graph()
         self.graph.add_edges_from([(0, 1), (1, 2), (2, 3)])
 
@@ -26,11 +27,7 @@ class Test_egobetweenness(unittest.TestCase):
         self.directed_graph.add_edges_from([(0, 1), (1, 2), (2, 0)])
 
         self.mixed_nodes_graph = eg.Graph()
-        self.mixed_nodes_graph.add_edges_from([
-            (1, "A"),
-            ("A", (2, 3)),
-            ((2, 3), "B")
-        ])
+        self.mixed_nodes_graph.add_edges_from([(1, "A"), ("A", (2, 3)), ((2, 3), "B")])
 
         self.single_node_graph = eg.Graph()
         self.single_node_graph.add_node(42)
@@ -70,6 +67,7 @@ class Test_egobetweenness(unittest.TestCase):
     def test_raises_on_multigraph(self):
         with self.assertRaises(EasyGraphNotImplemented):
             eg.functions.ego_betweenness(self.multigraph, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

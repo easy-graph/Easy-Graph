@@ -1,11 +1,12 @@
 import unittest
+
 import easygraph as eg
-from easygraph import (
-    weakly_connected_components,
-    number_weakly_connected_components,
-    is_weakly_connected,
-)
-from easygraph.utils.exception import EasyGraphNotImplemented, EasyGraphPointlessConcept
+
+from easygraph import is_weakly_connected
+from easygraph import number_weakly_connected_components
+from easygraph import weakly_connected_components
+from easygraph.utils.exception import EasyGraphNotImplemented
+from easygraph.utils.exception import EasyGraphPointlessConcept
 
 
 class Test_weakly_connected(unittest.TestCase):

@@ -1,7 +1,8 @@
 import unittest
-import torch
-import numpy as np
+
 import easygraph as eg
+import numpy as np
+import torch
 
 
 class Test_Sdne(unittest.TestCase):

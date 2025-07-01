@@ -1,6 +1,7 @@
 import unittest
 
 import easygraph as eg
+
 from easygraph.utils.exception import EasyGraphNotImplemented
 
 
@@ -28,11 +29,7 @@ class Test_pagerank(unittest.TestCase):
         self.self_loop_graph.add_edges_from([(0, 0), (0, 1), (1, 2)])
 
         self.mixed_graph = eg.DiGraph()
-        self.mixed_graph.add_edges_from([
-            ("A", "B"),
-            ("B", "C"),
-            ("C", (1, 2))
-        ])
+        self.mixed_graph.add_edges_from([("A", "B"), ("B", "C"), ("C", (1, 2))])
 
         self.single_node_graph = eg.DiGraph()
         self.single_node_graph.add_node("solo")
@@ -54,6 +51,7 @@ class Test_pagerank(unittest.TestCase):
         for g in test_graphs:
             print(eg.functions.pagerank.(g))
     """
+
     def test_directed_graph(self):
         result = eg.functions.pagerank(self.directed_graph)
         self.assertEqual(set(result.keys()), set(self.directed_graph.nodes))
@@ -86,6 +84,7 @@ class Test_pagerank(unittest.TestCase):
     def test_multigraph_raises(self):
         with self.assertRaises(EasyGraphNotImplemented):
             eg.functions.pagerank(self.multigraph)
+
 
 if __name__ == "__main__":
     unittest.main()

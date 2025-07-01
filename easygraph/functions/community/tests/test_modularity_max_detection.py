@@ -1,4 +1,5 @@
 import unittest
+
 import easygraph as eg
 
 
@@ -10,11 +11,9 @@ class TestGreedyModularityCommunities(unittest.TestCase):
 
         # A weighted graph
         self.graph_weighted = eg.Graph()
-        self.graph_weighted.add_edges_from([
-            (0, 1, {"weight": 3}),
-            (1, 2, {"weight": 2}),
-            (3, 4, {"weight": 1})
-        ])
+        self.graph_weighted.add_edges_from(
+            [(0, 1, {"weight": 3}), (1, 2, {"weight": 2}), (3, 4, {"weight": 1})]
+        )
 
         # A fully connected graph (clique)
         self.graph_clique = eg.Graph()
@@ -37,7 +36,9 @@ class TestGreedyModularityCommunities(unittest.TestCase):
         self.assertSetEqual(flat_nodes, set(self.graph_simple.nodes))
 
     def test_communities_weighted(self):
-        result = eg.functions.community.greedy_modularity_communities(self.graph_weighted)
+        result = eg.functions.community.greedy_modularity_communities(
+            self.graph_weighted
+        )
         flat_nodes = {node for group in result for node in group}
         self.assertSetEqual(flat_nodes, set(self.graph_weighted.nodes))
 
@@ -47,7 +48,9 @@ class TestGreedyModularityCommunities(unittest.TestCase):
         self.assertSetEqual(result[0], set(self.graph_clique.nodes))
 
     def test_communities_disconnected(self):
-        result = eg.functions.community.greedy_modularity_communities(self.graph_disconnected)
+        result = eg.functions.community.greedy_modularity_communities(
+            self.graph_disconnected
+        )
         flat_nodes = {node for group in result for node in group}
         self.assertSetEqual(flat_nodes, set(self.graph_disconnected.nodes))
 
@@ -60,12 +63,16 @@ class TestGreedyModularityCommunities(unittest.TestCase):
             eg.functions.community.greedy_modularity_communities(self.graph_empty)
 
     def test_correct_partition_disjoint(self):
-        result = eg.functions.community.greedy_modularity_communities(self.graph_disconnected)
+        result = eg.functions.community.greedy_modularity_communities(
+            self.graph_disconnected
+        )
         all_nodes = [node for group in result for node in group]
         self.assertEqual(len(all_nodes), len(set(all_nodes)))
 
     def test_communities_sorted_by_size(self):
-        result = eg.functions.community.greedy_modularity_communities(self.graph_disconnected)
+        result = eg.functions.community.greedy_modularity_communities(
+            self.graph_disconnected
+        )
         sizes = [len(group) for group in result]
         self.assertEqual(sizes, sorted(sizes, reverse=True))
 

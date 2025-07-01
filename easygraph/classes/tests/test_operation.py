@@ -1,7 +1,9 @@
 import easygraph as eg
 import pytest
+
+from easygraph.classes import operation
 from easygraph.utils import edges_equal
-from easygraph.classes import operation 
+
 
 @pytest.mark.parametrize(
     "graph_type", [eg.Graph, eg.DiGraph, eg.MultiGraph, eg.MultiDiGraph]
@@ -12,6 +14,7 @@ def test_selfloops(graph_type):
     assert edges_equal(eg.selfloop_edges(G), [(0, 0)])
     assert edges_equal(eg.selfloop_edges(G, data=True), [(0, 0, {})])
     assert eg.number_of_selfloops(G) == 1
+
 
 def test_set_edge_attributes_scalar():
     G = eg.path_graph(3)
@@ -80,8 +83,8 @@ def test_topological_sort_cycle():
 
 def test_selfloop_edges_variants():
     G = eg.MultiGraph()
-    G.add_edge(0, 0, key='x', label='loop')
-    G.add_edge(1, 1, key='y', label='loop2')
+    G.add_edge(0, 0, key="x", label="loop")
+    G.add_edge(1, 1, key="y", label="loop2")
     basic = list(eg.selfloop_edges(G))
     with_data = list(eg.selfloop_edges(G, data=True))
     with_keys = list(eg.selfloop_edges(G, keys=True))
@@ -89,7 +92,7 @@ def test_selfloop_edges_variants():
     assert (0, 0) in basic and (1, 1) in basic
     assert all(len(t) == 3 for t in with_data)
     assert all(len(t) == 3 for t in with_keys)
-    assert ("x" in [k for _, _, k, _ in full])
+    assert "x" in [k for _, _, k, _ in full]
 
 
 def test_number_of_selfloops():
@@ -109,6 +112,7 @@ def test_density_directed():
     G.add_edges_from([(0, 1), (1, 2)])
     d = eg.density(G)
     assert pytest.approx(d, 0.01) == 2 / (3 * (3 - 1))  # 2/6
+
 
 def test_topological_generations_linear():
     G = eg.DiGraph()

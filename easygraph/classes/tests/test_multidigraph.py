@@ -31,9 +31,9 @@ class Test(unittest.TestCase):
     def test_attributes(self):
         print(self.g.edges)
         print(self.g.in_edges)
-        
-class TestMultiDiGraph(unittest.TestCase):
 
+
+class TestMultiDiGraph(unittest.TestCase):
     def setUp(self):
         self.G = eg.MultiDiGraph()
 
@@ -85,7 +85,9 @@ class TestMultiDiGraph(unittest.TestCase):
         for n in self.G._node:
             preds = self.G._pred[n]
             in_deg[n] = sum(
-                d.get("weight", 1) for key_dict in preds.values() for d in key_dict.values()
+                d.get("weight", 1)
+                for key_dict in preds.values()
+                for d in key_dict.values()
             )
 
         self.assertEqual(in_deg["B"], 5)
@@ -105,6 +107,7 @@ class TestMultiDiGraph(unittest.TestCase):
     def test_is_multigraph_and_directed(self):
         self.assertTrue(self.G.is_multigraph())
         self.assertTrue(self.G.is_directed())
+
 
 if __name__ == "__main__":
     unittest.main()

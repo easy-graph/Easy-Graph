@@ -3,6 +3,7 @@
 import easygraph as eg
 import pytest
 
+
 def test_is_isolate():
     G = eg.Graph()
     G.add_edge(0, 1)
@@ -24,6 +25,7 @@ def test_number_of_isolates():
     G.add_edge(0, 1)
     G.add_nodes_from([2, 3])
     assert eg.number_of_isolates(G) == 2
+
 
 def test_empty_graph_isolates():
     G = eg.Graph()

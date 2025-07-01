@@ -131,6 +131,7 @@ class test_path(unittest.TestCase):
         except ValueError as e:
             print(e)
         print()
+
     def test_dijkstra_negative_weights_raises(self):
         with self.assertRaises(ValueError):
             eg.Dijkstra(self.g4, node=0)
@@ -156,7 +157,9 @@ class test_path(unittest.TestCase):
         g.add_edges([(0, 1), (2, 3)], edges_attr=[{"weight": 1}, {"weight": 1}])
         result = eg.Prim(g)
         count = sum(len(v) for v in result.values())
-        self.assertLess(count, len(g.nodes) - 1)  # not enough edges to connect all nodes
+        self.assertLess(
+            count, len(g.nodes) - 1
+        )  # not enough edges to connect all nodes
 
     def test_kruskal_disconnected_graph(self):
         g = eg.Graph()

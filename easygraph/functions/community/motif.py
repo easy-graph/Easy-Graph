@@ -117,4 +117,6 @@ def random_extend_subgraph(
         VpExtension = Vextension | {u for u in NexclwVsubgraph if u > v}
         if random.random() > cut_prob[len(Vsubgraph)]:
             continue
-        random_extend_subgraph(G, Vsubgraph | {w}, VpExtension, v, k, k_subgraphs, cut_prob)
+        random_extend_subgraph(
+            G, Vsubgraph | {w}, VpExtension, v, k, k_subgraphs, cut_prob
+        )

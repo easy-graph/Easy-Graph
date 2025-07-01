@@ -2,13 +2,14 @@ import inspect
 import unittest
 
 import easygraph as eg
-from easygraph import (
-    strongly_connected_components,
-    number_strongly_connected_components,
-    is_strongly_connected,
-    condensation,
-)
-from easygraph.utils.exception import EasyGraphNotImplemented, EasyGraphPointlessConcept
+
+from easygraph import condensation
+from easygraph import is_strongly_connected
+from easygraph import number_strongly_connected_components
+from easygraph import strongly_connected_components
+from easygraph.utils.exception import EasyGraphNotImplemented
+from easygraph.utils.exception import EasyGraphPointlessConcept
+
 
 class Test_strongly_connected(unittest.TestCase):
     def setUp(self):
@@ -58,16 +59,18 @@ class Test_strongly_connected(unittest.TestCase):
         self.assertIn({3, 4}, scc)
 
     def test_condensation_structure(self):
-        G = eg.DiGraph([(0, 1), (1, 2), (2, 0), (2, 3), (4, 5), (3, 4), (5, 6), (6, 3), (6, 7)])
+        G = eg.DiGraph(
+            [(0, 1), (1, 2), (2, 0), (2, 3), (4, 5), (3, 4), (5, 6), (6, 3), (6, 7)]
+        )
         cond = condensation(G)
         self.assertTrue(cond.is_directed())
         self.assertIn("mapping", cond.graph)
         self.assertEqual(len(cond), number_strongly_connected_components(G))
-    
+
         def has_cycle(G):
             visited = set()
             temp_mark = set()
-    
+
             def visit(node):
                 if node in temp_mark:
                     return True
@@ -80,9 +83,9 @@ class Test_strongly_connected(unittest.TestCase):
                 temp_mark.remove(node)
                 visited.add(node)
                 return False
-    
+
             return any(visit(v) for v in G)
-    
+
         self.assertFalse(has_cycle(cond))
 
     def test_condensation_empty_graph(self):

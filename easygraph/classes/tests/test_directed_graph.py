@@ -1,10 +1,10 @@
-import unittest
 import os
+import unittest
+
 from easygraph import DiGraph
 
 
 class TestDiGraph(unittest.TestCase):
-
     def setUp(self):
         self.G = DiGraph()
 
@@ -40,16 +40,17 @@ class TestDiGraph(unittest.TestCase):
         self.assertFalse(self.G.has_edge("M", "N"))
 
     def test_degrees(self):
-        self.G.add_edges([("A", "B"), ("C", "B")], edges_attr=[{"weight": 3}, {"weight": 2}])
+        self.G.add_edges(
+            [("A", "B"), ("C", "B")], edges_attr=[{"weight": 3}, {"weight": 2}]
+        )
 
         in_degrees = self.G.in_degree(weight="weight")
         out_degrees = self.G.out_degree(weight="weight")
         degrees = self.G.degree(weight="weight")
 
-        self.assertEqual(in_degrees["B"], 5) 
+        self.assertEqual(in_degrees["B"], 5)
         self.assertEqual(out_degrees["A"], 3)
         self.assertEqual(degrees["B"], 5)
-
 
     def test_neighbors_and_preds(self):
         self.G.add_edges([("P", "Q"), ("R", "P")])

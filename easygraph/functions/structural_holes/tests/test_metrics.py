@@ -1,10 +1,10 @@
 import unittest
+
 import easygraph as eg
-from easygraph.functions.structural_holes.metrics import (
-    sum_of_shortest_paths,
-    nodes_of_max_cc_without_shs,
-    structural_hole_influence_index,
-)
+
+from easygraph.functions.structural_holes.metrics import nodes_of_max_cc_without_shs
+from easygraph.functions.structural_holes.metrics import structural_hole_influence_index
+from easygraph.functions.structural_holes.metrics import sum_of_shortest_paths
 
 
 class TestStructuralHoleMetrics(unittest.TestCase):
@@ -35,8 +35,14 @@ class TestStructuralHoleMetrics(unittest.TestCase):
 
     def test_structural_hole_influence_index_IC(self):
         result = structural_hole_influence_index(
-            self.G, self.shs, self.communities, model="IC", Directed=False,
-            seedRatio=0.1, randSeedIter=2, countIterations=5
+            self.G,
+            self.shs,
+            self.communities,
+            model="IC",
+            Directed=False,
+            seedRatio=0.1,
+            randSeedIter=2,
+            countIterations=5,
         )
         self.assertIsInstance(result, dict)
         self.assertTrue(all(isinstance(k, int) for k in result))
@@ -44,15 +50,28 @@ class TestStructuralHoleMetrics(unittest.TestCase):
 
     def test_structural_hole_influence_index_LT(self):
         result = structural_hole_influence_index(
-            self.G, self.shs, self.communities, model="LT", Directed=False,
-            seedRatio=0.1, randSeedIter=2, countIterations=5
+            self.G,
+            self.shs,
+            self.communities,
+            model="LT",
+            Directed=False,
+            seedRatio=0.1,
+            randSeedIter=2,
+            countIterations=5,
         )
         self.assertIsInstance(result, dict)
 
     def test_structural_hole_influence_index_variant_LT(self):
         result = structural_hole_influence_index(
-            self.G, self.shs, self.communities, model="LT", variant=True, Directed=False,
-            seedRatio=0.1, randSeedIter=2, countIterations=5
+            self.G,
+            self.shs,
+            self.communities,
+            model="LT",
+            variant=True,
+            Directed=False,
+            seedRatio=0.1,
+            randSeedIter=2,
+            countIterations=5,
         )
         self.assertIsInstance(result, dict)
 
@@ -64,8 +83,14 @@ class TestStructuralHoleMetrics(unittest.TestCase):
 
     def test_structural_hole_influence_index_directed_flag(self):
         result = structural_hole_influence_index(
-            self.G, self.shs, self.communities, model="IC", Directed=True,
-            seedRatio=0.1, randSeedIter=2, countIterations=5
+            self.G,
+            self.shs,
+            self.communities,
+            model="IC",
+            Directed=True,
+            seedRatio=0.1,
+            randSeedIter=2,
+            countIterations=5,
         )
         self.assertIsInstance(result, dict)
 

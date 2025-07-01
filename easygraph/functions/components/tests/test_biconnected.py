@@ -1,14 +1,13 @@
 import unittest
 
 import easygraph as eg
-from easygraph import (
-    is_biconnected,
-    biconnected_components,
-    generator_biconnected_components_nodes,
-    generator_biconnected_components_edges,
-    generator_articulation_points,
-)
 import pytest
+
+from easygraph import biconnected_components
+from easygraph import generator_articulation_points
+from easygraph import generator_biconnected_components_edges
+from easygraph import generator_biconnected_components_nodes
+from easygraph import is_biconnected
 
 
 class Test_biconnected(unittest.TestCase):
@@ -76,7 +75,7 @@ class TestBiconnectedFunctions(unittest.TestCase):
     def test_multiple_biconnected_components(self):
         G = eg.Graph()
         G.add_edges_from([(1, 2), (2, 3), (3, 1)])  # triangle
-        G.add_edges_from([(3, 4), (4, 5)])          # path
+        G.add_edges_from([(3, 4), (4, 5)])  # path
         components = list(generator_biconnected_components_edges(G))
         self.assertEqual(len(components), 3)
         nodes_comps = list(generator_biconnected_components_nodes(G))
@@ -86,7 +85,7 @@ class TestBiconnectedFunctions(unittest.TestCase):
     def test_articulation_points_multiple(self):
         G = eg.Graph([(0, 1), (1, 2), (2, 3), (3, 4)])
         aps = list(generator_articulation_points(G))
-        self.assertEqual(aps, [3, 2, 1]) 
+        self.assertEqual(aps, [3, 2, 1])
 
 
 if __name__ == "__main__":

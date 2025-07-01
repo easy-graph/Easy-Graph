@@ -1,19 +1,41 @@
 import unittest
+
 import easygraph as eg
-from easygraph.functions.structural_holes.weakTie import weakTie, weakTieLocal
+
+from easygraph.functions.structural_holes.weakTie import weakTie
+from easygraph.functions.structural_holes.weakTie import weakTieLocal
 
 
 class TestWeakTieFunctions(unittest.TestCase):
-
     def setUp(self):
         self.G = eg.DiGraph()
-        self.G.add_edges_from([
-            (1, 5), (1, 4), (2, 1), (2, 6), (2, 9),
-            (3, 4), (3, 1), (4, 3), (4, 1), (4, 5),
-            (5, 4), (5, 8), (6, 1), (6, 2), (7, 2),
-            (7, 3), (7, 10), (8, 4), (8, 5), (9, 6),
-            (9, 10), (10, 7), (10, 9)
-        ])
+        self.G.add_edges_from(
+            [
+                (1, 5),
+                (1, 4),
+                (2, 1),
+                (2, 6),
+                (2, 9),
+                (3, 4),
+                (3, 1),
+                (4, 3),
+                (4, 1),
+                (4, 5),
+                (5, 4),
+                (5, 8),
+                (6, 1),
+                (6, 2),
+                (7, 2),
+                (7, 3),
+                (7, 10),
+                (8, 4),
+                (8, 5),
+                (9, 6),
+                (9, 10),
+                (10, 7),
+                (10, 9),
+            ]
+        )
         self.threshold = 0.2
         self.k = 3
 

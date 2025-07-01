@@ -16,7 +16,7 @@ class Test_betweenness(unittest.TestCase):
         ]
         self.test_graphs = [eg.Graph(), eg.DiGraph()]
         self.test_graphs.append(eg.classes.DiGraph(self.edges))
-        
+
         self.undirected = eg.Graph()
         self.undirected.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 4)])
 
@@ -38,7 +38,7 @@ class Test_betweenness(unittest.TestCase):
     def test_betweenness(self):
         for i in self.test_graphs:
             print(eg.functions.betweenness_centrality(i))
-    
+
     def test_basic_undirected(self):
         result = eg.functions.betweenness_centrality(self.undirected)
         self.assertEqual(len(result), len(self.undirected.nodes))
@@ -90,13 +90,10 @@ class Test_betweenness(unittest.TestCase):
 
     def test_all_nodes_type_mix(self):
         G = eg.Graph()
-        G.add_edges_from([
-            (1, 2),
-            ("A", "B"),
-            ((1, 2), (3, 4))
-        ])
+        G.add_edges_from([(1, 2), ("A", "B"), ((1, 2), (3, 4))])
         result = eg.functions.betweenness_centrality(G)
         self.assertEqual(len(result), len(G.nodes))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,8 @@
-import easygraph as eg
 import random
 import unittest
+
+import easygraph as eg
+
 
 class TestMotif:
     @classmethod
@@ -16,21 +18,19 @@ class TestMotif:
         exp_res = [list(x) for x in exp_res]
         assert sorted(res) == sorted(exp_res)
 
+
 class TestMotifEnumeration(unittest.TestCase):
     def setUp(self):
         # Triangle plus a tail
         self.G = eg.Graph()
-        self.G.add_edges_from([
-            (1, 2), (2, 3), (3, 1),  # triangle
-            (3, 4), (4, 5)           # tail
-        ])
+        self.G.add_edges_from(
+            [(1, 2), (2, 3), (3, 1), (3, 4), (4, 5)]  # triangle  # tail
+        )
 
     def test_esu_enumeration_correct(self):
         motifs = eg.enumerate_subgraph(self.G, 3)
         motifs = [frozenset(m) for m in motifs]
-        expected = [
-            {1, 2, 3}, {2, 3, 4}, {3, 4, 5}
-        ]
+        expected = [{1, 2, 3}, {2, 3, 4}, {3, 4, 5}]
         expected = [frozenset(x) for x in expected]
         self.assertTrue(all(m in motifs for m in expected))
         for m in motifs:
@@ -69,7 +69,7 @@ class TestMotifEnumeration(unittest.TestCase):
             eg.random_enumerate_subgraph(self.G, 3, cut_prob)
 
     def test_random_enumerate_zero_cut_prob(self):
-        cut_prob = [0.0, 0.0, 0.0] 
+        cut_prob = [0.0, 0.0, 0.0]
         motifs = eg.random_enumerate_subgraph(self.G, 3, cut_prob)
         self.assertEqual(motifs, [])
 

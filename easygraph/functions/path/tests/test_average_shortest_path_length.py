@@ -1,7 +1,10 @@
 import unittest
+
 import easygraph as eg
+
 from easygraph import average_shortest_path_length
-from easygraph.utils.exception import EasyGraphError, EasyGraphPointlessConcept
+from easygraph.utils.exception import EasyGraphError
+from easygraph.utils.exception import EasyGraphPointlessConcept
 
 
 class TestAverageShortestPathLength(unittest.TestCase):

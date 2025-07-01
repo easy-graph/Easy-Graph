@@ -1,9 +1,10 @@
-import pytest
-import easygraph as eg
 from itertools import combinations
 
-class TestStarCliqueHypergraph:
+import easygraph as eg
+import pytest
 
+
+class TestStarCliqueHypergraph:
     def test_valid_star_clique(self):
         H = eg.star_clique(n_star=5, n_clique=4, d_max=2)
         assert isinstance(H, eg.Hypergraph)
@@ -47,9 +48,7 @@ class TestStarCliqueHypergraph:
             for e in combinations(clique_nodes, d + 1)
         }
         actual = {
-            tuple(sorted(e))
-            for e in H.e[0]
-            if all(node in clique_nodes for node in e)
+            tuple(sorted(e)) for e in H.e[0] if all(node in clique_nodes for node in e)
         }
         assert expected.issubset(actual)
 

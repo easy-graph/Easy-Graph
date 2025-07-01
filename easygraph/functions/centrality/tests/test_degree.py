@@ -1,6 +1,7 @@
 import unittest
 
 import easygraph as eg
+
 from easygraph.utils.exception import EasyGraphNotImplemented
 
 
@@ -71,5 +72,7 @@ class Test_degree(unittest.TestCase):
         G.add_node(1)
         self.assertEqual(eg.functions.in_degree_centrality(G), {1: 1})
         self.assertEqual(eg.functions.out_degree_centrality(G), {1: 1})
+
+
 if __name__ == "__main__":
     unittest.main()

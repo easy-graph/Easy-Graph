@@ -1,4 +1,5 @@
 import unittest
+
 import easygraph as eg
 
 
@@ -32,7 +33,9 @@ class TestModularity(unittest.TestCase):
 
     def test_weighted_graph(self):
         communities = [{0, 1}, {2}]
-        q = eg.functions.community.modularity(self.G_weighted, communities, weight="weight")
+        q = eg.functions.community.modularity(
+            self.G_weighted, communities, weight="weight"
+        )
         self.assertIsInstance(q, float)
 
     def test_self_loops(self):

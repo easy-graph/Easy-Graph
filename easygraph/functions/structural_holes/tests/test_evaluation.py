@@ -1,25 +1,26 @@
-import unittest
 import math
+import unittest
+
 import easygraph as eg
 
-from easygraph.functions.structural_holes import (
-    effective_size,
-    efficiency,
-    constraint,
-    hierarchy,
-)
+from easygraph.functions.structural_holes import constraint
+from easygraph.functions.structural_holes import effective_size
+from easygraph.functions.structural_holes import efficiency
+from easygraph.functions.structural_holes import hierarchy
 
 
 class TestStructuralHoleMetrics(unittest.TestCase):
     def setUp(self):
         self.G = eg.Graph()
-        self.G.add_edges_from([
-            (0, 1, {"weight": 1.0}),
-            (0, 2, {"weight": 2.0}),
-            (1, 2, {"weight": 1.0}),
-            (2, 3, {"weight": 3.0}),
-            (3, 4, {"weight": 1.0}),
-        ])
+        self.G.add_edges_from(
+            [
+                (0, 1, {"weight": 1.0}),
+                (0, 2, {"weight": 2.0}),
+                (1, 2, {"weight": 1.0}),
+                (2, 3, {"weight": 3.0}),
+                (3, 4, {"weight": 1.0}),
+            ]
+        )
         self.G.add_node(5)  # isolated node
 
     def test_effective_size_unweighted(self):

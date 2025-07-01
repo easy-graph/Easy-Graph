@@ -31,6 +31,7 @@ class Test_Nobe(unittest.TestCase):
             print(i)
         """
         fn.NOBE_GA(self.test_directed_graphs[1], 1)
+
     def test_nobe_output_shape(self):
         emb = fn.NOBE(self.valid_graph, K=2)
         self.assertIsInstance(emb, np.ndarray)
@@ -50,5 +51,7 @@ class Test_Nobe(unittest.TestCase):
         emb = fn.NOBE(self.valid_graph, 0)
         self.assertIsInstance(emb, np.ndarray)
         self.assertEqual(emb.shape, (len(self.valid_graph), 0))
+
+
 if __name__ == "__main__":
     unittest.main()

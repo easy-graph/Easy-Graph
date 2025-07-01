@@ -1,5 +1,7 @@
 import unittest
+
 import easygraph as eg
+
 
 class TestEgoGraph(unittest.TestCase):
     def setUp(self):
@@ -10,11 +12,9 @@ class TestEgoGraph(unittest.TestCase):
         self.directed_graph.add_edges_from([(0, 1), (1, 2), (2, 3)])
 
         self.weighted_graph = eg.Graph()
-        self.weighted_graph.add_edges_from([
-            (0, 1, {"weight": 1}),
-            (1, 2, {"weight": 2}),
-            (2, 3, {"weight": 3})
-        ])
+        self.weighted_graph.add_edges_from(
+            [(0, 1, {"weight": 1}), (1, 2, {"weight": 2}), (2, 3, {"weight": 3})]
+        )
 
         self.disconnected_graph = eg.Graph()
         self.disconnected_graph.add_edges_from([(0, 1), (2, 3)])
@@ -35,7 +35,9 @@ class TestEgoGraph(unittest.TestCase):
         self.assertSetEqual(set(ego.nodes), {1, 2})
 
     def test_weighted_graph_with_distance(self):
-        ego = eg.functions.community.ego_graph(self.weighted_graph, 0, radius=2, distance="weight")
+        ego = eg.functions.community.ego_graph(
+            self.weighted_graph, 0, radius=2, distance="weight"
+        )
         self.assertSetEqual(set(ego.nodes), {0, 1})
 
     def test_disconnected_graph(self):
@@ -47,7 +49,9 @@ class TestEgoGraph(unittest.TestCase):
         self.assertSetEqual(set(ego.nodes), {42})
 
     def test_center_false(self):
-        ego = eg.functions.community.ego_graph(self.simple_graph, 2, radius=1, center=False)
+        ego = eg.functions.community.ego_graph(
+            self.simple_graph, 2, radius=1, center=False
+        )
         self.assertSetEqual(set(ego.nodes), {1, 3})
 
     def test_empty_graph(self):

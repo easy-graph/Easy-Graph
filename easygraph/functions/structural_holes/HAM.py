@@ -198,7 +198,9 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
     if c <= 0:
         raise ValueError("Number of communities `c` must be greater than 0")
     if len(ground_truth_labels) != G.number_of_nodes():
-        raise ValueError("Length of `ground_truth_labels` must match number of nodes in the graph.")
+        raise ValueError(
+            "Length of `ground_truth_labels` must match number of nodes in the graph."
+        )
     import scipy.linalg as spl
     import scipy.sparse as sps
 

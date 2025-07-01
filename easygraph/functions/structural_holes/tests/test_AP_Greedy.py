@@ -1,4 +1,5 @@
 import unittest
+
 import easygraph as eg
 
 
@@ -73,7 +74,7 @@ class TestStructuralHoleSpanners(unittest.TestCase):
         for edge in G_weighted.edges:
             u, v = edge[:2]
             G_weighted[u][v]["weight"] = 1.0
-            
+
         result_unweighted = eg.AP_Greedy(G_weighted, k=2, weight=None)
         result_weighted = eg.AP_Greedy(G_weighted, k=2, weight="weight")
         self.assertEqual(len(result_unweighted), 2)

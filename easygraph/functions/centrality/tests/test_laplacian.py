@@ -1,6 +1,7 @@
 import unittest
 
 import easygraph as eg
+
 from easygraph.utils.exception import EasyGraphNotImplemented
 
 
@@ -18,48 +19,60 @@ class Test_laplacian(unittest.TestCase):
         self.test_graphs = [eg.Graph(), eg.DiGraph()]
         self.test_graphs.append(eg.classes.DiGraph(self.edges))
         self.weighted_graph = eg.Graph()
-        self.weighted_graph.add_edges_from([
-            (0, 1, {"weight": 2}),
-            (1, 2, {"weight": 3}),
-            (2, 3, {"weight": 4}),
-            (3, 0, {"weight": 1}),
-        ])
+        self.weighted_graph.add_edges_from(
+            [
+                (0, 1, {"weight": 2}),
+                (1, 2, {"weight": 3}),
+                (2, 3, {"weight": 4}),
+                (3, 0, {"weight": 1}),
+            ]
+        )
 
         self.unweighted_graph = eg.Graph()
-        self.unweighted_graph.add_edges_from([
-            (0, 1),
-            (1, 2),
-            (2, 3),
-        ])
+        self.unweighted_graph.add_edges_from(
+            [
+                (0, 1),
+                (1, 2),
+                (2, 3),
+            ]
+        )
 
         self.directed_graph = eg.DiGraph()
-        self.directed_graph.add_edges_from([
-            (0, 1, {"weight": 2}),
-            (1, 2, {"weight": 1}),
-            (2, 0, {"weight": 3}),
-        ])
+        self.directed_graph.add_edges_from(
+            [
+                (0, 1, {"weight": 2}),
+                (1, 2, {"weight": 1}),
+                (2, 0, {"weight": 3}),
+            ]
+        )
 
         self.self_loop_graph = eg.Graph()
-        self.self_loop_graph.add_edges_from([
-            (0, 0, {"weight": 2}),
-            (0, 1, {"weight": 1}),
-        ])
+        self.self_loop_graph.add_edges_from(
+            [
+                (0, 0, {"weight": 2}),
+                (0, 1, {"weight": 1}),
+            ]
+        )
 
         self.mixed_type_graph = eg.Graph()
-        self.mixed_type_graph.add_edges_from([
-            ("A", "B"),
-            ("B", (1, 2)),
-        ])
+        self.mixed_type_graph.add_edges_from(
+            [
+                ("A", "B"),
+                ("B", (1, 2)),
+            ]
+        )
 
         self.single_node_graph = eg.Graph()
         self.single_node_graph.add_node(42)
 
         self.multigraph = eg.MultiGraph()
         self.multigraph.add_edges_from([(0, 1), (0, 1)])
+
     def test_laplacian(self):
         for i in self.test_graphs:
             print(i.edges)
             print(eg.functions.laplacian(i))
+
     def test_weighted_graph(self):
         result = eg.functions.laplacian(self.weighted_graph)
         self.assertEqual(set(result.keys()), set(self.weighted_graph.nodes))

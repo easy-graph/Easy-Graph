@@ -1,6 +1,7 @@
 import unittest
 
 import easygraph as eg
+
 from easygraph.utils.exception import EasyGraphNotImplemented
 
 
@@ -90,7 +91,7 @@ class test_bridges(unittest.TestCase):
 
     def test_has_bridges(self):
         print(eg.has_bridges(self.g2))
-    
+
     def test_empty_graph(self):
         g = eg.Graph()
         self.assertFalse(eg.has_bridges(g))
@@ -146,9 +147,10 @@ class test_bridges(unittest.TestCase):
 
     def test_weighted_graph_should_ignore_weights(self):
         g = eg.Graph()
-        g.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 0)], edges_attr=[
-            {"weight": 10}, {"weight": 20}, {"weight": 30}, {"weight": 40}
-        ])
+        g.add_edges_from(
+            [(0, 1), (1, 2), (2, 3), (3, 0)],
+            edges_attr=[{"weight": 10}, {"weight": 20}, {"weight": 30}, {"weight": 40}],
+        )
         self.assertFalse(eg.has_bridges(g))
 
 

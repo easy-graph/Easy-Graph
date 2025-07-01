@@ -1,13 +1,11 @@
 import unittest
+
 import easygraph as eg
 
 
 class TestHypergraphDegreeCentrality(unittest.TestCase):
     def test_basic_degree_centrality(self):
-        hg = eg.Hypergraph(
-            num_v=4,
-            e_list=[(0, 1), (1, 2), (2, 3), (0, 2)]
-        )
+        hg = eg.Hypergraph(num_v=4, e_list=[(0, 1), (1, 2), (2, 3), (0, 2)])
         result = eg.hyepergraph_degree_centrality(hg)
         expected = {0: 2, 1: 2, 2: 3, 3: 1}
         self.assertEqual(result, expected)
@@ -15,7 +13,7 @@ class TestHypergraphDegreeCentrality(unittest.TestCase):
     def test_empty_hypergraph(self):
         hg = eg.Hypergraph(num_v=1, e_list=[])
         result = eg.hyepergraph_degree_centrality(hg)
-        self.assertEqual(result, {0:0})
+        self.assertEqual(result, {0: 0})
 
     def test_single_edge(self):
         hg = eg.Hypergraph(num_v=3, e_list=[(0, 1, 2)])

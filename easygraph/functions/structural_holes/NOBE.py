@@ -108,7 +108,7 @@ def NOBE_GA_SH(G, K, topk):
     if K <= 0:
         raise ValueError("Embedding dimension K must be a positive integer.")
     if topk <= 0:
-        raise ValueError("Parameter topk must be a positive integer.")    
+        raise ValueError("Parameter topk must be a positive integer.")
     from sklearn.cluster import KMeans
 
     Y = eg.NOBE_GA(G, K)

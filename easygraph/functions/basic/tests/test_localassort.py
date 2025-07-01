@@ -1,8 +1,10 @@
 import random
 import sys
+
+import easygraph as eg
 import numpy as np
 import pytest
-import easygraph as eg
+
 from easygraph.functions.basic.localassort import localAssort
 
 
@@ -34,6 +36,7 @@ class TestLocalAssort:
         _, assortT, Z = eg.functions.basic.localassort.localAssort(
             self.edgelist, self.valuelist, pr=np.array([0.9])
         )
+
 
 def test_localassort_small_complete_graph():
     G = eg.complete_graph(4)

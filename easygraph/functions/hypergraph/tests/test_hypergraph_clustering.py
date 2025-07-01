@@ -1,6 +1,7 @@
 import unittest
 
 import easygraph as eg
+
 from easygraph.utils.exception import EasyGraphError
 
 
@@ -24,6 +25,7 @@ class test_hypergraph_operation(unittest.TestCase):
     def test_hypergraph_two_node_clustering_coefficient(self):
         for i in self.hg:
             print(eg.hypergraph_two_node_clustering_coefficient(i))
+
 
 class TestHypergraphClustering(unittest.TestCase):
     def setUp(self):
@@ -81,6 +83,7 @@ class TestHypergraphClustering(unittest.TestCase):
         hg = eg.Hypergraph(num_v=1, e_list=[(0,)])
         result = eg.hypergraph_two_node_clustering_coefficient(hg)
         self.assertEqual(result[0], 0.0)
+
 
 if __name__ == "__main__":
     unittest.main()

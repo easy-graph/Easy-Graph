@@ -16,6 +16,7 @@ class TestPredecessor:
                 {2: [], 1: [2], 3: [2], 0: [1]},
                 {3: [], 2: [3], 1: [2], 0: [1]},
             ]
+
     def test_basic_predecessor(self):
         G = eg.path_graph(4)
         result = eg.predecessor(G, 0)
@@ -67,7 +68,7 @@ class TestPredecessor:
 
     def test_cycle_graph(self):
         G = eg.Graph()
-        G.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 0)]) # cycled graph
+        G.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 0)])  # cycled graph
         pred = eg.predecessor(G, 0)
         assert set(pred.keys()) == set(G.nodes)
 

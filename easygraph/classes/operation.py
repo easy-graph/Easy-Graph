@@ -274,7 +274,7 @@ def topological_generations(G):
                 except KeyError as err:
                     raise RuntimeError("Graph changed during iteration") from err
                 if indegree_map[child] == 0:
-                    zero_indegree.append(child) 
+                    zero_indegree.append(child)
                     del indegree_map[child]
         yield this_generation
 

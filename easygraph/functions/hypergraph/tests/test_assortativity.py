@@ -2,10 +2,11 @@ import math
 import unittest
 
 from itertools import combinations
-from easygraph.utils.exception import EasyGraphError
 
 import easygraph as eg
 import numpy as np
+
+from easygraph.utils.exception import EasyGraphError
 
 
 class test_assortativity(unittest.TestCase):
@@ -96,5 +97,7 @@ class test_assortativity(unittest.TestCase):
     def test_degree_assortativity_raises_on_empty(self):
         with self.assertRaises(EasyGraphError):
             eg.degree_assortativity(self.hg_empty)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -78,11 +78,7 @@ class test_mst(unittest.TestCase):
         )
         self.nan_graph = eg.Graph()
         self.nan_graph.add_edges(
-            [(0, 1), (1, 2)],
-            edges_attr=[
-                {"weight": float('nan')},
-                {"weight": 1}
-            ]
+            [(0, 1), (1, 2)], edges_attr=[{"weight": float("nan")}, {"weight": 1}]
         )
 
         self.no_weight_graph = eg.Graph()
@@ -91,41 +87,24 @@ class test_mst(unittest.TestCase):
         self.equal_weight_graph = eg.Graph()
         self.equal_weight_graph.add_edges(
             [(0, 1), (1, 2), (2, 0)],
-            edges_attr=[
-                {"weight": 1},
-                {"weight": 1},
-                {"weight": 1}
-            ]
+            edges_attr=[{"weight": 1}, {"weight": 1}, {"weight": 1}],
         )
 
         self.negative_weight_graph = eg.Graph()
         self.negative_weight_graph.add_edges(
             [(0, 1), (1, 2), (2, 3)],
-            edges_attr=[
-                {"weight": -1},
-                {"weight": -2},
-                {"weight": -3}
-            ]
+            edges_attr=[{"weight": -1}, {"weight": -2}, {"weight": -3}],
         )
 
         self.disconnected_graph = eg.Graph()
         self.disconnected_graph.add_edges(
-            [(0, 1), (2, 3)],
-            edges_attr=[
-                {"weight": 1},
-                {"weight": 2}
-            ]
+            [(0, 1), (2, 3)], edges_attr=[{"weight": 1}, {"weight": 2}]
         )
 
         self.G = eg.Graph()
         self.G.add_edges(
             [(0, 1), (1, 2), (2, 3), (3, 0)],
-            edges_attr=[
-                {"weight": 1},
-                {"weight": 2},
-                {"weight": 3},
-                {"weight": 4}
-            ]
+            edges_attr=[{"weight": 1}, {"weight": 2}, {"weight": 3}, {"weight": 4}],
         )
 
     def helper(self, g: eg.Graph, func):
@@ -191,5 +170,7 @@ class test_mst(unittest.TestCase):
     def test_invalid_algorithm_name(self):
         with self.assertRaises(ValueError):
             list(eg.minimum_spanning_edges(self.G, algorithm="invalid_algo"))
+
+
 if __name__ == "__main__":
     unittest.main()

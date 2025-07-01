@@ -1,14 +1,22 @@
-import unittest
-import easygraph as eg
 import random
+import unittest
+
+import easygraph as eg
+
 
 class TestMaxBlockMethods(unittest.TestCase):
     def setUp(self):
         self.G = eg.DiGraph()
-        self.G.add_edges_from([
-            (0, 1), (1, 2), (2, 0),  # Strongly connected
-            (2, 3), (3, 4), (4, 2)   # Another cycle
-        ])
+        self.G.add_edges_from(
+            [
+                (0, 1),
+                (1, 2),
+                (2, 0),  # Strongly connected
+                (2, 3),
+                (3, 4),
+                (4, 2),  # Another cycle
+            ]
+        )
         for e in self.G.edges:
             self.G[e[0]][e[1]]["weight"] = 0.9
 
@@ -27,7 +35,15 @@ class TestMaxBlockMethods(unittest.TestCase):
         self.assertEqual(len(result), 2)
 
     def test_maxBlock_basic(self):
-        result = eg.maxBlock(self.G.copy(), k=2, f_set=self.f_set, delta=1, eps=0.5, c=1, flag_weight=True)
+        result = eg.maxBlock(
+            self.G.copy(),
+            k=2,
+            f_set=self.f_set,
+            delta=1,
+            eps=0.5,
+            c=1,
+            flag_weight=True,
+        )
         self.assertEqual(len(result), 2)
 
     def test_maxBlock_unweighted_graph(self):
@@ -44,6 +60,7 @@ class TestMaxBlockMethods(unittest.TestCase):
     def test_maxBlock_invalid_k(self):
         with self.assertRaises(IndexError):
             eg.maxBlock(self.G.copy(), k=100, f_set=self.f_set)
+
 
 if __name__ == "__main__":
     unittest.main()

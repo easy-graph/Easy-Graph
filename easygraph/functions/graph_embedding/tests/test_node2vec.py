@@ -28,6 +28,7 @@ class Test_Nobe(unittest.TestCase):
     def test_NOBE_GA(self):
         for i in self.test_undirected_graphs:
             NOBE_GA(i, K=1)
+
     def test_nobe_embedding_shape(self):
         emb = NOBE(self.valid_graph, K=2)
         self.assertIsInstance(emb, np.ndarray)
@@ -42,7 +43,6 @@ class Test_Nobe(unittest.TestCase):
         emb = NOBE(self.valid_graph, 0)
         self.assertIsInstance(emb, np.ndarray)
         self.assertEqual(emb.shape, (len(self.valid_graph), 0))
-        
 
     def test_nobe_ga_invalid_k_zero(self):
         emb = NOBE_GA(self.valid_graph, 0)
@@ -52,6 +52,7 @@ class Test_Nobe(unittest.TestCase):
     def test_nobe_with_isolated_node(self):
         emb = NOBE(self.graph_with_isolated, K=2)
         self.assertEqual(emb.shape[0], len(self.graph_with_isolated))
+
 
 # if __name__ == "__main__":
 #     unittest.main()

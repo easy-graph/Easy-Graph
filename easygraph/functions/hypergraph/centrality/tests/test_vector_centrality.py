@@ -1,17 +1,18 @@
 import unittest
-import numpy as np
+
 import easygraph as eg
+import numpy as np
+
 from easygraph.exception import EasyGraphError
 
-class TestVectorCentrality(unittest.TestCase):
 
+class TestVectorCentrality(unittest.TestCase):
     def test_single_edge(self):
         hg = eg.Hypergraph(num_v=3, e_list=[(0, 1, 2)])
         result = eg.vector_centrality(hg)
         self.assertEqual(set(result.keys()), {0, 1, 2})
         for val in result.values():
             self.assertEqual(len(val), 2)  # because D = 3 → k = 2 and 3
-
 
     def test_multiple_edges_different_orders(self):
         hg = eg.Hypergraph(num_v=4, e_list=[(0, 1), (1, 2, 3)])
@@ -31,11 +32,12 @@ class TestVectorCentrality(unittest.TestCase):
         result = eg.vector_centrality(hg)
         self.assertEqual(len(result), 5)
         for val in result.values():
-            self.assertEqual(len(val), 2)  
+            self.assertEqual(len(val), 2)
 
     def test_index_error_due_to_wrong_num_v(self):
         with self.assertRaises(eg.EasyGraphError):
             eg.Hypergraph(num_v=3, e_list=[(0, 1, 5)])
+
 
 if __name__ == "__main__":
     unittest.main()

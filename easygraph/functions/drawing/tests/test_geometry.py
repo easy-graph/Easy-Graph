@@ -1,14 +1,14 @@
-import unittest
 import math
+import unittest
+
 import numpy as np
 
-from easygraph.functions.drawing.geometry import (
-    radian_from_atan,
-    vlen,
-    common_tangent_radian,
-    polar_position,
-    rad_2_deg,
-)
+from easygraph.functions.drawing.geometry import common_tangent_radian
+from easygraph.functions.drawing.geometry import polar_position
+from easygraph.functions.drawing.geometry import rad_2_deg
+from easygraph.functions.drawing.geometry import radian_from_atan
+from easygraph.functions.drawing.geometry import vlen
+
 
 class TestGeometryUtils(unittest.TestCase):
     def test_radian_from_atan_axes(self):
@@ -53,7 +53,7 @@ class TestGeometryUtils(unittest.TestCase):
 
     def test_common_tangent_radian_invalid(self):
         with self.assertRaises(ValueError):
-            common_tangent_radian(5, 1, 2) 
+            common_tangent_radian(5, 1, 2)
 
     def test_polar_position_origin(self):
         pos = polar_position(0, 0, np.array([5, 5]))
@@ -72,6 +72,7 @@ class TestGeometryUtils(unittest.TestCase):
         self.assertEqual(rad_2_deg(math.pi), 180)
         self.assertEqual(rad_2_deg(2 * math.pi), 360)
         self.assertEqual(rad_2_deg(-math.pi / 2), -90)
+
 
 if __name__ == "__main__":
     unittest.main()

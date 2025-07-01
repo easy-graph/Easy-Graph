@@ -1,6 +1,8 @@
-import pytest
 import easygraph as eg
+import pytest
+
 from easygraph.utils.exception import EasyGraphError
+
 
 class TestRingLatticeHypergraph:
     def test_valid_ring_lattice(self):
@@ -40,7 +42,7 @@ class TestRingLatticeHypergraph:
         H = eg.ring_lattice(n=1, d=1, k=2, l=0)
         assert H.num_v == 1
         assert isinstance(H, eg.Hypergraph)
-        
+
     def test_k_zero(self):
         H = eg.ring_lattice(n=5, d=2, k=0, l=1)
         assert H.num_v == 5

@@ -1,15 +1,16 @@
 import unittest
+
 import easygraph as eg
-from easygraph.functions.structural_holes.ICC import ICC, BICC, AP_BICC
+
+from easygraph.functions.structural_holes.ICC import AP_BICC
+from easygraph.functions.structural_holes.ICC import BICC
+from easygraph.functions.structural_holes.ICC import ICC
 
 
 class TestICCBICCFunctions(unittest.TestCase):
     def setUp(self):
         self.G = eg.Graph()
-        self.G.add_edges_from([
-            (0, 1), (1, 2), (2, 3), (3, 4),
-            (4, 0), (1, 3), (2, 4)
-        ])
+        self.G.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 4), (4, 0), (1, 3), (2, 4)])
 
     def test_icc_basic(self):
         result = ICC(self.G, k=2)

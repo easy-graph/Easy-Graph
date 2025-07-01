@@ -1,6 +1,8 @@
 import unittest
+
 import easygraph as eg
 import numpy as np
+
 
 class TestHypergraphSCentrality(unittest.TestCase):
     def setUp(self):
@@ -32,6 +34,7 @@ class TestHypergraphSCentrality(unittest.TestCase):
     def test_s_eccentricity_invalid_source(self):
         with self.assertRaises(KeyError):
             eg.s_eccentricity(self.hg, source=(999, 888))
+
 
 if __name__ == "__main__":
     unittest.main()

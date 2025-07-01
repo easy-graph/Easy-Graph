@@ -1,17 +1,24 @@
 import unittest
+
 import easygraph as eg
+
 from easygraph.functions.structural_holes import get_structural_holes_HIS
 
 
 class TestHISStructuralHoles(unittest.TestCase):
-
     def setUp(self):
         self.G = eg.Graph()
-        self.G.add_edges_from([
-            (0, 1), (1, 2), (2, 0),       # Community 0
-            (3, 4), (4, 5), (5, 3),       # Community 1
-            (2, 3)                        # Bridge between communities
-        ])
+        self.G.add_edges_from(
+            [
+                (0, 1),
+                (1, 2),
+                (2, 0),  # Community 0
+                (3, 4),
+                (4, 5),
+                (5, 3),  # Community 1
+                (2, 3),  # Bridge between communities
+            ]
+        )
         self.communities = [frozenset([0, 1, 2]), frozenset([3, 4, 5])]
 
     def test_normal_output_structure(self):
@@ -67,7 +74,7 @@ class TestHISStructuralHoles(unittest.TestCase):
         G.add_edge(4, 5, weight=6.0)
         G.add_edge(5, 3, weight=1.0)
         communities = [frozenset([0, 1, 2]), frozenset([3, 4, 5])]
-        S, I, H = get_structural_holes_HIS(G, communities, weight='weight')
+        S, I, H = get_structural_holes_HIS(G, communities, weight="weight")
         self.assertIsInstance(list(I[0].values())[0], float)
 
     def test_convergence_with_high_epsilon(self):

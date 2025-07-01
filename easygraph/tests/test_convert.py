@@ -98,48 +98,56 @@ class TestConvertScipy:
         G = eg.from_scipy_sparse_matrix(data)
         self.assert_equal(self.G1, G)
 
+
 def test_from_edgelist():
     edgelist = [(0, 1), (1, 2)]
     G = eg.from_edgelist(edgelist)
     assert sorted((u, v) for u, v, _ in G.edges) == [(0, 1), (1, 2)]
+
 
 def test_from_dict_of_lists():
     d = {0: [1], 1: [2]}
     G = eg.to_easygraph_graph(d)
     assert sorted((u, v) for u, v, _ in G.edges) == [(0, 1), (1, 2)]
 
+
 def test_from_dict_of_dicts():
     d = {0: {1: {}}, 1: {2: {}}}
     G = eg.to_easygraph_graph(d)
     assert sorted((u, v) for u, v, _ in G.edges) == [(0, 1), (1, 2)]
 
+
 def test_from_numpy_array():
     G = eg.complete_graph(3)
     A = eg.to_numpy_array(G)
     G2 = eg.from_numpy_array(A)
-    assert sorted((u, v) for u, v, _ in G.edges) == sorted((u, v) for u, v, _ in G2.edges)
+    assert sorted((u, v) for u, v, _ in G.edges) == sorted(
+        (u, v) for u, v, _ in G2.edges
+    )
+
 
 def test_from_pandas_edgelist():
-    df = pd.DataFrame({
-        "source": [0, 1],
-        "target": [1, 2],
-        "weight": [0.5, 0.7]
-    })
+    df = pd.DataFrame({"source": [0, 1], "target": [1, 2], "weight": [0.5, 0.7]})
     G = eg.from_pandas_edgelist(df, source="source", target="target", edge_attr=True)
     assert sorted((u, v) for u, v, _ in G.edges) == [(0, 1), (1, 2)]
+
 
 def test_from_pandas_adjacency():
     df = pd.DataFrame([[0, 1], [1, 0]], columns=["A", "B"], index=["A", "B"])
     G = eg.from_pandas_adjacency(df)
     assert sorted((u, v) for u, v, _ in G.edges) == [("A", "B")]
-    
+
+
 def test_from_scipy_sparse_matrix():
     mat = sp.sparse.csr_matrix([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
     G = eg.from_scipy_sparse_matrix(mat)
     expected_edges = [(0, 1), (1, 2)]
     assert sorted((u, v) for u, v, _ in G.edges) == expected_edges
 
+
 def test_invalid_dict_type():
-    class NotGraph: pass
+    class NotGraph:
+        pass
+
     with pytest.raises(eg.EasyGraphError):
         eg.to_easygraph_graph(NotGraph())

@@ -65,6 +65,7 @@ def vector_centrality(H):
 
     return vc
 
+
 def eigenvector_centrality(G, max_iter=100, tol=1.0e-6):
     from collections import defaultdict
 
@@ -79,7 +80,7 @@ def eigenvector_centrality(G, max_iter=100, tol=1.0e-6):
                 x_new[v] += x[nbr]
 
         # Normalize
-        norm = sum(v ** 2 for v in x_new.values()) ** 0.5
+        norm = sum(v**2 for v in x_new.values()) ** 0.5
         if norm == 0:
             return x_new
         x_new = {k: v / norm for k, v in x_new.items()}

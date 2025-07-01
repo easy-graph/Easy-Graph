@@ -1,5 +1,7 @@
 import unittest
+
 import easygraph as eg
+
 
 class TestLouvainCommunityDetection(unittest.TestCase):
     def setUp(self):
@@ -7,11 +9,9 @@ class TestLouvainCommunityDetection(unittest.TestCase):
         self.graph_simple.add_edges_from([(0, 1), (1, 2), (3, 4)])
 
         self.graph_weighted = eg.Graph()
-        self.graph_weighted.add_edges_from([
-            (0, 1, {"weight": 5}),
-            (1, 2, {"weight": 3}),
-            (3, 4, {"weight": 2})
-        ])
+        self.graph_weighted.add_edges_from(
+            [(0, 1, {"weight": 5}), (1, 2, {"weight": 3}), (3, 4, {"weight": 2})]
+        )
 
         self.graph_directed = eg.DiGraph()
         self.graph_directed.add_edges_from([(0, 1), (1, 2), (2, 0), (3, 4)])
@@ -30,12 +30,16 @@ class TestLouvainCommunityDetection(unittest.TestCase):
         self.assertSetEqual(flat, set(self.graph_simple.nodes))
 
     def test_louvain_communities_weighted(self):
-        communities = eg.functions.community.louvain_communities(self.graph_weighted, weight="weight")
+        communities = eg.functions.community.louvain_communities(
+            self.graph_weighted, weight="weight"
+        )
         flat = {node for comm in communities for node in comm}
         self.assertSetEqual(flat, set(self.graph_weighted.nodes))
 
     def test_louvain_communities_disconnected(self):
-        communities = eg.functions.community.louvain_communities(self.graph_disconnected)
+        communities = eg.functions.community.louvain_communities(
+            self.graph_disconnected
+        )
         flat = {node for comm in communities for node in comm}
         self.assertSetEqual(flat, set(self.graph_disconnected.nodes))
 
@@ -55,6 +59,7 @@ class TestLouvainCommunityDetection(unittest.TestCase):
             self.assertEqual(total_nodes, len(self.graph_simple.nodes))
             flat = [node for part in partition for node in part]
             self.assertEqual(len(flat), len(set(flat)))
+
 
 if __name__ == "__main__":
     unittest.main()
