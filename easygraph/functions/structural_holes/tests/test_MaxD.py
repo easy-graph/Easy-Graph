@@ -25,7 +25,6 @@ class TestStructuralHolesMaxD(unittest.TestCase):
             self.assertIn(node, self.G.nodes)
 
     def test_unweighted_graph(self):
-        # Same test as above, graph is unweighted by default
         result = eg.get_structural_holes_MaxD(self.G, k=2, C=self.communities)
         self.assertEqual(len(result), 2)
 

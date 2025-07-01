@@ -49,13 +49,11 @@ class TestGeometryUtils(unittest.TestCase):
         self.assertAlmostEqual(angle, expected)
 
     def test_common_tangent_radian_touching(self):
-        # r1 = r2 should give alpha = π/2
         self.assertAlmostEqual(common_tangent_radian(3, 3, 5), math.pi / 2)
 
     def test_common_tangent_radian_invalid(self):
-        # when |r1 - r2| > d, acos gets invalid domain
         with self.assertRaises(ValueError):
-            common_tangent_radian(5, 1, 2)  # |5-1| > 2 → acos > 1
+            common_tangent_radian(5, 1, 2) 
 
     def test_polar_position_origin(self):
         pos = polar_position(0, 0, np.array([5, 5]))

@@ -18,15 +18,13 @@ def test_k_core(edges, k):
     from easygraph import Graph
     from easygraph import k_core
 
-    # Create EasyGraph and NetworkX graphs from the edge list
     G = Graph()
     G_nx = nx.Graph()
     G.add_edges_from(edges)
     G_nx.add_edges_from(edges)
 
-    # Compute the k-core of the graphs using the k_core function and nx.k_core
     H = k_core(G)
-    H_nx = nx.core_number(G_nx)  # type: ignore
+    H_nx = nx.core_number(G_nx) 
     assert H == list(H_nx.values())
 
 def test_k_core_empty_graph():
@@ -77,7 +75,6 @@ def test_k_core_disconnected_components():
 def test_k_core_all_zero_core():
     G = eg.path_graph(5)
     result = k_core(G)
-    # Path graph has lowest core values
     assert all(isinstance(v, int) or isinstance(v, float) for v in result)
     assert max(result) <= 2
 
@@ -97,5 +94,4 @@ def test_k_core_large_k():
     G = eg.Graph()
     G.add_edges_from([(1, 2), (2, 3)])
     result = k_core(G)
-    # No nodes should have high core number
     assert max(result) <= 2

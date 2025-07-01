@@ -64,12 +64,12 @@ class TestMotifEnumeration(unittest.TestCase):
             self.assertEqual(len(m), 3)
 
     def test_random_enumerate_cut_prob_invalid_length(self):
-        cut_prob = [1.0, 0.9]  # should be length == k
+        cut_prob = [1.0, 0.9]
         with self.assertRaises(eg.EasyGraphError):
             eg.random_enumerate_subgraph(self.G, 3, cut_prob)
 
     def test_random_enumerate_zero_cut_prob(self):
-        cut_prob = [0.0, 0.0, 0.0]  # Should skip everything
+        cut_prob = [0.0, 0.0, 0.0] 
         motifs = eg.random_enumerate_subgraph(self.G, 3, cut_prob)
         self.assertEqual(motifs, [])
 

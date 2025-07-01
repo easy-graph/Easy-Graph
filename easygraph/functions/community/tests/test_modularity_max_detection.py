@@ -43,7 +43,6 @@ class TestGreedyModularityCommunities(unittest.TestCase):
 
     def test_communities_clique(self):
         result = eg.functions.community.greedy_modularity_communities(self.graph_clique)
-        # The clique is very tightly connected, should ideally be one community
         self.assertEqual(len(result), 1)
         self.assertSetEqual(result[0], set(self.graph_clique.nodes))
 
@@ -53,8 +52,6 @@ class TestGreedyModularityCommunities(unittest.TestCase):
         self.assertSetEqual(flat_nodes, set(self.graph_disconnected.nodes))
 
     def test_communities_single_node(self):
-        # The current implementation exits on empty or edge-less graphs,
-        # so we expect it not to return normally
         with self.assertRaises(SystemExit):
             eg.functions.community.greedy_modularity_communities(self.graph_single_node)
 
@@ -64,7 +61,6 @@ class TestGreedyModularityCommunities(unittest.TestCase):
 
     def test_correct_partition_disjoint(self):
         result = eg.functions.community.greedy_modularity_communities(self.graph_disconnected)
-        # Each node should appear in only one community
         all_nodes = [node for group in result for node in group]
         self.assertEqual(len(all_nodes), len(set(all_nodes)))
 
