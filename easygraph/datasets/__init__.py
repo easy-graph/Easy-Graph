@@ -25,3 +25,4 @@ from .citation_graph import (
 )
 from .coauthor import CoauthorCSDataset
 from .amazon_photo import AmazonPhotoDataset
+from .reddit import RedditDataset
