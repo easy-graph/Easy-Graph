@@ -1,19 +1,3 @@
-"""CoauthorCS Dataset
-
-This dataset contains a co-authorship network of authors who submitted papers to CS category.
-Each node represents an author and edges represent co-authorships.
-Node features are bag-of-words representations of keywords in the author's papers.
-The task is node classification, with labels indicating the primary field of study.
-
-Statistics:
-- Nodes: 18333
-- Edges: 81894
-- Feature Dim: 6805
-- Classes: 15
-
-Source: https://github.com/dmlc/dgl/tree/master/examples/pytorch/cluster_gcn
-"""
-
 import os
 import numpy as np
 import easygraph as eg
@@ -24,38 +8,49 @@ from .graph_dataset_base import EasyGraphBuiltinDataset
 from .utils import download, extract_archive, tensor, data_type_dict
 
 
-class CoauthorCSDataset(EasyGraphBuiltinDataset):
-    r"""CoauthorCS citation network dataset.
+class AmazonPhotoDataset(EasyGraphBuiltinDataset):
+    r"""Amazon Electronics Photo co-purchase graph dataset.
 
-    Nodes are authors, and edges indicate co-authorship relationships. Each node
-    has a bag-of-words feature vector and a label denoting the primary research field.
+    Nodes represent products, and edges link products frequently co-purchased.
+    Node features are bag-of-words of product reviews. The task is to classify
+    the product category.
+
+    Statistics:
+
+    - Nodes: 7,650
+    - Edges: 119,081
+    - Number of Classes: 8
+    - Features: 745
 
     Parameters
     ----------
     raw_dir : str, optional
-        Directory to store the raw downloaded files. Default: None
+        Raw file directory to download/contains the input data directory. Default: None
     force_reload : bool, optional
-        Whether to re-download and process the dataset. Default: False
+        Whether to reload the dataset. Default: False
     verbose : bool, optional
-        Whether to print detailed processing logs. Default: True
+        Whether to print out progress information. Default: True
     transform : callable, optional
-        Transform to apply to the graph on access.
+        A transform that takes in a :class:`~easygraph.Graph` object and returns
+        a transformed version. The :class:`~easygraph.Graph` object will be
+        transformed before every access.
 
     Examples
     --------
-    >>> from easygraph.datasets import CoauthorCSDataset
-    >>> dataset = CoauthorCSDataset()
+    >>> from easygraph.datasets import AmazonPhotoDataset
+    >>> dataset = AmazonPhotoDataset()
     >>> g = dataset[0]
-    >>> print("Nodes:", g.number_of_nodes())
-    >>> print("Edges:", g.number_of_edges())
-    >>> print("Feature shape:", g.nodes[0]['feat'].shape)
-    >>> print("Label:", g.nodes[0]['label'])
-    >>> print("Number of classes:", dataset.num_classes)
+    >>> print(g.number_of_nodes())
+    >>> print(g.number_of_edges())
+    >>> print(g.nodes[0]['feat'].shape)
+    >>> print(g.nodes[0]['label'])
+    >>> print(dataset.num_classes)
     """
+
     def __init__(self, raw_dir=None, force_reload=False, verbose=True, transform=None):
-        name = "coauthor_cs"
-        url = "https://data.dgl.ai/dataset/coauthor_cs.zip"
-        super(CoauthorCSDataset, self).__init__(
+        name = "amazon_photo"
+        url = "https://data.dgl.ai/dataset/amazon_co_buy_photo.zip"
+        super(AmazonPhotoDataset, self).__init__(
             name=name,
             url=url,
             raw_dir=raw_dir,
@@ -65,16 +60,14 @@ class CoauthorCSDataset(EasyGraphBuiltinDataset):
         )
 
     def process(self):
-        path = os.path.join(self.raw_path, "coauthor_cs.npz")
+        path = os.path.join(self.raw_path, "amazon_co_buy_photo.npz")
         data = np.load(path)
 
-        # Reconstruct adjacency matrix
         adj = sp.csr_matrix(
             (data["adj_data"], data["adj_indices"], data["adj_indptr"]),
             shape=data["adj_shape"],
         )
 
-        # Reconstruct feature matrix
         features = sp.csr_matrix(
             (data["attr_data"], data["attr_indices"], data["attr_indptr"]),
             shape=data["attr_shape"],
@@ -92,14 +85,14 @@ class CoauthorCSDataset(EasyGraphBuiltinDataset):
         self._num_classes = len(np.unique(labels))
 
         if self.verbose:
-            print("Finished loading CoauthorCS dataset.")
+            print("Finished loading AmazonPhoto dataset.")
             print(f"  NumNodes: {g.number_of_nodes()}")
             print(f"  NumEdges: {g.number_of_edges()}")
             print(f"  NumFeats: {features.shape[1]}")
             print(f"  NumClasses: {self._num_classes}")
 
     def __getitem__(self, idx):
-        assert idx == 0, "CoauthorCSDataset only contains one graph"
+        assert idx == 0, "AmazonPhotoDataset only contains one graph"
         if self._g is None:
             raise ValueError("Graph has not been loaded or processed correctly.")
         return self._g if self._transform is None else self._transform(self._g)

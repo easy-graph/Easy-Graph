@@ -24,3 +24,4 @@ from .citation_graph import (
     PubmedGraphDataset,
 )
 from .coauthor import CoauthorCSDataset
+from .amazon_photo import AmazonPhotoDataset
