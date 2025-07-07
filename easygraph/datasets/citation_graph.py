@@ -55,7 +55,7 @@ class CitationGraphDataset(EasyGraphBuiltinDataset):
     """
     _urls = {
         "cora_v2": "dataset/cora_v2.zip",
-        "citeseer": "dataset/citeSeer.zip",
+        "citeseer": "dataset/citeseer.zip",
         "pubmed": "dataset/pubmed.zip",
     }
 
