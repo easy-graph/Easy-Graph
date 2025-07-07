@@ -260,8 +260,8 @@ def set_node_attributes(G, values, name=None):
 def topological_generations(G):
     if not G.is_directed():
         raise AssertionError("Topological sort not defined on undirected graphs.")
-    indegree_map = {v: d for v, d in G.in_degree() if d > 0}
-    zero_indegree = [v for v, d in G.in_degree() if d == 0]
+    indegree_map = {v: d for v, d in G.in_degree().items() if d > 0}
+    zero_indegree = [v for v, d in G.in_degree().items() if d == 0]
     while zero_indegree:
         this_generation = zero_indegree
         zero_indegree = []
@@ -283,7 +283,7 @@ def topological_generations(G):
 
 
 def topological_sort(G):
-    for generation in eg.topological_generations(G):
+    for generation in topological_generations(G):
         yield from generation
 
 

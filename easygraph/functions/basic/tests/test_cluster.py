@@ -377,3 +377,42 @@ class TestWeightedClustering:
         G.add_edge(3, 0, weight=0)
         assert eg.clustering(G)[0] == 1 / 3
         assert eg.clustering(G, weight="weight")[0] == -1 / 3
+
+
+class TestAdditionalClusteringCases:
+    def test_self_loops_ignored(self):
+        G = eg.Graph()
+        G.add_edges_from([(0, 1), (1, 2), (2, 0)])
+        G.add_edge(0, 0)  # self-loop
+        assert eg.clustering(G, 0) == 1.0
+
+    def test_isolated_node(self):
+        G = eg.Graph()
+        G.add_node(1)
+        assert eg.clustering(G) == {1: 0}
+
+    def test_degree_one_node(self):
+        G = eg.Graph()
+        G.add_edge(1, 2)
+        assert eg.clustering(G) == {1: 0, 2: 0}
+
+    def test_custom_weight_name(self):
+        G = eg.Graph()
+        G.add_edge(0, 1, strength=2)
+        G.add_edge(1, 2, strength=2)
+        G.add_edge(2, 0, strength=2)
+        result = eg.clustering(G, weight="strength")
+        assert result[0] > 0
+
+    def test_negative_weights_mixed(self):
+        G = eg.complete_graph(3)
+        G[0][1]["weight"] = -1
+        G[1][2]["weight"] = 1
+        G[2][0]["weight"] = 1
+        assert eg.clustering(G, 0, weight="weight") < 0
+
+    def test_directed_reciprocal_edges(self):
+        G = eg.DiGraph()
+        G.add_edges_from([(0, 1), (1, 0), (0, 2), (2, 0), (1, 2), (2, 1)])
+        result = eg.clustering(G)
+        assert all(0 <= v <= 1 for v in result.values())

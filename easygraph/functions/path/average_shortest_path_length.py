@@ -72,7 +72,7 @@ def average_shortest_path_length(G, weight=None, method=None):
     1.0
 
     """
-    single_source_methods = ["single_source_bfs", "Dijkstra"]
+    single_source_methods = ["single_source_bfs", "dijkstra"]
     all_pairs_methods = ["Floyed"]
     supported_methods = single_source_methods + all_pairs_methods
 

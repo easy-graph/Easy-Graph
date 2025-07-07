@@ -7,11 +7,15 @@ __all__ = ["ICC", "BICC", "AP_BICC"]
 
 
 def inverse_closeness_centrality(G, v):
+    if len(G) <= 1:
+        return 0
     c_v = sum(eg.Dijkstra(G, v).values()) / (len(G) - 1)
     return c_v
 
 
 def bounded_inverse_closeness_centrality(G, v, l):
+    if len(G) <= 1:
+        return 0
     queue = []
     queue.append(v)
     seen = set()

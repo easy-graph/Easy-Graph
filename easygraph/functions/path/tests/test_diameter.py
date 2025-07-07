@@ -88,6 +88,56 @@ class test_diameter(unittest.TestCase):
         print(eg.eccentricity(self.g3))
         print(eg.eccentricity(self.g4))
 
+    def test_single_node_graph(self):
+        G = eg.Graph()
+        G.add_node(1)
+        self.assertEqual(eg.eccentricity(G), {1: 0})
+        self.assertEqual(eg.diameter(G), 0)
+
+    def test_two_node_graph(self):
+        G = eg.Graph([(1, 2)])
+        self.assertEqual(eg.eccentricity(G), {1: 1, 2: 1})
+        self.assertEqual(eg.diameter(G), 1)
+
+    def test_disconnected_graph(self):
+        G = eg.Graph()
+        G.add_nodes_from([1, 2, 3])
+        G.add_edge(1, 2)
+        with self.assertRaises(eg.EasyGraphError):
+            eg.eccentricity(G)
+
+    def test_directed_not_strongly_connected(self):
+        G = eg.DiGraph()
+        G.add_edges_from([(1, 2), (2, 3)])  # Not strongly connected
+        with self.assertRaises(eg.EasyGraphError):
+            eg.eccentricity(G)
+
+    def test_eccentricity_with_sp(self):
+        G = eg.Graph([(1, 2), (2, 3)])
+        sp = {
+            1: {1: 0, 2: 1, 3: 2},
+            2: {2: 0, 1: 1, 3: 1},
+            3: {3: 0, 2: 1, 1: 2},
+        }
+        self.assertEqual(eg.eccentricity(G, sp=sp), {1: 2, 2: 1, 3: 2})
+        self.assertEqual(eg.diameter(G, e=eg.eccentricity(G, sp=sp)), 2)
+
+    def test_eccentricity_single_node_query(self):
+        G = eg.Graph([(1, 2), (2, 3)])
+        self.assertEqual(eg.eccentricity(G, v=1), 2)
+        self.assertEqual(eg.eccentricity(G, v=2), 1)
+
+    def test_eccentricity_subset_of_nodes(self):
+        G = eg.Graph([(1, 2), (2, 3)])
+        result = eg.eccentricity(G, v=[1, 3])
+        self.assertEqual(result[1], 2)
+        self.assertEqual(result[3], 2)
+
+    def test_diameter_matches_max_eccentricity(self):
+        G = eg.Graph([(1, 2), (2, 3)])
+        ecc = eg.eccentricity(G)
+        self.assertEqual(eg.diameter(G, e=ecc), max(ecc.values()))
+
 
 if __name__ == "__main__":
     unittest.main()

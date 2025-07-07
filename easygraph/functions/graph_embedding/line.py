@@ -135,7 +135,7 @@ class LINE(nn.Module):
 
         self.G = g
         self.is_directed = g.is_directed()
-        self.num_node = g.size()
+        self.num_node = len(g.nodes)
         self.num_edge = g.number_of_edges()
         self.num_sampling_edge = self.walk_length * self.walk_num * self.num_node
 
@@ -190,9 +190,9 @@ class LINE(nn.Module):
             for vid, node in enumerate(g.nodes):
                 features_matrix[node] = embeddings[vid]
         else:
-            features_matrix = np.zeros((g.num_nodes, embeddings.shape[1]))
-            nx_nodes = g.nodes()
-            features_matrix[nx_nodes] = embeddings[np.arange(g.num_nodes)]
+            features_matrix = np.zeros((len(g.nodes), embeddings.shape[1]))
+            nx_nodes = list(g.nodes)
+            features_matrix[nx_nodes] = embeddings[np.arange(len(g.nodes))]
         return features_matrix
 
     def _update(self, vec_u, vec_v, vec_error, label):

@@ -85,6 +85,8 @@ def louvain_communities(G, weight="weight", threshold=0.00002):
     --------
     louvain_partitions
     """
+    if len(G) == 0 or G.size(weight=weight) == 0:
+        return [{n} for n in G.nodes]
     d = louvain_partitions(G, weight, threshold)
     q = deque(d, maxlen=1)
     #    q.append(d)
@@ -129,6 +131,9 @@ def louvain_partitions(G, weight="weight", threshold=0.0000001):
     --------
     louvain_communities
     """
+    if len(G) == 0 or G.size(weight=weight) == 0:
+        yield [{n} for n in G.nodes]
+        return
     partition = [{u} for u in G.nodes]
     mod = modularity(G, partition)
     is_directed = G.is_directed()
