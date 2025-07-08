@@ -1,14 +1,14 @@
 """Facebook Ego-Net Dataset
 
-This dataset contains a subset of Facebook’s social network collected from 
-survey participants in the SNAP EgoNet project. Nodes represent users, and 
+This dataset contains a subset of Facebook’s social network collected from
+survey participants in the SNAP EgoNet project. Nodes represent users, and
 edges indicate friendship links between them.
 
-Each ego network is centered on a user and includes their friend connections 
-and friend-to-friend connections. The `.circles` files contain labeled groups 
+Each ego network is centered on a user and includes their friend connections
+and friend-to-friend connections. The `.circles` files contain labeled groups
 (i.e., communities) of friends identified by the ego user.
 
-This version processes all ego-nets as a single undirected graph. Node features 
+This version processes all ego-nets as a single undirected graph. Node features
 are not provided. Labels (circles) are optional and not included by default.
 
 Statistics (based on merged graph):
@@ -18,15 +18,19 @@ Statistics (based on merged graph):
 - Classes: None
 
 Reference:
-J. McAuley and J. Leskovec, “Learning to Discover Social Circles in Ego Networks,” 
+J. McAuley and J. Leskovec, “Learning to Discover Social Circles in Ego Networks,”
 in NIPS, 2012. [https://snap.stanford.edu/data/egonets-Facebook.html]
 """
 
 import os
+
 import easygraph as eg
+
 from easygraph.classes.graph import Graph
+
 from .graph_dataset_base import EasyGraphBuiltinDataset
-from .utils import download, extract_archive
+from .utils import download
+from .utils import extract_archive
 
 
 class FacebookEgoNetDataset(EasyGraphBuiltinDataset):
@@ -76,7 +80,7 @@ class FacebookEgoNetDataset(EasyGraphBuiltinDataset):
             if filename.endswith(".edges"):
                 edge_file = os.path.join(parent_dir, filename)
 
-                with open(edge_file, 'r') as f:
+                with open(edge_file, "r") as f:
                     for line in f:
                         u, v = map(int, line.strip().split())
                         g.add_edge(u, v)
@@ -96,6 +100,7 @@ class FacebookEgoNetDataset(EasyGraphBuiltinDataset):
 
     def __len__(self):
         return 1
+
     def download(self):
         r"""Automatically download data and extract it."""
         if self.url is not None:

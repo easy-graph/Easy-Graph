@@ -8,6 +8,7 @@ try:
     from easygraph.datasets.hypergraph.House_Committees import House_Committees
     from easygraph.datasets.karate import KarateClubDataset
     from easygraph.datasets.mathoverflow_answers import mathoverflow_answers
+
     from .ppi import LegacyPPIDataset
     from .ppi import PPIDataset
 except Exception as e:
@@ -16,21 +17,19 @@ except Exception as e:
         " hypergraph-related datasets."
     )
 
-from .citation_graph import (
-    CitationGraphDataset,
-    CiteseerGraphDataset,
-    CoraBinary,
-    CoraGraphDataset,
-    PubmedGraphDataset,
-)
-from .coauthor import CoauthorCSDataset
 from .amazon_photo import AmazonPhotoDataset
-from .reddit import RedditDataset
-from .flickr import FlickrDataset
-from .facebook_ego import FacebookEgoNetDataset
-from .roadnet import RoadNetCADataset
 from .arxiv import ArxivHEPTHDataset
+from .citation_graph import CitationGraphDataset
+from .citation_graph import CiteseerGraphDataset
+from .citation_graph import CoraBinary
+from .citation_graph import CoraGraphDataset
+from .citation_graph import PubmedGraphDataset
+from .coauthor import CoauthorCSDataset
+from .facebook_ego import FacebookEgoNetDataset
+from .flickr import FlickrDataset
 from .github import GitHubUsersDataset
+from .reddit import RedditDataset
+from .roadnet import RoadNetCADataset
 from .twitter_ego import TwitterEgoDataset
 from .web_google import WebGoogleDataset
 from .wiki_topcats import WikiTopCatsDataset

@@ -1,11 +1,17 @@
 import os
-import numpy as np
+
 import easygraph as eg
+import numpy as np
 import scipy.sparse as sp
 
 from easygraph.classes.graph import Graph
+
 from .graph_dataset_base import EasyGraphBuiltinDataset
-from .utils import download, extract_archive, tensor, data_type_dict
+from .utils import data_type_dict
+from .utils import download
+from .utils import extract_archive
+from .utils import tensor
+
 
 class RedditDataset(EasyGraphBuiltinDataset):
     r"""Reddit posts graph (Sept 2014) for community (subreddit) classification.
@@ -24,21 +30,33 @@ class RedditDataset(EasyGraphBuiltinDataset):
         Add self-loop edges if True.
     raw_dir, force_reload, verbose, transform : same as EasyGraphBuiltinDataset
     """
-    def __init__(self, self_loop=False, raw_dir=None, force_reload=False,
-                 verbose=True, transform=None):
+
+    def __init__(
+        self,
+        self_loop=False,
+        raw_dir=None,
+        force_reload=False,
+        verbose=True,
+        transform=None,
+    ):
         name = "reddit"
         url = "https://data.dgl.ai/dataset/reddit.zip"
         self.self_loop = self_loop
-        super().__init__(name=name, url=url, raw_dir=raw_dir,
-                         force_reload=force_reload, verbose=verbose,
-                         transform=transform)
+        super().__init__(
+            name=name,
+            url=url,
+            raw_dir=raw_dir,
+            force_reload=force_reload,
+            verbose=verbose,
+            transform=transform,
+        )
 
     def process(self):
         # Expect two files extracted: reddit_data.npz & reddit_graph.npz
         data = np.load(os.path.join(self.raw_path, "reddit_data.npz"))
-        feat = data["feature"]          # shape [N, 602]
-        labels = data["label"]          # shape [N]
-        split = data["node_types"]      # 1=train,2=val,3=test
+        feat = data["feature"]  # shape [N, 602]
+        labels = data["label"]  # shape [N]
+        split = data["node_types"]  # 1=train,2=val,3=test
 
         # Load adjacency
         adj = sp.load_npz(os.path.join(self.raw_path, "reddit_graph.npz"))
@@ -55,10 +73,14 @@ class RedditDataset(EasyGraphBuiltinDataset):
 
         # Assign node features, labels, and masks
         for i in range(feat.shape[0]):
-            g.add_node(i, feat=feat[i], label=int(labels[i]),
-                       train_mask=(split[i] == 1),
-                       val_mask=(split[i] == 2),
-                       test_mask=(split[i] == 3))
+            g.add_node(
+                i,
+                feat=feat[i],
+                label=int(labels[i]),
+                train_mask=(split[i] == 1),
+                val_mask=(split[i] == 2),
+                test_mask=(split[i] == 3),
+            )
 
         self._g = g
         self._num_classes = int(np.max(labels) + 1)

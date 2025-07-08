@@ -16,14 +16,19 @@ H. Yin, A. Benson, J. Leskovec, D. Gleich.
 Data: https://snap.stanford.edu/data/wiki-topcats.html
 """
 
-import os
 import gzip
+import os
+
 import easygraph as eg
+
 from easygraph.datasets.graph_dataset_base import EasyGraphBuiltinDataset
-from easygraph.datasets.utils import download, extract_archive
+from easygraph.datasets.utils import download
+from easygraph.datasets.utils import extract_archive
+
 
 class WikiTopCatsDataset(EasyGraphBuiltinDataset):
     """Wikipedia Top Categories Snapshot from 2011 (SNAP)"""
+
     def __init__(self, raw_dir=None, force_reload=False, verbose=True, transform=None):
         super(WikiTopCatsDataset, self).__init__(
             name="wiki_topcats",
@@ -42,8 +47,12 @@ class WikiTopCatsDataset(EasyGraphBuiltinDataset):
         # Also download category info and page names
         cat_url = "https://snap.stanford.edu/data/wiki-topcats-categories.txt.gz"
         names_url = "https://snap.stanford.edu/data/wiki-topcats-page-names.txt.gz"
-        download(cat_url, path=os.path.join(self.raw_dir, "wiki-topcats-categories.txt.gz"))
-        download(names_url, path=os.path.join(self.raw_dir, "wiki-topcats-page-names.txt.gz"))
+        download(
+            cat_url, path=os.path.join(self.raw_dir, "wiki-topcats-categories.txt.gz")
+        )
+        download(
+            names_url, path=os.path.join(self.raw_dir, "wiki-topcats-page-names.txt.gz")
+        )
 
     def process(self):
         raw = self.raw_dir

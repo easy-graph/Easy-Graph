@@ -1,5 +1,4 @@
-"""Basic EasyGraph Dataset
-"""
+"""Basic EasyGraph Dataset"""
 
 from __future__ import absolute_import
 
@@ -8,6 +7,7 @@ import hashlib
 import os
 import sys
 import traceback
+
 from ..utils import retry_method_with_fix
 from .utils import download
 from .utils import extract_archive

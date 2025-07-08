@@ -17,13 +17,17 @@ J. Leskovec, A. Rajaraman, J. Ullman, “Mining of Massive Datasets.”
 Dataset from SNAP: https://snap.stanford.edu/data/web-Google.html
 """
 
-import os
-import easygraph as eg
-from easygraph.classes.graph import Graph
-from .graph_dataset_base import EasyGraphBuiltinDataset
-from .utils import download, extract_archive
 import gzip
+import os
 import shutil
+
+import easygraph as eg
+
+from easygraph.classes.graph import Graph
+
+from .graph_dataset_base import EasyGraphBuiltinDataset
+from .utils import download
+from .utils import extract_archive
 
 
 class WebGoogleDataset(EasyGraphBuiltinDataset):
@@ -72,9 +76,9 @@ class WebGoogleDataset(EasyGraphBuiltinDataset):
         graph = eg.DiGraph()  # Web-Google is directed
         edge_list_path = os.path.join(self.raw_path, self.name + ".txt")
 
-        with open(edge_list_path, 'r') as f:
+        with open(edge_list_path, "r") as f:
             for line in f:
-                if line.startswith('#') or line.strip() == "":
+                if line.startswith("#") or line.strip() == "":
                     continue
                 u, v = map(int, line.strip().split())
                 graph.add_edge(u, v)
@@ -94,6 +98,7 @@ class WebGoogleDataset(EasyGraphBuiltinDataset):
 
     def __len__(self):
         return 1
+
     def download(self):
         r"""Download and decompress the .txt.gz file."""
         if self.url is not None:
@@ -108,6 +113,6 @@ class WebGoogleDataset(EasyGraphBuiltinDataset):
                 os.makedirs(self.raw_path)
 
             # Decompress manually
-            with gzip.open(compressed_path, 'rb') as f_in:
-                with open(extracted_path, 'wb') as f_out:
+            with gzip.open(compressed_path, "rb") as f_in:
+                with open(extracted_path, "wb") as f_out:
                     shutil.copyfileobj(f_in, f_out)

@@ -14,18 +14,22 @@ Statistics:
 - Classes: 2
 
 Reference:
-J. Leskovec et al. "SNAP Datasets: Stanford Large Network Dataset Collection", 
+J. Leskovec et al. "SNAP Datasets: Stanford Large Network Dataset Collection",
 https://snap.stanford.edu/data/github-social.html
 """
 
-import os
 import csv
 import json
-import numpy as np
+import os
+
 import easygraph as eg
+import numpy as np
+
 from easygraph.classes.graph import Graph
+
 from .graph_dataset_base import EasyGraphBuiltinDataset
-from .utils import download, extract_archive
+from .utils import download
+from .utils import extract_archive
 
 
 class GitHubUsersDataset(EasyGraphBuiltinDataset):
@@ -70,11 +74,9 @@ class GitHubUsersDataset(EasyGraphBuiltinDataset):
         download(self.url, path=archive)
         extract_archive(archive, self.raw_path)
 
-
     def process(self):
         g = eg.DiGraph()
         base_path = os.path.join(self.raw_path, "git_web_ml")
-
 
         # Load node features
         with open(os.path.join(base_path, "musae_git_features.json"), "r") as f:

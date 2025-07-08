@@ -1,6 +1,5 @@
-"""Cora, citeseer, pubmed dataset.
+"""Cora, citeseer, pubmed dataset."""
 
-"""
 from __future__ import absolute_import
 
 import os
@@ -53,6 +52,7 @@ class CitationGraphDataset(EasyGraphBuiltinDataset):
     reorder : bool
         Whether to reorder the graph using :func:`~eg.reorder_graph`. Default: False.
     """
+
     _urls = {
         "cora_v2": "dataset/cora_v2.zip",
         "citeseer": "dataset/citeseer.zip",

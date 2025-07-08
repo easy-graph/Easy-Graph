@@ -1,11 +1,16 @@
 import os
-import numpy as np
+
 import easygraph as eg
+import numpy as np
 import scipy.sparse as sp
 
 from easygraph.classes.graph import Graph
+
 from .graph_dataset_base import EasyGraphBuiltinDataset
-from .utils import download, extract_archive, tensor, data_type_dict
+from .utils import data_type_dict
+from .utils import download
+from .utils import extract_archive
+from .utils import tensor
 
 
 class AmazonPhotoDataset(EasyGraphBuiltinDataset):

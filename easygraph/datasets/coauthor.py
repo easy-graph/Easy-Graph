@@ -15,13 +15,18 @@ Source: https://github.com/dmlc/dgl/tree/master/examples/pytorch/cluster_gcn
 """
 
 import os
-import numpy as np
+
 import easygraph as eg
+import numpy as np
 import scipy.sparse as sp
 
 from easygraph.classes.graph import Graph
+
 from .graph_dataset_base import EasyGraphBuiltinDataset
-from .utils import download, extract_archive, tensor, data_type_dict
+from .utils import data_type_dict
+from .utils import download
+from .utils import extract_archive
+from .utils import tensor
 
 
 class CoauthorCSDataset(EasyGraphBuiltinDataset):
@@ -52,6 +57,7 @@ class CoauthorCSDataset(EasyGraphBuiltinDataset):
     >>> print("Label:", g.nodes[0]['label'])
     >>> print("Number of classes:", dataset.num_classes)
     """
+
     def __init__(self, raw_dir=None, force_reload=False, verbose=True, transform=None):
         name = "coauthor_cs"
         url = "https://data.dgl.ai/dataset/coauthor_cs.zip"

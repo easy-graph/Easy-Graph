@@ -44,7 +44,7 @@ class HWNNConv(nn.Module):
 
     def forward(self, X: torch.Tensor, hg: Hypergraph) -> torch.Tensor:
         r"""The forward function.
-        
+
         Parameters:
             X (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
             hg (``eg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.

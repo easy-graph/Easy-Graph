@@ -1,8 +1,12 @@
 import gzip
 import os
+
 import easygraph as eg
+
 from easygraph.datasets.graph_dataset_base import EasyGraphBuiltinDataset
-from easygraph.datasets.utils import download, extract_archive
+from easygraph.datasets.utils import download
+from easygraph.datasets.utils import extract_archive
+
 
 class TwitterEgoDataset(EasyGraphBuiltinDataset):
     r"""
@@ -11,9 +15,9 @@ class TwitterEgoDataset(EasyGraphBuiltinDataset):
     The Twitter dataset was collected from public sources and contains a large ego-network of Twitter users.
     The combined network includes 81K edges among 81K users.
 
-    Source: J. McAuley and J. Leskovec, Stanford SNAP, 2012  
-    URL: https://snap.stanford.edu/data/egonets-Twitter.html  
-    File used: https://snap.stanford.edu/data/twitter_combined.txt.gz  
+    Source: J. McAuley and J. Leskovec, Stanford SNAP, 2012
+    URL: https://snap.stanford.edu/data/egonets-Twitter.html
+    File used: https://snap.stanford.edu/data/twitter_combined.txt.gz
     """
 
     def __init__(self):
@@ -30,6 +34,7 @@ class TwitterEgoDataset(EasyGraphBuiltinDataset):
 
     def process(self):
         import gzip
+
         import easygraph as eg
 
         gz_path = os.path.join(self.raw_path, "twitter_combined.txt.gz")

@@ -1,11 +1,16 @@
-import os
 import json
+import os
+
+import easygraph as eg
 import numpy as np
 import scipy.sparse as sp
-import easygraph as eg
+
 from easygraph.classes.graph import Graph
+
 from .graph_dataset_base import EasyGraphBuiltinDataset
-from .utils import tensor, data_type_dict
+from .utils import data_type_dict
+from .utils import tensor
+
 
 class FlickrDataset(EasyGraphBuiltinDataset):
     r"""Flickr dataset for node classification.
@@ -42,13 +47,26 @@ class FlickrDataset(EasyGraphBuiltinDataset):
     >>> print(g.number_of_nodes(), g.number_of_edges(), ds.num_classes)
     >>> print(g.nodes[0]['feat'].shape, g.nodes[0]['label'])
     """
-    def __init__(self, raw_dir=None, force_reload=False, verbose=False, transform=None, reorder=False):
+
+    def __init__(
+        self,
+        raw_dir=None,
+        force_reload=False,
+        verbose=False,
+        transform=None,
+        reorder=False,
+    ):
         name = "flickr"
         url = self._get_dgl_url("dataset/flickr.zip")
         self._reorder = reorder
-        super(FlickrDataset, self).__init__(name=name, url=url, raw_dir=raw_dir,
-                                             force_reload=force_reload,
-                                             verbose=verbose, transform=transform)
+        super(FlickrDataset, self).__init__(
+            name=name,
+            url=url,
+            raw_dir=raw_dir,
+            force_reload=force_reload,
+            verbose=verbose,
+            transform=transform,
+        )
 
     def process(self):
         # Load adjacency
@@ -66,15 +84,16 @@ class FlickrDataset(EasyGraphBuiltinDataset):
         # Load train/val/test splits
         with open(os.path.join(self.raw_path, "role.json")) as f:
             role = json.load(f)
-        train_mask = np.zeros(feats.shape[0], dtype=bool); train_mask[role["tr"]] = True
-        val_mask = np.zeros(feats.shape[0], dtype=bool); val_mask[role["va"]] = True
-        test_mask = np.zeros(feats.shape[0], dtype=bool); test_mask[role["te"]] = True
+        train_mask = np.zeros(feats.shape[0], dtype=bool)
+        train_mask[role["tr"]] = True
+        val_mask = np.zeros(feats.shape[0], dtype=bool)
+        val_mask[role["va"]] = True
+        test_mask = np.zeros(feats.shape[0], dtype=bool)
+        test_mask[role["te"]] = True
 
         # Attach node data
         for i in range(feats.shape[0]):
-            g.add_node(i,
-                       feat=feats[i].astype(np.float32),
-                       label=int(labels[i]))
+            g.add_node(i, feat=feats[i].astype(np.float32), label=int(labels[i]))
         g.graph["train_mask"] = train_mask
         g.graph["val_mask"] = val_mask
         g.graph["test_mask"] = test_mask
@@ -83,7 +102,9 @@ class FlickrDataset(EasyGraphBuiltinDataset):
         self._num_classes = int(labels.max() + 1)
         if self.verbose:
             print("Loaded Flickr dataset")
-            print(f" Nodes: {g.number_of_nodes()}, Edges: {g.number_of_edges()}, Features: {feats.shape[1]}, Classes: {self._num_classes}")
+            print(
+                f" Nodes: {g.number_of_nodes()}, Edges: {g.number_of_edges()}, Features: {feats.shape[1]}, Classes: {self._num_classes}"
+            )
 
     def __getitem__(self, idx):
         assert idx == 0, "FlickrDataset contains only one graph"
@@ -104,4 +125,5 @@ class FlickrDataset(EasyGraphBuiltinDataset):
     @staticmethod
     def _get_dgl_url(path):
         from .utils import _get_dgl_url
+
         return _get_dgl_url(path)

@@ -1,4 +1,5 @@
-""" PPIDataset for inductive learning. """
+"""PPIDataset for inductive learning."""
+
 import json
 import os
 

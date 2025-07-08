@@ -12,15 +12,18 @@ Statistics:
 - Labels: None
 
 Reference:
-J. Leskovec and A. Krevl, “SNAP Datasets: Stanford Large Network Dataset Collection,” 
+J. Leskovec and A. Krevl, “SNAP Datasets: Stanford Large Network Dataset Collection,”
 https://snap.stanford.edu/data/roadNet-CA.html
 """
 
-import os
 import gzip
+import os
 import shutil
+
 import easygraph as eg
+
 from easygraph.classes.graph import Graph
+
 from .graph_dataset_base import EasyGraphBuiltinDataset
 from .utils import download
 
@@ -72,17 +75,17 @@ class RoadNetCADataset(EasyGraphBuiltinDataset):
         if not os.path.exists(self.raw_path):
             os.makedirs(self.raw_path)
 
-        with gzip.open(compressed_path, 'rb') as f_in:
-            with open(extracted_path, 'wb') as f_out:
+        with gzip.open(compressed_path, "rb") as f_in:
+            with open(extracted_path, "wb") as f_out:
                 shutil.copyfileobj(f_in, f_out)
 
     def process(self):
         graph = eg.Graph()  # Undirected road network
         edge_list_path = os.path.join(self.raw_path, self.name + ".txt")
 
-        with open(edge_list_path, 'r') as f:
+        with open(edge_list_path, "r") as f:
             for line in f:
-                if line.startswith('#') or line.strip() == "":
+                if line.startswith("#") or line.strip() == "":
                     continue
                 u, v = map(int, line.strip().split())
                 graph.add_edge(u, v)

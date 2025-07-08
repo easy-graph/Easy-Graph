@@ -10,7 +10,9 @@ from easygraph.datasets.utils import tensor
 
 class Hospital_Lyon(EasyGraphDataset):
     _urls = {
-        "hospital_lyon": "easygraph-data-hospital-lyon/-/raw/main/hospital-lyon.json?ref_type=heads&inline=false",
+        "hospital_lyon": (
+            "easygraph-data-hospital-lyon/-/raw/main/hospital-lyon.json?ref_type=heads&inline=false"
+        ),
     }
 
     def __init__(
@@ -119,8 +121,7 @@ class Hospital_Lyon(EasyGraphDataset):
             self.load_data = data
 
     def process(self):
-        """Loads input data from data directory and transfer to target graph for better analysis
-        """
+        """Loads input data from data directory and transfer to target graph for better analysis"""
 
         self._g, edge_feature_list = self.preprocess(self.load_data, is_dynamic=True)
         self._g.ndata["hyperedge_feature"] = tensor(
