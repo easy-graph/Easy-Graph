@@ -27,3 +27,4 @@ from .coauthor import CoauthorCSDataset
 from .amazon_photo import AmazonPhotoDataset
 from .reddit import RedditDataset
 from .flickr import FlickrDataset
+from .facebook_ego import FacebookEgoNetDataset
