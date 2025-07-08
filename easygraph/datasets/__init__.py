@@ -30,3 +30,5 @@ from .flickr import FlickrDataset
 from .facebook_ego import FacebookEgoNetDataset
 from .roadnet import RoadNetCADataset
 from .arxiv import ArxivHEPTHDataset
+from .github import GitHubUsersDataset
+from .twitter_ego import TwitterEgoDataset
