@@ -32,3 +32,4 @@ from .roadnet import RoadNetCADataset
 from .arxiv import ArxivHEPTHDataset
 from .github import GitHubUsersDataset
 from .twitter_ego import TwitterEgoDataset
+from .wiki_topcats import WikiTopCatsDataset
