@@ -1,10 +1,11 @@
-from easygraph.utils.decorators import not_implemented_for
 from easygraph.utils import *
 import numpy as np
+from easygraph.utils.decorators import *
 
 __all__ = ["katz_centrality"]
 
 @not_implemented_for("multigraph")
+@hybrid("cpp_katz_centrality")
 def katz_centrality(G, alpha=0.1, beta=1.0, max_iter=1000, tol=1e-6, normalized=True):
     r"""
     Compute the Katz centrality for nodes in a graph.
@@ -67,7 +68,6 @@ def katz_centrality(G, alpha=0.1, beta=1.0, max_iter=1000, tol=1e-6, normalized=
     >>> katz_centrality(G, alpha=0.05)
     {0: 0.370..., 1: 0.447..., 2: 0.447..., 3: 0.370...}
     """
-
     # Create node ordering
     nodes = list(G.nodes)
     n = len(nodes)
