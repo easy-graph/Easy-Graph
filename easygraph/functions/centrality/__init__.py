@@ -5,3 +5,4 @@ from .ego_betweenness import *
 from .flowbetweenness import *
 from .laplacian import *
 from .pagerank import *
+from .katz_centrality import *
