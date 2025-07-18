@@ -1,5 +1,4 @@
-"""Basic EasyGraph Dataset
-"""
+"""Basic EasyGraph Dataset"""
 
 from __future__ import absolute_import
 

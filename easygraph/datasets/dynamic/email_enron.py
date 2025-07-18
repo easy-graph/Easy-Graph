@@ -73,8 +73,7 @@ class Email_Enron(EasyGraphDataset):
             self.load_data = data
 
     def process(self):
-        """Loads input data from data directory and transfer to target graph for better analysis
-        """
+        """Loads input data from data directory and transfer to target graph for better analysis"""
 
         self._g, edge_feature_list = dict_to_hypergraph(self.load_data, is_dynamic=True)
 
