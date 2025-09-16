@@ -54,8 +54,8 @@ It bridges the gap between EasyGraph and higher-order relationships. EasyHypergr
 # News
 - [07-27-2025] 🎉 We released EasyGraph 1.5! This version integrates the HWNN model and supports 11 representative network datasets.
 - [06-29-2025] 🎉 Thanks to our amazing community! EasyGraph has reached 800,000 downloads!
-- [05-30-2025] 🎉 Our paper "EasyHypergraph: an open-source software for fast and memory-saving analysis and learning of higher-order networks" was accepted by Humanities and Social Sciences Communications (Nature Portfolio)! [[PDF](https://news.fudan.edu.cn/2024/0401/c2463a139799/page.htm)]
-- [12-04-2024] 🎉 We received the "Top Open Source Certificate" by International Open Benchmark Council!
+- [05-30-2025] 🎉 Our paper "EasyHypergraph: an open-source software for fast and memory-saving analysis and learning of higher-order networks" was accepted by Humanities and Social Sciences Communications (Nature Portfolio)! [[PDF](https://www.nature.com/articles/s41599-025-05180-5)]
+- [12-04-2024] 🎉 We received the "Top Open Source Certificate" by International Open Benchmark Council! [[Certificate](https://chenyang03.wordpress.com/wp-content/uploads/2025/07/image.png?w=1024)]
 - [11-22-2024] We released EasyGraph 1.4.1! This version now fully supports Python 3.13.
 - [09-27-2024] 🎉 EasyGraph has reached 500,000 downloads!
 - [09-20-2024] We released EasyGraph 1.4! This version features GPU-powered functions for efficient large network analysis.
@@ -64,7 +64,7 @@ It bridges the gap between EasyGraph and higher-order relationships. EasyHypergr
 - [03-06-2024] 🎉 We received the Shanghai Open Source Innovation Outstanding Achievement Award (Grand Prize)! [News](https://news.fudan.edu.cn/2024/0401/c2463a139799/page.htm)
 - [02-05-2024] We released EasyGraph 1.1! This version features hypergraph analysis and learning for higher-order network modeling and representation.
 - [08-17-2023] We released EasyGraph 1.0!
-- [08-08-2023] 🎉 Our paper "EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis" was accepted by Patterns (Cell Press)!
+- [08-08-2023] 🎉 Our paper "EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis" was accepted by Patterns (Cell Press)! [[PDF](https://www.sciencedirect.com/science/article/pii/S2666389923002180)]
 - [07-22-2020] First public release of EasyGraph!
 
 # Stargazers
