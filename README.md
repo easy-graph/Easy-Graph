@@ -52,8 +52,8 @@ It bridges the gap between EasyGraph and higher-order relationships. EasyHypergr
 👉 For more details, please refer to its [documentation](https://easy-graph.github.io/docs/eggpu.html) page.
 
 # News
+- [09-29-2025] 🎉 Thanks to our amazing community! EasyGraph has reached 900,000 downloads!
 - [07-27-2025] 🎉 We released EasyGraph 1.5! This version integrates the HWNN model and supports 11 representative network datasets.
-- [06-29-2025] 🎉 Thanks to our amazing community! EasyGraph has reached 800,000 downloads!
 - [05-30-2025] 🎉 Our paper "EasyHypergraph: an open-source software for fast and memory-saving analysis and learning of higher-order networks" was accepted by Humanities and Social Sciences Communications (Nature Portfolio)! [[PDF](https://www.nature.com/articles/s41599-025-05180-5)]
 - [12-04-2024] 🎉 We received the "Top Open Source Certificate" by International Open Benchmark Council! [[Certificate](https://chenyang03.wordpress.com/wp-content/uploads/2025/07/image.png?w=1024)]
 - [11-22-2024] We released EasyGraph 1.4.1! This version now fully supports Python 3.13.
