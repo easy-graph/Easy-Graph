@@ -21,7 +21,7 @@ jobs:
       strategy:
         matrix:
           # macos-13 is an intel runner, macos-14 is apple silicon
-          os: [ ubuntu-latest, windows-latest, macos-latest, macos-13, macos-14]
+          os: [ ubuntu-latest, windows-latest, macos-13, macos-14]
 #           os: [macos-14]
 #          modify python version in project.toml
       steps: 
