@@ -79,7 +79,7 @@ It bridges the gap between EasyGraph and higher-order relationships. EasyHypergr
 
 ## Supported Versions
 
-``3.8 <= Python <= 3.13`` is required.
+``3.8 <= Python <= 3.14`` is required.
 
 ## Installation With pip
 ```
