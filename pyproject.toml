@@ -175,7 +175,7 @@ exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
 # test-requires = ["pytest", "lxml", "torch"]
 # test-command = "pytest"
 
-build = ["cp38-*", "cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*"]
+build = ["cp38-*", "cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
 
 # Skip building free-threaded compatible wheels on Windows
 skip = "*t-win*"
