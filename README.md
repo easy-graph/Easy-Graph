@@ -51,22 +51,31 @@ It bridges the gap between EasyGraph and higher-order relationships. EasyHypergr
 
 👉 For more details, please refer to its [documentation](https://easy-graph.github.io/docs/eggpu.html) page.
 
-# News
-- [10-11-2025] We released EasyGraph 1.5.1! This version now fully supports Python 3.14.
-- [09-29-2025] 🎉 Thanks to our amazing community! EasyGraph has reached 900,000 downloads!
-- [07-27-2025] 🎉 We released EasyGraph 1.5! This version integrates the HWNN model and supports 11 representative network datasets.
+# 📢 EasyGraph News
+
+## 📣 Media & Press
+- [01-15-2025] [开放原子大赛OpenRank开源数字生态分析与应用创新大赛全国一等奖](https://mp.weixin.qq.com/s/e54JHaP2AAEUN3S8RZ-Y2g)
+- [01-07-2025] [计算机科学技术学院教授陈阳入选“2024中国开源先锋33人”](https://news.fudan.edu.cn/2025/0107/c2463a143932/page.htm)
+- [12-04-2024] [国际开源基准委员会的"顶级开源证书"](https://chenyang03.wordpress.com/wp-content/uploads/2025/07/image.png?w=1024)
+- [10-16-2024] [2023年度上海开源创新卓越成果奖](https://mp.weixin.qq.com/s/kO6Dpyolf74dlDvKuoLlJA)
+- [11-04-2023] [EasyGraph：多功能、跨平台、高效率的跨学科网络分析库](https://swarma.org/?p=46252)
+
+## 🚀 Releases & Milestones
+- [10-11-2025] EasyGraph **v1.5.1** released (Python 3.14 supported)
+- 🎉 **[09-29-2025] 900K+ Downloads! Thanks to our amazing community!**
+- [07-27-2025] EasyGraph **v1.5** released (This version integrates the HWNN model and supports 11 representative network datasets)
+- 🎉 **[06-29-2025] 800K+ Downloads!**
+- [11-22-2024] EasyGraph **v1.4.1** released (Python 3.13 supported)
+- [09-20-2024] EasyGraph **v1.4** released (GPU-powered functions for large network analysis)  
+- [05-27-2024] EasyGraph **v1.3** released (issues related to hypergraph analysis and visualization resolved)  
+- [04-09-2024] EasyGraph **v1.2** released (Python 3.12 supported)  
+- [02-05-2024] EasyGraph **v1.1** released (hypergraph analysis and learning for higher-order networks)  
+- [08-17-2023] EasyGraph **v1.0** released  
+- [07-22-2020] EasyGraph **first public release**
+
+## 📈 Publications
 - [05-30-2025] 🎉 Our paper "EasyHypergraph: an open-source software for fast and memory-saving analysis and learning of higher-order networks" was accepted by Humanities and Social Sciences Communications (Nature Portfolio)! [[PDF](https://www.nature.com/articles/s41599-025-05180-5)]
-- [12-04-2024] 🎉 We received the "Top Open Source Certificate" by International Open Benchmark Council! [[Certificate](https://chenyang03.wordpress.com/wp-content/uploads/2025/07/image.png?w=1024)]
-- [11-22-2024] We released EasyGraph 1.4.1! This version now fully supports Python 3.13.
-- [09-27-2024] 🎉 EasyGraph has reached 500,000 downloads!
-- [09-20-2024] We released EasyGraph 1.4! This version features GPU-powered functions for efficient large network analysis.
-- [05-27-2024] We released EasyGraph 1.3! This version has resolved several issues related to hypergraph analysis and visualization.
-- [04-09-2024] We released EasyGraph 1.2! This version now fully supports Python 3.12.
-- [03-06-2024] 🎉 We received the Shanghai Open Source Innovation Outstanding Achievement Award (Grand Prize)! [News](https://news.fudan.edu.cn/2024/0401/c2463a139799/page.htm)
-- [02-05-2024] We released EasyGraph 1.1! This version features hypergraph analysis and learning for higher-order network modeling and representation.
-- [08-17-2023] We released EasyGraph 1.0!
 - [08-08-2023] 🎉 Our paper "EasyGraph: A Multifunctional, Cross-Platform, and Effective Library for Interdisciplinary Network Analysis" was accepted by Patterns (Cell Press)! [[PDF](https://www.sciencedirect.com/science/article/pii/S2666389923002180)]
-- [07-22-2020] First public release of EasyGraph!
 
 # Stargazers
 
