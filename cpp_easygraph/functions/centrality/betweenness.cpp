@@ -25,11 +25,11 @@ void betweenness_dijkstra(const Graph_L& G_l, const int &S, std::vector<double>&
     std::vector<double> delta(N+1, 0);
     std::vector<LinkEdge> E_path(edges_num+1);
     head_path[S] = 0;
-    dis[S] = 0; 
-    count_path[S] = 1; 
+    dis[S] = 0;
+    count_path[S] = 1;
     segment_tree_zkw.change(S, 0);
     int cnt_St = 0;
-   
+
     while(segment_tree_zkw.t[1] != dis_inf) {
         int u = segment_tree_zkw.num[1];
         if(u==0) break;
@@ -37,15 +37,15 @@ void betweenness_dijkstra(const Graph_L& G_l, const int &S, std::vector<double>&
         if (cutoff >= 0 && dis[u] > cutoff){
             continue;
         }
-        St[cnt_St++] = u;        
+        St[cnt_St++] = u;
         for(int p = head[u]; p != -1; p = E[p].next) {
             int v = E[p].to;
             if(cutoff >= 0 && (dis[u] + E[p].w) > cutoff){
                 continue;
             }
             if (dis[v] > dis[u] + E[p].w) {
-                dis[v] = dis[u] + E[p].w;  
-                segment_tree_zkw.change(v, dis[v]);    
+                dis[v] = dis[u] + E[p].w;
+                segment_tree_zkw.change(v, dis[v]);
                 count_path[v] = count_path[u];
                 head_path[v] = 0;
                 E_path[++edge_number_path].next = head_path[v];
@@ -57,7 +57,7 @@ void betweenness_dijkstra(const Graph_L& G_l, const int &S, std::vector<double>&
                 E_path[++edge_number_path].next = head_path[v];
                 E_path[edge_number_path].to = u;
                 head_path[v] = edge_number_path;
-                
+
             }
         }
     }
@@ -105,8 +105,8 @@ static double calc_scale(int len_V, int is_directed, int normalized, int endpoin
 
 
 
-static py::object invoke_cpp_betweenness_centrality(py::object G, py::object weight, 
-                                    py::object cutoff, py::object sources, 
+static py::object invoke_cpp_betweenness_centrality(py::object G, py::object weight,
+                                    py::object cutoff, py::object sources,
                                     py::object normalized, py::object endpoints){
     Graph& G_ = G.cast<Graph&>();
     int cutoff_ = -1;
@@ -134,7 +134,7 @@ static py::object invoke_cpp_betweenness_centrality(py::object G, py::object wei
     if(!sources.is_none()){
         py::list sources_list = py::list(sources);
         int sources_list_len = py::len(sources_list);
-        for(register int i = 0; i < sources_list_len; i++){
+        for(int i = 0; i < sources_list_len; i++){
             if(G_.node_to_id.attr("get")(sources_list[i],py::none()).is_none()){
                 printf("The node should exist in the graph!");
                 return py::none();
@@ -163,7 +163,7 @@ static py::object invoke_cpp_betweenness_centrality(py::object G, py::object wei
 
 
 #ifdef EASYGRAPH_ENABLE_GPU
-static py::object invoke_gpu_betweenness_centrality(py::object G, py::object weight, 
+static py::object invoke_gpu_betweenness_centrality(py::object G, py::object weight,
                         py::object py_sources, py::object normalized, py::object endpoints) {
     Graph& G_ = G.cast<Graph&>();
     if (weight.is_none()) {
@@ -174,12 +174,12 @@ static py::object invoke_gpu_betweenness_centrality(py::object G, py::object wei
     auto csr_graph = G_.csr_graph;
     std::vector<int>& E = csr_graph->E;
     std::vector<int>& V = csr_graph->V;
-    std::vector<double> *W_p = weight.is_none() ? &(csr_graph->unweighted_W) 
+    std::vector<double> *W_p = weight.is_none() ? &(csr_graph->unweighted_W)
                                 : csr_graph->W_map.find(weight_to_string(weight))->second.get();
     auto sources = G_.gen_CSR_sources(py_sources);
     std::vector<double> BC;
     bool is_directed = G.attr("is_directed")().cast<bool>();
-    int gpu_r = gpu_easygraph::betweenness_centrality(V, E, *W_p, *sources, 
+    int gpu_r = gpu_easygraph::betweenness_centrality(V, E, *W_p, *sources,
                                     is_directed, normalized.cast<py::bool_>(),
                                     endpoints.cast<py::bool_>(), BC);
 
@@ -196,7 +196,7 @@ static py::object invoke_gpu_betweenness_centrality(py::object G, py::object wei
 #endif
 
 
-py::object betweenness_centrality(py::object G, py::object weight, py::object cutoff, py::object sources, 
+py::object betweenness_centrality(py::object G, py::object weight, py::object cutoff, py::object sources,
                                     py::object normalized, py::object endpoints) {
 #ifdef EASYGRAPH_ENABLE_GPU
     return invoke_gpu_betweenness_centrality(G, weight, sources, normalized, endpoints);
@@ -212,7 +212,7 @@ py::object betweenness_centrality(py::object G, py::object weight, py::object cu
 //     std::vector<double> dis(N+1, INFINITY);
 //     std::vector<bool> vis(N+1, false);
 //     std::vector<int> head_path(N+1, 0);
-    
+
 //     const std::vector<int>& head = G_l.head;
 //     const std::vector<LinkEdge>& E = G_l.edges;
 //     int edges_num = E.size();
@@ -220,10 +220,10 @@ py::object betweenness_centrality(py::object G, py::object weight, py::object cu
 //     std::vector<long long> count_path(N+1, 0);
 //     std::vector<double> delta(N+1, 0);
 //     std::vector<LinkEdge> E_path(edges_num+1);
-    
+
 //     head_path[S] = 0;
-//     dis[S] = 0; 
-//     count_path[S] = 1; 
+//     dis[S] = 0;
+//     count_path[S] = 1;
 //     q.push(compare_node(S, 0));
 //     int cnt_St = 0;
 //     while(!q.empty()) {
@@ -250,14 +250,14 @@ py::object betweenness_centrality(py::object G, py::object weight, py::object cu
 //                 E_path[++edge_number_path].next = head_path[v];
 //                 E_path[edge_number_path].to = u;
 //                 head_path[v] = edge_number_path;
-                
+
 //             }
 //             else if (dis[v] == dis[u] + E[p].w) {
 //                 count_path[v] += count_path[u];
 //                 E_path[++edge_number_path].next = head_path[v];
 //                 E_path[edge_number_path].to = u;
 //                 head_path[v] = edge_number_path;
-                
+
 //             }
 //         }
 //     }

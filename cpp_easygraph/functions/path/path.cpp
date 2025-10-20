@@ -27,15 +27,15 @@ std::vector<float> _dijkstra(Graph_L &G_l, int source, std::string weight, int t
         if(u == target){
             break;
         }
-        for(register int p = head[u]; p != -1; p = E[p].next) {
+        for(int p = head[u]; p != -1; p = E[p].next) {
             int v = E[p].to;
             if (dis[v] > dis[u] + E[p].w) {
                 dis[v] = dis[u] + E[p].w;
-                segment_tree_zkw.change(v, dis[v]);  
-            }   
+                segment_tree_zkw.change(v, dis[v]);
+            }
         }
     }
-    
+
     return dis;
 
 }
@@ -54,13 +54,13 @@ py::object _invoke_cpp_dijkstra_multisource(py::object G,py::object sources, py:
     else{
         G_l = G_.linkgraph_structure;
     }
-    
+
 
     int N = G_l.n;
     py::list sources_list = py::list(sources);
     int sources_list_len = py::len(sources_list);
     std::vector<double> sssp;
-    for(register int i = 0; i < sources_list_len; i++){
+    for(int i = 0; i < sources_list_len; i++){
         if(G_.node_to_id.attr("get")(sources_list[i],py::none()) == py::none()){
             printf("The node should exist in the graph!");
             return py::none();
@@ -88,12 +88,12 @@ py::object _invoke_gpu_dijkstra_multisource(py::object G,py::object py_sources, 
     auto csr_graph = G_.csr_graph;
     std::vector<int>& E = csr_graph->E;
     std::vector<int>& V = csr_graph->V;
-    std::vector<double> *W_p = weight.is_none() ? &(csr_graph->unweighted_W) 
+    std::vector<double> *W_p = weight.is_none() ? &(csr_graph->unweighted_W)
                                 : csr_graph->W_map.find(weight_to_string(weight))->second.get();
     auto sources = G_.gen_CSR_sources(py_sources);
     std::vector<double> sssp;
-    int gpu_r = gpu_easygraph::sssp_dijkstra(V, E, *W_p, *sources, 
-                                            target.is_none() ? -1 : (int)py::cast<py::int_>(target), 
+    int gpu_r = gpu_easygraph::sssp_dijkstra(V, E, *W_p, *sources,
+                                            target.is_none() ? -1 : (int)py::cast<py::int_>(target),
                                             sssp);
 
     if (gpu_r != gpu_easygraph::EG_GPU_SUCC) {
@@ -103,7 +103,7 @@ py::object _invoke_gpu_dijkstra_multisource(py::object G,py::object py_sources, 
 
     py::array::ShapeContainer ret_shape{(int)sources->size(), (int)V.size() - 1};
     py::array_t<double> ret(ret_shape, sssp.data());
-    
+
     return ret;
 }
 #endif
@@ -137,14 +137,14 @@ py::object _spfa(py::object G, py::object source, py::object weight) {
     while (l != r) {
     	if (r != 0 && dis[Q[l]] >= dis[Q[r - 1]])
     		std::swap(Q[l], Q[r - 1]);
-        int u = Q[l++]; 
-        if (l >= N) l -= N; 
+        int u = Q[l++];
+        if (l >= N) l -= N;
         vis[u] = true;
 
-        for(register int p = head[u]; p != -1; p = E[p].next) {
-            int v=E[p].to; 
+        for(int p = head[u]; p != -1; p = E[p].next) {
+            int v=E[p].to;
             if (dis[v]>dis[u]+E[p].w) {
-                dis[v]=dis[u]+E[p].w; 
+                dis[v]=dis[u]+E[p].w;
                 if (!vis[v]) {
                     vis[v]=true;
                     if (l == 0 || dis[v] >= dis[Q[l]])
