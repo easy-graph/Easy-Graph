@@ -151,8 +151,6 @@ setuptools.setup(
         "optuna",
     ],
     setup_requires=[CYTHON_STR],
-    test_suite="nose.collector",
-    tests_require=[],
     cmdclass={
         "build_ext": CMakeBuild,
     },
