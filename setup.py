@@ -155,6 +155,6 @@ setuptools.setup(
         "build_ext": CMakeBuild,
     },
     ext_modules=[
-        CMakeExtension(".")
+        CMakeExtension("cpp_easygraph")
     ],
 )
