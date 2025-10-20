@@ -61,7 +61,7 @@ py::object _invoke_cpp_dijkstra_multisource(py::object G,py::object sources, py:
     int sources_list_len = py::len(sources_list);
     std::vector<double> sssp;
     for(int i = 0; i < sources_list_len; i++){
-        if(G_.node_to_id.attr("get")(sources_list[i],py::none()) == py::none()){
+        if(G_.node_to_id.attr("get")(sources_list[i],py::none()).is(py::none())){
             printf("The node should exist in the graph!");
             return py::none();
         }
