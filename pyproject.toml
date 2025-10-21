@@ -30,6 +30,11 @@ dependencies = [
 [project.scripts]
 easy-graph = "easy_graph:main"
 
+[project.optional-dependencies]
+graphviz = [
+    "lxml>=6.0.2",
+]
+
 [tool.scikit-build]
 minimum-version = "build-system.requires"
 build-dir = "build/{wheel_tag}"
