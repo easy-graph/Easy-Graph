@@ -60,7 +60,7 @@ dev = [
 
 [tool.pytest.ini_options]
 python_files = "**/tests/test_*.py"
-addopts = "-ra --disable-warnings"
+addopts = "-ra"
 
 
 # pyproject.toml
