@@ -32,7 +32,7 @@ easy-graph = "easy_graph:main"
 
 [project.optional-dependencies]
 graphviz = [
-    "lxml>=6.0.2",
+    "pygraphviz>=1.14",
 ]
 
 [tool.scikit-build]
