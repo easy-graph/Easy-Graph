@@ -101,6 +101,17 @@ ignore = [
 # per-file-ignores = { "tests/**.py" = ["S101"] }
 
 # —— 各插件的细化配置 —— #
+[tool.ruff.format]
+# 字符串引号风格: "double" | "single | "preserve"
+quote-style = "double"
+# 是否在多行字典/列表/元组的最后一项加逗号
+skip-magic-trailing-comma = false
+# 是否格式化 docstring（会重新换行）
+docstring-code-format = true
+# 是否在文件末尾强制留一个换行符
+line-ending = "auto"  # auto | lf | crlf | cr
+# 控制格式化时是否保留空行
+indent-style = "space"  # 只支持 space（未来可能扩展 tab）
 
 [tool.ruff.lint.flake8-quotes]
 # 原 flake8: inline-quotes = double
@@ -117,11 +128,6 @@ ban-relative-imports = "all"
 # 原: type-checking-exempt-modules = typing, typing-extensions
 exempt-modules = ["typing", "typing_extensions"]
 
-# eradicate（清理注释死码）
-[tool.ruff.lint.flake8-eradicate]
-# 原 flake8-eradicate 的 whitelist-extend 在 Ruff 中没有等价项；
-# 如果你需要排除某些模式，建议用 per-file-ignores 或者在 ERA 里关闭对应规则。
-# aggressive = true  #（可选）更激进清理
 
 [tool.tox]
 # 定义通用配置

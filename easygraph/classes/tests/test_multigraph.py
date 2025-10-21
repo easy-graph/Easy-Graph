@@ -1,5 +1,6 @@
-import easygraph as eg
 import pytest
+
+import easygraph as eg
 
 
 class TestMultiGraph:

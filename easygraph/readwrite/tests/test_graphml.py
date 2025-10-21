@@ -2,12 +2,11 @@ import io
 import os
 import tempfile
 
-import easygraph as eg
 import pytest
 
+import easygraph as eg
 from easygraph.readwrite.graphml import GraphMLWriter
-from easygraph.utils import edges_equal
-from easygraph.utils import nodes_equal
+from easygraph.utils import edges_equal, nodes_equal
 
 
 class BaseGraphML:

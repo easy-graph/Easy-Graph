@@ -1,18 +1,15 @@
 import scipy.stats as stat
 
-
 __all__ = ["get_structural_holes_HAM"]
 from collections import Counter
 
 import numpy as np
 import scipy.linalg as spl
 import scipy.sparse as sps
-
-from easygraph.utils import *
-from scipy.cluster.vq import kmeans
-from scipy.cluster.vq import vq
+from scipy.cluster.vq import kmeans, vq
 from sklearn import metrics
 
+from easygraph.utils import *
 
 eps = 2.220446049250313e-16
 
@@ -184,11 +181,18 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
     Examples
     --------
 
-    >>> get_structural_holes_HAM(G,
-    ...                         k = 2, # To find top two structural holes spanners.
-    ...                          c = 2,
-    ...                          ground_truth_labels = [[0], [0], [1], [0], [1]] # The ground truth labels for each node - community detection result, for example.
-    ...                         )
+    >>> get_structural_holes_HAM(
+    ...     G,
+    ...     k=2,  # To find top two structural holes spanners.
+    ...     c=2,
+    ...     ground_truth_labels=[
+    ...         [0],
+    ...         [0],
+    ...         [1],
+    ...         [0],
+    ...         [1],
+    ...     ],  # The ground truth labels for each node - community detection result, for example.
+    ... )
 
     References
     ----------

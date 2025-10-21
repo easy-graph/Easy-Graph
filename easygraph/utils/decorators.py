@@ -3,15 +3,12 @@ import collections
 import gzip
 import inspect
 import re
-
 from collections import defaultdict
 from os.path import splitext
 from pathlib import Path
 
 import easygraph as eg
-
 from easygraph.utils.exception import EasyGraphError
-
 
 __all__ = [
     "only_implemented_for_UnDirected_graph",
@@ -63,10 +60,12 @@ def not_implemented_for(*graph_types):
        def sp_function(G):
            pass
 
+
        # rule out MultiDiGraph
-       @not_implemented_for("directed","multigraph")
+       @not_implemented_for("directed", "multigraph")
        def sp_np_function(G):
            pass
+
 
        # rule out all except DiGraph
        @not_implemented_for("undirected")
@@ -130,21 +129,25 @@ def open_file(path_arg, mode="r"):
     --------
     Decorate functions like this::
 
-       @open_file(0,"r")
+       @open_file(0, "r")
        def read_function(pathname):
            pass
 
-       @open_file(1,"w")
+
+       @open_file(1, "w")
        def write_function(G, pathname):
            pass
 
-       @open_file(1,"w")
+
+       @open_file(1, "w")
        def write_function(G, pathname="graph.dot"):
            pass
 
-       @open_file("pathname","w")
+
+       @open_file("pathname", "w")
        def write_function(G, pathname="graph.dot"):
            pass
+
 
        @open_file("path", "w+")
        def another_function(arg, **kwargs):
@@ -161,19 +164,19 @@ def open_file(path_arg, mode="r"):
 
       @open_file("path")
       def some_function(arg1, arg2, path=None):
-         if path is None:
-             fobj = tempfile.NamedTemporaryFile(delete=False)
-         else:
-             # `path` could have been a string or file object or something
-             # similar. In any event, the decorator has given us a file object
-             # and it will close it for us, if it should.
-             fobj = path
+          if path is None:
+              fobj = tempfile.NamedTemporaryFile(delete=False)
+          else:
+              # `path` could have been a string or file object or something
+              # similar. In any event, the decorator has given us a file object
+              # and it will close it for us, if it should.
+              fobj = path
 
-         try:
-             fobj.write("blah")
-         finally:
-             if path is None:
-                 fobj.close()
+          try:
+              fobj.write("blah")
+          finally:
+              if path is None:
+                  fobj.close()
 
     Normally, we'd want to use "with" to ensure that fobj gets closed.
     However, the decorator will make `path` a file object for us,
@@ -256,6 +259,7 @@ class argmap:
                 if amount.currency != currency:
                     amount = amount.to_currency(currency)
                 return amount
+
             return argmap(_convert, which_arg)
 
     Despite this common idiom for argmap, most of the following examples
@@ -315,9 +319,11 @@ class argmap:
         def double(a):
             return 2 * a
 
+
         @argmap(double, 3)
         def overflow(a, *args):
             return a, args
+
 
         print(overflow(1, 2, 3, 4, 5, 6))  # output is 1, (2, 3, 8, 5, 6)
 
@@ -368,6 +374,7 @@ class argmap:
                     # assume `path` handles the closing
                     fclose = lambda: None
                 return path, fclose
+
             return argmap(_opener, which_arg, try_finally=True)
 
     which can then be used as::
@@ -925,7 +932,7 @@ class argmap:
             def_sig.append(name)
 
         fname = cls._name(f)
-        def_sig = f'def {fname}({", ".join(def_sig)}):'
+        def_sig = f"def {fname}({', '.join(def_sig)}):"
 
         if inspect.isgeneratorfunction(f):
             _return = "yield from"

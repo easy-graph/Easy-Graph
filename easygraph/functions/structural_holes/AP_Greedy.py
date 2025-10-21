@@ -2,11 +2,9 @@ import math
 import random
 
 import easygraph as eg
-
 from easygraph.functions.components.biconnected import generator_articulation_points
 from easygraph.functions.components.connected import connected_components
 from easygraph.utils.decorators import *
-
 
 __all__ = ["common_greedy", "AP_Greedy"]
 
@@ -49,10 +47,12 @@ def common_greedy(G, k, c=1.0, weight="weight"):
     --------
     Returns the top k nodes as structural hole spanners, using **common_greedy**.
 
-    >>> common_greedy(G,
-    ...               k = 3, # To find top three structural holes spanners.
-    ...               c = 1.0, # To define zeta: zeta = c * (n*n*n), and zeta is the large value assigned as the shortest distance of two unreachable vertices.
-    ...               weight = 'weight')
+    >>> common_greedy(
+    ...     G,
+    ...     k=3,  # To find top three structural holes spanners.
+    ...     c=1.0,  # To define zeta: zeta = c * (n*n*n), and zeta is the large value assigned as the shortest distance of two unreachable vertices.
+    ...     weight="weight",
+    ... )
 
     References
     ----------
@@ -265,10 +265,12 @@ def AP_Greedy(G, k, c=1.0, weight="weight"):
     --------
     Returns the top k nodes as structural hole spanners, using **AP_greedy**.
 
-    >>> AP_greedy(G,
-    ...           k = 3, # To find top three structural holes spanners.
-    ...           c = 1.0, # To define zeta: zeta = c * (n*n*n), and zeta is the large value assigned as the shortest distance of two unreachable vertices.
-    ...           weight = 'weight')
+    >>> AP_greedy(
+    ...     G,
+    ...     k=3,  # To find top three structural holes spanners.
+    ...     c=1.0,  # To define zeta: zeta = c * (n*n*n), and zeta is the large value assigned as the shortest distance of two unreachable vertices.
+    ...     weight="weight",
+    ... )
 
     References
     ----------

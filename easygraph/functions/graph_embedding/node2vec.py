@@ -1,10 +1,9 @@
 import random
 
 import numpy as np
-
-from easygraph.utils import *
 from tqdm import tqdm
 
+from easygraph.utils import *
 
 __all__ = ["node2vec"]
 
@@ -62,18 +61,18 @@ def node2vec(
     Examples
     --------
 
-    >>> node2vec(G,
-    ...          dimensions=128, # The graph embedding dimensions.
-    ...          walk_length=80, # Walk length of each random walks.
-    ...          num_walks=10, # Number of random walks.
-    ...          p=1.0, # The `p` possibility in random walk in [1]_
-    ...          q=1.0, # The `q` possibility in random walk in [1]_
-    ...          weight_key='weight',
-    ...          skip_gram_params=dict( # The skip_gram parameters in Python package gensim.
-    ...          window=10,
-    ...             min_count=1,
-    ...             batch_words=4
-    ...          ))
+    >>> node2vec(
+    ...     G,
+    ...     dimensions=128,  # The graph embedding dimensions.
+    ...     walk_length=80,  # Walk length of each random walks.
+    ...     num_walks=10,  # Number of random walks.
+    ...     p=1.0,  # The `p` possibility in random walk in [1]_
+    ...     q=1.0,  # The `q` possibility in random walk in [1]_
+    ...     weight_key="weight",
+    ...     skip_gram_params=dict(  # The skip_gram parameters in Python package gensim.
+    ...         window=10, min_count=1, batch_words=4
+    ...     ),
+    ... )
 
     References
     ----------
@@ -92,8 +91,7 @@ def node2vec(
             weight_key=weight_key,
         )
     else:
-        from joblib import Parallel
-        from joblib import delayed
+        from joblib import Parallel, delayed
 
         num_walks_lists = np.array_split(range(num_walks), workers)
         walks = Parallel(n_jobs=workers)(
@@ -139,9 +137,9 @@ def _get_embedding_result_from_gensim_skipgram_model(
         embedding_vector[node] = model.wv[str(index_of_node[node])]
 
         most_similar_nodes = model.wv.most_similar(str(index_of_node[node]))
-        most_similar_nodes_of_node[
-            node
-        ] = change_string_to_node_from_gensim_return_value(most_similar_nodes)
+        most_similar_nodes_of_node[node] = (
+            change_string_to_node_from_gensim_return_value(most_similar_nodes)
+        )
 
     return embedding_vector, most_similar_nodes_of_node
 

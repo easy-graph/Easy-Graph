@@ -3,7 +3,6 @@ import copy
 
 from easygraph.utils.decorators import *
 
-
 __all__ = [
     "flowbetweenness_centrality",
 ]

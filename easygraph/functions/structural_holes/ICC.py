@@ -1,7 +1,5 @@
 import easygraph as eg
-
 from easygraph.utils import *
-
 
 __all__ = ["ICC", "BICC", "AP_BICC"]
 
@@ -101,7 +99,7 @@ def ICC(G, k):
     --------
     Returns the top k nodes as structural hole spanners, using **ICC**.
 
-    >>> ICC(G,k=3)
+    >>> ICC(G, k=3)
 
     References
     ----------
@@ -118,7 +116,7 @@ def ICC(G, k):
         MAX = 0
         t = v
         for i in Q:
-            if MAX < i[1]:
+            if i[1] > MAX:
                 MAX = i[1]
                 t = i[0]
         if i_c < MAX:
@@ -159,7 +157,7 @@ def BICC(G, k, K, l):
     --------
     Returns the top k nodes as structural hole spanners, using **BICC**.
 
-    >>> BICC(G,k=3,K=5,l=4)
+    >>> BICC(G, k=3, K=5, l=4)
 
     References
     ----------
@@ -176,7 +174,7 @@ def BICC(G, k, K, l):
         MIN = 10000000
         t = v
         for i in H:
-            if MIN > i[1]:
+            if i[1] < MIN:
                 MIN = i[1]
                 t = i[0]
         if b_i_c > MIN:
@@ -191,7 +189,7 @@ def BICC(G, k, K, l):
         MAX = 0
         t = v
         for i in V:
-            if MAX < i[1]:
+            if i[1] > MAX:
                 MAX = i[1]
                 t = i[0]
         if i_c < MAX:
@@ -233,7 +231,7 @@ def AP_BICC(G, k, K, l):
     --------
     Returns the top k nodes as structural hole spanners, using **AP_BICC**.
 
-    >>> AP_BICC(G,k=3,K=5,l=4)
+    >>> AP_BICC(G, k=3, K=5, l=4)
 
     References
     ----------
@@ -251,7 +249,7 @@ def AP_BICC(G, k, K, l):
         MIN = 10000000
         t = v
         for i in T:
-            if MIN > i[1]:
+            if i[1] < MIN:
                 MIN = i[1]
                 t = i[0]
         if A[v]["c"] > MIN:
@@ -272,7 +270,7 @@ def AP_BICC(G, k, K, l):
                 MIN = 10000000
                 t = v
                 for i in Q:
-                    if MIN > i[1]:
+                    if i[1] < MIN:
                         MIN = i[1]
                         t = i[0]
                 if b_i_c > MIN:
@@ -282,7 +280,7 @@ def AP_BICC(G, k, K, l):
         MAX = 0
         t = None
         for i in Q:
-            if MAX < i[1]:
+            if i[1] > MAX:
                 MAX = i[1]
                 t = i[0]
         T.append([t, A[t]["c"]])

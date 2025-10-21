@@ -1,7 +1,5 @@
 import easygraph as eg
-
 from easygraph.utils.decorators import *
-
 
 __all__ = [
     "number_strongly_connected_components",
@@ -173,7 +171,7 @@ def condensation(G, scc=None):
     for edge in G.edges:
         if mapping[edge[0]] != mapping[edge[1]]:
             C.add_edge(mapping[edge[0]], mapping[edge[1]])
-            if edge[1] not in incoming_info.keys():
+            if edge[1] not in incoming_info:
                 incoming_info[edge[1]] = set()
             incoming_info[edge[1]].add(edge[0])
     C.graph["incoming_info"] = incoming_info

@@ -21,15 +21,13 @@ References
     for full format information. Short version on http://www.analytictech.com/networks/dataentry.htm
 """
 
-
 import re
 import shlex
 
-import easygraph as eg
 import numpy as np
 
+import easygraph as eg
 from easygraph.utils import open_file
-
 
 __all__ = ["generate_ucinet", "read_ucinet", "parse_ucinet", "write_ucinet"]
 
@@ -67,9 +65,13 @@ def generate_ucinet(G):
 
     yield "data:"
 
-    yield str(np.asmatrix(eg.to_numpy_array(G, nodelist=nodes, dtype=int))).replace(
-        "[", " "
-    ).replace("]", " ").lstrip().rstrip()
+    yield (
+        str(np.asmatrix(eg.to_numpy_array(G, nodelist=nodes, dtype=int)))
+        .replace("[", " ")
+        .replace("]", " ")
+        .lstrip()
+        .rstrip()
+    )
 
 
 @open_file(0, mode="rb")
@@ -85,11 +87,11 @@ def read_ucinet(path, encoding="UTF-8"):
     G : EasyGraph MultiGraph or MultiDiGraph.
     Examples
     --------
-    >>> G=eg.path_graph(4)
+    >>> G = eg.path_graph(4)
     >>> eg.write_ucinet(G, "test.dl")
-    >>> G=eg.read_ucinet("test.dl")
+    >>> G = eg.read_ucinet("test.dl")
     To create a Graph instead of a MultiGraph use
-    >>> G1=eg.Graph(G)
+    >>> G1 = eg.Graph(G)
     See Also
     --------
     parse_ucinet()
@@ -114,7 +116,7 @@ def write_ucinet(G, path, encoding="UTF-8"):
        Filenames ending in .gz or .bz2 will be compressed.
     Examples
     --------
-    >>> G=eg.path_graph(4)
+    >>> G = eg.path_graph(4)
     >>> eg.write_ucinet(G, "test.net")
     References
     ----------
@@ -144,9 +146,7 @@ def parse_ucinet(lines):
     See UCINET User Guide or http://www.analytictech.com/ucinet/help/hs5000.htm
     for full format information. Short version on http://www.analytictech.com/networks/dataentry.htm
     """
-    from numpy import genfromtxt
-    from numpy import isnan
-    from numpy import reshape
+    from numpy import genfromtxt, isnan, reshape
 
     G = eg.MultiDiGraph()
 
@@ -206,9 +206,7 @@ edgelist1|edgelist2|blockmatrix|partition)$""",
             )
 
         # TODO : row and columns labels
-        elif token.startswith("row"):  # Row labels
-            pass
-        elif token.startswith("column"):  # Columns labels
+        elif token.startswith("row") or token.startswith("column"):  # Row labels
             pass
 
         elif token.startswith("labels"):

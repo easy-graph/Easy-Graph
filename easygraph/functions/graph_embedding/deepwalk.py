@@ -1,12 +1,12 @@
 import random
 
-from easygraph.functions.graph_embedding.node2vec import (
-    _get_embedding_result_from_gensim_skipgram_model,
-)
-from easygraph.functions.graph_embedding.node2vec import learn_embeddings
-from easygraph.utils import *
 from tqdm import tqdm
 
+from easygraph.functions.graph_embedding.node2vec import (
+    _get_embedding_result_from_gensim_skipgram_model,
+    learn_embeddings,
+)
+from easygraph.utils import *
 
 __all__ = ["deepwalk"]
 
@@ -42,16 +42,15 @@ def deepwalk(G, dimensions=128, walk_length=80, num_walks=10, **skip_gram_params
     Examples
     --------
 
-    >>> deepwalk(G,
-    ...          dimensions=128, # The graph embedding dimensions.
-    ...          walk_length=80, # Walk length of each random walks.
-    ...          num_walks=10, # Number of random walks.
-    ...          skip_gram_params = dict( # The skip_gram parameters in Python package gensim.
-    ...          window=10,
-    ...             min_count=1,
-    ...             batch_words=4,
-    ...             iter=15
-    ...          ))
+    >>> deepwalk(
+    ...     G,
+    ...     dimensions=128,  # The graph embedding dimensions.
+    ...     walk_length=80,  # Walk length of each random walks.
+    ...     num_walks=10,  # Number of random walks.
+    ...     skip_gram_params=dict(  # The skip_gram parameters in Python package gensim.
+    ...         window=10, min_count=1, batch_words=4, iter=15
+    ...     ),
+    ... )
 
     References
     ----------

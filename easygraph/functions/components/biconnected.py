@@ -2,7 +2,6 @@ from itertools import chain
 
 from easygraph.utils import *
 
-
 try:
     from cpp_easygraph import cpp_biconnected_dfs_record_edges
 except ImportError:

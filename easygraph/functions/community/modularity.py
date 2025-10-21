@@ -2,7 +2,6 @@ from itertools import product
 
 from easygraph.utils import *
 
-
 __all__ = ["modularity"]
 
 

@@ -1,6 +1,5 @@
 import easygraph as eg
 
-
 __all__ = ["write_dot", "read_dot", "from_agraph", "to_agraph"]
 
 

@@ -1,11 +1,9 @@
-from heapq import heappop
-from heapq import heappush
+from heapq import heappop, heappush
 from itertools import count
 from math import isnan
 from operator import itemgetter
 
 from easygraph.utils.decorators import *
-
 
 __all__ = [
     "minimum_spanning_edges",

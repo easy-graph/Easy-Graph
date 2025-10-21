@@ -1,14 +1,12 @@
 import copy
 import random
-
 from collections import defaultdict
 from queue import Queue
 
-import easygraph as eg
 import numpy as np
 
+import easygraph as eg
 from easygraph.utils import *
-
 
 __all__ = [
     "LPA",
@@ -74,7 +72,7 @@ def LPA(G):
             break
     for node in label_dict.keys():
         label = label_dict[node]
-        if label not in cluster_community.keys():
+        if label not in cluster_community:
             cluster_community[label] = [node]
         else:
             cluster_community[label].append(node)
@@ -104,10 +102,7 @@ def SLPA(G, T, r):
 
     Examples
     ----------
-    >>> SLPA(G,
-    ...     T = 20,
-    ...     r = 0.05
-    ...     )
+    >>> SLPA(G, T=20, r=0.05)
 
     References
     ----------
@@ -209,13 +204,7 @@ def HANP(G, m, delta, threshod=1, hier_open=0, combine_open=0):
 
     Examples
     ----------
-    >>> HANP(G,
-    ...     m = 0.1,
-    ...     delta = 0.05,
-    ...     threshod = 1,
-    ...     hier_open = 0,
-    ...     combine_open = 0
-    ...     )
+    >>> HANP(G, m=0.1, delta=0.05, threshod=1, hier_open=0, combine_open=0)
 
     References
     ----------
@@ -312,7 +301,7 @@ def HANP(G, m, delta, threshod=1, hier_open=0, combine_open=0):
     print("After %d iterations, HANP complete." % loop_count)
     for node in label_dict.keys():
         label = label_dict[node]
-        if label not in cluster_community.keys():
+        if label not in cluster_community:
             cluster_community[label] = [node]
         else:
             cluster_community[label].append(node)
@@ -349,9 +338,10 @@ def BMLPA(G, p):
 
     Examples
     ----------
-    >>> BMLPA(G,
-    ...     p = 0.1,
-    ...     )
+    >>> BMLPA(
+    ...     G,
+    ...     p=0.1,
+    ... )
 
     References
     ----------

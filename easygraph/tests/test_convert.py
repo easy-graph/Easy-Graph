@@ -1,12 +1,10 @@
 import pytest
 
-
 np = pytest.importorskip("numpy")
 pd = pytest.importorskip("pandas")
 sp = pytest.importorskip("scipy")
 
 import easygraph as eg
-
 from easygraph.utils.misc import *
 
 

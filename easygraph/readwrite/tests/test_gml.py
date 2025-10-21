@@ -2,16 +2,14 @@ import codecs
 import io
 import os
 import tempfile
-
 from ast import literal_eval
 from contextlib import contextmanager
 from textwrap import dedent
 
-import easygraph as eg
 import pytest
 
-from easygraph.readwrite.gml import literal_destringizer
-from easygraph.readwrite.gml import literal_stringizer
+import easygraph as eg
+from easygraph.readwrite.gml import literal_destringizer, literal_stringizer
 
 
 class TestGraph:
@@ -269,9 +267,9 @@ graph
 
     def test_name(self):
         G = eg.parse_gml('graph [ name "x" node [ id 0 label "x" ] ]')
-        assert "x" == G.graph["name"]
+        assert G.graph["name"] == "x"
         G = eg.parse_gml('graph [ node [ id 0 label "x" ] ]')
-        assert "" == G.name
+        assert G.name == ""
         assert "name" not in G.graph
 
     def test_graph_types(self):

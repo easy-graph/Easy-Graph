@@ -64,8 +64,7 @@ def create_model(node_size, hidden_size=[256, 128], l1=1e-5, l2=1e-4):
         pass
     except ImportWarning:
         print("tensorflow not found, please install")
-    from tensorflow.python.keras.layers import Dense
-    from tensorflow.python.keras.layers import Input
+    from tensorflow.python.keras.layers import Dense, Input
     from tensorflow.python.keras.models import Model
     from tensorflow.python.keras.regularizers import l1_l2
 
@@ -133,7 +132,7 @@ class SDNE:
         >>> model = SDNE(G,
             ...          hidden_size=[256, 128]) # The hidden size in SDNE.
         >>> model.train(batch_size=3000, epochs=40, verbose=2)
-        >>> embeddings = model.get_embeddings() # Returns the graph embedding results.
+        >>> embeddings = model.get_embeddings()  # Returns the graph embedding results.
 
         References
         ----------
@@ -191,9 +190,7 @@ class SDNE:
         if batch_size >= self.node_size:
             if batch_size > self.node_size:
                 print(
-                    "batch_size({0}) > node_size({1}),set batch_size = {1}".format(
-                        batch_size, self.node_size
-                    )
+                    f"batch_size({batch_size}) > node_size({self.node_size}),set batch_size = {self.node_size}"
                 )
                 batch_size = self.node_size
             return self.model.fit(
@@ -233,8 +230,7 @@ class SDNE:
                 if verbose > 0:
                     print(f"Epoch {epoch + 1}/{epochs}")
                     print(
-                        "{}s - loss: {: .4f} - 2nd_loss: {: .4f} - 1st_loss: {: .4f}"
-                        .format(epoch_time, losses[0], losses[1], losses[2])
+                        f"{epoch_time}s - loss: {losses[0]: .4f} - 2nd_loss: {losses[1]: .4f} - 1st_loss: {losses[2]: .4f}"
                     )
             return hist
 

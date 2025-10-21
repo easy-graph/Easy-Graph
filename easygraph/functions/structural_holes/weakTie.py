@@ -1,7 +1,5 @@
 import easygraph as eg
-
 from easygraph.utils import *
-
 
 __all__ = [
     "weakTie",

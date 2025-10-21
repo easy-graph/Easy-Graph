@@ -2,12 +2,13 @@ import math
 import random
 import sys
 
+from strong_connected_component import (
+    condensation,
+    number_strongly_connected_components,
+)
+
 import easygraph as eg
-
 from easygraph.utils import *
-from strong_connected_component import condensation
-from strong_connected_component import number_strongly_connected_components
-
 
 __all__ = [
     "maxBlock",
@@ -190,10 +191,10 @@ def _get_idom(G, G_tr, node_s, ans_real, desc_set_real):
         desc_set[node_map[node]] = set()
 
     _dfs(node_map[node_s], tr, ans, desc_set)
-    for key in ans.keys():
+    for key in ans:
         ans[key] -= 1
         ans_real[index_map[key]] = ans[key]
-    for key in desc_set.keys():
+    for key in desc_set:
         desc_set_real[index_map[key]] = set()
         for value in desc_set[key]:
             desc_set_real[index_map[key]].add(index_map[value])
@@ -540,7 +541,7 @@ def maxBlockFast(G, k, f_set=None, L=None, flag_weight=False):
                 for node_u in G_tr.nodes:
                     D_u = 0
                     for desc in desc_set[node_u]:
-                        if desc not in d_dict.keys():
+                        if desc not in d_dict:
                             print(
                                 "Error: desc:",
                                 desc,
@@ -582,7 +583,7 @@ def maxBlockFast(G, k, f_set=None, L=None, flag_weight=False):
                     for node_u in G_tr.nodes:
                         D_u = 0
                         for desc in desc_set[node_u]:
-                            if desc not in d_dict.keys():
+                            if desc not in d_dict:
                                 print(
                                     "Error: desc:",
                                     desc,

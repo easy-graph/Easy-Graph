@@ -1,6 +1,5 @@
 from easygraph.utils.decorators import *
 
-
 __all__ = [
     "Dijkstra",
     "Floyd",
@@ -12,10 +11,7 @@ __all__ = [
 ]
 
 try:
-    from cpp_easygraph import cpp_dijkstra_multisource
-    from cpp_easygraph import cpp_Floyd
-    from cpp_easygraph import cpp_Kruskal
-    from cpp_easygraph import cpp_Prim
+    from cpp_easygraph import cpp_dijkstra_multisource, cpp_Floyd, cpp_Kruskal, cpp_Prim
 except ImportError:
     pass
 
@@ -39,7 +35,7 @@ def Dijkstra(G, node):
     --------
     Returns the length of paths from node 1 to remaining nodes
 
-    >>> Dijkstra(G,node=1)
+    >>> Dijkstra(G, node=1)
 
     """
     return single_source_dijkstra(G, node)
@@ -231,8 +227,7 @@ def multi_source_dijkstra(G, sources, weight="weight", target=None):
 def _dijkstra_multisource(G, sources, weight="weight", target=None):
     if G.cflag == 1:
         return cpp_dijkstra_multisource(G, sources, weight, target)
-    from heapq import heappop
-    from heapq import heappush
+    from heapq import heappop, heappush
 
     push = heappush
     pop = heappop

@@ -1,9 +1,9 @@
 import random
 
-import easygraph as eg
 import matplotlib.pyplot as plt
 import numpy as np
 
+import easygraph as eg
 
 __all__ = ["draw_SHS_center", "draw_SHS_center_kk", "draw_kamada_kawai"]
 

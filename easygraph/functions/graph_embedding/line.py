@@ -4,8 +4,7 @@ import random
 import numpy as np
 
 from easygraph.utils import *
-from easygraph.utils.alias import alias_sample
-from easygraph.utils.alias import create_alias_table
+from easygraph.utils.alias import alias_sample, create_alias_table
 from easygraph.utils.index_of_node import get_relation_of_index_and_node
 
 
@@ -28,9 +27,7 @@ def create_model(numNodes, embedding_size, order="second"):
     except ImportWarning:
         print("tensorflow not found, please install")
         pass
-    from tensorflow.python.keras.layers import Embedding
-    from tensorflow.python.keras.layers import Input
-    from tensorflow.python.keras.layers import Lambda
+    from tensorflow.python.keras.layers import Embedding, Input, Lambda
     from tensorflow.python.keras.models import Model
 
     v_i = Input(shape=(1,))
@@ -92,11 +89,11 @@ class LINE:
         Examples
         --------
 
-        >>> model = LINE(G,
-        ...              embedding_size=16,
-        ...              order='all') # The order of model LINE. 'first'，'second' or 'all'.
+        >>> model = LINE(
+        ...     G, embedding_size=16, order="all"
+        ... )  # The order of model LINE. 'first'，'second' or 'all'.
         >>> model.train(batch_size=1024, epochs=1, verbose=2)
-        >>> embeddings = model.get_embeddings() # Returns the graph embedding results.
+        >>> embeddings = model.get_embeddings()  # Returns the graph embedding results.
 
         References
         ----------

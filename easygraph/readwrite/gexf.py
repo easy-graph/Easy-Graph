@@ -1,16 +1,15 @@
 import itertools
 import time
-
-from xml.etree.ElementTree import Element
-from xml.etree.ElementTree import ElementTree
-from xml.etree.ElementTree import SubElement
-from xml.etree.ElementTree import register_namespace
-from xml.etree.ElementTree import tostring
+from xml.etree.ElementTree import (
+    Element,
+    ElementTree,
+    SubElement,
+    register_namespace,
+    tostring,
+)
 
 import easygraph as eg
-
 from easygraph.utils import *
-
 
 __all__ = ["write_gexf", "relabel_gexf_graph", "generate_gexf", "read_gexf"]
 

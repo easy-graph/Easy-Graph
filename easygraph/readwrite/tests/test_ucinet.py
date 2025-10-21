@@ -7,7 +7,6 @@ import io
 import easygraph as eg
 
 
-
 def filterEdges(edges):
     return [e[:3] for e in edges]
 

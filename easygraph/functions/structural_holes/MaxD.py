@@ -1,13 +1,10 @@
-from typing import List
-
 from easygraph.utils import *
-
 
 __all__ = ["get_structural_holes_MaxD"]
 
 
 @not_implemented_for("multigraph")
-def get_community_kernel(G, C: List[frozenset], weight="weight"):
+def get_community_kernel(G, C: list[frozenset], weight="weight"):
     """
     To get community kernels with most degrees.
     Parameters
@@ -53,7 +50,7 @@ def get_community_kernel(G, C: List[frozenset], weight="weight"):
     return kernels
 
 
-def get_structural_holes_MaxD(G, k, C: List[frozenset]):
+def get_structural_holes_MaxD(G, k, C: list[frozenset]):
     """Structural hole spanners detection via MaxD method.
 
     Both **HIS** and **MaxD** are methods in [1]_.
@@ -77,10 +74,11 @@ def get_structural_holes_MaxD(G, k, C: List[frozenset]):
     Examples
     --------
 
-    >>> get_structural_holes_MaxD(G,
-    ...                           k = 5, # To find top five structural holes spanners.
-    ...                           C = [frozenset([1,2,3]), frozenset([4,5,6])] # Two communities
-    ...                           )
+    >>> get_structural_holes_MaxD(
+    ...     G,
+    ...     k=5,  # To find top five structural holes spanners.
+    ...     C=[frozenset([1, 2, 3]), frozenset([4, 5, 6])],  # Two communities
+    ... )
 
 
     References

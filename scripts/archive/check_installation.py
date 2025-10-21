@@ -3,7 +3,6 @@
 
 import easygraph as eg
 
-
 G = eg.Graph()
 
 G.add_edge(1, 2)

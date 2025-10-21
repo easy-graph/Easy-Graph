@@ -1,9 +1,7 @@
 from itertools import chain
 
 import easygraph as eg
-
 from easygraph.utils.decorators import *
-
 
 __all__ = ["bridges", "has_bridges"]
 

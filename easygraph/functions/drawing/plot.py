@@ -1,9 +1,8 @@
-import easygraph as eg
 import numpy as np
 import statsmodels.api as sm
-
 from matplotlib import pyplot as plt
 
+import easygraph as eg
 
 __all__ = [
     "plot_Followers",

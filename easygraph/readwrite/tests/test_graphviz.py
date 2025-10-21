@@ -3,13 +3,10 @@ import tempfile
 
 import pytest
 
-
 pygraphviz = pytest.importorskip("pygraphviz")
 
 import easygraph as eg
-
-from easygraph.utils import edges_equal
-from easygraph.utils import nodes_equal
+from easygraph.utils import edges_equal, nodes_equal
 
 
 class TestAGraph:

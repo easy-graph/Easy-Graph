@@ -1,7 +1,8 @@
 import unittest
 
-import easygraph as eg
 import numpy as np
+
+import easygraph as eg
 
 
 class ConvertToMatrix(unittest.TestCase):

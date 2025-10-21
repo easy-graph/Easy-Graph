@@ -3,9 +3,7 @@ Priority queue class with updatable priorities.
 Codes from NetworkX - http://networkx.github.io/
 """
 
-
 import heapq
-
 
 __all__ = ["MappedQueue"]
 

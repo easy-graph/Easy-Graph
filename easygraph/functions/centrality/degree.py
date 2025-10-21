@@ -1,6 +1,5 @@
 from easygraph.utils.decorators import *
 
-
 __all__ = ["degree_centrality", "in_degree_centrality", "out_degree_centrality"]
 
 

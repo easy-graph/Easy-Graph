@@ -40,16 +40,14 @@
 """
 Pajek tests
 """
-import easygraph as eg
 
+import easygraph as eg
 
 print(eg)
 import os
 import tempfile
 
-from easygraph.utils import edges_equal
-from easygraph.utils import nodes_equal
-
+from easygraph.utils import edges_equal, nodes_equal
 
 # from rich import print
 

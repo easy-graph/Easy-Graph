@@ -1,11 +1,7 @@
 import warnings
-
-from collections.abc import Collection
-from collections.abc import Generator
-from collections.abc import Iterator
+from collections.abc import Collection, Generator, Iterator
 
 import easygraph as eg
-
 
 __all__ = [
     "from_dict_of_dicts",

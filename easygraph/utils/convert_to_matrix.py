@@ -2,7 +2,6 @@ import itertools
 
 import easygraph as eg
 
-
 __all__ = [
     "to_numpy_matrix",
     "from_numpy_array",

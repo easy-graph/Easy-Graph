@@ -1,6 +1,6 @@
-import easygraph as eg
 import progressbar
 
+import easygraph as eg
 
 __all__ = [
     "get_graph_karateclub",
@@ -132,7 +132,6 @@ def get_graph_youtube():
 
     """
     import gzip
-
     from urllib import request
 
     url = "http://socialnetworks.mpi-sws.mpg.de/data/youtube-links.txt.gz"
@@ -169,7 +168,6 @@ def get_graph_flickr():
 
     """
     import gzip
-
     from urllib import request
 
     url = "http://socialnetworks.mpi-sws.mpg.de/data/flickr-links.txt.gz"

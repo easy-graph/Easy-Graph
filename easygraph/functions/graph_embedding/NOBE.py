@@ -1,9 +1,8 @@
-import easygraph as eg
 import numpy as np
-
-from easygraph.utils import *
 from scipy.sparse.linalg import eigs
 
+import easygraph as eg
+from easygraph.utils import *
 
 __all__ = ["NOBE", "NOBE_GA"]
 
@@ -27,7 +26,7 @@ def NOBE(G, K):
 
     Examples
     --------
-    >>> NOBE(G,K=15)
+    >>> NOBE(G, K=15)
 
     References
     ----------
@@ -66,7 +65,7 @@ def NOBE_GA(G, K):
 
     Examples
     --------
-    >>> NOBE_GA(G,K=15)
+    >>> NOBE_GA(G, K=15)
 
     References
     ----------

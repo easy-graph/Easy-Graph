@@ -1,8 +1,9 @@
 import math
 import random
 
-import easygraph as eg
 import numpy as np
+
+import easygraph as eg
 
 
 class NodeParams:
@@ -87,7 +88,7 @@ def structural_hole_influence_index(
     for community_label in range(len(C)):
         nodesInCommunity = []
         seedSetInCommunity = []
-        for node in node_label_pair.keys():
+        for node in node_label_pair:
             if node_label_pair[node] == community_label:
                 nodesInCommunity.append(node)
                 if node in S:
@@ -176,7 +177,9 @@ def _independent_cascade(G, S, community_label, countIterations, node_label_pair
     N = G.number_of_nodes()
     for b in range(countIterations):
         # print(b, " in ", countIterations)
-        p_vw = np.zeros((N, N))  # 节点被激活时，激活其它节点的概率,a对b的影响等于b对a的影响
+        p_vw = np.zeros(
+            (N, N)
+        )  # 节点被激活时，激活其它节点的概率,a对b的影响等于b对a的影响
         for random_i in range(N):
             for random_j in range(random_i + 1, N):
                 num = random.random()
@@ -232,7 +235,7 @@ def _linear_threshold(G, S, community_label, countIterations, node_label_pair):
             for neighbor in G.neighbors(node=v):
                 if neighbor not in S:
                     weight_degree = 1.0 / float(G.in_degree()[neighbor])
-                    if neighbor not in Q.keys():
+                    if neighbor not in Q:
                         np = NodeParams(False, weight_degree, random.random())
                         Q[neighbor] = np
                         T.append(neighbor)
@@ -248,7 +251,7 @@ def _linear_threshold(G, S, community_label, countIterations, node_label_pair):
                     if neighbor in S:
                         continue
                     weight_degree = 1.0 / float(G.in_degree()[neighbor])
-                    if neighbor not in Q.keys():
+                    if neighbor not in Q:
                         np = NodeParams(False, weight_degree, random.random())
                         Q[neighbor] = np
                         T.append(neighbor)

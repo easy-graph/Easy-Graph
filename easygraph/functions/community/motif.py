@@ -1,9 +1,7 @@
 import random
 
 import easygraph as eg
-
 from easygraph.utils import *
-
 
 __all__ = ["enumerate_subgraph", "random_enumerate_subgraph"]
 

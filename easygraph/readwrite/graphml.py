@@ -42,14 +42,11 @@ for examples.
 """
 
 import warnings
-
 from collections import defaultdict
 
 import easygraph as eg
-
 from easygraph.utils import open_file
 from easygraph.utils.exception import EasyGraphError
-
 
 __all__ = [
     "write_graphml",
@@ -850,8 +847,7 @@ class GraphMLReader(GraphML):
         self.edge_ids = {}  # dict mapping (u,v) tuples to edge id attributes
 
     def __call__(self, path=None, string=None):
-        from xml.etree.ElementTree import ElementTree
-        from xml.etree.ElementTree import fromstring
+        from xml.etree.ElementTree import ElementTree, fromstring
 
         if path is not None:
             self.xml = ElementTree(file=path)

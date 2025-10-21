@@ -1,7 +1,6 @@
 from easygraph.utils import *
 from easygraph.utils.decorators import *
 
-
 __all__ = [
     "betweenness_centrality",
 ]
@@ -83,7 +82,6 @@ def betweenness_centrality(
     if n_workers is not None:
         #  use the parallel version for large graph
         import random
-
         from functools import partial
         from multiprocessing import Pool
 
@@ -169,8 +167,7 @@ def _single_source_bfs_path(G, source):
 
 
 def _single_source_dijkstra_path(G, source, weight="weight"):
-    from heapq import heappop
-    from heapq import heappush
+    from heapq import heappop, heappush
 
     push = heappush
     pop = heappop

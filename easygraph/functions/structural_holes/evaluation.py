@@ -2,11 +2,8 @@ import math
 
 from easygraph.utils import *
 
-
 try:
-    from cpp_easygraph import cpp_constraint
-    from cpp_easygraph import cpp_effective_size
-    from cpp_easygraph import cpp_hierarchy
+    from cpp_easygraph import cpp_constraint, cpp_effective_size, cpp_hierarchy
 except ImportError:
     pass
 
@@ -103,10 +100,15 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
         The Effective Size of node in `nodes`.
     Examples
     --------
-    >>> effective_size(G,
-    ...                nodes=[1,2,3], # Compute the Effective Size of some nodes. The default is None for all nodes in G.
-    ...                weight='weight' # The weight key of the graph. The default is None for unweighted graph.
-    ...                )
+    >>> effective_size(
+    ...     G,
+    ...     nodes=[
+    ...         1,
+    ...         2,
+    ...         3,
+    ...     ],  # Compute the Effective Size of some nodes. The default is None for all nodes in G.
+    ...     weight="weight",  # The weight key of the graph. The default is None for unweighted graph.
+    ... )
     References
     ----------
     .. [1] Burt R S. Structural holes: The social structure of competition[M].
@@ -123,7 +125,6 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
     if not G.is_directed() and weight is None:
         if n_workers is not None:
             import random
-
             from functools import partial
             from multiprocessing import Pool
 
@@ -154,7 +155,6 @@ def effective_size(G, nodes=None, weight=None, n_workers=None):
     else:
         if n_workers is not None:
             import random
-
             from functools import partial
             from multiprocessing import Pool
 
@@ -197,10 +197,15 @@ def efficiency(G, nodes=None, weight=None):
         The Efficiency of node in `nodes`.
     Examples
     --------
-    >>> efficiency(G,
-    ...            nodes=[1,2,3], # Compute the Efficiency of some nodes. The default is None for all nodes in G.
-    ...            weight='weight' # The weight key of the graph. The default is None for unweighted graph.
-    ...            )
+    >>> efficiency(
+    ...     G,
+    ...     nodes=[
+    ...         1,
+    ...         2,
+    ...         3,
+    ...     ],  # Compute the Efficiency of some nodes. The default is None for all nodes in G.
+    ...     weight="weight",  # The weight key of the graph. The default is None for unweighted graph.
+    ... )
     References
     ----------
     .. [1] Burt R S. Structural holes: The social structure of competition[M].
@@ -247,11 +252,16 @@ def constraint(G, nodes=None, weight=None, n_workers=None):
         The Constraint of node in `nodes`.
     Examples
     --------
-    >>> constraint(G,
-    ...            nodes=[1,2,3], # Compute the Constraint of some nodes. The default is None for all nodes in G.
-    ...            weight='weight', # The weight key of the graph. The default is None for unweighted graph.
-    ...            n_workers=4 # Parallel computing on four workers. The default is None for serial computing.
-    ...            )
+    >>> constraint(
+    ...     G,
+    ...     nodes=[
+    ...         1,
+    ...         2,
+    ...         3,
+    ...     ],  # Compute the Constraint of some nodes. The default is None for all nodes in G.
+    ...     weight="weight",  # The weight key of the graph. The default is None for unweighted graph.
+    ...     n_workers=4,  # Parallel computing on four workers. The default is None for serial computing.
+    ... )
     References
     ----------
     .. [1] Burt R S. Structural holes: The social structure of competition[M].
@@ -278,7 +288,6 @@ def constraint(G, nodes=None, weight=None, n_workers=None):
 
     if n_workers is not None:
         import random
-
         from functools import partial
         from multiprocessing import Pool
 
@@ -376,7 +385,6 @@ def hierarchy(G, nodes=None, weight=None, n_workers=None):
     hierarchy = {}
     if n_workers is not None:
         import random
-
         from functools import partial
         from multiprocessing import Pool
 

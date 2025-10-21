@@ -2,8 +2,9 @@ import io
 import sys
 import time
 
-import easygraph as eg
 import pytest
+
+import easygraph as eg
 
 
 class TestGEXF:
@@ -275,7 +276,7 @@ org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/\
         expected = f"""<gexf xmlns="http://www.gexf.net/1.2draft" xmlns:xsi\
 ="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.\
 gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
-  <meta lastmodifieddate="{time.strftime('%Y-%m-%d')}">
+  <meta lastmodifieddate="{time.strftime("%Y-%m-%d")}">
     <creator>EasyGraph</creator>
   </meta>
   <graph defaultedgetype="undirected" mode="static" name="">
@@ -306,7 +307,7 @@ gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation\
 ="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd"\
  version="1.2">
-  <meta lastmodifieddate="{time.strftime('%Y-%m-%d')}">
+  <meta lastmodifieddate="{time.strftime("%Y-%m-%d")}">
     <creator>EasyGraph</creator>
   </meta>
   <graph defaultedgetype="undirected" mode="static" name="">

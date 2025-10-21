@@ -1,9 +1,7 @@
 from itertools import chain
 
 import easygraph as eg
-
 from easygraph.utils import *
-
 
 __all__ = [
     "set_edge_attributes",

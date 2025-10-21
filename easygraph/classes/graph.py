@@ -1,8 +1,4 @@
-from typing import Dict
-from typing import List
-
 import easygraph.convert as convert
-
 from easygraph.utils.exception import EasyGraphError
 
 
@@ -34,7 +30,7 @@ class Graph:
 
     Create an graph with attributes.
 
-    >>> G = eg.Graph(name='Karate Club', date='2020.08.21')
+    >>> G = eg.Graph(name="Karate Club", date="2020.08.21")
 
     **Attributes:**
 
@@ -145,7 +141,7 @@ class Graph:
 
         if you have customized weight key 'weight_1'.
 
-        >>> G.degree(weight='weight_1')
+        >>> G.degree(weight="weight_1")
 
         """
         degree = dict()
@@ -210,7 +206,7 @@ class Graph:
 
         Returns the total of all edge weights in G:
 
-        >>> G.size(weight='weight')
+        >>> G.size(weight="weight")
 
         """
         s = sum(d for v, d in self.degree(weight=weight).items())
@@ -352,7 +348,7 @@ class Graph:
         Examples
         --------
         >>> G = eg.Graph()
-        >>> G.add_edges([(1,2), (2,3), (2,4)])
+        >>> G.add_edges([(1, 2), (2, 3), (2, 4)])
         >>> for neighbor in G.neighbors(node=2):
         ...     print(neighbor)
 
@@ -360,7 +356,7 @@ class Graph:
         try:
             return iter(self._adj[node])
         except KeyError:
-            print("No node {}".format(node))
+            print(f"No node {node}")
 
     all_neighbors = neighbors
 
@@ -385,19 +381,16 @@ class Graph:
 
         Examples
         --------
-        >>> G.add_node('a')
-        >>> G.add_node('hello world')
-        >>> G.add_node('Jack', age=10)
+        >>> G.add_node("a")
+        >>> G.add_node("hello world")
+        >>> G.add_node("Jack", age=10)
 
-        >>> G.add_node('Jack', **{
-        ...     'age': 10,
-        ...     'gender': 'M'
-        ... })
+        >>> G.add_node("Jack", **{"age": 10, "gender": "M"})
 
         """
         self._add_one_node(node_for_adding, node_attr)
 
-    def add_nodes(self, nodes_for_adding: list, nodes_attr: List[Dict] = []):
+    def add_nodes(self, nodes_for_adding: list, nodes_attr: list[dict] = []):
         """Add nodes with a list of nodes.
 
         Parameters
@@ -417,29 +410,23 @@ class Graph:
         You can add with node attributes using a list of Python dict type,
         each of which is the attribute of each node, respectively.
 
-        >>> G.add_nodes([1, 2, 'a', 'b'])
+        >>> G.add_nodes([1, 2, "a", "b"])
         >>> G.add_nodes(range(1, 200))
 
-        >>> G.add_nodes(['Jack', 'Tom', 'Lily'], nodes_attr=[
-        ...     {
-        ...         'age': 10,
-        ...         'gender': 'M'
-        ...     },
-        ...     {
-        ...         'age': 11,
-        ...         'gender': 'M'
-        ...     },
-        ...     {
-        ...         'age': 10,
-        ...         'gender': 'F'
-        ...     }
-        ... ])
+        >>> G.add_nodes(
+        ...     ["Jack", "Tom", "Lily"],
+        ...     nodes_attr=[
+        ...         {"age": 10, "gender": "M"},
+        ...         {"age": 11, "gender": "M"},
+        ...         {"age": 10, "gender": "F"},
+        ...     ],
+        ... )
 
         """
         if not len(nodes_attr) == 0:  # Nodes attributes included in input
-            assert len(nodes_for_adding) == len(
-                nodes_attr
-            ), "Nodes and Attributes lists must have same length."
+            assert len(nodes_for_adding) == len(nodes_attr), (
+                "Nodes and Attributes lists must have same length."
+            )
         else:  # Set empty attribute for each node
             nodes_attr = [dict() for i in range(len(nodes_for_adding))]
 
@@ -544,14 +531,12 @@ class Graph:
         Examples
         --------
 
-        >>> G.add_edge(1,2)
-        >>> G.add_edge('Jack', 'Tom', weight=10)
+        >>> G.add_edge(1, 2)
+        >>> G.add_edge("Jack", "Tom", weight=10)
 
         Add edge with attributes, edge weight, for example,
 
-        >>> G.add_edge(1, 2, **{
-        ...     'weight': 20
-        ... })
+        >>> G.add_edge(1, 2, **{"weight": 20})
 
         """
         self._add_one_edge(u_of_edge, v_of_edge, edge_attr)
@@ -559,7 +544,7 @@ class Graph:
     def add_weighted_edge(self, u_of_edge, v_of_edge, weight):
         self._add_one_edge(u_of_edge, v_of_edge, edge_attr={"weight": weight})
 
-    def add_edges(self, edges_for_adding, edges_attr: List[Dict] = []):
+    def add_edges(self, edges_for_adding, edges_attr: list[dict] = []):
         """Add a list of edges.
 
         Parameters
@@ -575,30 +560,19 @@ class Graph:
         --------
         Add a list of edges into *G*
 
-        >>> G.add_edges([
-        ...     (1, 2),
-        ...     (3, 4),
-        ...     ('Jack', 'Tom')
-        ... ])
+        >>> G.add_edges([(1, 2), (3, 4), ("Jack", "Tom")])
 
         Add edge with attributes, for example, edge weight,
 
-        >>> G.add_edges([(1,2), (2, 3)], edges_attr=[
-        ...     {
-        ...         'weight': 20
-        ...     },
-        ...     {
-        ...         'weight': 15
-        ...     }
-        ... ])
+        >>> G.add_edges([(1, 2), (2, 3)], edges_attr=[{"weight": 20}, {"weight": 15}])
 
         """
         if edges_attr is None:
             edges_attr = []
         if not len(edges_attr) == 0:  # Edges attributes included in input
-            assert len(edges_for_adding) == len(
-                edges_attr
-            ), "Edges and Attributes lists must have same length."
+            assert len(edges_for_adding) == len(edges_attr), (
+                "Edges and Attributes lists must have same length."
+            )
         else:  # Set empty attribute for each edge
             edges_attr = [dict() for i in range(len(edges_for_adding))]
 
@@ -606,7 +580,7 @@ class Graph:
             try:
                 edge = edges_for_adding[i]
                 attr = edges_attr[i]
-                assert len(edge) == 2, "Edge tuple {} must be 2-tuple.".format(edge)
+                assert len(edge) == 2, f"Edge tuple {edge} must be 2-tuple."
                 self._add_one_edge(edge[0], edge[1], attr)
             except Exception as err:
                 print(err)
@@ -704,13 +678,13 @@ class Graph:
 
         Then add them to *G*
 
-        >>> G.add_edges_from_file(file='./club_network.txt', weighted=True)
+        >>> G.add_edges_from_file(file="./club_network.txt", weighted=True)
 
 
         """
         import re
 
-        with open(file, "r") as fp:
+        with open(file) as fp:
             edges = fp.readlines()
         if weighted:
             for edge in edges:
@@ -758,14 +732,14 @@ class Graph:
         --------
         Remove node *Jack* from *G*
 
-        >>> G.remove_node('Jack')
+        >>> G.remove_node("Jack")
 
         """
         try:
             neighbors = list(self._adj[node_to_remove])
             del self._node[node_to_remove]
         except KeyError:  # Node not exists in self
-            raise EasyGraphError("No node {} in graph.".format(node_to_remove))
+            raise EasyGraphError(f"No node {node_to_remove} in graph.")
         for neighbor in neighbors:  # Remove edges with other nodes
             del self._adj[neighbor][node_to_remove]
         del self._adj[node_to_remove]  # Remove this node
@@ -786,15 +760,13 @@ class Graph:
         --------
         Remove node *[1, 2, 'a', 'b']* from *G*
 
-        >>> G.remove_nodes([1, 2, 'a', 'b'])
+        >>> G.remove_nodes([1, 2, "a", "b"])
 
         """
-        for (
-            node
-        ) in (
+        for node in (
             nodes_to_remove
         ):  # If not all nodes included in graph, give up removing other nodes
-            assert node in self._node, "Remove Error: No node {} in graph".format(node)
+            assert node in self._node, f"Remove Error: No node {node} in graph"
         for node in nodes_to_remove:
             self.remove_node(node)
 
@@ -817,7 +789,7 @@ class Graph:
         --------
         Remove edge (1,2) from *G*
 
-        >>> G.remove_edge(1,2)
+        >>> G.remove_edge(1, 2)
 
         """
         try:
@@ -825,7 +797,7 @@ class Graph:
             if u != v:  # self-loop needs only one entry removed
                 del self._adj[v][u]
         except KeyError:
-            raise KeyError("No edge {}-{} in graph.".format(u, v))
+            raise KeyError(f"No edge {u}-{v} in graph.")
 
     def remove_edges(self, edges_to_remove: [tuple]):
         """Remove a list of edges from your graph.
@@ -844,10 +816,7 @@ class Graph:
         --------
         Remove the edges *('Jack', 'Mary')* amd *('Mary', 'Tom')* from *G*
 
-        >>> G.remove_edge([
-        ...     ('Jack', 'Mary'),
-        ...     ('Mary', 'Tom')
-        ... ])
+        >>> G.remove_edge([("Jack", "Mary"), ("Mary", "Tom")])
 
         """
         for edge in edges_to_remove:
@@ -922,8 +891,8 @@ class Graph:
         --------
 
         >>> G = eg.Graph()
-        >>> G.add_edges([(1,2), (2,3), (2,4), (4,5)])
-        >>> G_sub = G.nodes_subgraph(from_nodes= [1,2,3])
+        >>> G.add_edges([(1, 2), (2, 3), (2, 4), (4, 5)])
+        >>> G_sub = G.nodes_subgraph(from_nodes=[1, 2, 3])
 
         """
         G = self.__class__()
@@ -958,12 +927,8 @@ class Graph:
         Examples
         --------
         >>> G = eg.Graph()
-        >>> G.add_edges([
-        ...     ('Jack', 'Maria'),
-        ...     ('Maria', 'Andy'),
-        ...     ('Jack', 'Tom')
-        ... ])
-        >>> G.ego_subgraph(center='Jack')
+        >>> G.add_edges([("Jack", "Maria"), ("Maria", "Andy"), ("Jack", "Tom")])
+        >>> G.ego_subgraph(center="Jack")
         """
         neighbors_of_center = list(self.all_neighbors(center))
         neighbors_of_center.append(center)
@@ -997,11 +962,7 @@ class Graph:
         as well as node-to-index dictionary.
 
         >>> G = eg.Graph()
-        >>> G.add_edges([
-        ...     ('Jack', 'Maria'),
-        ...     ('Maria', 'Andy'),
-        ...     ('Jack', 'Tom')
-        ... ])
+        >>> G.add_edges([("Jack", "Maria"), ("Maria", "Andy"), ("Jack", "Tom")])
         >>> G_index_graph, index_of_node, node_of_index = G.to_index_node_graph()
 
         """

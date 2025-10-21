@@ -25,7 +25,7 @@ def ego_betweenness(G, node):
     --------
     Returns the betwenness centrality of node 1.
 
-    >>> ego_betweenness(G,node=1)
+    >>> ego_betweenness(G, node=1)
 
     Reference
     ---------

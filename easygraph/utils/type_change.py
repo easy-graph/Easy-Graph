@@ -1,6 +1,5 @@
 import easygraph as eg
 
-
 __all__ = [
     "from_pyGraphviz_agraph",
     "to_pyGraphviz_agraph",

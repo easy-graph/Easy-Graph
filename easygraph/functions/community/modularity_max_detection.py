@@ -2,7 +2,6 @@ from easygraph.functions.community.modularity import modularity
 from easygraph.utils import *
 from easygraph.utils.mapped_queue import MappedQueue
 
-
 __all__ = ["greedy_modularity_communities"]
 
 

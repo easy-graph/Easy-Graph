@@ -1,6 +1,5 @@
 import easygraph as eg
 
-
 __all__ = [
     "parse_edgelist",
 ]

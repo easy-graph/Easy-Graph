@@ -2,11 +2,9 @@ from copy import deepcopy
 
 import easygraph as eg
 import easygraph.convert as convert
-
 from easygraph.classes.directed_graph import DiGraph
 from easygraph.classes.multigraph import MultiGraph
 from easygraph.utils.exception import EasyGraphError
-
 
 __all__ = ["MultiDiGraph"]
 

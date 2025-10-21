@@ -1,7 +1,6 @@
 from easygraph.functions.path import *
 from easygraph.utils import *
 
-
 __all__ = [
     "closeness_centrality",
 ]
@@ -61,7 +60,6 @@ def closeness_centrality(G, weight=None, n_workers=None):
     if n_workers is not None:
         # use parallel version for large graph
         import random
-
         from functools import partial
         from multiprocessing import Pool
 

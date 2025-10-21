@@ -1,8 +1,7 @@
-import easygraph as eg
 import numpy as np
 
+import easygraph as eg
 from easygraph.utils import *
-
 
 __all__ = ["NOBE_SH", "NOBE_GA_SH"]
 
@@ -31,7 +30,7 @@ def NOBE_SH(G, K, topk):
 
     Examples
     --------
-    >>> NOBE_SH(G,K=8,topk=5)
+    >>> NOBE_SH(G, K=8, topk=5)
 
     References
     ----------
@@ -94,7 +93,7 @@ def NOBE_GA_SH(G, K, topk):
 
     Examples
     --------
-    >>> NOBE_GA_SH(G,K=8,topk=5)
+    >>> NOBE_GA_SH(G, K=8, topk=5)
 
     References
     ----------

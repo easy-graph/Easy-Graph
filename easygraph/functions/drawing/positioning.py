@@ -1,6 +1,6 @@
-import easygraph as eg
 import numpy as np
 
+import easygraph as eg
 
 __all__ = [
     "random_position",
@@ -285,7 +285,6 @@ def _kamada_kawai_solve(dist_mtx, pos_arr, dim):
     # and starting locations.
 
     import numpy as np
-
     from scipy.optimize import minimize
 
     meanwt = 1e-3

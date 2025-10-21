@@ -1,6 +1,5 @@
 from easygraph.utils import *
 
-
 __all__ = ["laplacian"]
 
 
@@ -41,7 +40,6 @@ def laplacian(G, n_workers=None):
     if n_workers is not None:
         # use the parallel version for large graph
         import random
-
         from functools import partial
         from multiprocessing import Pool
 

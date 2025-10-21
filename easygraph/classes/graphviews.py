@@ -1,6 +1,5 @@
 from easygraph.utils import only_implemented_for_Directed_graph
 
-
 __all__ = ["reverse_view"]
 
 

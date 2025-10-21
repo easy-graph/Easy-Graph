@@ -60,7 +60,6 @@ import easygraph as eg
 # import networkx as nx
 from easygraph.utils import open_file
 
-
 __all__ = ["read_pajek", "parse_pajek", "generate_pajek", "write_pajek"]
 
 

@@ -28,22 +28,17 @@ Several example graphs in GML format may be found on Mark Newman's
 `Network data page <http://www-personal.umich.edu/~mejn/netdata/>`_.
 """
 
-
 import html.entities as htmlentitydefs
 import re
-
 from ast import literal_eval
 from collections import defaultdict
 from enum import Enum
 from io import StringIO
-from typing import Any
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 import easygraph as eg
-
 from easygraph.utils import open_file
 from easygraph.utils.exception import EasyGraphError
-
 
 __all__ = ["read_gml", "parse_gml", "generate_gml", "write_gml"]
 
@@ -51,43 +46,43 @@ LIST_START_VALUE = "_easygraph_list_start"
 
 
 def escape(text):
-	"""Use XML character references to escape characters.
+    """Use XML character references to escape characters.
 
     Use XML character references for unprintable or non-ASCII
     characters, double quotes and ampersands in a string
     """
 
-	def fixup(m):
-		ch = m.group(0)
-		return "&#" + str(ord(ch)) + ";"
+    def fixup(m):
+        ch = m.group(0)
+        return "&#" + str(ord(ch)) + ";"
 
-	text = re.sub('[^ -~]|[&"]', fixup, text)
-	return text if isinstance(text, str) else str(text)
+    text = re.sub('[^ -~]|[&"]', fixup, text)
+    return text if isinstance(text, str) else str(text)
 
 
 def unescape(text):
-	"""Replace XML character references with the referenced characters"""
+    """Replace XML character references with the referenced characters"""
 
-	def fixup(m):
-		text = m.group(0)
-		if text[1] == "#":
-			# Character reference
-			if text[2] == "x":
-				code = int(text[3:-1], 16)
-			else:
-				code = int(text[2:-1])
-		else:
-			# Named entity
-			try:
-				code = htmlentitydefs.name2codepoint[text[1:-1]]
-			except KeyError:
-				return text  # leave unchanged
-		try:
-			return chr(code)
-		except (ValueError, OverflowError):
-			return text  # leave unchanged
+    def fixup(m):
+        text = m.group(0)
+        if text[1] == "#":
+            # Character reference
+            if text[2] == "x":
+                code = int(text[3:-1], 16)
+            else:
+                code = int(text[2:-1])
+        else:
+            # Named entity
+            try:
+                code = htmlentitydefs.name2codepoint[text[1:-1]]
+            except KeyError:
+                return text  # leave unchanged
+        try:
+            return chr(code)
+        except (ValueError, OverflowError):
+            return text  # leave unchanged
 
-	return re.sub("&(?:[0-9A-Za-z]+|#(?:[0-9]+|x[0-9A-Fa-f]+));", fixup, text)
+    return re.sub("&(?:[0-9A-Za-z]+|#(?:[0-9]+|x[0-9A-Fa-f]+));", fixup, text)
 
 
 def literal_destringizer(rep):
@@ -119,26 +114,26 @@ def literal_destringizer(rep):
 
 
 class Pattern(Enum):
-	"""encodes the index of each token-matching pattern in `tokenize`."""
+    """encodes the index of each token-matching pattern in `tokenize`."""
 
-	KEYS = 0
-	REALS = 1
-	INTS = 2
-	STRINGS = 3
-	DICT_START = 4
-	DICT_END = 5
-	COMMENT_WHITESPACE = 6
+    KEYS = 0
+    REALS = 1
+    INTS = 2
+    STRINGS = 3
+    DICT_START = 4
+    DICT_END = 5
+    COMMENT_WHITESPACE = 6
 
 
 class Token(NamedTuple):
-	category: Pattern
-	value: Any
-	line: int
-	position: int
+    category: Pattern
+    value: Any
+    line: int
+    position: int
 
 
 def parse_gml(lines, label="label", destringizer=None):
-	"""Parse GML graph from a string or iterable.
+    """Parse GML graph from a string or iterable.
 
     Parameters
     ----------
@@ -186,224 +181,224 @@ def parse_gml(lines, label="label", destringizer=None):
     See the module docstring :mod:`easygraph.readwrite.gml` for more details.
     """
 
-	def decode_line(line):
-		if isinstance(line, bytes):
-			try:
-				line.decode("ascii")
-			except UnicodeDecodeError as err:
-				raise EasyGraphError("input is not ASCII-encoded") from err
-		if not isinstance(line, str):
-			line = str(line)
-		return line
+    def decode_line(line):
+        if isinstance(line, bytes):
+            try:
+                line.decode("ascii")
+            except UnicodeDecodeError as err:
+                raise EasyGraphError("input is not ASCII-encoded") from err
+        if not isinstance(line, str):
+            line = str(line)
+        return line
 
-	def filter_lines(lines):
-		if isinstance(lines, str):
-			lines = decode_line(lines)
-			lines = lines.splitlines()
-			yield from lines
-		else:
-			for line in lines:
-				line = decode_line(line)
-				if line and line[-1] == "\n":
-					line = line[:-1]
-				if line.find("\n") != -1:
-					raise EasyGraphError("input line contains newline")
-				yield line
+    def filter_lines(lines):
+        if isinstance(lines, str):
+            lines = decode_line(lines)
+            lines = lines.splitlines()
+            yield from lines
+        else:
+            for line in lines:
+                line = decode_line(line)
+                if line and line[-1] == "\n":
+                    line = line[:-1]
+                if line.find("\n") != -1:
+                    raise EasyGraphError("input line contains newline")
+                yield line
 
-	G = parse_gml_lines(filter_lines(lines), label, destringizer)
-	return G
+    G = parse_gml_lines(filter_lines(lines), label, destringizer)
+    return G
 
 
 def parse_gml_lines(lines, label, destringizer):
-	"""Parse GML `lines` into a graph."""
+    """Parse GML `lines` into a graph."""
 
-	def tokenize():
-		patterns = [
-			r"[A-Za-z][0-9A-Za-z_]*\b",  # keys
-			# reals
-			r"[+-]?(?:[0-9]*\.[0-9]+|[0-9]+\.[0-9]*|INF)(?:[Ee][+-]?[0-9]+)?",
-			r"[+-]?[0-9]+",  # ints
-			r'".*?"',  # strings
-			r"\[",  # dict start
-			r"\]",  # dict end
-			r"#.*$|\s+",  # comments and whitespaces
-		]
-		tokens = re.compile("|".join(f"({pattern})" for pattern in patterns))
-		lineno = 0
-		for line in lines:
-			length = len(line)
-			pos = 0
-			while pos < length:
-				match = tokens.match(line, pos)
-				if match is None:
-					m = f"cannot tokenize {line[pos:]} at ({lineno + 1}, {pos + 1})"
-					raise EasyGraphError(m)
-				for i in range(len(patterns)):
-					group = match.group(i + 1)
-					if group is not None:
-						if i == 0:  # keys
-							value = group.rstrip()
-						elif i == 1:  # reals
-							value = float(group)
-						elif i == 2:  # ints
-							value = int(group)
-						else:
-							value = group
-						if i != 6:  # comments and whitespaces
-							yield Token(Pattern(i), value, lineno + 1, pos + 1)
-						pos += len(group)
-						break
-			lineno += 1
-		yield Token(None, None, lineno + 1, 1)  # EOF
+    def tokenize():
+        patterns = [
+            r"[A-Za-z][0-9A-Za-z_]*\b",  # keys
+            # reals
+            r"[+-]?(?:[0-9]*\.[0-9]+|[0-9]+\.[0-9]*|INF)(?:[Ee][+-]?[0-9]+)?",
+            r"[+-]?[0-9]+",  # ints
+            r'".*?"',  # strings
+            r"\[",  # dict start
+            r"\]",  # dict end
+            r"#.*$|\s+",  # comments and whitespaces
+        ]
+        tokens = re.compile("|".join(f"({pattern})" for pattern in patterns))
+        lineno = 0
+        for line in lines:
+            length = len(line)
+            pos = 0
+            while pos < length:
+                match = tokens.match(line, pos)
+                if match is None:
+                    m = f"cannot tokenize {line[pos:]} at ({lineno + 1}, {pos + 1})"
+                    raise EasyGraphError(m)
+                for i in range(len(patterns)):
+                    group = match.group(i + 1)
+                    if group is not None:
+                        if i == 0:  # keys
+                            value = group.rstrip()
+                        elif i == 1:  # reals
+                            value = float(group)
+                        elif i == 2:  # ints
+                            value = int(group)
+                        else:
+                            value = group
+                        if i != 6:  # comments and whitespaces
+                            yield Token(Pattern(i), value, lineno + 1, pos + 1)
+                        pos += len(group)
+                        break
+            lineno += 1
+        yield Token(None, None, lineno + 1, 1)  # EOF
 
-	def unexpected(curr_token, expected):
-		category, value, lineno, pos = curr_token
-		value = repr(value) if value is not None else "EOF"
-		raise EasyGraphError(f"expected {expected}, found {value} at ({lineno}, {pos})")
+    def unexpected(curr_token, expected):
+        category, value, lineno, pos = curr_token
+        value = repr(value) if value is not None else "EOF"
+        raise EasyGraphError(f"expected {expected}, found {value} at ({lineno}, {pos})")
 
-	def consume(curr_token, category, expected):
-		if curr_token.category == category:
-			return next(tokens)
-		unexpected(curr_token, expected)
+    def consume(curr_token, category, expected):
+        if curr_token.category == category:
+            return next(tokens)
+        unexpected(curr_token, expected)
 
-	def parse_dict(curr_token):
-		# dict start
-		curr_token = consume(curr_token, Pattern.DICT_START, "'['")
-		# dict contents
-		curr_token, dct = parse_kv(curr_token)
-		# dict end
-		curr_token = consume(curr_token, Pattern.DICT_END, "']'")
-		return curr_token, dct
+    def parse_dict(curr_token):
+        # dict start
+        curr_token = consume(curr_token, Pattern.DICT_START, "'['")
+        # dict contents
+        curr_token, dct = parse_kv(curr_token)
+        # dict end
+        curr_token = consume(curr_token, Pattern.DICT_END, "']'")
+        return curr_token, dct
 
-	def parse_kv(curr_token):
-		dct = defaultdict(list)
-		while curr_token.category == Pattern.KEYS:
-			key = curr_token.value
-			curr_token = next(tokens)
-			category = curr_token.category
-			if category == Pattern.REALS or category == Pattern.INTS:
-				value = curr_token.value
-				curr_token = next(tokens)
-			elif category == Pattern.STRINGS:
-				value = unescape(curr_token.value[1:-1])
-				if destringizer:
-					try:
-						value = destringizer(value)
-					except ValueError:
-						pass
-				curr_token = next(tokens)
-			elif category == Pattern.DICT_START:
-				curr_token, value = parse_dict(curr_token)
-			else:
-				if key in ("id", "label", "source", "target"):
-					try:
-						# String convert the token value
-						value = unescape(str(curr_token.value))
-						if destringizer:
-							try:
-								value = destringizer(value)
-							except ValueError:
-								pass
-						curr_token = next(tokens)
-					except Exception:
-						msg = (
-							"an int, float, string, '[' or string"
-							+ " convertable ASCII value for node id or label"
-						)
-						unexpected(curr_token, msg)
-				elif curr_token.value in {"NAN", "INF"}:
-					value = float(curr_token.value)
-					curr_token = next(tokens)
-				else:  # Otherwise error out
-					unexpected(curr_token, "an int, float, string or '['")
-			dct[key].append(value)
+    def parse_kv(curr_token):
+        dct = defaultdict(list)
+        while curr_token.category == Pattern.KEYS:
+            key = curr_token.value
+            curr_token = next(tokens)
+            category = curr_token.category
+            if category == Pattern.REALS or category == Pattern.INTS:
+                value = curr_token.value
+                curr_token = next(tokens)
+            elif category == Pattern.STRINGS:
+                value = unescape(curr_token.value[1:-1])
+                if destringizer:
+                    try:
+                        value = destringizer(value)
+                    except ValueError:
+                        pass
+                curr_token = next(tokens)
+            elif category == Pattern.DICT_START:
+                curr_token, value = parse_dict(curr_token)
+            else:
+                if key in ("id", "label", "source", "target"):
+                    try:
+                        # String convert the token value
+                        value = unescape(str(curr_token.value))
+                        if destringizer:
+                            try:
+                                value = destringizer(value)
+                            except ValueError:
+                                pass
+                        curr_token = next(tokens)
+                    except Exception:
+                        msg = (
+                            "an int, float, string, '[' or string"
+                            + " convertable ASCII value for node id or label"
+                        )
+                        unexpected(curr_token, msg)
+                elif curr_token.value in {"NAN", "INF"}:
+                    value = float(curr_token.value)
+                    curr_token = next(tokens)
+                else:  # Otherwise error out
+                    unexpected(curr_token, "an int, float, string or '['")
+            dct[key].append(value)
 
-		def clean_dict_value(value):
-			if not isinstance(value, list):
-				return value
-			if len(value) == 1:
-				return value[0]
-			if value[0] == LIST_START_VALUE:
-				return value[1:]
-			return value
+        def clean_dict_value(value):
+            if not isinstance(value, list):
+                return value
+            if len(value) == 1:
+                return value[0]
+            if value[0] == LIST_START_VALUE:
+                return value[1:]
+            return value
 
-		dct = {key: clean_dict_value(value) for key, value in dct.items()}
-		return curr_token, dct
+        dct = {key: clean_dict_value(value) for key, value in dct.items()}
+        return curr_token, dct
 
-	def parse_graph():
-		curr_token, dct = parse_kv(next(tokens))
-		if curr_token.category is not None:  # EOF
-			unexpected(curr_token, "EOF")
-		if "graph" not in dct:
-			raise EasyGraphError("input contains no graph")
-		graph = dct["graph"]
-		if isinstance(graph, list):
-			raise EasyGraphError("input contains more than one graph")
-		return graph
+    def parse_graph():
+        curr_token, dct = parse_kv(next(tokens))
+        if curr_token.category is not None:  # EOF
+            unexpected(curr_token, "EOF")
+        if "graph" not in dct:
+            raise EasyGraphError("input contains no graph")
+        graph = dct["graph"]
+        if isinstance(graph, list):
+            raise EasyGraphError("input contains more than one graph")
+        return graph
 
-	tokens = tokenize()
-	graph = parse_graph()
-	directed = graph.pop("directed", False)
-	multigraph = graph.pop("multigraph", False)
-	if not multigraph:
-		G = eg.DiGraph() if directed else eg.Graph()
-	else:
-		G = eg.MultiDiGraph() if directed else eg.MultiGraph()
-	graph_attr = {k: v for k, v in graph.items() if k not in ("node", "edge")}
-	G.graph.update(graph_attr)
+    tokens = tokenize()
+    graph = parse_graph()
+    directed = graph.pop("directed", False)
+    multigraph = graph.pop("multigraph", False)
+    if not multigraph:
+        G = eg.DiGraph() if directed else eg.Graph()
+    else:
+        G = eg.MultiDiGraph() if directed else eg.MultiGraph()
+    graph_attr = {k: v for k, v in graph.items() if k not in ("node", "edge")}
+    G.graph.update(graph_attr)
 
-	def pop_attr(dct, category, attr, i):
-		try:
-			return dct.pop(attr)
-		except KeyError as err:
-			raise EasyGraphError(f"{category} #{i} has no {attr!r} attribute") from err
+    def pop_attr(dct, category, attr, i):
+        try:
+            return dct.pop(attr)
+        except KeyError as err:
+            raise EasyGraphError(f"{category} #{i} has no {attr!r} attribute") from err
 
-	nodes = graph.get("node", [])
-	mapping = {}
-	node_labels = set()
-	for i, node in enumerate(nodes if isinstance(nodes, list) else [nodes]):
-		id = pop_attr(node, "node", "id", i)
-		if id in G:
-			raise EasyGraphError(f"node id {id!r} is duplicated")
-		if label is not None and label != "id":
-			node_label = pop_attr(node, "node", label, i)
-			if node_label in node_labels:
-				raise EasyGraphError(f"node label {node_label!r} is duplicated")
-			node_labels.add(node_label)
-			mapping[id] = node_label
-		G.add_node(id, **node)
+    nodes = graph.get("node", [])
+    mapping = {}
+    node_labels = set()
+    for i, node in enumerate(nodes if isinstance(nodes, list) else [nodes]):
+        id = pop_attr(node, "node", "id", i)
+        if id in G:
+            raise EasyGraphError(f"node id {id!r} is duplicated")
+        if label is not None and label != "id":
+            node_label = pop_attr(node, "node", label, i)
+            if node_label in node_labels:
+                raise EasyGraphError(f"node label {node_label!r} is duplicated")
+            node_labels.add(node_label)
+            mapping[id] = node_label
+        G.add_node(id, **node)
 
-	edges = graph.get("edge", [])
-	for i, edge in enumerate(edges if isinstance(edges, list) else [edges]):
-		source = pop_attr(edge, "edge", "source", i)
-		target = pop_attr(edge, "edge", "target", i)
-		if source not in G:
-			raise EasyGraphError(f"edge #{i} has undefined source {source!r}")
-		if target not in G:
-			raise EasyGraphError(f"edge #{i} has undefined target {target!r}")
-		if not multigraph:
-			if not G.has_edge(source, target):
-				G.add_edge(source, target, **edge)
-			else:
-				arrow = "->" if directed else "--"
-				msg = f"edge #{i} ({source!r}{arrow}{target!r}) is duplicated"
-				raise EasyGraphError(msg)
-		else:
-			key = edge.pop("key", None)
-			if key is not None and G.has_edge(source, target, key):
-				arrow = "->" if directed else "--"
-				msg = f"edge #{i} ({source!r}{arrow}{target!r}, {key!r})"
-				msg2 = 'Hint: If multigraph add "multigraph 1" to file header.'
-				raise EasyGraphError(msg + " is duplicated\n" + msg2)
-			G.add_edge(source, target, key, **edge)
+    edges = graph.get("edge", [])
+    for i, edge in enumerate(edges if isinstance(edges, list) else [edges]):
+        source = pop_attr(edge, "edge", "source", i)
+        target = pop_attr(edge, "edge", "target", i)
+        if source not in G:
+            raise EasyGraphError(f"edge #{i} has undefined source {source!r}")
+        if target not in G:
+            raise EasyGraphError(f"edge #{i} has undefined target {target!r}")
+        if not multigraph:
+            if not G.has_edge(source, target):
+                G.add_edge(source, target, **edge)
+            else:
+                arrow = "->" if directed else "--"
+                msg = f"edge #{i} ({source!r}{arrow}{target!r}) is duplicated"
+                raise EasyGraphError(msg)
+        else:
+            key = edge.pop("key", None)
+            if key is not None and G.has_edge(source, target, key):
+                arrow = "->" if directed else "--"
+                msg = f"edge #{i} ({source!r}{arrow}{target!r}, {key!r})"
+                msg2 = 'Hint: If multigraph add "multigraph 1" to file header.'
+                raise EasyGraphError(msg + " is duplicated\n" + msg2)
+            G.add_edge(source, target, key, **edge)
 
-	if label is not None and label != "id":
-		G = eg.relabel_nodes(G, mapping)
-	return G
+    if label is not None and label != "id":
+        G = eg.relabel_nodes(G, mapping)
+    return G
 
 
 def generate_gml(G, stringizer=None):
-	r"""Generate a single entry of the graph `G` in GML format.
+    r"""Generate a single entry of the graph `G` in GML format.
 
     Parameters
     ----------
@@ -462,118 +457,118 @@ def generate_gml(G, stringizer=None):
       ]
     ]
     """
-	valid_keys = re.compile("^[A-Za-z][0-9A-Za-z_]*$")
+    valid_keys = re.compile("^[A-Za-z][0-9A-Za-z_]*$")
 
-	def stringize(key, value, ignored_keys, indent, in_list=False):
-		if not isinstance(key, str):
-			raise EasyGraphError(f"{key!r} is not a string")
-		if not valid_keys.match(key):
-			raise EasyGraphError(f"{key!r} is not a valid key")
-		if not isinstance(key, str):
-			key = str(key)
-		if key not in ignored_keys:
-			if isinstance(value, (int, bool)):
-				if key == "label":
-					yield indent + key + ' "' + str(value) + '"'
-				elif value is True:
-					# python bool is an instance of int
-					yield indent + key + " 1"
-				elif value is False:
-					yield indent + key + " 0"
-				# GML only supports signed 32-bit integers
-				elif value < -(2**31) or value >= 2**31:
-					yield indent + key + ' "' + str(value) + '"'
-				else:
-					yield indent + key + " " + str(value)
-			elif isinstance(value, float):
-				text = repr(value).upper()
-				# GML matches INF to keys, so prepend + to INF. Use repr(float(*))
-				# instead of string literal to future proof against changes to repr.
-				if text == repr(float("inf")).upper():
-					text = "+" + text
-				else:
-					# GML requires that a real literal contain a decimal point, but
-					# repr may not output a decimal point when the mantissa is
-					# integral and hence needs fixing.
-					epos = text.rfind("E")
-					if epos != -1 and text.find(".", 0, epos) == -1:
-						text = text[:epos] + "." + text[epos:]
-				if key == "label":
-					yield indent + key + ' "' + text + '"'
-				else:
-					yield indent + key + " " + text
-			elif isinstance(value, dict):
-				yield indent + key + " ["
-				next_indent = indent + "  "
-				for key, value in value.items():
-					yield from stringize(key, value, (), next_indent)
-				yield indent + "]"
-			elif (
-				isinstance(value, (list, tuple))
-				and key != "label"
-				and value
-				and not in_list
-			):
-				if len(value) == 1:
-					yield indent + key + " " + f'"{LIST_START_VALUE}"'
-				for val in value:
-					yield from stringize(key, val, (), indent, True)
-			else:
-				if stringizer:
-					try:
-						value = stringizer(value)
-					except ValueError as err:
-						raise EasyGraphError(
-							f"{value!r} cannot be converted into a string"
-						) from err
-				if not isinstance(value, str):
-					raise EasyGraphError(f"{value!r} is not a string")
-				yield indent + key + ' "' + escape(value) + '"'
+    def stringize(key, value, ignored_keys, indent, in_list=False):
+        if not isinstance(key, str):
+            raise EasyGraphError(f"{key!r} is not a string")
+        if not valid_keys.match(key):
+            raise EasyGraphError(f"{key!r} is not a valid key")
+        if not isinstance(key, str):
+            key = str(key)
+        if key not in ignored_keys:
+            if isinstance(value, (int, bool)):
+                if key == "label":
+                    yield indent + key + ' "' + str(value) + '"'
+                elif value is True:
+                    # python bool is an instance of int
+                    yield indent + key + " 1"
+                elif value is False:
+                    yield indent + key + " 0"
+                # GML only supports signed 32-bit integers
+                elif value < -(2**31) or value >= 2**31:
+                    yield indent + key + ' "' + str(value) + '"'
+                else:
+                    yield indent + key + " " + str(value)
+            elif isinstance(value, float):
+                text = repr(value).upper()
+                # GML matches INF to keys, so prepend + to INF. Use repr(float(*))
+                # instead of string literal to future proof against changes to repr.
+                if text == repr(float("inf")).upper():
+                    text = "+" + text
+                else:
+                    # GML requires that a real literal contain a decimal point, but
+                    # repr may not output a decimal point when the mantissa is
+                    # integral and hence needs fixing.
+                    epos = text.rfind("E")
+                    if epos != -1 and text.find(".", 0, epos) == -1:
+                        text = text[:epos] + "." + text[epos:]
+                if key == "label":
+                    yield indent + key + ' "' + text + '"'
+                else:
+                    yield indent + key + " " + text
+            elif isinstance(value, dict):
+                yield indent + key + " ["
+                next_indent = indent + "  "
+                for key, value in value.items():
+                    yield from stringize(key, value, (), next_indent)
+                yield indent + "]"
+            elif (
+                isinstance(value, (list, tuple))
+                and key != "label"
+                and value
+                and not in_list
+            ):
+                if len(value) == 1:
+                    yield indent + key + " " + f'"{LIST_START_VALUE}"'
+                for val in value:
+                    yield from stringize(key, val, (), indent, True)
+            else:
+                if stringizer:
+                    try:
+                        value = stringizer(value)
+                    except ValueError as err:
+                        raise EasyGraphError(
+                            f"{value!r} cannot be converted into a string"
+                        ) from err
+                if not isinstance(value, str):
+                    raise EasyGraphError(f"{value!r} is not a string")
+                yield indent + key + ' "' + escape(value) + '"'
 
-	yield "graph ["
+    yield "graph ["
 
-	# Output graph attributes
-	multigraph = G.is_multigraph()
-	if G.is_directed():
-		yield "  directed 1"
-	if multigraph:
-		yield "  multigraph 1"
-	ignored_keys = {"directed", "multigraph", "node", "edge"}
-	for attr, value in G.graph.items():
-		yield from stringize(attr, value, ignored_keys, "  ")
+    # Output graph attributes
+    multigraph = G.is_multigraph()
+    if G.is_directed():
+        yield "  directed 1"
+    if multigraph:
+        yield "  multigraph 1"
+    ignored_keys = {"directed", "multigraph", "node", "edge"}
+    for attr, value in G.graph.items():
+        yield from stringize(attr, value, ignored_keys, "  ")
 
-	# Output node data
-	node_id = dict(zip(G, range(len(G))))
-	ignored_keys = {"id", "label"}
-	for node, attrs in G.nodes.items():
-		yield "  node ["
-		yield "    id " + str(node_id[node])
-		yield from stringize("label", node, (), "    ")
-		for attr, value in attrs.items():
-			yield from stringize(attr, value, ignored_keys, "    ")
-		yield "  ]"
+    # Output node data
+    node_id = dict(zip(G, range(len(G))))
+    ignored_keys = {"id", "label"}
+    for node, attrs in G.nodes.items():
+        yield "  node ["
+        yield "    id " + str(node_id[node])
+        yield from stringize("label", node, (), "    ")
+        for attr, value in attrs.items():
+            yield from stringize(attr, value, ignored_keys, "    ")
+        yield "  ]"
 
-	# Output edge data
-	ignored_keys = {"source", "target"}
-	kwargs = {"data": True}
-	if multigraph:
-		ignored_keys.add("key")
-		kwargs["keys"] = True
-	for e in G.edges:
-		yield "  edge ["
-		yield "    source " + str(node_id[e[0]])
-		yield "    target " + str(node_id[e[1]])
-		if multigraph:
-			yield from stringize("key", e[2], (), "    ")
-		for attr, value in e[-1].items():
-			yield from stringize(attr, value, ignored_keys, "    ")
-		yield "  ]"
-	yield "]"
+    # Output edge data
+    ignored_keys = {"source", "target"}
+    kwargs = {"data": True}
+    if multigraph:
+        ignored_keys.add("key")
+        kwargs["keys"] = True
+    for e in G.edges:
+        yield "  edge ["
+        yield "    source " + str(node_id[e[0]])
+        yield "    target " + str(node_id[e[1]])
+        if multigraph:
+            yield from stringize("key", e[2], (), "    ")
+        for attr, value in e[-1].items():
+            yield from stringize(attr, value, ignored_keys, "    ")
+        yield "  ]"
+    yield "]"
 
 
 @open_file(0, mode="rb")
 def read_gml(path, label="label", destringizer=None):
-	"""Read graph in GML format from `path`.
+    """Read graph in GML format from `path`.
 
     Parameters
     ----------
@@ -638,25 +633,25 @@ def read_gml(path, label="label", destringizer=None):
 
     """
 
-	def filter_lines(lines):
-		for line in lines:
-			try:
-				line = line.decode("ascii")
-			except UnicodeDecodeError as err:
-				raise EasyGraphError("input is not ASCII-encoded") from err
-			if not isinstance(line, str):
-				lines = str(lines)
-			if line and line[-1] == "\n":
-				line = line[:-1]
-			yield line
+    def filter_lines(lines):
+        for line in lines:
+            try:
+                line = line.decode("ascii")
+            except UnicodeDecodeError as err:
+                raise EasyGraphError("input is not ASCII-encoded") from err
+            if not isinstance(line, str):
+                lines = str(lines)
+            if line and line[-1] == "\n":
+                line = line[:-1]
+            yield line
 
-	G = parse_gml_lines(filter_lines(path), label, destringizer)
-	return G
+    G = parse_gml_lines(filter_lines(path), label, destringizer)
+    return G
 
 
 @open_file(1, mode="wb")
 def write_gml(G, path, stringizer=None):
-	"""Write a graph `G` in GML format to the file or file handle `path`.
+    """Write a graph `G` in GML format to the file or file handle `path`.
 
     Parameters
     ----------
@@ -715,12 +710,11 @@ def write_gml(G, path, stringizer=None):
 
     >>> eg.write_gml(G, "test.gml.gz")
     """
-	for line in generate_gml(G, stringizer):
-		path.write((line + "\n").encode("ascii"))
+    for line in generate_gml(G, stringizer):
+        path.write((line + "\n").encode("ascii"))
 
 
 def literal_stringizer(value):
-
     def stringize(value):
         if isinstance(value, (int, bool)) or value is None:
             if value is True:  # GML uses 1/0 for boolean values.

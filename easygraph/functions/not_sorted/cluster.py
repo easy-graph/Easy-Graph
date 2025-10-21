@@ -3,7 +3,6 @@ from itertools import chain
 
 from easygraph.utils.decorators import not_implemented_for
 
-
 try:
     from cpp_easygraph import cpp_clustering
 except ImportError:

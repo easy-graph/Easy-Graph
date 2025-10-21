@@ -1,6 +1,5 @@
 from easygraph.utils.decorators import *
 
-
 __all__ = [
     "is_connected",
     "number_connected_components",
@@ -111,7 +110,7 @@ def connected_component_of_node(G, node):
     --------
     Returns the connected component of one node `Jack`.
 
-    >>> connected_component_of_node(G, node='Jack')
+    >>> connected_component_of_node(G, node="Jack")
 
     """
     return set(_plain_bfs(G, node))

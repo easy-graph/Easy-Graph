@@ -1,12 +1,11 @@
 """Base class for MultiGraph."""
+
 from copy import deepcopy
 
 import easygraph as eg
 import easygraph.convert as convert
-
 from easygraph.classes.graph import Graph
 from easygraph.utils.exception import EasyGraphError
-
 
 __all__ = ["MultiGraph"]
 
