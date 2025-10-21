@@ -1,7 +1,8 @@
 #pragma once
-#define BOOST_PYTHON_STATIC_LIB
 
-#include "../../common/common.h"
+
+#include "common.h"
+#include "graph.h"
 
 class NeighborIterator {
 public:
@@ -32,4 +33,4 @@ typedef struct stackNode {
     }
 }stack_node;
 
-py::object _biconnected_dfs_record_edges(py::object G, py::object need_components);
+py::list _biconnected_dfs_record_edges(Graph& G, bool need_components);
