@@ -37,7 +37,7 @@ def plot_Followers(G, SHS):
     degree = G.degree()
     sample1 = []
     sample2 = []
-    for i in degree.keys():
+    for i in degree:
         if i in OU:
             sample1.append(degree[i])
         elif i in SHS:
@@ -141,7 +141,7 @@ def plot_Betweenness_Centrality(G, SHS):
     bc = eg.betweenness_centrality(G)
     sample1 = []
     sample2 = []
-    for i in bc.keys():
+    for i in bc:
         if i in OU:
             sample1.append(bc[i])
         elif i in SHS:

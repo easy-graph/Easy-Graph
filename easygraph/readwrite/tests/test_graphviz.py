@@ -48,7 +48,7 @@ class TestAGraph:
     def test_from_agraph_name(self):
         G = eg.Graph(name="test")
         A = eg.to_agraph(G)
-        H = eg.from_agraph(A)
+        eg.from_agraph(A)
         assert G.name == "test"
 
     def test_undirected(self):

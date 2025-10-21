@@ -148,7 +148,7 @@ def simulate_walks(G, walk_length, num_walks, p, q, weight_key=None):
     alias_nodes, alias_edges = _preprocess_transition_probs(G, p, q, weight_key)
     walks = []
     nodes = list(G.nodes)
-    for walk_iter in tqdm(range(num_walks)):
+    for _walk_iter in tqdm(range(num_walks)):
         random.shuffle(nodes)
         for node in nodes:
             walks.append(
@@ -180,7 +180,6 @@ def _preprocess_transition_probs(G, p, q, weight_key=None):
         alias_nodes[node] = _alias_setup(normalized_probs)
 
     alias_edges = {}
-    triads = {}
 
     if is_directed:
         for edge in G.edges:

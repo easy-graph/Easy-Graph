@@ -115,7 +115,7 @@ def to_easygraph_graph(data, create_using=None, multigraph_input=False):
                     msg = "Input is not a correct Pandas DataFrame adjacency edge-list."
                     raise eg.EasyGraphError(msg) from err
     except ImportError:
-        warnings.warn("pandas not found, skipping conversion test.", ImportWarning)
+        warnings.warn("pandas not found, skipping conversion test.", ImportWarning, stacklevel=2)
 
     # numpy matrix or ndarray
     try:
@@ -129,7 +129,7 @@ def to_easygraph_graph(data, create_using=None, multigraph_input=False):
                     "Input is not a correct numpy matrix or array."
                 ) from err
     except ImportError:
-        warnings.warn("numpy not found, skipping conversion test.", ImportWarning)
+        warnings.warn("numpy not found, skipping conversion test.", ImportWarning, stacklevel=2)
 
     # scipy sparse matrix - any format
     try:
@@ -141,7 +141,7 @@ def to_easygraph_graph(data, create_using=None, multigraph_input=False):
                     "Input is not a correct scipy sparse matrix type."
                 ) from err
     except ImportError:
-        warnings.warn("scipy not found, skipping conversion test.", ImportWarning)
+        warnings.warn("scipy not found, skipping conversion test.", ImportWarning, stacklevel=2)
 
     # Note: most general check - should remain last in order of execution
     # Includes containers (e.g. list, set, dict, etc.), generators, and

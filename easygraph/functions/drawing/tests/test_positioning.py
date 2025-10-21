@@ -39,7 +39,7 @@ class PositioningTest(unittest.TestCase):
 
         self.assertListEqual(list(actual_result_one.keys()), [1, 6, 5, 4, 10])
 
-        for nodes, coordinates in actual_result_one.items():
+        for _nodes, coordinates in actual_result_one.items():
             self.assertAlmostEqual(coordinates[0], 4, delta=1.0)
             self.assertAlmostEqual(coordinates[1], 10, delta=1.0)
 

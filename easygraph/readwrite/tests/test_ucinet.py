@@ -253,15 +253,6 @@ Data:
 
     def test_write_ucinet(self):
         fh = io.BytesIO()
-        data = """\
-dl n=5 format=fullmatrix
-data:
-0 1 1 1 1
-1 0 1 0 0
-1 1 0 0 1
-1 0 0 0 0
-1 0 1 0 0
-"""
         graph = eg.MultiDiGraph()
         graph.add_nodes_from([0, 1, 2, 3, 4])
         graph.add_edges_from(

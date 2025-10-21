@@ -47,6 +47,6 @@ def ego_betweenness(G, node):
         for j in range(n):
             if i != j and C[i, j] == 1 and B[i, j] != 0:
                 sum += 1.0 / B[i, j]
-    if flag == False:
+    if not flag:
         sum /= 2
     return sum

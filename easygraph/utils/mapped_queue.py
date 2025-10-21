@@ -51,8 +51,10 @@ class MappedQueue:
        Pearson Education.
     """
 
-    def __init__(self, data=[]):
+    def __init__(self, data=None):
         """Priority queue class with updatable priorities."""
+        if data is None:
+            data = []
         self.h = list(data)
         self.d = dict()
         self._heapify()

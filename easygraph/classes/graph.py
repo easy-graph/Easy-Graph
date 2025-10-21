@@ -1,3 +1,6 @@
+import builtins
+import contextlib
+
 import easygraph.convert as convert
 from easygraph.utils.exception import EasyGraphError
 
@@ -390,7 +393,7 @@ class Graph:
         """
         self._add_one_node(node_for_adding, node_attr)
 
-    def add_nodes(self, nodes_for_adding: list, nodes_attr: list[dict] = []):
+    def add_nodes(self, nodes_for_adding: list, nodes_attr: list[dict] = None):
         """Add nodes with a list of nodes.
 
         Parameters
@@ -423,7 +426,9 @@ class Graph:
         ... )
 
         """
-        if not len(nodes_attr) == 0:  # Nodes attributes included in input
+        if nodes_attr is None:
+            nodes_attr = []
+        if len(nodes_attr) != 0:  # Nodes attributes included in input
             assert len(nodes_for_adding) == len(nodes_attr), (
                 "Nodes and Attributes lists must have same length."
             )
@@ -497,7 +502,9 @@ class Graph:
                 self._node[n] = self.node_attr_dict_factory()
             self._node[n].update(newdict)
 
-    def _add_one_node(self, one_node_for_adding, node_attr: dict = {}):
+    def _add_one_node(self, one_node_for_adding, node_attr: dict = None):
+        if node_attr is None:
+            node_attr = {}
         node = one_node_for_adding
         if node not in self._node:
             self._adj[node] = self.adjlist_inner_dict_factory()
@@ -544,7 +551,7 @@ class Graph:
     def add_weighted_edge(self, u_of_edge, v_of_edge, weight):
         self._add_one_edge(u_of_edge, v_of_edge, edge_attr={"weight": weight})
 
-    def add_edges(self, edges_for_adding, edges_attr: list[dict] = []):
+    def add_edges(self, edges_for_adding, edges_attr: list[dict] = None):
         """Add a list of edges.
 
         Parameters
@@ -569,7 +576,9 @@ class Graph:
         """
         if edges_attr is None:
             edges_attr = []
-        if not len(edges_attr) == 0:  # Edges attributes included in input
+        if edges_attr is None:
+            edges_attr = []
+        if len(edges_attr) != 0:  # Edges attributes included in input
             assert len(edges_for_adding) == len(edges_attr), (
                 "Edges and Attributes lists must have same length."
             )
@@ -690,20 +699,18 @@ class Graph:
             for edge in edges:
                 edge = re.sub(",", " ", edge)
                 edge = edge.split()
-                try:
+                with contextlib.suppress(builtins.BaseException):
                     self.add_edge(edge[0], edge[1], weight=float(edge[2]))
-                except:
-                    pass
         else:
             for edge in edges:
                 edge = re.sub(",", " ", edge)
                 edge = edge.split()
-                try:
+                with contextlib.suppress(builtins.BaseException):
                     self.add_edge(edge[0], edge[1])
-                except:
-                    pass
 
-    def _add_one_edge(self, u_of_edge, v_of_edge, edge_attr: dict = {}):
+    def _add_one_edge(self, u_of_edge, v_of_edge, edge_attr: dict = None):
+        if edge_attr is None:
+            edge_attr = {}
         u, v = u_of_edge, v_of_edge
         # add nodes
         if u not in self._node:
@@ -898,10 +905,8 @@ class Graph:
         G = self.__class__()
         G.graph.update(self.graph)
         for node in from_nodes:
-            try:
+            with contextlib.suppress(KeyError):
                 G.add_node(node, **self._node[node])
-            except KeyError:
-                pass
 
             # Edge
             from_nodes = set(from_nodes)

@@ -25,9 +25,9 @@ class dom_g:
         self.h = []
         self.ne = []
         self.to = []
-        for i in range(N + 1):
+        for _i in range(N + 1):
             self.h.append(0)
-        for i in range(max(N + 1, M + 1)):
+        for _i in range(max(N + 1, M + 1)):
             self.ne.append(0)
             self.to.append(0)
 
@@ -300,7 +300,7 @@ def _get_estimated_opt(G, f_set, k, c, delta):
     print("Estimating the optimal value OPT...")
     n = G.number_of_nodes()
     opt_ub = 0
-    for f_key in f_set.keys():
+    for f_key in f_set:
         opt_ub = opt_ub + f_set[f_key]
     opt_ub = opt_ub * k * (n - 1)
     T = math.log((opt_ub / (delta / 2)), 2)
@@ -324,7 +324,7 @@ def _find_separation_nodes(G):
     incoming_info = G_s.graph["incoming_info"]
     G_s_undirected = eg.Graph()
     sep_nodes = set()
-    for node in (G_s.nodes).keys():
+    for node in (G_s.nodes):
         SCC_mapping[node] = G_s.nodes[node]["member"]
         if len(G_s.nodes[node]["member"]) == 1:
             sep_nodes.add(node)
@@ -566,10 +566,10 @@ def maxBlockFast(G, k, f_set=None, L=None, flag_weight=False):
                 non_considered_nodes.remove(chosen_node)
             else:
                 V_set = set()
-                for key in SCC_mapping.keys():
+                for key in SCC_mapping:
                     for node in SCC_mapping[key]:
                         if (node in non_considered_nodes) and (
-                            node not in incoming_info.keys()
+                            node not in incoming_info
                         ):
                             V_set.add(node)
                     if len(V_set) > 0:

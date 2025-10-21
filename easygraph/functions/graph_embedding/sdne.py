@@ -59,7 +59,9 @@ def l_1st(alpha):
     return loss_1st
 
 
-def create_model(node_size, hidden_size=[256, 128], l1=1e-5, l2=1e-4):
+def create_model(node_size, hidden_size=None, l1=1e-5, l2=1e-4):
+    if hidden_size is None:
+        hidden_size = [256, 128]
     try:
         pass
     except ImportWarning:
@@ -100,7 +102,7 @@ class SDNE:
     def __init__(
         self,
         graph,
-        hidden_size=[32, 16],
+        hidden_size=None,
         alpha=1e-6,
         beta=5.0,
         nu1=1e-5,
@@ -141,6 +143,8 @@ class SDNE:
            Knowledge Discovery and Data mining. 2016: 1225-1234.
 
         """
+        if hidden_size is None:
+            hidden_size = [32, 16]
         self.graph = graph
         self.idx2node, self.node2idx = get_relation_of_index_and_node(self.graph)
 

@@ -1,11 +1,10 @@
+import contextlib
 import math
 
 from easygraph.utils import *
 
-try:
+with contextlib.suppress(ImportError):
     from cpp_easygraph import cpp_constraint, cpp_effective_size, cpp_hierarchy
-except ImportError:
-    pass
 
 __all__ = ["effective_size", "efficiency", "constraint", "hierarchy"]
 

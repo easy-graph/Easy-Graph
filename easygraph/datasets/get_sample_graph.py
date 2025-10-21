@@ -101,7 +101,7 @@ def get_graph_blogcatalog():
 
         G = defaultdict(lambda: set())
         cx = x.tocoo()
-        for i, j, v in zip(cx.row, cx.col, cx.data):
+        for i, j, _v in zip(cx.row, cx.col, cx.data, strict=False):
             G[i].add(j)
         return {str(k): [str(x) for x in v] for k, v in G.items()}
 

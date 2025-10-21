@@ -143,7 +143,7 @@ def kruskal_mst_edges(G, minimum, weight="weight", data=True, ignore_nan=False):
             yield wt, u, v, d
 
     edges = sorted(filter_nan_edges(), key=itemgetter(0))
-    for wt, u, v, d in edges:
+    for _wt, u, v, d in edges:
         if subtrees[u] != subtrees[v]:
             if data:
                 yield (u, v, d)
@@ -653,7 +653,7 @@ class UnionFind:
 
         """
         # Ensure fully pruned paths
-        for x in self.parents.keys():
+        for x in self.parents:
             _ = self[x]  # Evaluated for side-effect only
 
         yield from groups(self.parents).values()

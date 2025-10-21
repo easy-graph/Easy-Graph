@@ -260,7 +260,7 @@ def AP_BICC(G, k, K, l):
         for i in G.nodes:
             if i not in A:
                 U.append(i)
-        kk = k - len(T)
+        k - len(T)
         Q = []
         for v in U:
             b_i_c = bounded_inverse_closeness_centrality(G, v, l)

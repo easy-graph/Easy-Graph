@@ -81,7 +81,7 @@ def laplacian(G, n_workers=None):
 
             Xi = copy.deepcopy(X)
             for j in G:
-                if j in adj.keys() and i in adj[j].keys():
+                if j in adj and i in adj[j]:
                     Xi[j] -= adj[j][i].get("weight", 1)
             Xi[i] = 0
             ELGi = sum(Xi[i] * Xi[i] for i in G) + sum(W[i] for i in G) - 2 * W[i]
@@ -110,7 +110,7 @@ def laplacian_parallel(nodes, G, X, W, adj, ELG):
 
         Xi = copy.deepcopy(X)
         for j in G:
-            if j in adj.keys() and i in adj[j].keys():
+            if j in adj and i in adj[j]:
                 Xi[j] -= adj[j][i].get("weight", 1)
         Xi[i] = 0
         ELGi = sum(Xi[i] * Xi[i] for i in G) + sum(W[i] for i in G) - 2 * W[i]

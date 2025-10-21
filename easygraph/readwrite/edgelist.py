@@ -99,10 +99,7 @@ def parse_edgelist(
         elif data is True:
             # no edge types specified
             try:  # try to evaluate as dictionary
-                if delimiter == ",":
-                    edgedata_str = ",".join(d)
-                else:
-                    edgedata_str = " ".join(d)
+                edgedata_str = ",".join(d) if delimiter == "," else " ".join(d)
                 edgedata = dict(literal_eval(edgedata_str.strip()))
             except Exception as err:
                 raise TypeError(
@@ -115,7 +112,7 @@ def parse_edgelist(
                     f"Edge data {d} and data_keys {data} are not the same length"
                 )
             edgedata = {}
-            for (edge_key, edge_type), edge_value in zip(data, d):
+            for (edge_key, edge_type), edge_value in zip(data, d, strict=False):
                 try:
                     edge_value = edge_type(edge_value)
                 except Exception as err:

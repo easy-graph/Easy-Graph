@@ -53,7 +53,7 @@ def avg_entropy(predicted_labels, actual_labels):
     for label, items in predicted_labels_dict.items():
         N_i = float(len(items))
         p_i = []
-        for label2, items2 in actual_labels_dict.items():
+        for _label2, items2 in actual_labels_dict.items():
             common = set(items.tolist()).intersection(set(items2.tolist()))
             p_ij = float(len(common)) / N_i
             p_i.append(p_ij)
@@ -79,7 +79,7 @@ def load_adj_matrix(G):
         listE.append(edge[0] - 1)
         listE.append(edge[1] - 1)
     adj_tuples = np.array(listE).reshape(-1, 2)
-    n = len(np.unique(adj_tuples))
+    len(np.unique(adj_tuples))
     vals = np.array([1] * len(G.edges))
     max_id = max(max(adj_tuples[:, 0]), max(adj_tuples[:, 1])) + 1
     A = sps.csr_matrix(
@@ -129,7 +129,6 @@ def label_by_neighbors(AdjMat, labels):
     assert AdjMat.shape[0] == len(labels), "dimensions are not equal"
     unlabeled_idx = labels == 0
     num_unlabeled = sum(unlabeled_idx)
-    count = 0
     while num_unlabeled > 0:
         idxs = np.array(np.nonzero(unlabeled_idx)[0])
         next_labels = np.zeros(len(labels))
@@ -220,7 +219,7 @@ def get_structural_holes_HAM(G, k, c, ground_truth_labels):
     F = sym(np.random.random((n, c)))
 
     # Algorithm 1
-    for step in range(max_iter):
+    for _step in range(max_iter):
         Q = sps.identity(n).tocsr()
         P = L.dot(F)
         for i in range(n):

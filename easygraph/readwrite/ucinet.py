@@ -21,6 +21,7 @@ References
     for full format information. Short version on http://www.analytictech.com/networks/dataentry.htm
 """
 
+import contextlib
 import re
 import shlex
 
@@ -163,14 +164,12 @@ def parse_ucinet(lines):
     lexer.whitespace_split = True
 
     number_of_nodes = 0
-    number_of_matrices = 0
     nr = 0  # number of rows (rectangular matrix)
     nc = 0  # number of columns (rectangular matrix)
     ucinet_format = "fullmatrix"  # Format by default
     labels = {}  # Contains labels of nodes
     row_labels_embedded = False  # Whether labels are embedded in data or not
     cols_labels_embedded = False
-    diagonal = True  # whether the main diagonal is present or absent
 
     KEYWORDS = ("format", "data:", "labels:")  # TODO remove ':' in keywords
 
@@ -188,14 +187,14 @@ def parse_ucinet(lines):
                 nc = int(get_param(r"\d+", token, lexer))
                 number_of_nodes = max(nr, nc)
             elif token.startswith("nm"):
-                number_of_matrices = int(get_param(r"\d+", token, lexer))
+                int(get_param(r"\d+", token, lexer))
             else:
                 number_of_nodes = int(get_param(r"\d+", token, lexer))
                 nr = number_of_nodes
                 nc = number_of_nodes
 
         elif token.startswith("diagonal"):
-            diagonal = get_param("present|absent", token, lexer)
+            get_param("present|absent", token, lexer)
 
         elif token.startswith("format"):
             ucinet_format = get_param(
@@ -234,7 +233,7 @@ edgelist1|edgelist2|blockmatrix|partition)$""",
     params = {}
     if cols_labels_embedded:
         # params['names'] = True
-        labels = dict(zip(range(0, nc), data_lines.splitlines()[1].split()))
+        labels = dict(zip(range(0, nc), data_lines.splitlines()[1].split(), strict=False))
         # params['skip_header'] = 2  # First character is \n
     if row_labels_embedded:  # Skip first column
         # TODO rectangular case : labels can differ from rows to columns
@@ -243,10 +242,8 @@ edgelist1|edgelist2|blockmatrix|partition)$""",
 
     if ucinet_format == "fullmatrix":
         # In Python3 genfromtxt requires bytes string
-        try:
+        with contextlib.suppress(TypeError):
             data_lines = bytes(data_lines, "utf-8")
-        except TypeError:
-            pass
         # Do not use splitlines() because it is not necessarily written as a square matrix
         data = genfromtxt([data_lines], case_sensitive=False, **params)
         if cols_labels_embedded or row_labels_embedded:
@@ -267,10 +264,7 @@ edgelist1|edgelist2|blockmatrix|partition)$""",
                     pass
                 else:
                     for neighbor in row[1:]:
-                        if ucinet_format == "nodelist1":
-                            source = row[0]
-                        else:
-                            source = str(i)
+                        source = row[0] if ucinet_format == "nodelist1" else str(i)
                         s += source + " " + neighbor + "\n"
 
         G = eg.parse_edgelist(
@@ -280,7 +274,7 @@ edgelist1|edgelist2|blockmatrix|partition)$""",
         )
 
         if not row_labels_embedded or not cols_labels_embedded:
-            G = eg.relabel_nodes(G, dict(zip(list(G.nodes), [i - 1 for i in G.nodes])))
+            G = eg.relabel_nodes(G, dict(zip(list(G.nodes), [i - 1 for i in G.nodes], strict=False)))
 
     elif ucinet_format == "edgelist1":
         G = eg.parse_edgelist(
@@ -290,7 +284,7 @@ edgelist1|edgelist2|blockmatrix|partition)$""",
         )
 
         if not row_labels_embedded or not cols_labels_embedded:
-            G = eg.relabel_nodes(G, dict(zip(list(G.nodes), [i - 1 for i in G.nodes])))
+            G = eg.relabel_nodes(G, dict(zip(list(G.nodes), [i - 1 for i in G.nodes], strict=False)))
 
     # Relabel nodes
     if labels:
@@ -320,6 +314,6 @@ def get_param(regex, token, lines):
         try:
             n = next(lines)
         except StopIteration:
-            raise Exception("Parameter %s value not recognized" % token)
+            raise Exception(f"Parameter {token} value not recognized")
         query = re.search(regex, n)
     return query.group()

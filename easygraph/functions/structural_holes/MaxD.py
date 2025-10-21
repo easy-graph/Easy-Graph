@@ -111,7 +111,7 @@ def get_structural_holes_MaxD(G, k, C: list[frozenset]):
         save.append(True)
     q = []
     ans_list = []
-    for step in range(k):
+    for _step in range(k):
         q.clear()
         sflow.clear()
         for i in range(n):
@@ -124,7 +124,7 @@ def get_structural_holes_MaxD(G, k, C: list[frozenset]):
                     sflow[i % n] += flow[k_]
                 k_ = nex[k_]
         for i in range(n):
-            if save[i] == False:
+            if not save[i]:
                 q.append((-1, i))
             else:
                 q.append((sflow[i] + G_index.degree(weight="weight")[i + 1], i))
@@ -132,7 +132,7 @@ def get_structural_holes_MaxD(G, k, C: list[frozenset]):
         q.reverse()
         candidates = []
         for i in range(n):
-            if save[q[i][1]] == True and len(candidates) < k:
+            if save[q[i][1]] and len(candidates) < k:
                 candidates.append(q[i][1])
         ret = pick_candidates(n, candidates, kernels, save)
         ans_list.append(ret[1] + 1)
@@ -246,7 +246,7 @@ def dinic_bfs():
         k_ = Q[cl]
         i = head[k_]
         while i >= 0:
-            if flow[i] < capa[i] and dsave[point[i]] == True and dist[point[i]] < 0:
+            if flow[i] < capa[i] and dsave[point[i]] and dist[point[i]] < 0:
                 dist[point[i]] = dist[k_] + 1
                 Q.append(point[i])
             i = nex[i]
@@ -324,7 +324,7 @@ def max_flow(n, kernels, save, prev_flow=None):
     for i in range(node):
         dsave.append(True)
 
-    if prev_flow != None:
+    if prev_flow is not None:
         for i in range(nedge):
             flow.append(prev_flow[i])
     else:
@@ -358,9 +358,8 @@ def init_MaxD(_node, _src, _dest):
     dest = _dest
     global point, capa, flow, nex, head
     head.clear()
-    for i in range(node):
+    for _i in range(node):
         head.append(-1)
-    nedge = 0
     point.clear()
     capa.clear()
     flow.clear()

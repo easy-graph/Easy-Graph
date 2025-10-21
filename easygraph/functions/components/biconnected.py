@@ -1,11 +1,10 @@
+import contextlib
 from itertools import chain
 
 from easygraph.utils import *
 
-try:
+with contextlib.suppress(ImportError):
     from cpp_easygraph import cpp_biconnected_dfs_record_edges
-except ImportError:
-    pass
 
 __all__ = [
     "is_biconnected",

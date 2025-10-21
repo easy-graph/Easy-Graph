@@ -353,7 +353,7 @@ def draw_kamada_kawai(G, rate=1, style="side"):
     """
     pos = eg.kamada_kawai_layout(G)
     node = np.zeros((len(pos), 2), float)
-    m, n = 0, 0
+    m, _n = 0, 0
     if rate == 1:
         for i in pos:
             node[m][0] = pos[i][0]

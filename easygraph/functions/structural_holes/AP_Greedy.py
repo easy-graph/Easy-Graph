@@ -90,7 +90,7 @@ def common_greedy(G, k, c=1.0, weight="weight"):
 
 def sort_nodes_by_degree(G, weight="weight"):
     sorted_nodes = []
-    for node, degree in sorted(
+    for node, _degree in sorted(
         G.degree(weight=weight).items(), key=lambda x: x[1], reverse=True
     ):
         sorted_nodes.append(node)
@@ -122,7 +122,7 @@ def procedure1(G, c=1.0):
         num_subtree_nodes = _get_num_subtree_nodes(spanning_tree, random_root)
 
         N_tree = num_subtree_nodes[random_root]
-        for node, num in num_subtree_nodes.items():
+        for _node, num in num_subtree_nodes.items():
             upper_bound += 2 * num * (N_tree - num)
 
         del component_subgraph, spanning_tree
@@ -141,7 +141,7 @@ def _get_spanning_tree_of_component(G):
     seen = set()
 
     def _plain_dfs(u):
-        for v, edge_data in G.adj[u].items():
+        for v, _edge_data in G.adj[u].items():
             if v not in seen:
                 seen.add(v)
                 spanning_tree.add_edge(u, v)
@@ -162,7 +162,7 @@ def _get_num_subtree_nodes(G, root):
 
     def _plain_dfs(u):
         num_nodes = 1
-        for v, edge_data in G.adj[u].items():
+        for v, _edge_data in G.adj[u].items():
             if v not in seen:
                 seen.add(v)
                 num_nodes += _plain_dfs(v)
@@ -391,7 +391,7 @@ def _get_upper_bound_of_non_ap_nodes(G, ap: list, c=1.0):
     components = connected_components(G)
     for component in components:
         non_articulation_points = component - set(ap)
-        for node in non_articulation_points:
+        for _node in non_articulation_points:
             upper_bound_value = 0
             upper_bound_value += sum(
                 (len(temp) * (N_G - len(temp))) for temp in components

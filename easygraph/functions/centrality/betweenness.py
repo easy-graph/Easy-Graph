@@ -132,10 +132,7 @@ def _rescale(betweenness, n, normalized, directed=False, endpoints=False):
         else:
             scale = 1 / ((n - 1) * (n - 2))
     else:  # rescale by 2 for undirected graphs
-        if not directed:
-            scale = 0.5
-        else:
-            scale = None
+        scale = 0.5 if not directed else None
     if scale is not None:
         for v in betweenness:
             betweenness[v] *= scale

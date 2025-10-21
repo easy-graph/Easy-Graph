@@ -28,12 +28,12 @@ def to_numpy_matrix(G, edge_sign=1.0, not_edge_sign=0.0):
     """
     import numpy as np
 
-    index_of_node = dict(zip(G.nodes, range(len(G))))
+    index_of_node = dict(zip(G.nodes, range(len(G)), strict=False))
     N = len(G)
     M = np.full((N, N), not_edge_sign)
 
     for u, udict in G.adj.items():
-        for v, data in udict.items():
+        for v, _data in udict.items():
             M[index_of_node[u], index_of_node[v]] = edge_sign
 
     M = np.asmatrix(M)
@@ -153,7 +153,7 @@ def from_numpy_array(A, parallel_edges=False, create_using=None):
     G.add_nodes_from(range(n))
     # Get a list of all the entries in the array with nonzero entries. These
     # coordinates become edges in the graph. (convert to int from np.int64)
-    edges = ((int(e[0]), int(e[1])) for e in zip(*A.nonzero()))
+    edges = ((int(e[0]), int(e[1])) for e in zip(*A.nonzero(), strict=False))
     # handle numpy constructed data type
     if python_type == "void":
         # Sort the fields by their offset, then by dtype, then by name.
@@ -166,7 +166,7 @@ def from_numpy_array(A, parallel_edges=False, create_using=None):
                 v,
                 {
                     name: kind_to_python_type[dtype.kind](val)
-                    for (_, dtype, name), val in zip(fields, A[u, v])
+                    for (_, dtype, name), val in zip(fields, A[u, v], strict=False)
                 },
             )
             for u, v in edges
@@ -319,7 +319,7 @@ def to_numpy_array(
             raise eg.EasyGraphError("nodelist contains duplicates.")
 
     undirected = not G.is_directed()
-    index = dict(zip(nodelist, range(nlen)))
+    index = dict(zip(nodelist, range(nlen), strict=False))
 
     # Initially, we start with an array of nans.  Then we populate the array
     # using data from the graph.  Afterwards, any leftover nans will be
@@ -557,7 +557,7 @@ def from_pandas_edgelist(
     g = eg.empty_graph(0, create_using)
 
     if edge_attr is None:
-        g.add_edges_from(zip(df[source], df[target]))
+        g.add_edges_from(zip(df[source], df[target], strict=False))
         return g
 
     reserved_columns = [source, target]
@@ -578,7 +578,7 @@ def from_pandas_edgelist(
         )
 
     try:
-        attribute_data = zip(*[df[col] for col in attr_col_headings])
+        attribute_data = zip(*[df[col] for col in attr_col_headings], strict=False)
     except (KeyError, TypeError) as err:
         msg = f"Invalid edge_attr argument: {edge_attr}"
         raise eg.EasyGraphError(msg) from err
@@ -588,23 +588,23 @@ def from_pandas_edgelist(
         if edge_key is not None:
             try:
                 multigraph_edge_keys = df[edge_key]
-                attribute_data = zip(attribute_data, multigraph_edge_keys)
+                attribute_data = zip(attribute_data, multigraph_edge_keys, strict=False)
             except (KeyError, TypeError) as err:
                 msg = f"Invalid edge_key argument: {edge_key}"
                 raise eg.EasyGraphError(msg) from err
 
-        for s, t, attrs in zip(df[source], df[target], attribute_data):
+        for s, t, attrs in zip(df[source], df[target], attribute_data, strict=False):
             if edge_key is not None:
                 attrs, multigraph_edge_key = attrs
                 key = g.add_edge(s, t, key=multigraph_edge_key)
             else:
                 key = g.add_edge(s, t)
 
-            g[s][t][key].update(zip(attr_col_headings, attrs))
+            g[s][t][key].update(zip(attr_col_headings, attrs, strict=False))
     else:
-        for s, t, attrs in zip(df[source], df[target], attribute_data):
+        for s, t, attrs in zip(df[source], df[target], attribute_data, strict=False):
             g.add_edge(s, t)
-            g[s][t].update(zip(attr_col_headings, attrs))
+            g[s][t].update(zip(attr_col_headings, attrs, strict=False))
 
     return g
 
@@ -773,7 +773,7 @@ def _coo_gen_triples(A):
 
     """
     row, col, data = A.row, A.col, A.data
-    return zip(row, col, data)
+    return zip(row, col, data, strict=False)
 
 
 def _dok_gen_triples(A):

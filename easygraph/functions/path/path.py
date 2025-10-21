@@ -1,3 +1,5 @@
+import contextlib
+
 from easygraph.utils.decorators import *
 
 __all__ = [
@@ -10,10 +12,8 @@ __all__ = [
     "multi_source_dijkstra",
 ]
 
-try:
+with contextlib.suppress(ImportError):
     from cpp_easygraph import cpp_dijkstra_multisource, cpp_Floyd, cpp_Kruskal, cpp_Prim
-except ImportError:
-    pass
 
 
 @not_implemented_for("multigraph")
@@ -132,7 +132,7 @@ def Prim(G):
                     start = i
                     end = j
                     min_weight = adj[i][j].get("weight", 1)
-        if start != None and end != None:
+        if start is not None and end is not None:
             result_dict[start][end] = min_weight
             selected.append(end)
             candidate.remove(end)

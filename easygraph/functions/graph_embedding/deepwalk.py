@@ -77,7 +77,7 @@ def simulate_walks(G, walk_length, num_walks):
     walks = []
     nodes = list(G.nodes)
     print("Walk iteration:")
-    for walk_iter in tqdm(range(num_walks)):
+    for _walk_iter in tqdm(range(num_walks)):
         random.shuffle(nodes)
         for node in nodes:
             walks.append(_deepwalk_walk(G, walk_length=walk_length, start_node=node))

@@ -39,15 +39,9 @@ def from_pyGraphviz_agraph(A, create_using=None):
     """
     if create_using is None:
         if A.is_directed():
-            if A.is_strict():
-                create_using = eg.DiGraph
-            else:
-                create_using = eg.MultiDiGraph
+            create_using = eg.DiGraph if A.is_strict() else eg.MultiDiGraph
         else:
-            if A.is_strict():
-                create_using = eg.Graph
-            else:
-                create_using = eg.MultiGraph
+            create_using = eg.Graph if A.is_strict() else eg.MultiGraph
 
     # assign defaults
     N = eg.empty_graph(0, create_using)

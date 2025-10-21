@@ -30,7 +30,7 @@ def pagerank(G, alpha=0.85):
     # eigenvector of largest eigenvalue is at ind, normalized
     largest = np.array(eigenvectors[:, ind]).flatten().real
     norm = float(largest.sum())
-    return dict(zip(G, map(float, largest / norm)))
+    return dict(zip(G, map(float, largest / norm), strict=False))
 
 
 def google_matrix(G, alpha):

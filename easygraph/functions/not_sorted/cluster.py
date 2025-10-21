@@ -1,12 +1,11 @@
+import contextlib
 from collections import Counter
 from itertools import chain
 
 from easygraph.utils.decorators import not_implemented_for
 
-try:
+with contextlib.suppress(ImportError):
     from cpp_easygraph import cpp_clustering
-except ImportError:
-    pass
 
 
 __all__ = ["average_clustering", "clustering"]

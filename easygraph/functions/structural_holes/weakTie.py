@@ -107,10 +107,9 @@ def _computeCloseness(G, c, u, threshold, length):
     n = 0
     strength_sum_u = 0
     for v in c:
-        if u in G[v] and v != u:
-            if G[v][u]["strength"] != 0:
-                n += 1
-                strength_sum_u += G[v][u]["strength"]
+        if u in G[v] and v != u and G[v][u]["strength"] != 0:
+            n += 1
+            strength_sum_u += G[v][u]["strength"]
     closeness_c_u = (strength_sum_u - n * threshold) / length
     return closeness_c_u
 

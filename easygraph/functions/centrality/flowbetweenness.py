@@ -44,7 +44,7 @@ def flowbetweenness_centrality(G):
     -----
     A flow network is a directed graph where each edge has a capacity and each edge receives a flow.
     """
-    if G.is_directed() == False:
+    if not G.is_directed():
         print("Please input a directed graph")
         return
     flow_dict = NumberOfFlow(G)
@@ -115,10 +115,7 @@ def edmonds_karp(G, source, sink):
             if u not in adj[v]:
                 adj[v][u] = dict()
                 flag = 1
-            if flag == 1:
-                x = 0
-            else:
-                x = adj[v][u].get("weight", 1)
+            x = 0 if flag == 1 else adj[v][u].get("weight", 1)
             adj[v][u].update({"weight": x})
             adj[v][u]["weight"] += path_flow
             v = parent[v]
@@ -138,7 +135,7 @@ def bfs(G, source, sink, parent, adj):
         if u not in adj:
             continue
         for v, attr in adj[u].items():
-            if (visited[v] == False) and (attr.get("weight", 1) > 0):
+            if (not visited[v]) and (attr.get("weight", 1) > 0):
                 queue.append(v)
                 visited[v] = True
                 parent[v] = u

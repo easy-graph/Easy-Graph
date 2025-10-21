@@ -376,7 +376,7 @@ class TestReadGraphML(BaseGraphML):
         assert nodes_equal(sorted(G.nodes), sorted(H.nodes))
         ge = sorted(G.edges)
         he = sorted(H.edges)
-        for a, b in zip(ge, he):
+        for a, b in zip(ge, he, strict=False):
             assert a == b
         self.attribute_fh.seek(0)
 
@@ -384,7 +384,7 @@ class TestReadGraphML(BaseGraphML):
         assert sorted(G.nodes) == sorted(PG.nodes)
         ge = sorted(G.edges)
         he = sorted(PG.edges)
-        for a, b in zip(ge, he):
+        for a, b in zip(ge, he, strict=False):
             assert a == b
 
     def test_node_default_attribute_graphml(self):
@@ -502,11 +502,10 @@ class TestReadGraphML(BaseGraphML):
 </graphml>
 """
         fh = io.BytesIO(s.encode("UTF-8"))
-        G = eg.read_graphml(fh)
-        expected = [("n0", "n1", "e0"), ("n0", "n1", "e1")]
+        eg.read_graphml(fh)
         # assert sorted(G.edges) == expected
         fh.seek(0)
-        H = eg.parse_graphml(s)
+        eg.parse_graphml(s)
         # assert sorted(H.edges) == expected
 
     def test_preserve_multi_edge_data(self):
@@ -1179,8 +1178,8 @@ class TestWriteGraphML(BaseGraphML):
         named_key_ids_behavior_fh.seek(0)
         J = eg.read_graphml(named_key_ids_behavior_fh)
 
-        assert all(n1 == n2 for (n1, n2) in zip(H.nodes, J.nodes))
-        assert all(e1 == e2 for (e1, e2) in zip(H.edges, J.edges))
+        assert all(n1 == n2 for (n1, n2) in zip(H.nodes, J.nodes, strict=False))
+        assert all(e1 == e2 for (e1, e2) in zip(H.edges, J.edges, strict=False))
 
     def test_write_read_attribute_numeric_type_graphml(self):
         from xml.etree.ElementTree import parse
@@ -1379,7 +1378,7 @@ class TestWriteGraphML(BaseGraphML):
 
         assert nodes_equal(G.nodes, H.nodes)
         # assert edges_equal(G.edges, H.edges)x
-        x = [data.get("eid") for u, v, _, data in H.edges]
+        [data.get("eid") for u, v, _, data in H.edges]
         assert sorted(data.get("eid") for u, v, _, data in H.edges) == sorted(
             edge_attributes.values()
         )
@@ -1451,7 +1450,7 @@ class TestWriteGraphML(BaseGraphML):
         os.unlink(fname)
 
     def test_numpy_float64_inference(self):
-        np = pytest.importorskip("numpy")
+        pytest.importorskip("numpy")
         G = self.attribute_numeric_type_graph
         fd, fname = tempfile.mkstemp()
         self.writer(G, fname, infer_numeric_types=True)

@@ -76,10 +76,6 @@ def generate_pajek(G):
     See http://vlado.fmf.uni-lj.si/pub/networks/pajek/doc/draweps.htm
     for format information.
     """
-    if G.name == "":
-        name = "EasyGraph"
-    else:
-        name = G.name
     # Apparently many Pajek format readers can't process this line
     # So we'll leave it out for now.
     # yield '*network %s'%name
@@ -88,7 +84,7 @@ def generate_pajek(G):
     yield f"*vertices {G.order()}"
     nodes = list(G)
     # make dictionary mapping nodes to integers
-    nodenumber = dict(zip(nodes, range(1, len(nodes) + 1)))
+    nodenumber = dict(zip(nodes, range(1, len(nodes) + 1), strict=False))
     for n in nodes:
         # copy node attributes and pop mandatory attributes
         # to avoid duplication.
@@ -113,7 +109,7 @@ def generate_pajek(G):
             else:
                 warnings.warn(
                     f"Node attribute {k} is not processed."
-                    f" {('Empty attribute' if isinstance(v, str) else 'Non-string attribute')}."
+                    f" {('Empty attribute' if isinstance(v, str) else 'Non-string attribute')}.", stacklevel=2
                 )
         yield s
 
@@ -140,7 +136,7 @@ def generate_pajek(G):
             else:
                 warnings.warn(
                     f"Edge attribute {k} is not processed."
-                    f" {('Empty attribute' if isinstance(v, str) else 'Non-string attribute')}."
+                    f" {('Empty attribute' if isinstance(v, str) else 'Non-string attribute')}.", stacklevel=2
                 )
         yield s
 
@@ -258,7 +254,7 @@ def parse_pajek(lines):
         elif l.lower().startswith("*vertices"):
             nodelabels = {}
             l, nnodes = l.split()
-            for i in range(int(nnodes)):
+            for _i in range(int(nnodes)):
                 l = next(lines)
                 try:
                     splitline = [x for x in shlex.split(str(l))]
@@ -276,7 +272,7 @@ def parse_pajek(lines):
                     )
                 except:
                     pass
-                extra_attr = zip(splitline[5::2], splitline[6::2])
+                extra_attr = zip(splitline[5::2], splitline[6::2], strict=False)
                 G.nodes[label].update(extra_attr)
         elif l.lower().startswith("*edges") or l.lower().startswith("*arcs"):
             if l.lower().startswith("*edge"):
@@ -307,7 +303,7 @@ def parse_pajek(lines):
                     pass
                     # if there isn't, just assign a 1
                 #                    edge_data.update({'value':1})
-                extra_attr = zip(splitline[3::2], splitline[4::2])
+                extra_attr = zip(splitline[3::2], splitline[4::2], strict=False)
                 edge_data.update(extra_attr)
                 # if G.has_edge(u,v):
                 #     multigraph=True

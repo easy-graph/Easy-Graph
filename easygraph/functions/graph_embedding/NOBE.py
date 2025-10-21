@@ -122,7 +122,7 @@ def graph_to_d_atleast2(G):
 
 
 def Transition(LG):
-    N = len(LG)
+    len(LG)
     M = LG.size()
     LLG = eg.DiGraph()
     for i in LG.edges:

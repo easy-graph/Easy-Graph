@@ -70,7 +70,7 @@ def LPA(G):
         label_dict = Next_label_dict
         if estimate_stop_cond(G, label_dict) is True:
             break
-    for node in label_dict.keys():
+    for node in label_dict:
         label = label_dict[node]
         if label not in cluster_community:
             cluster_community[label] = [node]
@@ -115,7 +115,7 @@ def SLPA(G, T, r):
     nodes = G.nodes
     adj = G.adj
     memory = {i: {i: 1} for i in nodes}
-    for i in range(0, T):
+    for _i in range(0, T):
         listenerslist = list(G.nodes)
         random.shuffle(listenerslist)
         for listener in listenerslist:
@@ -255,37 +255,33 @@ def HANP(G, m, delta, threshod=1, hier_open=0, combine_open=0):
                 )
                 score = min(score, score_dict[Next_label_dict[node]])
             else:
-                if old_label == Next_label_dict[node]:
-                    cdelta = 0
-                else:
-                    cdelta = delta
+                cdelta = 0 if old_label == Next_label_dict[node] else delta
                 score_dict[Next_label_dict[node]] = UpdateScore(
                     G, node, label_dict, score_dict, cdelta
                 )
-        if hier_open == 1 and combine_open == 1:
-            if old_score - score > 1 / 3:
-                old_score = score
-                (
-                    records,
-                    G,
-                    label_dict,
-                    score_dict,
-                    node_dict,
-                    Next_label_dict,
-                    nodes,
-                    degrees,
-                    distance_dict,
-                ) = CombineNodes(
-                    records,
-                    G,
-                    label_dict,
-                    score_dict,
-                    node_dict,
-                    Next_label_dict,
-                    nodes,
-                    degrees,
-                    distance_dict,
-                )
+        if hier_open == 1 and combine_open == 1 and old_score - score > 1 / 3:
+            old_score = score
+            (
+                records,
+                G,
+                label_dict,
+                score_dict,
+                node_dict,
+                Next_label_dict,
+                nodes,
+                degrees,
+                distance_dict,
+            ) = CombineNodes(
+                records,
+                G,
+                label_dict,
+                score_dict,
+                node_dict,
+                Next_label_dict,
+                nodes,
+                degrees,
+                distance_dict,
+            )
         label_dict = Next_label_dict
         if (
             estimate_stop_cond_HANP(G, label_dict, score_dict, degrees, m, threshod)
@@ -299,7 +295,7 @@ def HANP(G, m, delta, threshod=1, hier_open=0, combine_open=0):
         if loop_count > 20:
             break
     print("After %d iterations, HANP complete." % loop_count)
-    for node in label_dict.keys():
+    for node in label_dict:
         label = label_dict[node]
         if label not in cluster_community:
             cluster_community[label] = [node]

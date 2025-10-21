@@ -244,7 +244,7 @@ class MultiDiGraph(MultiGraph, DiGraph):
         edges = list()
         for n, nbrs in self._adj.items():
             for nbr, kd in nbrs.items():
-                for k, dd in kd.items():
+                for k, _dd in kd.items():
                     edges.append((nbr, n, k))
         return edges
 

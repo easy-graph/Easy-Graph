@@ -115,5 +115,5 @@ def pairwise(iterable, cyclic=False):
     a, b = tee(iterable)
     first = next(b, None)
     if cyclic is True:
-        return zip(a, chain(b, (first,)))
-    return zip(a, b)
+        return zip(a, chain(b, (first,)), strict=False)
+    return zip(a, b, strict=False)

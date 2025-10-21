@@ -2,10 +2,7 @@ __all__ = ["relabel_nodes"]
 
 
 def relabel_nodes(G, mapping):
-    if not hasattr(mapping, "__getitem__"):
-        m = {n: mapping(n) for n in G}
-    else:
-        m = mapping
+    m = {n: mapping(n) for n in G} if not hasattr(mapping, "__getitem__") else mapping
     return _relabel_copy(G, m)
 
 

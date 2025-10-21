@@ -533,10 +533,7 @@ class GraphMLWriter(GraphML):
         try:
             return self.keys[keys_key]
         except KeyError:
-            if self.named_key_ids:
-                new_id = name
-            else:
-                new_id = f"d{len(list(self.keys))}"
+            new_id = name if self.named_key_ids else f"d{len(list(self.keys))}"
 
             self.keys[keys_key] = new_id
             key_kwargs = {
@@ -619,10 +616,7 @@ class GraphMLWriter(GraphML):
         """
         Serialize graph G in GraphML to the stream.
         """
-        if G.is_directed():
-            default_edge_type = "directed"
-        else:
-            default_edge_type = "undirected"
+        default_edge_type = "directed" if G.is_directed() else "undirected"
 
         graphid = G.graph.pop("id", None)
         if graphid is None:
@@ -750,10 +744,7 @@ class GraphMLWriterLxml(GraphMLWriter):
         """
         Serialize graph G in GraphML to the stream.
         """
-        if G.is_directed():
-            default_edge_type = "directed"
-        else:
-            default_edge_type = "undirected"
+        default_edge_type = "directed" if G.is_directed() else "undirected"
 
         graphid = G.graph.pop("id", None)
         if graphid is None:
@@ -780,27 +771,27 @@ class GraphMLWriterLxml(GraphMLWriter):
             element_type = self.get_xml_type(self.attr_type(k, "graph", v))
             self.get_key(str(k), element_type, "graph", None)
         # Nodes and data
-        for node, d in G.nodes.items():
+        for _node, d in G.nodes.items():
             for k, v in d.items():
                 self.attribute_types[(str(k), "node")].add(type(v))
-        for node, d in G.nodes.items():
+        for _node, d in G.nodes.items():
             for k, v in d.items():
                 T = self.get_xml_type(self.attr_type(k, "node", v))
                 self.get_key(str(k), T, "node", node_default.get(k))
         # Edges and data
         if G.is_multigraph():
-            for u, v, ekey, d in G.edges:
+            for _u, v, _ekey, d in G.edges:
                 for k, v in d.items():
                     self.attribute_types[(str(k), "edge")].add(type(v))
-            for u, v, ekey, d in G.edges:
+            for _u, v, _ekey, d in G.edges:
                 for k, v in d.items():
                     T = self.get_xml_type(self.attr_type(k, "edge", v))
                     self.get_key(str(k), T, "edge", edge_default.get(k))
         else:
-            for u, v, d in G.edges:
+            for _u, v, d in G.edges:
                 for k, v in d.items():
                     self.attribute_types[(str(k), "edge")].add(type(v))
-            for u, v, d in G.edges:
+            for _u, v, d in G.edges:
                 for k, v in d.items():
                     T = self.get_xml_type(self.attr_type(k, "edge", v))
                     self.get_key(str(k), T, "edge", edge_default.get(k))
@@ -863,10 +854,7 @@ class GraphMLReader(GraphML):
         # set default graph type
         edgedefault = graph_xml.get("edgedefault", None)
         if G is None:
-            if edgedefault == "directed":
-                G = eg.MultiDiGraph()
-            else:
-                G = eg.MultiGraph()
+            G = eg.MultiDiGraph() if edgedefault == "directed" else eg.MultiGraph()
         # set defaults for graph attributes
         G.graph["node_default"] = {}
         G.graph["edge_default"] = {}
@@ -906,7 +894,7 @@ class GraphMLReader(GraphML):
         # warn on finding unsupported ports tag
         ports = node_xml.find(f"{{{self.NS_GRAPHML}}}port")
         if ports is not None:
-            warnings.warn("GraphML port tag not supported.")
+            warnings.warn("GraphML port tag not supported.", stacklevel=2)
         # find the node by id and cast it to the appropriate type
         node_id = self.node_type(node_xml.get("id"))
         # get data/attributes for node
@@ -922,7 +910,7 @@ class GraphMLReader(GraphML):
         # warn on finding unsupported ports tag
         ports = edge_element.find(f"{{{self.NS_GRAPHML}}}port")
         if ports is not None:
-            warnings.warn("GraphML port tag not supported.")
+            warnings.warn("GraphML port tag not supported.", stacklevel=2)
 
         # raise error if we find mixed directed and undirected edges
         directed = edge_element.get("directed")
@@ -1030,7 +1018,7 @@ class GraphMLReader(GraphML):
                 attr_type = "yfiles"
             if attr_type is None:
                 attr_type = "string"
-                warnings.warn(f"No key type for id {attr_id}. Using string")
+                warnings.warn(f"No key type for id {attr_id}. Using string", stacklevel=2)
             if attr_name is None:
                 raise eg.EasyGraphError(f"Unknown key for id {attr_id}.")
             graphml_keys[attr_id] = {

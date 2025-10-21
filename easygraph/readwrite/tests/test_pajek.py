@@ -282,7 +282,7 @@ class TestPajek:
         line = "*network\n"
         other_lines = self.data.split("\n")[1:]
         data = line + "\n".join(other_lines)
-        G = eg.parse_pajek(data)
+        eg.parse_pajek(data)
 
     def test_unicode(self):
         import io

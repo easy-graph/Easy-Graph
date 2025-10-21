@@ -1,3 +1,3 @@
-from .biconnected import *
-from .connected import *
-from .ego_betweenness import *
+from easygraph.functions.components.biconnected import *
+from easygraph.functions.components.connected import *
+from easygraph.functions.components.ego_betweenness import *

@@ -115,16 +115,15 @@ def structural_hole_influence_index(
                     if neighbor not in seedNeighborSet:
                         seedNeighborSet.append(neighbor)
                     count_neighbor = count_neighbor + 1
-                if count_neighbor > 0:
-                    if (
-                        len(queue) == 1
-                        and len(oneSeedSet) + len(seedNeighborSet) < seedSetSize
-                    ):
-                        for node in seedNeighborSet:
-                            if node not in oneSeedSet:
-                                oneSeedSet.append(node)
-                            queue.append(node)
-                        seedNeighborSet.clear()
+                if count_neighbor > 0 and (
+                    len(queue) == 1
+                    and len(oneSeedSet) + len(seedNeighborSet) < seedSetSize
+                ):
+                    for node in seedNeighborSet:
+                        if node not in oneSeedSet:
+                            oneSeedSet.append(node)
+                        queue.append(node)
+                    seedNeighborSet.clear()
                 queue.pop(0)
 
             avg_censor_score_1 = 0.0
@@ -175,7 +174,7 @@ def _independent_cascade(G, S, community_label, countIterations, node_label_pair
     avg_result_1 = 0
     avg_result_2 = 0
     N = G.number_of_nodes()
-    for b in range(countIterations):
+    for _b in range(countIterations):
         # print(b, " in ", countIterations)
         p_vw = np.zeros(
             (N, N)
@@ -225,7 +224,7 @@ def _linear_threshold(G, S, community_label, countIterations, node_label_pair):
     tol = 0.00001
     avg_result_1 = 0
     avg_result_2 = 0
-    for b in range(countIterations):
+    for _b in range(countIterations):
         activeNodes = []
         # T is the set of nodes that are to be processed
         T = []

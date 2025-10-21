@@ -131,10 +131,7 @@ def read_gexf(path, node_type=None, relabel=False, version="1.2draft"):
     .. [1] GEXF File Format, http://gexf.net/
     """
     reader = GEXFReader(node_type=node_type, version=version)
-    if relabel:
-        G = relabel_gexf_graph(reader(path))
-    else:
-        G = reader(path)
+    G = relabel_gexf_graph(reader(path)) if relabel else reader(path)
     return G
 
 
@@ -282,20 +279,14 @@ class GEXFWriter(GEXF):
 
     def add_graph(self, G):
         # first pass through G collecting edge ids
-        for u, v, dd in G.edges:
+        for _u, _v, dd in G.edges:
             eid = dd.get("id")
             if eid is not None:
                 self.all_edge_ids.add(str(eid))
         # set graph attributes
-        if G.graph.get("mode") == "dynamic":
-            mode = "dynamic"
-        else:
-            mode = "static"
+        mode = "dynamic" if G.graph.get("mode") == "dynamic" else "static"
         # Add a graph element to the XML
-        if G.is_directed():
-            default = "directed"
-        else:
-            default = "undirected"
+        default = "directed" if G.is_directed() else "undirected"
         name = G.graph.get("name", "")
         graph_element = Element("graph", defaultedgetype=default, mode=mode, name=name)
         self.graph_element = graph_element
@@ -662,10 +653,7 @@ class GEXFReader(GEXF):
 
     def make_graph(self, graph_xml):
         edgedefault = graph_xml.get("defaultedgetype", None)
-        if edgedefault == "directed":
-            G = eg.MultiDiGraph()
-        else:
-            G = eg.MultiGraph()
+        G = eg.MultiDiGraph() if edgedefault == "directed" else eg.MultiGraph()
 
         # graph attributes
         graph_name = graph_xml.get("name", "")
@@ -732,10 +720,7 @@ class GEXFReader(GEXF):
 
         # switch to Graph or DiGraph if no parallel edges were found.
         if self.simple_graph:
-            if G.is_directed():
-                G = eg.DiGraph(G)
-            else:
-                G = eg.Graph(G)
+            G = eg.DiGraph(G) if G.is_directed() else eg.Graph(G)
         return G
 
     def add_node(self, G, node_xml, node_attr, node_pid=None):
@@ -997,7 +982,7 @@ def relabel_gexf_graph(G):
         raise EasyGraphError(
             "Failed to relabel nodes: missing node labels found. Use relabel=False."
         ) from err
-    x, y = zip(*mapping)
+    x, y = zip(*mapping, strict=False)
     if len(set(y)) != len(G):
         raise EasyGraphError(
             "Failed to relabel nodes: duplicate node labels found. Use relabel=False."

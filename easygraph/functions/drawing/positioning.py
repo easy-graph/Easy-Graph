@@ -40,7 +40,7 @@ def random_position(G, center=None, dim=2, random_seed=None):
     rng = np.random.RandomState(seed=random_seed)
     pos = rng.rand(len(G), dim) + center
     pos = pos.astype(np.float32)
-    pos = dict(zip(G, pos))
+    pos = dict(zip(G, pos, strict=False))
 
     return pos
 
@@ -78,7 +78,7 @@ def circular_position(G, center=None, scale=1):
         theta = theta.astype(np.float32)
         pos = np.column_stack([np.cos(theta), np.sin(theta)])
         pos = rescale_position(pos, scale=scale) + center
-        pos = dict(zip(G, pos))
+        pos = dict(zip(G, pos, strict=False))
 
     return pos
 
@@ -142,7 +142,7 @@ def shell_position(G, nlist=None, scale=1, center=None):
             pos = rescale_position(pos, scale=scale * radius / len(nlist)) + center
         else:
             pos = np.array([(scale * radius + center[0], center[1])])
-        npos.update(zip(nodes, pos))
+        npos.update(zip(nodes, pos, strict=False))
         radius += 1.0
 
     return npos
@@ -151,10 +151,7 @@ def shell_position(G, nlist=None, scale=1, center=None):
 def _get_center(center, dim):
     import numpy as np
 
-    if center is None:
-        center = np.zeros(dim)
-    else:
-        center = np.asarray(center)
+    center = np.zeros(dim) if center is None else np.asarray(center)
 
     if dim < 2:
         raise ValueError("cannot handle dimensions < 2")
@@ -260,23 +257,20 @@ def kamada_kawai_layout(
         elif dim == 2:
             pos = eg.circular_position(G)
         else:
-            pos = {n: pt for n, pt in zip(G, np.linspace(0, 1, len(G)))}
+            pos = {n: pt for n, pt in zip(G, np.linspace(0, 1, len(G)), strict=False)}
 
     pos_arr = np.array([pos[n] for n in G])
 
     pos = _kamada_kawai_solve(dist_mtx, pos_arr, dim)
 
-    if center is None:
-        center = np.zeros(dim)
-    else:
-        center = np.asarray(center)
+    center = np.zeros(dim) if center is None else np.asarray(center)
 
     if len(center) != dim:
         msg = "length of center coordinates must match dimension of layout"
         raise ValueError(msg)
 
     pos = eg.rescale_position(pos, scale=scale) + center
-    return dict(zip(G, pos))
+    return dict(zip(G, pos, strict=False))
 
 
 def _kamada_kawai_solve(dist_mtx, pos_arr, dim):

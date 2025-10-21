@@ -28,6 +28,7 @@ Several example graphs in GML format may be found on Mark Newman's
 `Network data page <http://www-personal.umich.edu/~mejn/netdata/>`_.
 """
 
+import contextlib
 import html.entities as htmlentitydefs
 import re
 from ast import literal_eval
@@ -67,10 +68,7 @@ def unescape(text):
         text = m.group(0)
         if text[1] == "#":
             # Character reference
-            if text[2] == "x":
-                code = int(text[3:-1], 16)
-            else:
-                code = int(text[2:-1])
+            code = int(text[3:-1], 16) if text[2] == "x" else int(text[2:-1])
         else:
             # Named entity
             try:
@@ -282,10 +280,8 @@ def parse_gml_lines(lines, label, destringizer):
             elif category == Pattern.STRINGS:
                 value = unescape(curr_token.value[1:-1])
                 if destringizer:
-                    try:
+                    with contextlib.suppress(ValueError):
                         value = destringizer(value)
-                    except ValueError:
-                        pass
                 curr_token = next(tokens)
             elif category == Pattern.DICT_START:
                 curr_token, value = parse_dict(curr_token)
@@ -295,10 +291,8 @@ def parse_gml_lines(lines, label, destringizer):
                         # String convert the token value
                         value = unescape(str(curr_token.value))
                         if destringizer:
-                            try:
+                            with contextlib.suppress(ValueError):
                                 value = destringizer(value)
-                            except ValueError:
-                                pass
                         curr_token = next(tokens)
                     except Exception:
                         msg = (
@@ -538,7 +532,7 @@ def generate_gml(G, stringizer=None):
         yield from stringize(attr, value, ignored_keys, "  ")
 
     # Output node data
-    node_id = dict(zip(G, range(len(G))))
+    node_id = dict(zip(G, range(len(G)), strict=False))
     ignored_keys = {"id", "label"}
     for node, attrs in G.nodes.items():
         yield "  node ["

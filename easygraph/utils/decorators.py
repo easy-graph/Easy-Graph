@@ -934,10 +934,7 @@ class argmap:
         fname = cls._name(f)
         def_sig = f"def {fname}({', '.join(def_sig)}):"
 
-        if inspect.isgeneratorfunction(f):
-            _return = "yield from"
-        else:
-            _return = "return"
+        _return = "yield from" if inspect.isgeneratorfunction(f) else "return"
 
         call_sig = f"{_return} {{}}({', '.join(call_sig)})"
 

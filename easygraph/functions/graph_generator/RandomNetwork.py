@@ -352,7 +352,7 @@ def WS_Random(n, k, p, FilePath=None):
                 if adjacent[e_del] == []:
                     adjacent.pop(e_del)
                 e_add = random.randint(0, NUM2)
-                while e_add == i or G.has_edge(i, e_add) == True:
+                while e_add == i or G.has_edge(i, e_add):
                     e_add = random.randint(0, NUM2)
                 G.add_edge(i, e_add)
                 if i not in adjacent:
@@ -370,10 +370,7 @@ def WS_Random(n, k, p, FilePath=None):
 
 
 def writeRandomNetworkToFile(n, adjacent, FilePath):
-    if FilePath != None:
-        f = open(FilePath, "w+")
-    else:
-        f = open("RandomNetwork.txt", "w+")
+    f = open(FilePath, "w+") if FilePath is not None else open("RandomNetwork.txt", "w+")
     adjacent = sorted(adjacent.items(), key=lambda d: d[0])
     for i in adjacent:
         i[1].sort()

@@ -57,7 +57,7 @@ def bridges(G, root=None):
     """
     chains = chain_decomposition(G, root=root)
     chain_edges = set(chain.from_iterable(chains))
-    for u, v, t in G.edges:
+    for u, v, _t in G.edges:
         if (u, v) not in chain_edges and (v, u) not in chain_edges:
             yield u, v
 
@@ -153,7 +153,7 @@ def chain_decomposition(G, root=None):
         # For each nontree edge going out of node u...
         edges = []
         for w, v, d in H.edges:
-            if w == u and d["nontree"] == True:
+            if w == u and d["nontree"]:
                 edges.append((w, v))
         # edges = ((u, v) for u, v, d in H.out_edges(u, data="nontree") if d)
         for u, v in edges:

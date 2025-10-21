@@ -1,3 +1,4 @@
+import contextlib
 from itertools import chain
 
 import easygraph as eg
@@ -12,10 +13,8 @@ __all__ = [
     "number_of_selfloops",
     "density",
 ]
-try:
+with contextlib.suppress(ImportError):
     from cpp_easygraph import cpp_density
-except ImportError:
-    pass
 
 
 def set_edge_attributes(G, values, name=None):
@@ -97,16 +96,12 @@ def set_edge_attributes(G, values, name=None):
             # if `values` is a dict using `.items()` => {edge: value}
             if G.is_multigraph():
                 for (u, v, key), value in values.items():
-                    try:
+                    with contextlib.suppress(KeyError):
                         G[u][v][key][name] = value
-                    except KeyError:
-                        pass
             else:
                 for (u, v), value in values.items():
-                    try:
+                    with contextlib.suppress(KeyError):
                         G[u][v][name] = value
-                    except KeyError:
-                        pass
         except AttributeError:
             # treat `values` as a constant
             for u, v, data in G.edges:
@@ -115,16 +110,12 @@ def set_edge_attributes(G, values, name=None):
         # `values` consists of doct-of-dict {edge: {attr: value}} shape
         if G.is_multigraph():
             for (u, v, key), d in values.items():
-                try:
+                with contextlib.suppress(KeyError):
                     G[u][v][key].update(d)
-                except KeyError:
-                    pass
         else:
             for (u, v), d in values.items():
-                try:
+                with contextlib.suppress(KeyError):
                     G[u][v].update(d)
-                except KeyError:
-                    pass
 
 
 def add_path(G_to_add_to, nodes_for_path, **attr):
@@ -243,20 +234,16 @@ def set_node_attributes(G, values, name=None):
     # Set node attributes based on type of `values`
     if name is not None:  # `values` must not be a dict of dict
         try:  # `values` is a dict
-            for n, v in values.items():
-                try:
+            for n, _v in values.items():
+                with contextlib.suppress(KeyError):
                     G.nodes[n][name] = values[n]
-                except KeyError:
-                    pass
         except AttributeError:  # `values` is a constant
             for n in G:
                 G.nodes[n][name] = values
     else:  # `values` must be dict of dict
         for n, d in values.items():
-            try:
+            with contextlib.suppress(KeyError):
                 G.nodes[n].update(d)
-            except KeyError:
-                pass
 
 
 def topological_generations(G):

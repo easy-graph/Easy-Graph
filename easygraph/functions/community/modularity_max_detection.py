@@ -137,17 +137,11 @@ def greedy_modularity_communities(G, weight="weight"):
             # Update rows j and k
             for row, col in [(j, k), (k, j)]:
                 # Save old value for finding heap index
-                if k in j_set:
-                    d_old = (-dq_dict[row][col], row, col)
-                else:
-                    d_old = None
+                d_old = (-dq_dict[row][col], row, col) if k in j_set else None
                 # Update dict for j,k only (i is removed below)
                 dq_dict[row][col] = dq_jk
                 # Save old max of per-row heap
-                if len(dq_heap[row]) > 0:
-                    d_oldmax = dq_heap[row].h[0]
-                else:
-                    d_oldmax = None
+                d_oldmax = dq_heap[row].h[0] if len(dq_heap[row]) > 0 else None
                 # Add/update heaps
                 d = (-dq_jk, row, col)
                 if d_old is None:

@@ -163,7 +163,7 @@ org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/\
         assert sorted(G.nodes) == sorted(H.nodes)
         ge = sorted(G.edges)
         he = sorted(H.edges)
-        for a, b in zip(ge, he):
+        for a, b in zip(ge, he, strict=False):
             assert a == b
         self.attribute_fh.seek(0)
 
