@@ -9,10 +9,6 @@ readme = "README.rst"
 requires-python = ">=3.10"
 license = "BSD-3-Clause"
 classifiers = [
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Operating System :: OS Independent",
 ]
@@ -39,16 +35,12 @@ easy-graph = "easy_graph:main"
 minimum-version = "build-system.requires"
 build-dir = "build/{wheel_tag}"
 
-[tool.uv]
-cache-keys = [{ file = "pyproject.toml" }, { file = "src/**/*.{h,c,hpp,cpp}" }, { file = "src/cpp_easygraph/CMakeLists.txt" }]
-
 [build-system]
 requires = ["scikit-build-core>=0.10", "pybind11"]
 build-backend = "scikit_build_core.build"
 
 [tool.setuptools.packages.find]
-# 告诉 setuptools 你的包在 "src" 目录下
-where = ["src"]
+where = ["."]
 
 [dependency-groups]
 dev = [
@@ -61,3 +53,6 @@ dev = [
 [tool.pytest.ini_options]
 python_files = "**/tests/test_*.py"
 addopts = "-ra --disable-warnings"
+
+[tool.scikit-build.cmake]
+source-dir = "cpp_easygraph"
