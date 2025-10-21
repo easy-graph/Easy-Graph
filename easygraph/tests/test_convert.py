@@ -43,7 +43,7 @@ class TestConvertPandas:
         self.df = df
 
         mdf = pd.DataFrame([[4, 16, "A", "D"]], columns=["weight", "cost", 0, "b"])
-        self.mdf = df.append(mdf)
+        self.mdf = pd.concat([df, mdf], ignore_index=True)
 
     def assert_equal(self, G1, G2):
         assert nodes_equal(G1.nodes, G2.nodes)
