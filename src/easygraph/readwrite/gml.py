@@ -39,7 +39,6 @@ from enum import Enum
 from io import StringIO
 from typing import Any
 from typing import NamedTuple
-from unicodedata import category
 
 import easygraph as eg
 

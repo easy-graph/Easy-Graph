@@ -252,7 +252,7 @@ class GEXFWriter(GEXF):
         # Make meta element a non-graph element
         # Also add lastmodifieddate as attribute, not tag
         meta_element = Element("meta")
-        subelement_text = f"EasyGraph"
+        subelement_text = "EasyGraph"
         SubElement(meta_element, "creator").text = subelement_text
         meta_element.set("lastmodifieddate", time.strftime("%Y-%m-%d"))
         self.xml.append(meta_element)

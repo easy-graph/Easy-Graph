@@ -16,10 +16,10 @@ def create_alias_table(area_ratio):
     """
     import numpy as np
 
-    l = len(area_ratio)
-    accept, alias = [0] * l, [0] * l
+    length = len(area_ratio)
+    accept, alias = [0] * length, [0] * length
     small, large = [], []
-    area_ratio_ = np.array(area_ratio) * l
+    area_ratio_ = np.array(area_ratio) * length
     for i, prob in enumerate(area_ratio_):
         if prob < 1.0:
             small.append(i)

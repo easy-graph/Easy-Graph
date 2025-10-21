@@ -1,7 +1,5 @@
 """Base class for MultiGraph."""
 from copy import deepcopy
-from typing import Dict
-from typing import List
 
 import easygraph as eg
 import easygraph.convert as convert
