@@ -55,12 +55,12 @@ It bridges the gap between EasyGraph and higher-order relationships. EasyHypergr
 
 ## 📣 Media & Press
 - [08-09-2025] [EasyHypergraph: Fast, Efficient Higher-Order Network Analysis](https://scienmag.com/easyhypergraph-fast-efficient-higher-order-network-analysis/)
-- [01-15-2025] [开放原子大赛OpenRank开源数字生态分析与应用创新大赛全国一等奖(in Chinese)](https://mp.weixin.qq.com/s/e54JHaP2AAEUN3S8RZ-Y2g)
-- [01-07-2025] [计算机科学技术学院教授陈阳入选“2024中国开源先锋33人”(in Chinese)](https://news.fudan.edu.cn/2025/0107/c2463a143932/page.htm)
-- [12-04-2024] [国际开源基准委员会的"顶级开源证书"(in Chinese)](https://chenyang03.wordpress.com/wp-content/uploads/2025/07/image.png?w=1024)
-- [10-16-2024] [2023年度上海开源创新卓越成果奖(in Chinese)](https://mp.weixin.qq.com/s/kO6Dpyolf74dlDvKuoLlJA)
-- [11-06-2023] [复旦大学陈阳Patterns：EasyGraph——面向多学科的高性能网络结构分析工具箱｜Cell Press论文速递(in Chinese)](https://mp.weixin.qq.com/s/f2LCyQv1dYuquM_EfGX6Ow?poc_token=HBV092ijI2L534IrD0Jl_fnf3VjhX8UudcPFLH6b)
-- [11-04-2023] [EasyGraph：多功能、跨平台、高效率的跨学科网络分析库(in Chinese)](https://swarma.org/?p=46252)
+- [01-15-2025] [开放原子大赛OpenRank开源数字生态分析与应用创新大赛全国一等奖 (in Chinese)](https://mp.weixin.qq.com/s/e54JHaP2AAEUN3S8RZ-Y2g)
+- [01-07-2025] [计算机科学技术学院教授陈阳入选“2024中国开源先锋33人” (in Chinese)](https://news.fudan.edu.cn/2025/0107/c2463a143932/page.htm)
+- [12-04-2024] [国际开源基准委员会的"顶级开源证书" (in Chinese)](https://chenyang03.wordpress.com/wp-content/uploads/2025/07/image.png?w=1024)
+- [10-16-2024] [2023年度上海开源创新卓越成果奖 (in Chinese)](https://mp.weixin.qq.com/s/kO6Dpyolf74dlDvKuoLlJA)
+- [11-06-2023] [复旦大学陈阳Patterns：EasyGraph——面向多学科的高性能网络结构分析工具箱｜Cell Press论文速递 (in Chinese)](https://mp.weixin.qq.com/s/f2LCyQv1dYuquM_EfGX6Ow?poc_token=HBV092ijI2L534IrD0Jl_fnf3VjhX8UudcPFLH6b)
+- [11-04-2023] [EasyGraph：多功能、跨平台、高效率的跨学科网络分析库 (in Chinese)](https://swarma.org/?p=46252)
 
 ## 🚀 Releases & Milestones
 - [10-11-2025] EasyGraph **v1.5.1** released (Python 3.14 supported)
