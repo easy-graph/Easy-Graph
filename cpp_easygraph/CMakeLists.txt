@@ -42,3 +42,17 @@ set_target_properties(cpp_easygraph  PROPERTIES
     LINK_SEARCH_START_STATIC ON
     LINK_SEARCH_END_STATIC ON
 )
+
+find_package(Eigen3 QUIET)
+if(Eigen3_FOUND)
+    message(STATUS "Found Eigen3: ${EIGEN3_INCLUDE_DIR}")
+    include_directories(${EIGEN3_INCLUDE_DIR})
+    add_definitions(-DEIGEN_MAJOR_VERSION=${EIGEN3_VERSION_MAJOR})
+endif()
+
+# 启用OpenMP支持
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+    message(STATUS "Found OpenMP: ${OpenMP_CXX_VERSION}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
