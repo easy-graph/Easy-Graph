@@ -125,7 +125,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
         "Programming Language :: Python :: 3.14",
-        "License :: OSI Approved :: BSD License",
+        "BSD-3-Clause",
         "Operating System :: OS Independent",
     ],
     python_requires=">=3.8, <3.15",
@@ -150,12 +150,10 @@ setuptools.setup(
         "optuna",
     ],
     setup_requires=[CYTHON_STR],
-    test_suite="nose.collector",
-    tests_require=[],
     cmdclass={
         "build_ext": CMakeBuild,
     },
     ext_modules=[
-        CMakeExtension(".")
+        CMakeExtension("cpp_easygraph")
     ],
 )
