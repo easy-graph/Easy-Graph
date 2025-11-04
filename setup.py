@@ -33,7 +33,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
-        "License :: OSI Approved :: BSD License",
+        "BSD-3-Clause",
         "Operating System :: OS Independent",
     ],
     python_requires=">=3.6, <3.11",
@@ -61,8 +61,6 @@ setuptools.setup(
         "pandas>=1.0.1, <=1.1.5; python_version<='3.7'",
     ],
     setup_requires=[CYTHON_STR],
-    test_suite="nose.collector",
-    tests_require=[],
     ext_modules=[
         setuptools.Extension(
             "cpp_easygraph", sources, optional=True, extra_compile_args=compileArgs
