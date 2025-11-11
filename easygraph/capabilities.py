@@ -9,14 +9,14 @@ It helps users discover the available features and functionalities.
 def show_capabilities():
     """
     Display comprehensive information about EasyGraph's capabilities.
-    
+
     This function prints a structured overview of what EasyGraph can do,
     including available features, algorithms, and modules.
-    
+
     Usage:
         >>> import easygraph as eg
         >>> eg.show_capabilities()
-    
+
     Returns:
         None: Prints the capabilities to stdout.
     """
@@ -179,13 +179,13 @@ For more examples, visit: https://easy-graph.github.io/
 def get_capabilities_dict():
     """
     Get a dictionary containing EasyGraph's capabilities organized by category.
-    
-    This function returns a structured dictionary that can be used 
+
+    This function returns a structured dictionary that can be used
     programmatically to access information about EasyGraph's features.
-    
+
     Returns:
         dict: A dictionary with categories as keys and lists of features as values.
-    
+
     Example:
         >>> import easygraph as eg
         >>> caps = eg.get_capabilities_dict()
