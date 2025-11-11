@@ -1,3 +1,4 @@
+import easygraph.capabilities
 import easygraph.classes
 import easygraph.convert
 import easygraph.datapipe
@@ -11,6 +12,7 @@ import easygraph.nn
 import easygraph.readwrite
 import easygraph.utils
 
+from easygraph.capabilities import *
 from easygraph.classes import *
 from easygraph.convert import *
 from easygraph.datapipe import *
