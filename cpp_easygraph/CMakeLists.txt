@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.23)
 project(cpp_easygraph)
 set(CMAKE_CXX_STANDARD 11)
 
+
+find_package(OpenMP REQUIRED)
+
 file(GLOB SOURCES
     classes/*.cpp
     common/*.cpp
@@ -38,7 +41,11 @@ else()
 
 endif()
 
-set_target_properties(cpp_easygraph  PROPERTIES
-    LINK_SEARCH_START_STATIC ON
-    LINK_SEARCH_END_STATIC ON
-)
+
+target_link_libraries(cpp_easygraph PRIVATE OpenMP::OpenMP_CXX)
+
+
+#set_target_properties(cpp_easygraph  PROPERTIES
+#    LINK_SEARCH_START_STATIC ON
+#    LINK_SEARCH_END_STATIC ON
+#)

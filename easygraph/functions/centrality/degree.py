@@ -5,6 +5,7 @@ __all__ = ["degree_centrality", "in_degree_centrality", "out_degree_centrality"]
 
 
 @not_implemented_for("multigraph")
+@hybrid("cpp_degree_centrality")
 def degree_centrality(G):
     """Compute the degree centrality for nodes in a bipartite network.
 
@@ -36,6 +37,7 @@ def degree_centrality(G):
 
 @not_implemented_for("multigraph")
 @only_implemented_for_Directed_graph
+@hybrid("cpp_in_degree_centrality")
 def in_degree_centrality(G):
     """Compute the in-degree centrality for nodes.
 
@@ -80,6 +82,7 @@ def in_degree_centrality(G):
 
 @not_implemented_for("multigraph")
 @only_implemented_for_Directed_graph
+@hybrid("cpp_out_degree_centrality")
 def out_degree_centrality(G):
     """Compute the out-degree centrality for nodes.
 

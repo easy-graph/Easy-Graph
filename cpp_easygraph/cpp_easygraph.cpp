@@ -75,6 +75,9 @@ PYBIND11_MODULE(cpp_easygraph, m) {
         .def_property("pred", &DiGraph::get_pred,nullptr)
         .def("generate_linkgraph", &DiGraph_generate_linkgraph,py::arg("weight") = "weight");
 
+    m.def("cpp_degree_centrality", &degree_centrality, py::arg("G"));
+    m.def("cpp_in_degree_centrality", &in_degree_centrality, py::arg("G"));
+    m.def("cpp_out_degree_centrality", &out_degree_centrality, py::arg("G"));
     m.def("cpp_closeness_centrality", &closeness_centrality, py::arg("G"), py::arg("weight") = "weight", py::arg("cutoff") = py::none(), py::arg("sources") = py::none());
     m.def("cpp_betweenness_centrality", &betweenness_centrality, py::arg("G"), py::arg("weight") = "weight", py::arg("cutoff") = py::none(),py::arg("sources") = py::none(), py::arg("normalized") = py::bool_(true), py::arg("endpoints") = py::bool_(false));
     m.def("cpp_katz_centrality", &cpp_katz_centrality, py::arg("G"), py::arg("alpha") = 0.1, py::arg("beta") = 1.0, py::arg("max_iter") = 1000, py::arg("tol") = 1e-6, py::arg("normalized") = true);
