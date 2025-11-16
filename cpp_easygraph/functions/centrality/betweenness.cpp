@@ -117,6 +117,8 @@ void betweenness_dijkstra_worker(
     head_path[S] = 0;
     dis[S] = 0;
     count_path[S] = 1;
+    dis[S] = 0;
+    count_path[S] = 1;
     segment_tree_zkw.change(S, 0);
    
     while(segment_tree_zkw.t[1] != dis_inf) {
@@ -138,6 +140,8 @@ void betweenness_dijkstra_worker(
                 continue;
             }
             if (dis[v] > dis[u] + E[p].w) {
+                dis[v] = dis[u] + E[p].w;
+                segment_tree_zkw.change(v, dis[v]);
                 dis[v] = dis[u] + E[p].w;
                 segment_tree_zkw.change(v, dis[v]);
                 count_path[v] = count_path[u];
@@ -397,6 +401,8 @@ py::object normalized, py::object endpoints) {
 //     std::vector<double> delta(N+1, 0);
 //     std::vector<LinkEdge> E_path(edges_num+1);
 //     head_path[S] = 0;
+//     dis[S] = 0;
+//     count_path[S] = 1;
 //     dis[S] = 0;
 //     count_path[S] = 1;
 //     q.push(compare_node(S, 0));

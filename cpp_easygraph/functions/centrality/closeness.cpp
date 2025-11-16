@@ -18,7 +18,7 @@ double closeness_dijkstra(const Graph_L& G_l, const int &S, int cutoff, Segment_
     const std::vector<int>& head = G_l.head;
     int number_connected = 0;
     long long sum_dis = 0;
-    dis[S] = 0; 
+    dis[S] = 0;
     segment_tree_zkw.change(S, 0);
     while(segment_tree_zkw.t[1] != dis_inf) {
         int u = segment_tree_zkw.num[1];
@@ -26,17 +26,17 @@ double closeness_dijkstra(const Graph_L& G_l, const int &S, int cutoff, Segment_
         segment_tree_zkw.change(u, dis_inf);
         if (cutoff >= 0 && dis[u] > cutoff){
             continue;
-        } 
+        }
         number_connected += 1;
         sum_dis += dis[u];
-        for(register int p = head[u]; p != -1; p = E[p].next) {
+        for(int p = head[u]; p != -1; p = E[p].next) {
             int v = E[p].to;
             if(cutoff >= 0 && (dis[u] + E[p].w) > cutoff){
                 continue;
             }
             if (dis[v] > dis[u] + E[p].w) {
                 dis[v] = dis[u] + E[p].w;
-                segment_tree_zkw.change(v, dis[v]);  
+                segment_tree_zkw.change(v, dis[v]);
             }
         }
     }
@@ -44,10 +44,10 @@ double closeness_dijkstra(const Graph_L& G_l, const int &S, int cutoff, Segment_
         return 0.0;
     else
         return 1.0 * (number_connected - 1) * (number_connected - 1) / ((N - 1) * sum_dis);
-    
+
 }
 
-static py::object invoke_cpp_closeness_centrality(py::object G, py::object weight, 
+static py::object invoke_cpp_closeness_centrality(py::object G, py::object weight,
                                             py::object cutoff, py::object sources) {
     Graph& G_ = G.cast<Graph&>();
     int N = G_.node.size();
@@ -63,7 +63,7 @@ static py::object invoke_cpp_closeness_centrality(py::object G, py::object weigh
     if(!sources.is_none()){
         py::list sources_list = py::list(sources);
         int sources_list_len = py::len(sources_list);
-        for(register int i = 0; i < sources_list_len; i++){
+        for(int i = 0; i < sources_list_len; i++){
             if(G_.node_to_id.attr("get")(sources_list[i],py::none()).is_none()){
                 printf("The node should exist in the graph!");
                 return py::none();
@@ -74,7 +74,7 @@ static py::object invoke_cpp_closeness_centrality(py::object G, py::object weigh
         }
     }
     else{
-        for(register int i = 1; i <= N; i++){
+        for(int i = 1; i <= N; i++){
             float res = closeness_dijkstra(G_l, i, cutoff_,segment_tree_zkw);
             CC.push_back(res);
         }
@@ -96,7 +96,7 @@ static py::object invoke_gpu_closeness_centrality(py::object G, py::object weigh
     auto csr_graph = G_.csr_graph;
     std::vector<int>& E = csr_graph->E;
     std::vector<int>& V = csr_graph->V;
-    std::vector<double> *W_p = weight.is_none() ? &(csr_graph->unweighted_W) 
+    std::vector<double> *W_p = weight.is_none() ? &(csr_graph->unweighted_W)
                                 : csr_graph->W_map.find(weight_to_string(weight))->second.get();
     auto sources = G_.gen_CSR_sources(py_sources);
     std::vector<double> CC;

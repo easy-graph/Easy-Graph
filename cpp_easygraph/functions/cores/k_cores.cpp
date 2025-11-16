@@ -51,7 +51,7 @@ py::object invoke_cpp_core_decomposition(py::object G) {
     for(int i = 1; i <= N; ++i){
         int v = vert[i];
         core[v] = deg[v];
-        for(register int p = head[v]; p!=-1; p = edges[p].next){
+        for(int p = head[v]; p!=-1; p = edges[p].next){
             int u = edges[p].to;
             if (deg[u] > deg[v]) {
                 int w = vert[bin[deg[u]]];
