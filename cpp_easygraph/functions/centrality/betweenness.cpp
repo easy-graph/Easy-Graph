@@ -1,8 +1,12 @@
-#include <omp.h> 
+#include <omp.h>
+#include <vector>
 #include <queue>
 #include <limits.h>
-#include "centrality.h"
+#include <algorithm>
+#include <string>
+#include <cstdio>
 
+#include "centrality.h"
 #ifdef EASYGRAPH_ENABLE_GPU
 #include <gpu_easygraph.h>
 #endif
@@ -12,63 +16,49 @@
 #include "../../classes/linkgraph.h"
 #include "../../classes/segment_tree.cpp"
 
+namespace py = pybind11;
+
 void betweenness_bfs_worker(
-    const Graph_L& G_l, const int &S, std::vector<double>& bc, double cutoff, int endpoints_,
-    std::queue<int>& queue,
-    std::vector<int>& dis,
-    std::vector<int>& head_path,
-    std::vector<int>& St,
-    std::vector<long long>& count_path,
-    std::vector<double>& delta,
-    std::vector<LinkEdge>& E_path
+    const Graph_L& G_l, const int& S, std::vector<double>& bc, int cutoff, int endpoints_,
+    std::vector<int>& q, std::vector<int>& dis, std::vector<int>& head_path, std::vector<int>& St,
+    std::vector<long long>& count_path, std::vector<double>& delta, std::vector<LinkEdge>& E_path,
+    std::vector<int>& stamp, int& cur_stamp
 ) {
-    const int dis_inf = 0x3f3f3f3f;
     int N = G_l.n;
     int edge_number_path = 0;
     int cnt_St = 0;
-    
-    queue = {};
-    std::fill(dis.begin(), dis.end(), INT_MAX);
-    std::fill(head_path.begin(), head_path.end(), 0);
-    std::fill(count_path.begin(), count_path.end(), 0);
-    std::fill(delta.begin(), delta.end(), 0.0);
-
-    head_path[S] = 0;
+    ++cur_stamp;
+    if ((int)q.size() < N + 1) q.resize(N + 1);
+    int front = 0, back = 0;
+    int cutoff_int = (cutoff < 0) ? -1 : cutoff;
+    stamp[S] = cur_stamp;
     dis[S] = 0;
-    count_path[S] = 1; 
-    queue.push(S);
-    
-    int cutoff_int = (cutoff < 0) ? -1 : static_cast<int>(cutoff);
-
-    while(!queue.empty()) {
-        int u = queue.front();
-        queue.pop();
-        
-        if (cutoff_int >= 0 && dis[u] > cutoff_int){
-            break; 
-        }
-        St[cnt_St++] = u;        
-
-        const std::vector<int>& head = G_l.head;
-        const std::vector<LinkEdge>& E = G_l.edges;
-
-        for(int p = head[u]; p != -1; p = E[p].next) {
+    count_path[S] = 1;
+    delta[S] = 0.0;
+    head_path[S] = 0;
+    q[back++] = S;
+    const std::vector<int>& head = G_l.head;
+    const std::vector<LinkEdge>& E = G_l.edges;
+    while (front < back) {
+        int u = q[front++];
+        int du = dis[u];
+        if (cutoff_int >= 0 && du > cutoff_int) break;
+        St[cnt_St++] = u;
+        for (int p = head[u]; p != -1; p = E[p].next) {
             int v = E[p].to;
-            int new_dis = dis[u] + 1;
-
-            if (dis[v] > new_dis) {
-                if (cutoff_int >= 0 && new_dis > cutoff_int) {
-                    continue;
-                }
-                dis[v] = new_dis;  
-                queue.push(v);
+            int new_dis = du + 1;
+            if (cutoff_int >= 0 && new_dis > cutoff_int) continue;
+            if (stamp[v] != cur_stamp) {
+                stamp[v] = cur_stamp;
+                dis[v] = new_dis;
                 count_path[v] = count_path[u];
+                delta[v] = 0.0;
                 head_path[v] = 0;
+                q[back++] = v;
                 E_path[++edge_number_path].next = head_path[v];
                 E_path[edge_number_path].to = u;
                 head_path[v] = edge_number_path;
-            }
-            else if (dis[v] == new_dis) {
+            } else if (dis[v] == new_dis) {
                 count_path[v] += count_path[u];
                 E_path[++edge_number_path].next = head_path[v];
                 E_path[edge_number_path].to = u;
@@ -76,83 +66,61 @@ void betweenness_bfs_worker(
             }
         }
     }
-
-    if (endpoints_) {
-        #pragma omp atomic update
-        bc[S] += cnt_St - 1;
-    }
+    if (endpoints_) bc[S] += cnt_St - 1;
     while (cnt_St > 0) {
         int u = St[--cnt_St];
-        double coeff = (1.0 + delta[u]) / count_path[u];
-        for(int p = head_path[u]; p; p = E_path[p].next){
-            delta[E_path[p].to] += count_path[E_path[p].to] * coeff;
+        double cu = count_path[u];
+        if (cu != 0) {
+            double coeff = (1.0 + delta[u]) / cu;
+            for (int p = head_path[u]; p; p = E_path[p].next) {
+                int w = E_path[p].to;
+                delta[w] += count_path[w] * coeff;
+            }
         }
-
-        if (u != S)
-            #pragma omp atomic update
-            bc[u] += delta[u] + endpoints_;
+        if (u != S) bc[u] += delta[u] + endpoints_;
     }
 }
 
 void betweenness_dijkstra_worker(
-    const Graph_L& G_l, const int &S, std::vector<double>& bc, double cutoff,
-    Segment_tree_zkw& segment_tree_zkw,
-    std::vector<int>& dis,
-    std::vector<int>& head_path,
-    std::vector<int>& St,
-    std::vector<long long>& count_path,
-    std::vector<double>& delta,
-    std::vector<LinkEdge>& E_path,
-    int endpoints_
+    const Graph_L& G_l, const int& S, std::vector<double>& bc, double cutoff,
+    Segment_tree_zkw& segment_tree_zkw, std::vector<int>& dis, std::vector<int>& head_path,
+    std::vector<int>& St, std::vector<long long>& count_path, std::vector<double>& delta,
+    std::vector<LinkEdge>& E_path, int endpoints_
 ) {
     const int dis_inf = 0x3f3f3f3f;
     int N = G_l.n;
     int edge_number_path = 0;
     int cnt_St = 0;
-
     segment_tree_zkw.init(N);
-    std::fill(dis.begin(), dis.end(), INT_MAX);
+    std::fill(dis.begin(), dis.end(), dis_inf);
     std::fill(head_path.begin(), head_path.end(), 0);
     std::fill(count_path.begin(), count_path.end(), 0);
     std::fill(delta.begin(), delta.end(), 0.0);
-
-    head_path[S] = 0;
-    dis[S] = 0;
-    count_path[S] = 1;
     dis[S] = 0;
     count_path[S] = 1;
     segment_tree_zkw.change(S, 0);
-   
-    while(segment_tree_zkw.t[1] != dis_inf) {
+    const std::vector<int>& head = G_l.head;
+    const std::vector<LinkEdge>& E = G_l.edges;
+    while (segment_tree_zkw.t[1] != dis_inf) {
         int u = segment_tree_zkw.num[1];
-        if(u==0) break;
+        if (u == 0) break;
         segment_tree_zkw.change(u, dis_inf);
-        
-        if (cutoff >= 0 && dis[u] > cutoff){
-            continue; 
-        }
-        St[cnt_St++] = u;        
-
-        const std::vector<int>& head = G_l.head;
-        const std::vector<LinkEdge>& E = G_l.edges;
-
-        for(int p = head[u]; p != -1; p = E[p].next) {
+        if (cutoff >= 0 && dis[u] > cutoff) continue;
+        St[cnt_St++] = u;
+        for (int p = head[u]; p != -1; p = E[p].next) {
             int v = E[p].to;
-            if(cutoff >= 0 && (dis[u] + E[p].w) > cutoff){
-                continue;
-            }
-            if (dis[v] > dis[u] + E[p].w) {
-                dis[v] = dis[u] + E[p].w;
-                segment_tree_zkw.change(v, dis[v]);
-                dis[v] = dis[u] + E[p].w;
-                segment_tree_zkw.change(v, dis[v]);
+            int w = E[p].w;
+            int nd = dis[u] + w;
+            if (cutoff >= 0 && nd > cutoff) continue;
+            if (dis[v] > nd) {
+                dis[v] = nd;
+                segment_tree_zkw.change(v, nd);
                 count_path[v] = count_path[u];
                 head_path[v] = 0;
                 E_path[++edge_number_path].next = head_path[v];
                 E_path[edge_number_path].to = u;
                 head_path[v] = edge_number_path;
-            }
-            else if (dis[v] == dis[u] + E[p].w) {
+            } else if (dis[v] == nd) {
                 count_path[v] += count_path[u];
                 E_path[++edge_number_path].next = head_path[v];
                 E_path[edge_number_path].to = u;
@@ -160,27 +128,23 @@ void betweenness_dijkstra_worker(
             }
         }
     }
-
-    if (endpoints_) {
-        #pragma omp atomic update
-        bc[S] += cnt_St - 1;
-    }
+    if (endpoints_) bc[S] += cnt_St - 1;
     while (cnt_St > 0) {
         int u = St[--cnt_St];
-        double coeff = (1.0 + delta[u]) / count_path[u];
-        for(int p = head_path[u]; p; p = E_path[p].next){
-            delta[E_path[p].to] += count_path[E_path[p].to] * coeff;
+        double cu = count_path[u];
+        if (cu != 0) {
+            double coeff = (1.0 + delta[u]) / cu;
+            for (int p = head_path[u]; p; p = E_path[p].next) {
+                int w = E_path[p].to;
+                delta[w] += count_path[w] * coeff;
+            }
         }
-
-        if (u != S)
-            #pragma omp atomic update
-            bc[u] += delta[u] + endpoints_;
+        if (u != S) bc[u] += delta[u] + endpoints_;
     }
 }
 
 static double calc_scale(int len_V, int is_directed, int normalized, int endpoints) {
     double scale = 1.0;
-
     if (normalized) {
         if (endpoints) {
             if (len_V < 2) {
@@ -202,16 +166,16 @@ static double calc_scale(int len_V, int is_directed, int normalized, int endpoin
             scale = 1.0;
         }
     }
-
     return scale;
 }
 
-static py::object invoke_cpp_betweenness_centrality(py::object G, py::object weight,
-                                    py::object cutoff, py::object sources,
-                                    py::object normalized, py::object endpoints){
+static py::object invoke_cpp_betweenness_centrality(
+    py::object G, py::object weight, py::object cutoff, py::object sources,
+    py::object normalized, py::object endpoints
+) {
     Graph& G_ = G.cast<Graph&>();
     int cutoff_ = -1;
-    if (!cutoff.is_none()){
+    if (!cutoff.is_none()) {
         cutoff_ = cutoff.cast<int>();
     }
     int N = G_.node.size();
@@ -219,75 +183,66 @@ static py::object invoke_cpp_betweenness_centrality(py::object G, py::object wei
     int normalized_ = normalized.cast<bool>();
     int endpoints_ = endpoints.cast<bool>();
     double scale = calc_scale(N, is_directed, normalized_, endpoints_);
-    
     bool use_weights = !weight.is_none();
     std::string weight_key = "";
     if (use_weights) {
-        weight_key = weight_to_string(weight); 
+        weight_key = weight_to_string(weight);
     }
-
     Graph_L G_l;
-    if(G_.linkgraph_dirty){
+    if (G_.linkgraph_dirty) {
         G_l = graph_to_linkgraph(G_, is_directed, weight_key, false, false);
-        G_.linkgraph_structure=G_l;
+        G_.linkgraph_structure = G_l;
         G_.linkgraph_dirty = false;
-    }
-    else{
+    } else {
         G_l = G_.linkgraph_structure;
     }
-    
-    int edges_num = G_l.edges.size(); 
-
+    int edges_num = G_l.edges.size();
     std::vector<double> bc(N + 1, 0.0);
     double* bc_ptr = bc.data();
-    
     std::vector<double> BC;
-
     int num_threads = 1;
-    #ifdef _OPENMP
+#ifdef _OPENMP
     num_threads = omp_get_max_threads();
-    #endif
-
+#endif
     std::vector<std::vector<int>> dis_all(num_threads, std::vector<int>(N + 1));
     std::vector<std::vector<int>> head_path_all(num_threads, std::vector<int>(N + 1));
     std::vector<std::vector<int>> St_all(num_threads, std::vector<int>(N + 1));
     std::vector<std::vector<long long>> count_path_all(num_threads, std::vector<long long>(N + 1));
     std::vector<std::vector<double>> delta_all(num_threads, std::vector<double>(N + 1));
-    
     std::vector<std::vector<LinkEdge>> E_path_all(num_threads, std::vector<LinkEdge>(edges_num + 1));
-    
     std::vector<Segment_tree_zkw> segment_tree_all;
     for (int i = 0; i < num_threads; ++i) {
         segment_tree_all.emplace_back(N);
     }
-    std::vector<std::queue<int>> queue_all(num_threads);
+    std::vector<std::vector<int>> queue_all(num_threads, std::vector<int>(N + 1));
+    std::vector<std::vector<int>> stamp_all(num_threads, std::vector<int>(N + 1, 0));
+    std::vector<int> cur_stamp_all(num_threads, 0);
+
+    std::vector<std::vector<double>> bc_local_all(num_threads, std::vector<double>(N + 1, 0.0));
     
-    if(!sources.is_none()){
+    if (!sources.is_none()) {
         py::list sources_list = py::list(sources);
         int sources_list_len = py::len(sources_list);
-
         std::vector<node_t> sources_vec;
         sources_vec.reserve(sources_list_len);
-        for(int i = 0; i < sources_list_len; i++){
-            if(G_.node_to_id.attr("get")(sources_list[i],py::none()).is_none()){
+        for (int i = 0; i < sources_list_len; i++) {
+            if (G_.node_to_id.attr("get")(sources_list[i], py::none()).is_none()) {
                 printf("The node should exist in the graph!");
                 return py::none();
             }
             sources_vec.push_back(G_.node_to_id.attr("get")(sources_list[i]).cast<node_t>());
         }
-
-        #ifdef _OPENMP
-        #pragma omp parallel for reduction(+:bc_ptr[0:N+1]) schedule(dynamic)
-        #endif
-        for(int i = 0; i < sources_list_len; i++){
+#ifdef _OPENMP
+#pragma omp parallel for schedule(dynamic)
+#endif
+        for (int i = 0; i < sources_list_len; i++) {
             node_t source_id = sources_vec[i];
-            
-            #ifdef _OPENMP
+#ifdef _OPENMP
             int tid = omp_get_thread_num();
-            #else
+#else
             int tid = 0;
-            #endif
-
+#endif
+            std::vector<double>& bc_local = bc_local_all[tid];
             std::vector<int>& dis = dis_all[tid];
             std::vector<int>& head_path = head_path_all[tid];
             std::vector<int>& St = St_all[tid];
@@ -295,30 +250,32 @@ static py::object invoke_cpp_betweenness_centrality(py::object G, py::object wei
             std::vector<double>& delta = delta_all[tid];
             std::vector<LinkEdge>& E_path = E_path_all[tid];
             Segment_tree_zkw& segment_tree_zkw = segment_tree_all[tid];
-            std::queue<int>& queue = queue_all[tid];
-
+            std::vector<int>& q = queue_all[tid];
+            std::vector<int>& stamp = stamp_all[tid];
+            int& cur_stamp = cur_stamp_all[tid];
             if (use_weights) {
-                betweenness_dijkstra_worker(G_l, source_id, bc, cutoff_, 
-                                            segment_tree_zkw, dis, head_path, St, count_path, delta, E_path,
-                                            endpoints_);
+                betweenness_dijkstra_worker(
+                    G_l, source_id, bc_local, cutoff_, segment_tree_zkw, dis, head_path,
+                    St, count_path, delta, E_path, endpoints_
+                );
             } else {
-                betweenness_bfs_worker(G_l, source_id, bc, cutoff_, endpoints_,
-                                       queue, dis, head_path, St, count_path, delta, E_path);
+                betweenness_bfs_worker(
+                    G_l, source_id, bc_local, cutoff_, endpoints_, q, dis, head_path,
+                    St, count_path, delta, E_path, stamp, cur_stamp
+                );
             }
         }
-    }
-    else{
-        #ifdef _OPENMP
-        #pragma omp parallel for reduction(+:bc_ptr[0:N+1]) schedule(dynamic)
-        #endif
-        for (int i = 1; i <= N; ++i){
-            
-            #ifdef _OPENMP
+    } else {
+#ifdef _OPENMP
+#pragma omp parallel for schedule(dynamic)
+#endif
+        for (int i = 1; i <= N; ++i) {
+#ifdef _OPENMP
             int tid = omp_get_thread_num();
-            #else
+#else
             int tid = 0;
-            #endif
-
+#endif
+            std::vector<double>& bc_local = bc_local_all[tid];
             std::vector<int>& dis = dis_all[tid];
             std::vector<int>& head_path = head_path_all[tid];
             std::vector<int>& St = St_all[tid];
@@ -326,26 +283,36 @@ static py::object invoke_cpp_betweenness_centrality(py::object G, py::object wei
             std::vector<double>& delta = delta_all[tid];
             std::vector<LinkEdge>& E_path = E_path_all[tid];
             Segment_tree_zkw& segment_tree_zkw = segment_tree_all[tid];
-            std::queue<int>& queue = queue_all[tid];
-            
+            std::vector<int>& q = queue_all[tid];
+            std::vector<int>& stamp = stamp_all[tid];
+            int& cur_stamp = cur_stamp_all[tid];
             if (use_weights) {
-                betweenness_dijkstra_worker(G_l, i, bc, cutoff_, 
-                                            segment_tree_zkw, dis, head_path, St, count_path, delta, E_path,
-                                            endpoints_);
+                betweenness_dijkstra_worker(
+                    G_l, i, bc_local, cutoff_, segment_tree_zkw, dis, head_path,
+                    St, count_path, delta, E_path, endpoints_
+                );
             } else {
-                betweenness_bfs_worker(G_l, i, bc, cutoff_, endpoints_,
-                                       queue, dis, head_path, St, count_path, delta, E_path);
+                betweenness_bfs_worker(
+                    G_l, i, bc_local, cutoff_, endpoints_, q, dis, head_path,
+                    St, count_path, delta, E_path, stamp, cur_stamp
+                );
             }
         }
     }
+#ifdef _OPENMP
+    for(int tid = 0; tid < num_threads; ++tid){
+        std::vector<double>& bc_local = bc_local_all[tid];
+        for(int j = 0; j <= N; ++j){
+            bc[j] += bc_local[j];
+        }
+    }
+#endif
     
-    for(int i = 1; i <= N; i++){
+    for (int i = 1; i <= N; i++) {
         BC.push_back(scale * bc[i]);
     }
-
     py::array::ShapeContainer ret_shape{(int)BC.size()};
     py::array_t<double> ret(ret_shape, BC.data());
-
     return ret;
 }
 
