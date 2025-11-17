@@ -78,6 +78,7 @@ void betweenness_bfs_worker(
     }
 
     if (endpoints_) {
+        #pragma omp atomic update
         bc[S] += cnt_St - 1;
     }
     while (cnt_St > 0) {
@@ -88,6 +89,7 @@ void betweenness_bfs_worker(
         }
 
         if (u != S)
+            #pragma omp atomic update
             bc[u] += delta[u] + endpoints_;
     }
 }
@@ -160,6 +162,7 @@ void betweenness_dijkstra_worker(
     }
 
     if (endpoints_) {
+        #pragma omp atomic update
         bc[S] += cnt_St - 1;
     }
     while (cnt_St > 0) {
@@ -170,6 +173,7 @@ void betweenness_dijkstra_worker(
         }
 
         if (u != S)
+            #pragma omp atomic update
             bc[u] += delta[u] + endpoints_;
     }
 }
@@ -344,7 +348,6 @@ static py::object invoke_cpp_betweenness_centrality(py::object G, py::object wei
 
     return ret;
 }
-
 
 #ifdef EASYGRAPH_ENABLE_GPU
 static py::object invoke_gpu_betweenness_centrality(py::object G, py::object weight,
