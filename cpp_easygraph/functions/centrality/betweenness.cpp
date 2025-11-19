@@ -300,12 +300,12 @@ static py::object invoke_cpp_betweenness_centrality(
         }
     }
 #ifdef _OPENMP
-    for(int tid = 0; tid < num_threads; ++tid){
-        std::vector<double>& bc_local = bc_local_all[tid];
-        for(int j = 0; j <= N; ++j){
-            bc[j] += bc_local[j];
-        }
-    }
+    #pragma omp parallel for schedule(static)
+    for (int j = 0; j <= N; ++j) {
+        double s = 0.0;
+        for (int tid = 0; tid < num_threads; ++tid) s += bc_local_all[tid][j];
+            bc[j] += s;
+}
 #endif
     
     for (int i = 1; i <= N; i++) {
@@ -315,6 +315,7 @@ static py::object invoke_cpp_betweenness_centrality(
     py::array_t<double> ret(ret_shape, BC.data());
     return ret;
 }
+
 
 #ifdef EASYGRAPH_ENABLE_GPU
 static py::object invoke_gpu_betweenness_centrality(py::object G, py::object weight,
