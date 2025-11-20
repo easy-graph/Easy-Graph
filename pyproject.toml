@@ -184,6 +184,12 @@ skip = "*t-win*"
 
 # https://cibuildwheel.readthedocs.io/en/stable/faq/#cibw-options-alternatives-deps
 [build-system]
-requires = ["setuptools>=42", "wheel", "Cython", "pybind11"]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "Cython",
+    "pybind11",
+    "cmake>=3.23",
+]
 
 build-backend = "setuptools.build_meta"
