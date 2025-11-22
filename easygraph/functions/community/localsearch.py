@@ -394,11 +394,12 @@ def hierarchical_degree_communities(
         center_num=None,
         auto_choose_centers=False,
         maximum_tree=True,
-        isdraw=True,
+        isdraw=False,
         seed=None,
         self_loop=False,
         plot_filepath="./",
         plot_dataname="LS_default",
+        plot_show=False,
 ):
     '''
     Produces hierarchical degree forest (HDF) of trees and hence communities.
@@ -412,12 +413,28 @@ def hierarchical_degree_communities(
     self_loop -- If true means the self-loop makes sense
     plot_filepath -- directory to save the decision graph when isdraw is True
     plot_dataname -- filename (without extension) for the saved decision graph; saved as "<dataname>.pdf"
+    plot_show -- whether to display the decision graph window when isdraw is True
 
     Output
     ------
     On screen statistics of communities
 
     '''
+    # Ensure we work on an EasyGraph Graph copy so downstream methods (e.g., remove_edges_from) exist
+    if not hasattr(G, "remove_edges_from"):
+        converted = eg.Graph()
+        try:
+            converted.add_nodes_from(G.nodes)
+        except Exception:
+            converted.add_nodes_from(G.nodes())
+        try:
+            converted.add_edges_from(G.edges)
+        except Exception:
+            converted.add_edges_from(G.edges())
+        G = converted
+    else:
+        G = G.copy()
+
     # Empty graph
     if not G.nodes:
         print("Warning: Empty graph detected. Returning empty results.")
@@ -594,6 +611,12 @@ def hierarchical_degree_communities(
     for key, value in y_partition.items():
         grouped_dict[value].append(key)
 
+    # Print partition summary
+    if grouped_dict:
+        print("Communities (center: members):")
+        for center, members in grouped_dict.items():
+            print(f"  {center}: {sorted(members)}")
+
     # just for better visualization, can be safely modified
     if isdraw == True:
         subplot_location = [0.25, 0.55, 0.35, 0.3]
@@ -603,11 +626,37 @@ def hierarchical_degree_communities(
         plot_combination(plot_combination_data[0], plot_combination_data[1], plot_combination_data[2],
                          plot_combination_data[3], plot_combination_data[4], plot_combination_data[5],
                          plot_combination_data[6], subplot_location, xlim_start_end, ylim_start_end, font_location,
-                         filepath=plot_filepath, dataname=plot_dataname, save=True, show=False)
+                         filepath=plot_filepath, dataname=plot_dataname, save=True, show=plot_show)
 
     print(
         "Note: If multi-scale community structure, which can be common in real networks, is of interest, the number of communities at different level can be explicitly set by some sophisticaed methods or simply by visual inspection for notable gaps in the decision graph. In the default setting, LS alorithm returns community partition at the finest level.")
     return D, center_dcd, y_dcd, y_partition, grouped_dict, plot_combination_data
+
+
+def LS_degree_communities(
+        G,
+        center_num=None,
+        auto_choose_centers=False,
+        maximum_tree=True,
+        isdraw=True,
+        seed=None,
+        self_loop=False,
+        plot_filepath="./",
+        plot_dataname="LS_default",
+        plot_show=False,
+):
+    """Alias for hierarchical_degree_communities with the same parameters."""
+    return hierarchical_degree_communities(
+        G,
+        center_num=center_num,
+        auto_choose_centers=auto_choose_centers,
+        maximum_tree=maximum_tree,
+        isdraw=isdraw,
+        seed=seed,
+        self_loop=self_loop,
+        plot_filepath=plot_filepath,
+        plot_dataname=plot_dataname,
+    )
 
 
 # if __name__ == '__main__':
