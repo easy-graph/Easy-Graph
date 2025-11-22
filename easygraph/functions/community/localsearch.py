@@ -5,7 +5,7 @@ Updated on Sun Jun 09 12:33:06 2024
 
 Local Search (LS) algorithm proposed in 
 Dingyi Shi, Fan Shang, Bingsheng Chen, Paul Expert, Linyuan Lv, H. Eugene Stanley, Renaud Lambiotte, Tim S. Evans, Ruiqi Li, 
-Local dominance unveils clusters in networks, Communications Physcis, 2024, 7:170 [PDF: https://rdcu.be/dJxY0]
+Local dominance unveils clusters in networks, Communications Physics, 2024, 7:170 [PDF: https://rdcu.be/dJxY0]
 
 "Hidden directionality unifies community detection and cluster analysis"
 
