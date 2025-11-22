@@ -145,7 +145,7 @@ def plot_combination(
     fig.tight_layout()
     if save:
         os.makedirs(filepath, exist_ok=True)
-        filename = os.path.join(filepath, f"{dataname}_process.pdf")
+        filename = os.path.join(filepath, f"{dataname}.pdf")
         fig.savefig(filename, bbox_inches='tight', dpi=300)
     if show:
         plt.show()
@@ -389,8 +389,17 @@ def BFS_from_s(G, s, roots):
     return s, -1
 
 
-def hierarchical_degree_communities(G, center_num=None, auto_choose_centers=False, maximum_tree=True, isdraw = True, seed=None,
-                                    self_loop=False):
+def hierarchical_degree_communities(
+        G,
+        center_num=None,
+        auto_choose_centers=False,
+        maximum_tree=True,
+        isdraw=True,
+        seed=None,
+        self_loop=False,
+        plot_filepath="./",
+        plot_dataname="LS_default",
+):
     '''
     Produces hierarchical degree forest (HDF) of trees and hence communities.
 	The main part of our Local Search (LS) algorithm
@@ -401,6 +410,8 @@ def hierarchical_degree_communities(G, center_num=None, auto_choose_centers=Fals
     maximum_tree=True -- If true uses maximum dgree DAG as input, otherwise uses full degree DAG
     seed=None -- an integer to use as a seed to break ties at random.  Use None to remove random element
     self_loop -- If true means the self-loop makes sense
+    plot_filepath -- directory to save the decision graph when isdraw is True
+    plot_dataname -- filename (without extension) for the saved decision graph; saved as "<dataname>.pdf"
 
     Output
     ------
@@ -592,7 +603,7 @@ def hierarchical_degree_communities(G, center_num=None, auto_choose_centers=Fals
         plot_combination(plot_combination_data[0], plot_combination_data[1], plot_combination_data[2],
                          plot_combination_data[3], plot_combination_data[4], plot_combination_data[5],
                          plot_combination_data[6], subplot_location, xlim_start_end, ylim_start_end, font_location,
-                         filepath='./', save=True, show=False)
+                         filepath=plot_filepath, dataname=plot_dataname, save=True, show=False)
 
     print(
         "Note: If multi-scale community structure, which can be common in real networks, is of interest, the number of communities at different level can be explicitly set by some sophisticaed methods or simply by visual inspection for notable gaps in the decision graph. In the default setting, LS alorithm returns community partition at the finest level.")
