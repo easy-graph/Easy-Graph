@@ -63,7 +63,7 @@ It bridges the gap between EasyGraph and higher-order relationships. EasyHypergr
 - [11-04-2023] [EasyGraph：多功能、跨平台、高效率的跨学科网络分析库 (in Chinese)](https://swarma.org/?p=46252)
 
 ## 🚀 Releases & Milestones
-- [11-22-2025] EasyGraph **v1.5.2** released (LS algorithm for effective community detection)
+- [11-23-2025] EasyGraph **v1.5.2** released (LS algorithm for effective community detection)
 - [10-11-2025] EasyGraph **v1.5.1** released (Python 3.14 supported)
 - **[09-29-2025] 🎉 900K+ Downloads! Thanks to our amazing community!**
 - [07-27-2025] EasyGraph **v1.5** released (This version integrates the HWNN model and supports 11 representative network datasets)
