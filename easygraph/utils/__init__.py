@@ -11,3 +11,4 @@ from easygraph.utils.misc import *
 from easygraph.utils.relabel import *
 from easygraph.utils.sparse import *
 from easygraph.utils.type_change import *
+from easygraph.utils.HIF import *
