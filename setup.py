@@ -103,7 +103,7 @@ class CMakeBuild(build_ext):
             ["cmake", "--build", ".", *build_args], cwd=build_temp, check=True
         )
 
-with open("README.md") as fh:
+with open("README.md", encoding="utf-8") as fh:
     long_description = fh.read()
 
 CYTHON_STR = "Cython"
@@ -138,24 +138,23 @@ setuptools.setup(
         "gensim>=4.3.3; python_version < '3.14'",
         "progressbar33>=2.4",
         "scikit-learn>=0.24.0, <=1.0.2; python_version=='3.7'",
-        "scikit-learn>=0.24.0; python_version>='3.8'",
+        "scikit-learn>=0.24.0; python_version>='3.8' and python_version<'3.14'",
         "scipy>=1.5.0, <=1.7.3; python_version=='3.7'",
-        "scipy>=1.8.0; python_version>='3.8'",
-        "statsmodels>=0.12.0; python_version>='3.7'",
+        "scipy>=1.8.0; python_version>='3.8' and python_version<'3.14'",
+        "statsmodels>=0.12.0; python_version>='3.7' and python_version<'3.14'",
         "progressbar>=2.5",
         "nose>=0.10.1",
         "pandas>=1.0.1, <=1.1.5; python_version<='3.7'",
+        "pandas>=1.1.0; python_version>='3.8' and python_version<'3.14'",
         "matplotlib",
         "requests",
         "optuna",
     ],
     setup_requires=[CYTHON_STR],
-    test_suite="nose.collector",
-    tests_require=[],
     cmdclass={
         "build_ext": CMakeBuild,
     },
     ext_modules=[
-        CMakeExtension(".")
+        CMakeExtension("cpp_easygraph")
     ],
 )

@@ -189,7 +189,7 @@ double closeness_dijkstra_cached(const Graph_L& G_l, const int &S, int cutoff,
         return 1.0 * (nodes_reached - 1) * (nodes_reached - 1) / ((N - 1) * sum_dis);
 }
 
-static py::object invoke_cpp_closeness_centrality(py::object G, py::object weight, 
+static py::object invoke_cpp_closeness_centrality(py::object G, py::object weight,
                                             py::object cutoff, py::object sources) {
     Graph& G_ = G.cast<Graph&>();
     int N = G_.node.size();
@@ -326,7 +326,7 @@ static py::object invoke_gpu_closeness_centrality(py::object G, py::object weigh
     auto csr_graph = G_.csr_graph;
     std::vector<int>& E = csr_graph->E;
     std::vector<int>& V = csr_graph->V;
-    std::vector<double> *W_p = weight.is_none() ? &(csr_graph->unweighted_W) 
+    std::vector<double> *W_p = weight.is_none() ? &(csr_graph->unweighted_W)
                                 : csr_graph->W_map.find(weight_to_string(weight))->second.get();
     auto sources = G_.gen_CSR_sources(py_sources);
     std::vector<double> CC;
