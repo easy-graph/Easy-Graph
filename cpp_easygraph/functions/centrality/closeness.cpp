@@ -17,10 +17,10 @@
 #include <omp.h>
 #endif
 
-// 堆节点：使用负值 + 最大堆实现最小堆
+// Heap node: use negative value + max heap to implement min heap
 typedef std::pair<float, int> HeapNode;
 
-// 优化的邻接表缓存结构 - 按需构建，类似igraph的lazy_inclist
+// Optimized adjacency list cache
 struct FastAdjCache {
     std::vector<int*> neighbor_ptrs;
     std::vector<int> neighbor_counts;
@@ -64,7 +64,7 @@ struct FastAdjCache {
     inline float* get_weights_ptr(int u) const { return weight_ptrs[u]; }
 };
 
-// BFS实现 - 直接使用原始邻接表
+// BFS implementation - directly use raw adjacency list
 double closeness_bfs_direct(const Graph_L& G_l, const int &S, int cutoff,
                             std::vector<int>& already_counted,
                             std::vector<int>& queue_storage,
@@ -113,7 +113,7 @@ double closeness_bfs_direct(const Graph_L& G_l, const int &S, int cutoff,
         return 1.0 * (nodes_reached - 1) * (nodes_reached - 1) / ((N - 1) * sum_dis);
 }
 
-// 检查图是否为无权图
+// Check if the graph is unweighted
 inline bool is_unweighted_graph(const Graph_L& G_l) {
     const std::vector<LinkEdge>& E = G_l.edges;
     for (const auto& edge : E) {
@@ -124,7 +124,7 @@ inline bool is_unweighted_graph(const Graph_L& G_l) {
     return true;
 }
 
-// Dijkstra实现 - 使用按需构建的邻接表缓存
+// Dijkstra implementation - use on-demand adjacency cache
 double closeness_dijkstra_cached(const Graph_L& G_l, const int &S, int cutoff,
                                  std::vector<float>& dist,
                                  std::vector<int>& which,
@@ -201,7 +201,7 @@ static py::object invoke_cpp_closeness_centrality(py::object G, py::object weigh
         cutoff_ = cutoff.cast<int>();
     }
     
-    // 自动选择算法
+    // Auto algorithm selection
     bool use_bfs = (weight.is_none() || is_unweighted_graph(G_l));
     
     std::vector<double> CC;
@@ -211,7 +211,7 @@ static py::object invoke_cpp_closeness_centrality(py::object G, py::object weigh
         int sources_list_len = py::len(sources_list);
         CC.resize(sources_list_len);
         
-        // 收集所有源节点ID
+        // Collect all source node IDs
         std::vector<node_t> source_ids(sources_list_len);
         for(int i = 0; i < sources_list_len; i++){
             if(G_.node_to_id.attr("get")(sources_list[i],py::none()).is_none()){
@@ -221,11 +221,11 @@ static py::object invoke_cpp_closeness_centrality(py::object G, py::object weigh
             source_ids[i] = G_.node_to_id.attr("get")(sources_list[i]).cast<node_t>();
         }
         
-        // OpenMP并行计算（参考eigenvector的并行策略）
-        // 只在源节点数量较多时启用并行，避免小任务的并行开销
-        // omp parallel if(sources_list_len > 100)
+        // OpenMP parallel computation
+        // Only enable parallelism when sources are many to avoid overhead
+        #pragma omp parallel if(sources_list_len > 100)
         {
-            // 每个线程独立的数据结构（避免竞争）
+            // Per-thread data structures (avoid race conditions)
             std::vector<int> already_counted(N + 1, 0);
             std::vector<int> queue_storage;
             queue_storage.reserve(N * 2);
@@ -238,7 +238,7 @@ static py::object invoke_cpp_closeness_centrality(py::object G, py::object weigh
                 cache.init_with_weights(N);
             }
             
-            // 为每个线程分配唯一的时间戳起始值
+            // Assign unique timestamp start for each thread
             #ifdef _OPENMP
             int thread_id = omp_get_thread_num();
             int num_threads = omp_get_num_threads();
@@ -247,8 +247,8 @@ static py::object invoke_cpp_closeness_centrality(py::object G, py::object weigh
             int timestamp = 0;
             #endif
             
-            // 并行循环：每个线程处理不同的源节点
-            // omp for schedule(dynamic, 1)
+            // Parallel loop: each thread handles different source node
+            #pragma omp for schedule(dynamic, 1)
             for(int i = 0; i < sources_list_len; i++){
                 timestamp++;
                 double res;
@@ -266,11 +266,11 @@ static py::object invoke_cpp_closeness_centrality(py::object G, py::object weigh
     else{
         CC.resize(N);
         
-        // OpenMP并行计算所有节点
-        // 只在节点数量较多时启用并行
-        // omp parallel if(N > 100)
+        // OpenMP parallel computation for all nodes
+        // Only enable parallelism when node count is large
+        #pragma omp parallel if(N > 100)
         {
-            // 每个线程独立的数据结构
+            // Per-thread data structures
             std::vector<int> already_counted(N + 1, 0);
             std::vector<int> queue_storage;
             queue_storage.reserve(N * 2);
@@ -283,7 +283,7 @@ static py::object invoke_cpp_closeness_centrality(py::object G, py::object weigh
                 cache.init_with_weights(N);
             }
             
-            // 为每个线程分配唯一的时间戳起始值
+            // Assign unique timestamp start for each thread
             #ifdef _OPENMP
             int thread_id = omp_get_thread_num();
             int num_threads = omp_get_num_threads();
@@ -292,8 +292,8 @@ static py::object invoke_cpp_closeness_centrality(py::object G, py::object weigh
             int timestamp = 0;
             #endif
             
-            // 并行循环：dynamic调度适合负载不均衡的情况
-            // omp for schedule(dynamic, 10)
+            // Parallel loop: dynamic scheduling for load balancing
+            #pragma omp for schedule(dynamic, 10)
             for(int i = 1; i <= N; i++){
                 timestamp++;
                 double res;
