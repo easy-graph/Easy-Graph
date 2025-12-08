@@ -21,3 +21,9 @@ except:
         " torch_scatter before you use functions related to AllDeepSet and"
         " AllSetTransformer."
     )
+
+from .convs import GATConv
+from .convs import GCNConv
+from .convs import GraphSAGEConv
+
+__all__ = ['GCNConv', 'GATConv', 'GraphSAGEConv']
