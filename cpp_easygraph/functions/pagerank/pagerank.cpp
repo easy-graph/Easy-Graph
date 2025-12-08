@@ -4,6 +4,7 @@
 #include <cstdio>
 #include "pagerank.h"
 #include "../../classes/directed_graph.h"
+#include "../../classes/graph.h"
 #include "../../common/utils.h"
 #include "../../classes/linkgraph.h"
 
@@ -17,26 +18,33 @@ struct Page {
 py::object _pagerank(py::object G, double alpha=0.85, int max_iterator=500, double threshold=1e-6) {
 
     bool is_directed = G.attr("is_directed")().cast<bool>();
-    if (is_directed == false) {
-        printf("PageRank is designed for directed graphs.\n");
-        return py::dict();
-    }
-    DiGraph& G_ = G.cast<DiGraph&>();
-    int N = G_.node.size();
     
-    Graph_L G_l;
-    if(G_.linkgraph_dirty){
-        G_l = graph_to_linkgraph(G_, is_directed, "", true, false);
-        G_.linkgraph_structure=G_l;
-        G_.linkgraph_dirty = false;
-    }
-    else{
-        G_l = G_.linkgraph_structure;
+    Graph_L* G_l_ptr = nullptr;
+    int N = 0;
+
+    if (is_directed) {
+        DiGraph& G_ = G.cast<DiGraph&>();
+        N = G_.node.size();
+        
+        if(G_.linkgraph_dirty){
+            G_.linkgraph_structure = graph_to_linkgraph(G_, true, "", true, false);
+            G_.linkgraph_dirty = false;
+        }
+        G_l_ptr = &G_.linkgraph_structure;
+    } else {
+        Graph& G_ = G.cast<Graph&>();
+        N = G_.node.size();
+        
+        if(G_.linkgraph_dirty){
+            G_.linkgraph_structure = graph_to_linkgraph(G_, false, "", true, false);
+            G_.linkgraph_dirty = false;
+        }
+        G_l_ptr = &G_.linkgraph_structure;
     }
 
-    std::vector<LinkEdge>& E = G_l.edges;
-    std::vector<int> outDegree = G_l.degree;
-    std::vector<int> head = G_l.head;
+    std::vector<LinkEdge>& E = G_l_ptr->edges;
+    std::vector<int>& outDegree = G_l_ptr->degree;
+    std::vector<int>& head = G_l_ptr->head;
 
     std::vector<Page> page(N+1);
     
