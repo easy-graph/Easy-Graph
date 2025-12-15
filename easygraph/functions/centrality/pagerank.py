@@ -42,7 +42,7 @@ def pagerank(G, alpha=0.85, weight=None):
 def google_matrix(G, alpha, weight=None):
     import numpy as np
 
-    M = eg.to_numpy_array(G, weight=weight) 
+    M = eg.to_numpy_array(G, weight=weight).astype(float)
     N = len(G)
     if N == 0:
         return M
