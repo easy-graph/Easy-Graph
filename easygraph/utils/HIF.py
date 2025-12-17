@@ -31,6 +31,8 @@ def _get_hif_validator():
 def hypergraph_to_hif(
     hg: Hypergraph,
     filename: Optional[Union[str, Path]] = None,
+    node_label: str = "name",
+    edge_label: str = "name",
 ) -> dict:
     """
     Converts an EasyGraph Hypergraph to HIF JSON.
@@ -49,7 +51,12 @@ def hypergraph_to_hif(
             props = v_props[i] if i < len(v_props) and isinstance(v_props[i], dict) else {}
             p = props.copy()
             weight = p.pop("weight", 1.0)
-            node_id = p.pop("name", str(i))
+            if node_label in p:
+                node_id = str(p.get(node_label))
+                if node_label == "name":
+                    p.pop("name", None)
+            else:
+                node_id = p.pop("name", str(i))
             nodj.append({"node": node_id, "weight": weight, "attrs": p})
 
     e_structure = []
@@ -83,9 +90,15 @@ def hypergraph_to_hif(
         edgj = []
         for i in range(num_e):
             props = e_props[i].copy() if isinstance(e_props[i], dict) else {}
-            edge_id = props.pop("name", str(i))
+            # edge_id = props.pop("name", str(i))
             weight = e_weights[i]
             props.pop("weight", None)
+            if edge_label in props:
+                edge_id = str(props.get(edge_label))
+                if edge_label == "name":
+                    props.pop("name", None)
+            else:
+                edge_id = props.pop("name", str(i))    
             edgj.append({"edge": edge_id, "weight": weight, "attrs": props})
 
     if hasattr(hg, "custom_hif_incidences"):
@@ -148,6 +161,8 @@ def hypergraph_to_hif(
 def hif_to_hypergraph(
     hif: dict = None,
     filename: Optional[Union[str, Path]] = None,
+    node_label: str = "name",
+    edge_label: str = "name",
 ):
     """
     Reads HIF JSON and returns an EasyGraph Hypergraph.
@@ -177,7 +192,10 @@ def hif_to_hypergraph(
         if idx is not None:
 
             prop = rec.get("attrs", {}).copy()
-            prop["name"] = rec["node"] 
+            if node_label in prop:
+                prop["name"] = str(prop[node_label])
+            else:
+                prop["name"] = rec["node"]
             prop["weight"] = rec.get("weight", 1.0)
             v_property[idx] = prop
 
@@ -188,9 +206,12 @@ def hif_to_hypergraph(
         idx = edge_name_to_idx.get(rec["edge"])
         if idx is not None:
             prop = rec.get("attrs", {}).copy()
-            if "name" not in prop:
+            # if "name" not in prop:
+            #     prop["name"] = rec["edge"]
+            if edge_label in prop:
+                prop["name"] = str(prop[edge_label])
+            else:
                 prop["name"] = rec["edge"]
-            
             prop["weight"] = rec.get("weight", 1.0)
             e_property_full[idx] = prop
             e_weight[idx] = prop["weight"]
@@ -216,6 +237,18 @@ def hif_to_hypergraph(
         v_property=v_property
     )
     
+    hg.node_label_index = {}
+    for i in range(num_v):
+        name = v_property[i].get("name")
+        if name:
+            hg.node_label_index[name] = i
+            
+    hg.edge_label_index = {}
+    for i in range(num_e):
+        name = e_property_full[i].get("name")
+        if name:
+            hg.edge_label_index[name] = i
+            
     hg.custom_hif_nodes = deepcopy(nodes_list)
     hg.custom_hif_edges = deepcopy(edges_list)
     hg.custom_hif_incidences = deepcopy(incidences_list)
