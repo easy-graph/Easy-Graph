@@ -10,16 +10,15 @@
 #include "../../classes/linkgraph.h"
 
 struct Page {
-    Page(){} 
-    Page(const double &_newPR, const double &_oldPR) {newPR = _newPR; oldPR = _oldPR;}
-
+    Page() {}
+    Page(const double &_newPR, const double &_oldPR) { newPR = _newPR; oldPR = _oldPR; }
     double newPR, oldPR;
 };
 
 py::object _pagerank(py::object G, double alpha=0.85, int max_iterator=500, double threshold=1e-6, py::object weight=py::none()) {
 
     bool is_directed = G.attr("is_directed")().cast<bool>();
-    
+
     bool use_weights = !weight.is_none();
     std::string weight_key = "";
     if (use_weights) {
@@ -32,13 +31,8 @@ py::object _pagerank(py::object G, double alpha=0.85, int max_iterator=500, doub
     if (is_directed) {
         DiGraph& G_ = G.cast<DiGraph&>();
         N = G_.node.size();
-        
-        if(G_.linkgraph_dirty){
-            G_.linkgraph_structure = graph_to_linkgraph(G_, true, weight_key, true, false);
-            G_.linkgraph_dirty = false;
-        }
-        
-        if (G_.linkgraph_structure.degree.size() < N + 1 || G_.linkgraph_structure.head.size() < N + 1) {
+
+        if (G_.linkgraph_dirty) {
             G_.linkgraph_structure = graph_to_linkgraph(G_, true, weight_key, true, false);
             G_.linkgraph_dirty = false;
         }
@@ -47,13 +41,8 @@ py::object _pagerank(py::object G, double alpha=0.85, int max_iterator=500, doub
     } else {
         Graph& G_ = G.cast<Graph&>();
         N = G_.node.size();
-        
-        if(G_.linkgraph_dirty){
-            G_.linkgraph_structure = graph_to_linkgraph(G_, false, weight_key, true, false);
-            G_.linkgraph_dirty = false;
-        }
 
-        if (G_.linkgraph_structure.degree.size() < N + 1 || G_.linkgraph_structure.head.size() < N + 1) {
+        if (G_.linkgraph_dirty) {
             G_.linkgraph_structure = graph_to_linkgraph(G_, false, weight_key, true, false);
             G_.linkgraph_dirty = false;
         }
@@ -69,10 +58,10 @@ py::object _pagerank(py::object G, double alpha=0.85, int max_iterator=500, doub
     if (use_weights) {
         outWeightSum.resize(N + 1, 0.0);
         #pragma omp parallel for
-        for(int i = 1; i < N + 1; ++i) {
+        for (int i = 1; i < N + 1; ++i) {
             if (outDegree[i] > 0) {
-                double sum_w = 0;
-                for(int p = head[i]; p != -1; p = E[p].next){
+                double sum_w = 0.0;
+                for (int p = head[i]; p != -1; p = E[p].next) {
                     sum_w += E[p].w;
                 }
                 outWeightSum[i] = sum_w;
@@ -80,54 +69,48 @@ py::object _pagerank(py::object G, double alpha=0.85, int max_iterator=500, doub
         }
     }
 
-    std::vector<Page> page(N+1);
-    
+    std::vector<Page> page(N + 1);
     #pragma omp parallel for
     for (int i = 1; i < N + 1; ++i) {
-        page[i] = Page(0, 1.0/N);
+        page[i] = Page(0.0, 1.0 / N);
     }
 
-    int cnt = 0; 
-    int shouldStop = 0; 
+    int cnt = 0;
+    int shouldStop = 0;
 
-    while(!shouldStop)
-    {
+    while (!shouldStop) {
         shouldStop = 1;
-        double res = 0;
+        double res = 0.0;
 
         #pragma omp parallel for reduction(+:res)
-        for(int i = 1; i < N+1; ++i) {
+        for (int i = 1; i < N + 1; ++i) {
             bool is_dangling = false;
             if (use_weights) {
-                if (outDegree[i] == 0 || outWeightSum[i] == 0) is_dangling = true;
+                if (outDegree[i] == 0 || outWeightSum[i] == 0.0) is_dangling = true;
             } else {
                 if (outDegree[i] == 0) is_dangling = true;
             }
-
-            if (is_dangling) {
-                res += page[i].oldPR;
-            }
+            if (is_dangling) res += page[i].oldPR;
         }
 
         #pragma omp parallel for schedule(dynamic, 128)
-        for(int i = 1; i < N+1; ++i) {
+        for (int i = 1; i < N + 1; ++i) {
             if (use_weights) {
-                if (outDegree[i] == 0 || outWeightSum[i] == 0) continue;
+                if (outDegree[i] == 0 || outWeightSum[i] == 0.0) continue;
             } else {
-                if (outDegree[i] == 0) continue; 
+                if (outDegree[i] == 0) continue;
             }
-            
+
             if (!use_weights) {
                 double tmpPR = (page[i].oldPR / outDegree[i]) * alpha;
-                for(int p = head[i]; p != -1; p = E[p].next){
+                for (int p = head[i]; p != -1; p = E[p].next) {
                     #pragma omp atomic
                     page[E[p].to].newPR += tmpPR;
                 }
             } else {
                 double basePR = page[i].oldPR * alpha;
                 double inv_sum = 1.0 / outWeightSum[i];
-                
-                for(int p = head[i]; p != -1; p = E[p].next){
+                for (int p = head[i]; p != -1; p = E[p].next) {
                     double contribution = basePR * (E[p].w * inv_sum);
                     #pragma omp atomic
                     page[E[p].to].newPR += contribution;
@@ -135,27 +118,23 @@ py::object _pagerank(py::object G, double alpha=0.85, int max_iterator=500, doub
             }
         }
 
-        double sum = 0;
+        double sum = 0.0;
 
         #pragma omp parallel for reduction(+:sum)
-        for(int i = 1; i < N+1; ++i)
-        {
-            page[i].newPR += (1 - alpha) / N + res / N * alpha;
-            sum += fabs(page[i].newPR - page[i].oldPR);
-
+        for (int i = 1; i < N + 1; ++i) {
+            page[i].newPR += (1.0 - alpha) / N + (res / N) * alpha;
+            sum += std::fabs(page[i].newPR - page[i].oldPR);
             page[i].oldPR = page[i].newPR;
-            page[i].newPR = 0;
+            page[i].newPR = 0.0;
         }
-        
-        if (sum > threshold * N)
-            shouldStop = 0;
+
+        if (sum > threshold * N) shouldStop = 0;
         cnt++;
-        if (cnt >= max_iterator)
-            break;
+        if (cnt >= max_iterator) break;
     }
-    
-    py::list res_lst = py::list();
-    for(int i = 1;i < N + 1;i++){
+
+    py::list res_lst;
+    for (int i = 1; i < N + 1; ++i) {
         res_lst.append(page[i].oldPR);
     }
 
