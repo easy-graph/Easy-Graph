@@ -229,7 +229,6 @@ static py::object invoke_cpp_betweenness_centrality(
     if (G_.linkgraph_dirty) {
         G_l = graph_to_linkgraph(G_, is_directed, weight_key, false, false);
         G_.linkgraph_structure = G_l;
-        G_.linkgraph_dirty = false;
     } else {
         G_l = G_.linkgraph_structure;
     }
