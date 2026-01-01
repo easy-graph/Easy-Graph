@@ -23,7 +23,7 @@ jobs:
           # macos-13 is closing down, macos-14 is apple silicon
           # macos-15-intel is for the x86_64
           # note: Apple has discontinued support for the x86_64 (Intel) architecture
-          os: [ ubuntu-latest, windows-latest, macos-14, macos-15, macos-15-intel ]
+          os: [ ubuntu-latest, windows-latest, macos-14, macos-15, ]
 #          modify python version in project.toml
       steps: 
       # 检出代码
