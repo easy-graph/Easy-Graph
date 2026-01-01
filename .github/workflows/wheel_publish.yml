@@ -20,9 +20,10 @@ jobs:
       runs-on: ${{ matrix.os }}
       strategy:
         matrix:
-          # macos-13 is an intel runner, macos-14 is apple silicon
-          os: [ ubuntu-latest, windows-latest, macos-13, macos-14]
-#           os: [macos-14]
+          # macos-13 is closing down, macos-14 is apple silicon
+          # macos-15-intel is for the x86_64
+          # note: Apple has discontinued support for the x86_64 (Intel) architecture
+          os: [ ubuntu-latest, windows-latest, macos-14, macos-15, macos-15-intel ]
 #          modify python version in project.toml
       steps: 
       # 检出代码
