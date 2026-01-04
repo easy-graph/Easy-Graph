@@ -63,6 +63,7 @@ It bridges the gap between EasyGraph and higher-order relationships. EasyHypergr
 - [11-04-2023] [EasyGraph：多功能、跨平台、高效率的跨学科网络分析库 (in Chinese)](https://swarma.org/?p=46252)
 
 ## 🚀 Releases & Milestones
+- [01-01-2026] EasyGraph **v1.5.3** released (The Hypergraph Interchange Format (HIF) standard)
 - [11-23-2025] EasyGraph **v1.5.2** released (LS algorithm for effective community detection)
 - [10-11-2025] EasyGraph **v1.5.1** released (Python 3.14 supported)
 - **[09-29-2025] 🎉 900K+ Downloads! Thanks to our amazing community!**
