@@ -1,5 +1,8 @@
 #include "evaluation.h"
 #include <iomanip>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 #ifdef EASYGRAPH_ENABLE_GPU
 #include <gpu_easygraph.h>
 #endif
@@ -106,7 +109,7 @@ weight_t directed_local_constraint(DiGraph& G, node_t u, node_t v, std::string w
             if (n == v) {
                 continue;
             }
-            indirect += directed_normalized_mutual_weight(G, u, n, weight, sum, sum_nmw_rec) * 
+            indirect += directed_normalized_mutual_weight(G, u, n, weight, sum, sum_nmw_rec) *
                         directed_normalized_mutual_weight(G, n, v, weight, sum, sum_nmw_rec);
         }
         weight_t result = pow((direct + indirect), 2);
@@ -126,7 +129,7 @@ weight_t local_constraint(Graph& G, node_t u, node_t v, std::string weight, rec_
             if (w.first == v) {
                 continue;
             }
-            indirect += normalized_mutual_weight(G, u, w.first, weight, sum, sum_nmw_rec) * 
+            indirect += normalized_mutual_weight(G, u, w.first, weight, sum, sum_nmw_rec) *
                         normalized_mutual_weight(G, w.first, v, weight, sum, sum_nmw_rec);
         }
         weight_t result = pow((direct + indirect), 2);
@@ -170,7 +173,6 @@ std::pair<node_t, weight_t> directed_compute_constraint_of_v(DiGraph& G, node_t 
 
 py::object invoke_cpp_constraint(py::object G, py::object nodes, py::object weight) {
     std::string weight_key = weight_to_string(weight);
-    rec_type sum_nmw_rec, local_constraint_rec;
 
     if (nodes.is_none()) {
         nodes = G.attr("nodes");
@@ -180,23 +182,50 @@ py::object invoke_cpp_constraint(py::object G, py::object nodes, py::object weig
     int nodes_list_len = py::len(nodes_list);
     std::vector<double> constraint_results(nodes_list_len, 0.0);
 
-    if (G.attr("is_directed")().cast<bool>()) {
+    std::vector<node_t> node_ids(nodes_list_len);
+    bool is_directed = G.attr("is_directed")().cast<bool>();
+
+    if (is_directed) {
         DiGraph& G_ = G.cast<DiGraph&>();
         for (int i = 0; i < nodes_list_len; i++) {
             py::object v = nodes_list[i];
-            node_t v_id = G_.node_to_id[v].cast<node_t>();
-            std::pair<node_t, weight_t> constraint_pair =
-                directed_compute_constraint_of_v(G_, v_id, weight_key, local_constraint_rec, sum_nmw_rec);
-            constraint_results[i] = constraint_pair.second;
+            node_ids[i] = G_.node_to_id[v].cast<node_t>();
+        }
+
+        {
+            py::gil_scoped_release release;
+            #pragma omp parallel
+            {
+                rec_type sum_nmw_rec_private, local_constraint_rec_private;
+                #pragma omp for schedule(static)
+                for (int i = 0; i < nodes_list_len; i++) {
+                    std::pair<node_t, weight_t> constraint_pair =
+                        directed_compute_constraint_of_v(G_, node_ids[i], weight_key,
+                                                        local_constraint_rec_private, sum_nmw_rec_private);
+                    constraint_results[i] = constraint_pair.second;
+                }
+            }
         }
     } else {
         Graph& G_ = G.cast<Graph&>();
         for (int i = 0; i < nodes_list_len; i++) {
             py::object v = nodes_list[i];
-            node_t v_id = G_.node_to_id[v].cast<node_t>();
-            std::pair<node_t, weight_t> constraint_pair =
-                compute_constraint_of_v(G_, v_id, weight_key, local_constraint_rec, sum_nmw_rec);
-            constraint_results[i] = constraint_pair.second;
+            node_ids[i] = G_.node_to_id[v].cast<node_t>();
+        }
+
+        {
+            py::gil_scoped_release release;
+            #pragma omp parallel
+            {
+                rec_type sum_nmw_rec_private, local_constraint_rec_private;
+                #pragma omp for schedule(static)
+                for (int i = 0; i < nodes_list_len; i++) {
+                    std::pair<node_t, weight_t> constraint_pair =
+                        compute_constraint_of_v(G_, node_ids[i], weight_key,
+                                                local_constraint_rec_private, sum_nmw_rec_private);
+                    constraint_results[i] = constraint_pair.second;
+                }
+            }
         }
     }
 
@@ -221,7 +250,7 @@ static py::object invoke_gpu_constraint(py::object G, py::object nodes, py::obje
     std::vector<int>& E = csr_graph->E;
     std::vector<int>& row = coo_graph->row;
     std::vector<int>& col = coo_graph->col;
-    std::vector<double> *W_p = weight.is_none() ? &(coo_graph->unweighted_W) 
+    std::vector<double> *W_p = weight.is_none() ? &(coo_graph->unweighted_W)
                             : coo_graph->W_map.find(weight_to_string(weight))->second.get();
     std::unordered_map<node_t, int>& node2idx = coo_graph->node2idx;
     int num_nodes = coo_graph->node2idx.size();
@@ -299,7 +328,7 @@ py::object invoke_cpp_effective_size(py::object G, py::object nodes, py::object 
     py::list nodes_list = py::list(nodes);
     int nodes_list_len = py::len(nodes_list);
     std::vector<double> effective_size_results(nodes_list_len, 0.0);
-    
+
     if (!G.attr("is_directed")().cast<bool>()){
         Graph& G_ = G.cast<Graph&>();
         for (int i = 0; i < nodes_list_len; i++) {
@@ -339,7 +368,7 @@ py::object invoke_cpp_effective_size(py::object G, py::object nodes, py::object 
     }
 
     std::reverse(effective_size_results.begin(), effective_size_results.end());
-    
+
     py::array::ShapeContainer ret_shape{nodes_list_len};
     py::array_t<double> ret(ret_shape, effective_size_results.data());
     return ret;
@@ -435,7 +464,7 @@ static py::object invoke_gpu_efficiency(py::object G, py::object nodes, py::obje
         nodes_list = py::list(nodes);
         for (auto node : nodes_list) {
             int node_id = node2idx[G_.node_to_id[node].cast<node_t>()];
-            node_mask[node_id] = 1; 
+            node_mask[node_id] = 1;
         }
     } else {
         nodes_list = py::list(G.attr("nodes"));
@@ -627,7 +656,7 @@ py::object invoke_cpp_hierarchy(py::object G, py::object nodes, py::object weigh
     py::list nodes_list = py::list(nodes);
     int nodes_list_len = py::len(nodes_list);
     py::dict hierarchy = py::dict();
-    
+
     if(G.attr("is_directed")().cast<bool>()){
         DiGraph& G_ = G.cast<DiGraph&>();
         for (int i = 0; i < nodes_list_len; i++) {
@@ -761,7 +790,7 @@ static py::object invoke_gpu_hierarchy(py::object G, py::object nodes, py::objec
     std::vector<int>& E = csr_graph->E;
     std::vector<int>& row = coo_graph->row;
     std::vector<int>& col = coo_graph->col;
-    std::vector<double> *W_p = weight.is_none() ? &(coo_graph->unweighted_W) 
+    std::vector<double> *W_p = weight.is_none() ? &(coo_graph->unweighted_W)
                             : coo_graph->W_map.find(weight_to_string(weight))->second.get();
     std::unordered_map<node_t, int>& node2idx = coo_graph->node2idx;
     int num_nodes = coo_graph->node2idx.size();
@@ -777,7 +806,7 @@ static py::object invoke_gpu_hierarchy(py::object G, py::object nodes, py::objec
         }
     } else {
         nodes_list = py::list(G.attr("nodes"));
-        std::fill(node_mask.begin(), node_mask.end(), 1); 
+        std::fill(node_mask.begin(), node_mask.end(), 1);
     }
 
     int gpu_r = gpu_easygraph::hierarchy(V, E, row, col, num_nodes, *W_p, is_directed, node_mask, hierarchy_results);
