@@ -1,7 +1,7 @@
 EasyGraph
 ==================
 
-Copyright (C) <2020-2025> by [DataNET Group, Fudan University](https://fudan-datanet.mysxl.cn/)
+Copyright (C) <2020-2026> by [DataNET Group, Fudan University](https://fudan-datanet.mysxl.cn/)
 
 ___________________________________________________________________________
 
