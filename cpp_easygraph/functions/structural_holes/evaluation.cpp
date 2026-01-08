@@ -1,5 +1,12 @@
 #include "evaluation.h"
 #include <iomanip>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <cmath>
+#include <algorithm>
+#include <string>
+
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -55,120 +62,92 @@ weight_t directed_mutual_weight(DiGraph& G, node_t u, node_t v, std::string weig
 
 weight_t normalized_mutual_weight(Graph& G, node_t u, node_t v, std::string weight, norm_t norm, rec_type& nmw_rec) {
     std::pair<node_t, node_t> edge = std::make_pair(u, v);
-    weight_t nmw;
-    if (nmw_rec.count(edge)) {
-        nmw = nmw_rec[edge];
-    } else {
-        weight_t scale = 0;
-        for (auto& w : G.adj[u]) {
-            weight_t temp_weight = mutual_weight(G, u, w.first, weight);
-            scale = (norm == sum) ? (scale + temp_weight) : std::max(scale, temp_weight);
-        }
-        nmw = scale ? (mutual_weight(G, u, v, weight) / scale) : 0;
-        nmw_rec[edge] = nmw;
+    if (nmw_rec.count(edge)) return nmw_rec[edge];
+    
+    weight_t scale = 0;
+    for (auto& w : G.adj[u]) {
+        weight_t temp_weight = mutual_weight(G, u, w.first, weight);
+        scale = (norm == sum) ? (scale + temp_weight) : std::max(scale, temp_weight);
     }
+    weight_t nmw = scale ? (mutual_weight(G, u, v, weight) / scale) : 0;
+    nmw_rec[edge] = nmw;
     return nmw;
 }
 
 weight_t directed_normalized_mutual_weight(DiGraph& G, node_t u, node_t v, std::string weight, norm_t norm, rec_type& nmw_rec) {
     std::pair<node_t, node_t> edge = std::make_pair(u, v);
-    weight_t nmw;
-    if (nmw_rec.count(edge)) {
-        nmw = nmw_rec[edge];
-    } else {
-        weight_t scale = 0;
-        for (auto& w : G.adj[u]) {
-            weight_t temp_weight = directed_mutual_weight(G, u, w.first, weight);
-            scale = (norm == sum) ? (scale + temp_weight) : std::max(scale, temp_weight);
-        }
-        for (auto& w : G.pred[u]) {
-            weight_t temp_weight = directed_mutual_weight(G, u, w.first, weight);
-            scale = (norm == sum) ? (scale + temp_weight) : std::max(scale, temp_weight);
-        }
-        nmw = scale ? (directed_mutual_weight(G, u, v, weight) / scale) : 0;
-        nmw_rec[edge] = nmw;
-    }
-    return nmw;
-}
+    if (nmw_rec.count(edge)) return nmw_rec[edge];
 
-weight_t directed_local_constraint(DiGraph& G, node_t u, node_t v, std::string weight, rec_type& local_constraint_rec, rec_type& sum_nmw_rec) {
-    std::pair<node_t, node_t> edge = std::make_pair(u, v);
-    if (local_constraint_rec.count(edge)) {
-        return local_constraint_rec[edge];
-    } else {
-        weight_t direct = directed_normalized_mutual_weight(G, u, v, weight, sum, sum_nmw_rec);
-        weight_t indirect = 0;
-        std::unordered_set<node_t> neighbors;
-        for (const auto& n : G.adj[v]) {
-            neighbors.insert(n.first);
-        }
-        for (const auto& n : G.pred[v]) {
-            neighbors.insert(n.first);
-        }
-        for (const auto& n : neighbors) {
-            if (n == v) {
-                continue;
-            }
-            indirect += directed_normalized_mutual_weight(G, u, n, weight, sum, sum_nmw_rec) *
-                        directed_normalized_mutual_weight(G, n, v, weight, sum, sum_nmw_rec);
-        }
-        weight_t result = pow((direct + indirect), 2);
-        local_constraint_rec[edge] = result;
-        return result;
+    weight_t scale = 0;
+    for (auto& w : G.adj[u]) {
+        weight_t temp_weight = directed_mutual_weight(G, u, w.first, weight);
+        scale = (norm == sum) ? (scale + temp_weight) : std::max(scale, temp_weight);
     }
+    for (auto& w : G.pred[u]) {
+        weight_t temp_weight = directed_mutual_weight(G, u, w.first, weight);
+        scale = (norm == sum) ? (scale + temp_weight) : std::max(scale, temp_weight);
+    }
+    weight_t nmw = scale ? (directed_mutual_weight(G, u, v, weight) / scale) : 0;
+    nmw_rec[edge] = nmw;
+    return nmw;
 }
 
 weight_t local_constraint(Graph& G, node_t u, node_t v, std::string weight, rec_type& local_constraint_rec, rec_type& sum_nmw_rec) {
     std::pair<node_t, node_t> edge = std::make_pair(u, v);
-    if (local_constraint_rec.count(edge)) {
-        return local_constraint_rec[edge];
-    } else {
-        weight_t direct = normalized_mutual_weight(G, u, v, weight, sum, sum_nmw_rec);
-        weight_t indirect = 0;
-        for (auto& w : G.adj[u]) {
-            if (w.first == v) {
-                continue;
+    if (local_constraint_rec.count(edge)) return local_constraint_rec[edge];
+
+    weight_t direct = normalized_mutual_weight(G, u, v, weight, sum, sum_nmw_rec);
+    weight_t indirect = 0;
+    for (auto& w : G.adj[u]) {
+        if (w.first == v) continue;
+        indirect += normalized_mutual_weight(G, u, w.first, weight, sum, sum_nmw_rec) *
+                    normalized_mutual_weight(G, w.first, v, weight, sum, sum_nmw_rec);
+    }
+    weight_t result = pow((direct + indirect), 2);
+    local_constraint_rec[edge] = result;
+    return result;
+}
+
+weight_t directed_local_constraint(DiGraph& G, node_t u, node_t v, std::string weight, rec_type& local_constraint_rec, rec_type& sum_nmw_rec) {
+    std::pair<node_t, node_t> edge = std::make_pair(u, v);
+    if (local_constraint_rec.count(edge)) return local_constraint_rec[edge];
+
+    weight_t direct = directed_normalized_mutual_weight(G, u, v, weight, sum, sum_nmw_rec);
+    weight_t indirect = 0;
+    std::unordered_set<node_t> neighbors;
+    for (const auto& n : G.adj[v]) neighbors.insert(n.first);
+    for (const auto& n : G.pred[v]) neighbors.insert(n.first);
+    
+    for (const auto& n : neighbors) {
+        if (n == v) continue;
+        indirect += directed_normalized_mutual_weight(G, u, n, weight, sum, sum_nmw_rec) *
+                    directed_normalized_mutual_weight(G, n, v, weight, sum, sum_nmw_rec);
+    }
+    weight_t result = pow((direct + indirect), 2);
+    local_constraint_rec[edge] = result;
+    return result;
+}
+
+void preprocess_graph_for_constraint(
+    Graph& G, 
+    std::string weight_key,
+    std::unordered_map<node_t, std::unordered_map<node_t, double>>& weighted_adj,
+    std::unordered_map<node_t, double>& strength
+) {
+    for (auto& u_entry : G.adj) {
+        node_t u = u_entry.first;
+        for (auto& v_entry : u_entry.second) {
+            node_t v = v_entry.first;
+            double w = 1.0;
+            if (!weight_key.empty() && v_entry.second.count(weight_key)) {
+                w = v_entry.second[weight_key];
             }
-            indirect += normalized_mutual_weight(G, u, w.first, weight, sum, sum_nmw_rec) *
-                        normalized_mutual_weight(G, w.first, v, weight, sum, sum_nmw_rec);
-        }
-        weight_t result = pow((direct + indirect), 2);
-        local_constraint_rec[edge] = result;
-        return result;
-    }
-}
-
-std::pair<node_t, weight_t> compute_constraint_of_v(Graph& G, node_t v, std::string weight, rec_type& local_constraint_rec, rec_type& sum_nmw_rec) {
-    weight_t constraint_of_v = 0;
-    if (G.adj[v].size() == 0) {
-        constraint_of_v = Py_NAN;
-    } else {
-        for (const auto& n : G.adj[v]) {
-            weight_t local_cons = local_constraint(G, v, n.first, weight, local_constraint_rec, sum_nmw_rec);
-            constraint_of_v += local_cons;
+            weighted_adj[u][v] += w;
+            strength[u] += w;
+            weighted_adj[v][u] += w;
+            strength[v] += w;
         }
     }
-    return std::make_pair(v, constraint_of_v);
-}
-
-std::pair<node_t, weight_t> directed_compute_constraint_of_v(DiGraph& G, node_t v, std::string weight, rec_type& local_constraint_rec, rec_type& sum_nmw_rec) {
-    weight_t constraint_of_v = 0;
-    if (G.adj[v].size() == 0) {
-        constraint_of_v = Py_NAN;
-    } else {
-        std::unordered_set<node_t> neighbors;
-        for (const auto& n : G.adj[v]) {
-            neighbors.insert(n.first);
-        }
-        for (const auto& n : G.pred[v]) {
-            neighbors.insert(n.first);
-        }
-        for (const auto& n : neighbors) {
-            weight_t local_cons = directed_local_constraint(G, v, n, weight, local_constraint_rec, sum_nmw_rec);
-            constraint_of_v += local_cons;
-        }
-    }
-    return std::make_pair(v, constraint_of_v);
 }
 
 py::object invoke_cpp_constraint(py::object G, py::object nodes, py::object weight) {
@@ -177,59 +156,80 @@ py::object invoke_cpp_constraint(py::object G, py::object nodes, py::object weig
     if (nodes.is_none()) {
         nodes = G.attr("nodes");
     }
-
     py::list nodes_list = py::list(nodes);
     int nodes_list_len = py::len(nodes_list);
-    std::vector<double> constraint_results(nodes_list_len, 0.0);
-
+    
+    Graph& G_ref = G.cast<Graph&>();
     std::vector<node_t> node_ids(nodes_list_len);
-    bool is_directed = G.attr("is_directed")().cast<bool>();
-
-    if (is_directed) {
-        DiGraph& G_ = G.cast<DiGraph&>();
-        for (int i = 0; i < nodes_list_len; i++) {
-            py::object v = nodes_list[i];
-            node_ids[i] = G_.node_to_id[v].cast<node_t>();
-        }
-
-        {
-            py::gil_scoped_release release;
-            #pragma omp parallel
-            {
-                rec_type sum_nmw_rec_private, local_constraint_rec_private;
-                #pragma omp for schedule(static)
-                for (int i = 0; i < nodes_list_len; i++) {
-                    std::pair<node_t, weight_t> constraint_pair =
-                        directed_compute_constraint_of_v(G_, node_ids[i], weight_key,
-                                                        local_constraint_rec_private, sum_nmw_rec_private);
-                    constraint_results[i] = constraint_pair.second;
-                }
-            }
-        }
-    } else {
-        Graph& G_ = G.cast<Graph&>();
-        for (int i = 0; i < nodes_list_len; i++) {
-            py::object v = nodes_list[i];
-            node_ids[i] = G_.node_to_id[v].cast<node_t>();
-        }
-
-        {
-            py::gil_scoped_release release;
-            #pragma omp parallel
-            {
-                rec_type sum_nmw_rec_private, local_constraint_rec_private;
-                #pragma omp for schedule(static)
-                for (int i = 0; i < nodes_list_len; i++) {
-                    std::pair<node_t, weight_t> constraint_pair =
-                        compute_constraint_of_v(G_, node_ids[i], weight_key,
-                                                local_constraint_rec_private, sum_nmw_rec_private);
-                    constraint_results[i] = constraint_pair.second;
-                }
-            }
-        }
+    for (int i = 0; i < nodes_list_len; i++) {
+        node_ids[i] = G_ref.node_to_id[nodes_list[i]].cast<node_t>();
     }
 
-    std::reverse(constraint_results.begin(), constraint_results.end());
+    std::unordered_map<node_t, std::unordered_map<node_t, double>> weighted_adj;
+    std::unordered_map<node_t, double> strength;
+    preprocess_graph_for_constraint(G_ref, weight_key, weighted_adj, strength);
+
+    std::vector<double> constraint_results(nodes_list_len, 0.0);
+
+    {
+        py::gil_scoped_release release;
+        #pragma omp parallel for schedule(dynamic)
+        for (int i = 0; i < nodes_list_len; i++) {
+            node_t u = node_ids[i];
+            
+            auto str_it = strength.find(u);
+            if (str_it == strength.end() || str_it->second == 0.0) {
+                constraint_results[i] = Py_NAN;
+                continue;
+            }
+            double u_strength = str_it->second;
+
+            auto& neighbors_u = weighted_adj[u];
+            if (neighbors_u.empty()) {
+                constraint_results[i] = Py_NAN;
+                continue;
+            }
+
+            std::unordered_map<node_t, double> contrib;
+
+            for (auto& neighbor : neighbors_u) {
+                node_t j = neighbor.first;
+                double w_uj = neighbor.second;
+                double p_uj = w_uj / u_strength;
+                
+                contrib[j] += p_uj;
+            }
+
+            for (auto& neighbor_j : neighbors_u) {
+                node_t j = neighbor_j.first;
+                double w_uj = neighbor_j.second;
+                double p_uj = w_uj / u_strength;
+
+                auto q_it = weighted_adj.find(j);
+                if (q_it != weighted_adj.end()) {
+                    double j_strength = strength[j];
+                    for (auto& neighbor_q : q_it->second) {
+                        node_t q = neighbor_q.first;
+                        if (q == u) continue;
+
+                        double w_jq = neighbor_q.second;
+                        double p_jq = w_jq / j_strength;
+
+                        contrib[q] += p_uj * p_jq;
+                    }
+                }
+            }
+
+            double c_u = 0.0;
+            for (auto& neighbor : neighbors_u) {
+                node_t j = neighbor.first;
+                if (contrib.count(j)) {
+                    c_u += pow(contrib[j], 2);
+                }
+            }
+            constraint_results[i] = c_u;
+        }
+    }
 
     py::array::ShapeContainer ret_shape{nodes_list_len};
     py::array_t<double> ret(ret_shape, constraint_results.data());
