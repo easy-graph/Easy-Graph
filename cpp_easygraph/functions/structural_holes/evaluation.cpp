@@ -327,95 +327,112 @@ inline weight_t compute_directed_mutual_weight(const DiGraph& G, node_t u, node_
     return w;
 }
 
-py::object invoke_cpp_effective_size(py::object G, py::object nodes, py::object weight) {
-    std::string weight_key = weight_to_string(weight);
-    bool is_directed = G.attr("is_directed")().cast<bool>();
-
-    if (nodes.is_none()) {
-        nodes = G.attr("nodes");
-    }
-    py::list nodes_list = py::list(nodes);
-    int nodes_list_len = py::len(nodes_list);
-
-    Graph& G_ref = G.cast<Graph&>();
-    py::object node_to_id = G_ref.node_to_id;
+std::vector<double> compute_redundancy_core(py::object G_obj, const std::vector<node_t>& target_nodes, const std::string& weight_key, bool is_directed) {
     
-    // 获取所有目标节点的 ID
-    std::vector<node_t> target_node_ids(nodes_list_len);
-    node_t max_id_in_targets = 0;
-    for (int i = 0; i < nodes_list_len; i++) {
-        node_t id = node_to_id[nodes_list[i]].cast<node_t>();
-        target_node_ids[i] = id;
-        if (id > max_id_in_targets) max_id_in_targets = id;
-    }
-
-    // 确定预计算容器的大小
-    node_t max_graph_id = 0;
+    // Cast to C++ objects once to avoid Python API overhead
+    const Graph* G_ptr = nullptr;
+    const DiGraph* DiG_ptr = nullptr;
     if (is_directed) {
-        const DiGraph& G_ = G.cast<DiGraph&>();
-        for (const auto& kv : G_.adj) if (kv.first > max_graph_id) max_graph_id = kv.first;
-        for (const auto& kv : G_.pred) if (kv.first > max_graph_id) max_graph_id = kv.first;
+        DiG_ptr = &G_obj.cast<const DiGraph&>();
     } else {
-        const Graph& G_ = G.cast<Graph&>();
-        for (const auto& kv : G_.adj) if (kv.first > max_graph_id) max_graph_id = kv.first;
+        G_ptr = &G_obj.cast<const Graph&>();
     }
-    max_graph_id = std::max(max_graph_id, max_id_in_targets);
 
-    // 预计算数组
+    // Pre-compute max ID and node list
+    node_t max_graph_id = 0;
+    std::vector<node_t> all_nodes_vec;
+
+    if (is_directed) {
+        for (const auto& kv : DiG_ptr->adj) if (kv.first > max_graph_id) max_graph_id = kv.first;
+        for (const auto& kv : DiG_ptr->pred) if (kv.first > max_graph_id) max_graph_id = kv.first;
+        all_nodes_vec.reserve(DiG_ptr->adj.size() + DiG_ptr->pred.size());
+        for(const auto& kv : DiG_ptr->adj) all_nodes_vec.push_back(kv.first);
+        for(const auto& kv : DiG_ptr->pred) all_nodes_vec.push_back(kv.first);
+    } else {
+        for (const auto& kv : G_ptr->adj) if (kv.first > max_graph_id) max_graph_id = kv.first;
+        all_nodes_vec.reserve(G_ptr->adj.size());
+        for(const auto& kv : G_ptr->adj) all_nodes_vec.push_back(kv.first);
+    }
+
+    // Deduplicate nodes
+    std::sort(all_nodes_vec.begin(), all_nodes_vec.end());
+    all_nodes_vec.erase(std::unique(all_nodes_vec.begin(), all_nodes_vec.end()), all_nodes_vec.end());
+    
+    // Ensure vector size covers target nodes
+    if (!target_nodes.empty()) {
+        node_t max_target = *std::max_element(target_nodes.begin(), target_nodes.end());
+        max_graph_id = std::max(max_graph_id, max_target);
+    }
+
+    // Pre-compute Scale
     std::vector<double> scale_sum_vec(max_graph_id + 1, 0.0);
     std::vector<double> scale_max_vec(max_graph_id + 1, 0.0);
-    std::vector<node_t> all_nodes_vec; 
-    std::vector<double> effective_size_results(nodes_list_len, 0.0);
 
-    if (!is_directed) {
-        const Graph& G_ = G.cast<Graph&>();
-        
-        all_nodes_vec.reserve(G_.adj.size());
-        for(const auto& kv : G_.adj) all_nodes_vec.push_back(kv.first);
+    #pragma omp parallel for schedule(dynamic)
+    for(int i = 0; i < all_nodes_vec.size(); ++i) {
+        node_t u = all_nodes_vec[i];
+        double s_sum = 0;
+        double s_max = 0;
 
-        #pragma omp parallel for schedule(dynamic)
-        for(int i = 0; i < all_nodes_vec.size(); ++i) {
-            node_t u = all_nodes_vec[i];
-            double s_sum = 0;
-            double s_max = 0;
-
-            if (G_.adj.count(u)) {
-                for (const auto& w_pair : G_.adj.at(u)) {
-                    weight_t temp_weight = compute_mutual_weight(G_, u, w_pair.first, weight_key);
-                    s_sum += temp_weight;
-                    s_max = std::max(s_max, static_cast<double>(temp_weight));
+        if (is_directed) {
+            if (DiG_ptr->adj.count(u)) {
+                for(const auto& p : DiG_ptr->adj.at(u)) {
+                    weight_t tw = compute_directed_mutual_weight(*DiG_ptr, u, p.first, weight_key);
+                    s_sum += tw; s_max = std::max(s_max, (double)tw);
                 }
             }
+            if (DiG_ptr->pred.count(u)) {
+                for(const auto& p : DiG_ptr->pred.at(u)) {
+                    weight_t tw = compute_directed_mutual_weight(*DiG_ptr, u, p.first, weight_key);
+                    s_sum += tw; s_max = std::max(s_max, (double)tw);
+                }
+            }
+        } else {
+            if (G_ptr->adj.count(u)) {
+                for(const auto& p : G_ptr->adj.at(u)) {
+                    weight_t tw = compute_mutual_weight(*G_ptr, u, p.first, weight_key);
+                    s_sum += tw; s_max = std::max(s_max, (double)tw);
+                }
+            }
+        }
+        if (u < scale_sum_vec.size()) {
             scale_sum_vec[u] = s_sum;
             scale_max_vec[u] = s_max;
         }
+    }
 
+    // Compute Redundancy
+    std::vector<double> results(target_nodes.size());
+
+    if (!is_directed) {
+        // Undirected
         #pragma omp parallel for schedule(dynamic)
-        for (int i = 0; i < nodes_list_len; i++) {
-            node_t v_id = target_node_ids[i];
-
-            if (G_.adj.find(v_id) == G_.adj.end() || G_.adj.at(v_id).empty()) {
-                effective_size_results[i] = NAN;
+        for (int i = 0; i < target_nodes.size(); i++) {
+            node_t v_id = target_nodes[i];
+            
+            if (G_ptr->adj.find(v_id) == G_ptr->adj.end() || G_ptr->adj.at(v_id).empty()) {
+                results[i] = NAN;
                 continue;
             }
 
-            const auto& v_neighbors = G_.adj.at(v_id);
+            const auto& v_neighbors = G_ptr->adj.at(v_id);
             double redundancy_sum = 0;
-            double scale_v_sum = scale_sum_vec[v_id]; 
+            double scale_v_sum = (v_id < scale_sum_vec.size()) ? scale_sum_vec[v_id] : 0;
 
+            // Direct iteration avoids malloc locks
             for (const auto& neighbor_info : v_neighbors) {
                 node_t u_id = neighbor_info.first;
-                double scale_u_max = scale_max_vec[u_id];
+                double scale_u_max = (u_id < scale_max_vec.size()) ? scale_max_vec[u_id] : 0;
                 double r_vu = 0;
 
                 for (const auto& w_pair : v_neighbors) {
                     node_t w_id = w_pair.first;
                     if (u_id == w_id) continue;
 
-                    weight_t mw_uw = compute_mutual_weight(G_, u_id, w_id, weight_key);
+                    weight_t mw_uw = compute_mutual_weight(*G_ptr, u_id, w_id, weight_key);
                     if (mw_uw == 0) continue;
 
-                    weight_t mw_vw = compute_mutual_weight(G_, v_id, w_id, weight_key);
+                    weight_t mw_vw = compute_mutual_weight(*G_ptr, v_id, w_id, weight_key);
 
                     double p_iq = (scale_v_sum > 0) ? (mw_vw / scale_v_sum) : 0;
                     double m_jq = (scale_u_max > 0) ? (mw_uw / scale_u_max) : 0;
@@ -424,107 +441,48 @@ py::object invoke_cpp_effective_size(py::object G, py::object nodes, py::object 
                 }
                 redundancy_sum += (1.0 - r_vu);
             }
-            effective_size_results[i] = redundancy_sum;
+            results[i] = redundancy_sum;
         }
-    } 
-    else { 
-        const DiGraph& G_ = G.cast<DiGraph&>();
-
-        std::vector<node_t> temp_nodes;
-        temp_nodes.reserve(G_.adj.size() + G_.pred.size());
-        for(const auto& kv : G_.adj) temp_nodes.push_back(kv.first);
-        for(const auto& kv : G_.pred) temp_nodes.push_back(kv.first);
-        std::sort(temp_nodes.begin(), temp_nodes.end());
-        temp_nodes.erase(std::unique(temp_nodes.begin(), temp_nodes.end()), temp_nodes.end());
-        all_nodes_vec = std::move(temp_nodes);
-
+    } else {
+        //Directed
         #pragma omp parallel for schedule(dynamic)
-        for(int i = 0; i < all_nodes_vec.size(); ++i) {
-            node_t u = all_nodes_vec[i];
-            
-            double s_sum = 0;
-            double s_max = 0;
+        for (int i = 0; i < target_nodes.size(); i++) {
+            node_t v_id = target_nodes[i];
 
-            if (G_.adj.count(u)) {
-                for(const auto& p : G_.adj.at(u)) {
-                    node_t w = p.first;
-                    weight_t temp_weight = compute_directed_mutual_weight(G_, u, w, weight_key);
-                    s_sum += temp_weight;
-                    s_max = std::max(s_max, static_cast<double>(temp_weight));
-                }
-            }
-            if (G_.pred.count(u)) {
-                for(const auto& p : G_.pred.at(u)) {
-                    node_t w = p.first;
-                    weight_t temp_weight = compute_directed_mutual_weight(G_, u, w, weight_key);
-                    s_sum += temp_weight;
-                    s_max = std::max(s_max, static_cast<double>(temp_weight));
-                }
-            }
-
-            if (u < scale_sum_vec.size()) {
-                scale_sum_vec[u] = s_sum;
-                scale_max_vec[u] = s_max;
-            }
-        }
-
-        #pragma omp parallel for schedule(dynamic)
-        for (int i = 0; i < nodes_list_len; i++) {
-            node_t v_id = target_node_ids[i]; // Center
-            
-            bool has_neighbors = (G_.adj.count(v_id) && !G_.adj.at(v_id).empty()) || 
-                                 (G_.pred.count(v_id) && !G_.pred.at(v_id).empty());
+            bool has_neighbors = (DiG_ptr->adj.count(v_id) && !DiG_ptr->adj.at(v_id).empty()) || 
+                                 (DiG_ptr->pred.count(v_id) && !DiG_ptr->pred.at(v_id).empty());
             
             if (!has_neighbors) {
-                effective_size_results[i] = NAN;
+                results[i] = NAN;
                 continue;
             }
 
             double redundancy_sum = 0;
             double scale_v_sum = (v_id < scale_sum_vec.size()) ? scale_sum_vec[v_id] : 0;
 
+            // Prepare common candidates
             std::vector<node_t> common_candidates;
-            if (G_.adj.count(v_id)) {
-                for(auto& p : G_.adj.at(v_id)) common_candidates.push_back(p.first);
+            if (DiG_ptr->adj.count(v_id)) {
+                for(auto& p : DiG_ptr->adj.at(v_id)) common_candidates.push_back(p.first);
             }
-            if (G_.pred.count(v_id)) {
-                for(auto& p : G_.pred.at(v_id)) common_candidates.push_back(p.first);
+            if (DiG_ptr->pred.count(v_id)) {
+                for(auto& p : DiG_ptr->pred.at(v_id)) common_candidates.push_back(p.first);
             }
             std::sort(common_candidates.begin(), common_candidates.end());
             common_candidates.erase(std::unique(common_candidates.begin(), common_candidates.end()), common_candidates.end());
 
-            if (G_.adj.count(v_id)) {
-                for (const auto& neighbor_info : G_.adj.at(v_id)) {
-                    node_t u_id = neighbor_info.first; // Neighbor
+            // Loop A: Out-neighbors
+            if (DiG_ptr->adj.count(v_id)) {
+                for (const auto& neighbor_info : DiG_ptr->adj.at(v_id)) {
+                    node_t u_id = neighbor_info.first;
                     double scale_u_max = (u_id < scale_max_vec.size()) ? scale_max_vec[u_id] : 0;
                     double r_vu = 0;
+
                     for (const auto& w_id : common_candidates) {
                         if (u_id == w_id) continue;
-
-                        weight_t mw_uw = compute_directed_mutual_weight(G_, u_id, w_id, weight_key);
+                        weight_t mw_uw = compute_directed_mutual_weight(*DiG_ptr, u_id, w_id, weight_key);
                         if (mw_uw == 0) continue; 
-
-                        weight_t mw_vw = compute_directed_mutual_weight(G_, v_id, w_id, weight_key);
-
-                        double p_iq = (scale_v_sum > 0) ? (mw_vw / scale_v_sum) : 0;
-                        double m_jq = (scale_u_max > 0) ? (mw_uw / scale_u_max) : 0;
-                        r_vu += p_iq * m_jq;
-                    }
-                    redundancy_sum += (1.0 - r_vu);
-                }
-            }
-            if (G_.pred.count(v_id)) {
-                for (const auto& neighbor_info : G_.pred.at(v_id)) {
-                    node_t u_id = neighbor_info.first; // Neighbor
-                    double scale_u_max = (u_id < scale_max_vec.size()) ? scale_max_vec[u_id] : 0;
-                    double r_vu = 0;
-                    for (const auto& w_id : common_candidates) {
-                        if (u_id == w_id) continue;
-
-                        weight_t mw_uw = compute_directed_mutual_weight(G_, u_id, w_id, weight_key);
-                        if (mw_uw == 0) continue; 
-
-                        weight_t mw_vw = compute_directed_mutual_weight(G_, v_id, w_id, weight_key);
+                        weight_t mw_vw = compute_directed_mutual_weight(*DiG_ptr, v_id, w_id, weight_key);
 
                         double p_iq = (scale_v_sum > 0) ? (mw_vw / scale_v_sum) : 0;
                         double m_jq = (scale_u_max > 0) ? (mw_uw / scale_u_max) : 0;
@@ -534,13 +492,57 @@ py::object invoke_cpp_effective_size(py::object G, py::object nodes, py::object 
                 }
             }
 
-            effective_size_results[i] = redundancy_sum;
+            // Loop B: In-neighbors
+            if (DiG_ptr->pred.count(v_id)) {
+                for (const auto& neighbor_info : DiG_ptr->pred.at(v_id)) {
+                    node_t u_id = neighbor_info.first;
+                    double scale_u_max = (u_id < scale_max_vec.size()) ? scale_max_vec[u_id] : 0;
+                    double r_vu = 0;
+
+                    for (const auto& w_id : common_candidates) {
+                        if (u_id == w_id) continue;
+                        weight_t mw_uw = compute_directed_mutual_weight(*DiG_ptr, u_id, w_id, weight_key);
+                        if (mw_uw == 0) continue; 
+                        weight_t mw_vw = compute_directed_mutual_weight(*DiG_ptr, v_id, w_id, weight_key);
+
+                        double p_iq = (scale_v_sum > 0) ? (mw_vw / scale_v_sum) : 0;
+                        double m_jq = (scale_u_max > 0) ? (mw_uw / scale_u_max) : 0;
+                        r_vu += p_iq * m_jq;
+                    }
+                    redundancy_sum += (1.0 - r_vu);
+                }
+            }
+            results[i] = redundancy_sum;
         }
     }
 
-    py::array::ShapeContainer ret_shape{nodes_list_len};
-    py::array_t<double> ret(ret_shape, effective_size_results.data());
-    return ret;
+    return results;
+}
+
+py::object invoke_cpp_effective_size(py::object G, py::object nodes, py::object weight) {
+    std::string weight_key = weight.is_none() ? "" : weight.cast<std::string>();
+    bool is_directed = G.attr("is_directed")().cast<bool>();
+    
+    if (nodes.is_none()) nodes = G.attr("nodes");
+    py::list nodes_list = py::list(nodes);
+    size_t len = py::len(nodes_list);
+    std::vector<node_t> target_ids(len);
+
+    if (py::hasattr(G, "node_to_id")) {
+        py::object node_to_id = G.attr("node_to_id"); 
+        for (size_t i = 0; i < len; i++) {
+            target_ids[i] = node_to_id[nodes_list[i]].cast<node_t>();
+        }
+    } else {
+        for (size_t i = 0; i < len; i++) {
+            target_ids[i] = nodes_list[i].cast<node_t>();
+        }
+    }
+
+    std::vector<double> results = compute_redundancy_core(G, target_ids, weight_key, is_directed);
+    
+    py::array::ShapeContainer ret_shape{ (long)results.size() };
+    return py::array_t<double>(ret_shape, results.data());
 }
 
 #ifdef EASYGRAPH_ENABLE_GPU
@@ -600,33 +602,6 @@ py::object effective_size(py::object G, py::object nodes, py::object weight, py:
 #else
     return invoke_cpp_effective_size(G, nodes, weight);
 #endif
-}
-
-weight_t redundancy(Graph& G, node_t u, node_t v, std::string weight, rec_type& sum_nmw_rec, rec_type& max_nmw_rec) {
-    weight_t r = 0;
-    std::unordered_set<node_t> neighbors;
-    for (const auto& n : G.adj[v]) {
-        neighbors.insert(n.first);
-    }
-    for (const auto& w : neighbors) {
-        r += normalized_mutual_weight(G, u, w, weight, sum, sum_nmw_rec) * normalized_mutual_weight(G, v, w, weight, max, max_nmw_rec);
-    }
-    return 1 - r;
-}
-
-weight_t directed_redundancy(DiGraph& G, node_t u, node_t v, std::string weight, rec_type& sum_nmw_rec, rec_type& max_nmw_rec) {
-    weight_t r = 0;
-    std::unordered_set<node_t> neighbors;
-    for (const auto& n : G.adj[v]) {
-        neighbors.insert(n.first);
-    }
-    for (const auto& n : G.pred[v]) {
-        neighbors.insert(n.first);
-    }
-    for (const auto& w : neighbors) {
-        r += directed_normalized_mutual_weight(G, u, w, weight, sum, sum_nmw_rec) * directed_normalized_mutual_weight(G, v, w, weight, max, max_nmw_rec);
-    }
-    return 1 - r;
 }
 
 #ifdef EASYGRAPH_ENABLE_GPU
@@ -712,80 +687,66 @@ static py::object invoke_gpu_efficiency(py::object G, py::object nodes, py::obje
 
 
 py::object invoke_cpp_efficiency(py::object G, py::object nodes, py::object weight, py::object n_workers) {
-    rec_type sum_nmw_rec, max_nmw_rec;
-    py::dict effective_size_dict = py::dict();
-    if (nodes.is_none()) {
-        nodes = G;
-    }
-    nodes = py::list(nodes);
-    if (!G.attr("is_directed")().cast<bool>()){
-        Graph& G_ = G.cast<Graph&>();
-        std::string weight_key = weight_to_string(weight);
-        int nodes_len = py::len(nodes);
-        for (int i = 0; i < nodes_len; i++) {
-            py::object v = nodes[py::cast(i)];
-            if (py::len(G[v]) == 0) {
-                effective_size_dict[v] = py::cast(Py_NAN);
-                continue;
-            }
-            weight_t redundancy_sum = 0;
-            node_t v_id = G_.node_to_id[v].cast<node_t>();
-            for (const auto& neighbor_info : G_.adj[v_id]) {
-                node_t u_id = neighbor_info.first;
-                redundancy_sum += redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
-            }
-            effective_size_dict[v] = redundancy_sum;
-        }
-    } else{
-        DiGraph& G_ = G.cast<DiGraph&>();
-        std::string weight_key = weight_to_string(weight);
-        int nodes_len = py::len(nodes);
-        for (int i = 0; i < nodes_len; i++) {
-            py::object v = nodes[py::cast(i)];
-            if (py::len(G[v]) == 0) {
-                effective_size_dict[v] = py::cast(Py_NAN);
-                continue;
-            }
-            weight_t redundancy_sum = 0;
-            node_t v_id = G_.node_to_id[v].cast<node_t>();
-            for (const auto& neighbor_info : G_.adj[v_id]) {
-                node_t u_id = neighbor_info.first;
-                redundancy_sum += directed_redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
-            }
-            for (const auto& neighbor_info : G_.pred[v_id]) {
-                node_t u_id = neighbor_info.first;
-                redundancy_sum += directed_redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
-            }
-            effective_size_dict[v] = redundancy_sum;
-        }
-    }
+    std::string weight_key = weight.is_none() ? "" : weight.cast<std::string>();
+    bool is_directed = G.attr("is_directed")().cast<bool>();
+    
+    // Parsing Nodes
+    if (nodes.is_none()) nodes = G.attr("nodes");
+    py::list nodes_list = py::list(nodes);
+    size_t len = py::len(nodes_list);
+    std::vector<node_t> target_ids(len);
 
-    py::dict degree;
-    if (weight.is_none()) {
-        degree = G.attr("degree")(py::none()).cast<py::dict>();
+    if (py::hasattr(G, "node_to_id")) {
+        py::object node_to_id = G.attr("node_to_id"); 
+        for (size_t i = 0; i < len; i++) {
+            target_ids[i] = node_to_id[nodes_list[i]].cast<node_t>();
+        }
     } else {
-        degree = G.attr("degree")(weight).cast<py::dict>();
+        for (size_t i = 0; i < len; i++) {
+            target_ids[i] = nodes_list[i].cast<node_t>();
+        }
     }
 
-    py::dict efficiency_dict;
-    for (auto item : effective_size_dict) {
-        int node = py::reinterpret_borrow<py::int_>(item.first).cast<int>();
-        double eff_size = py::reinterpret_borrow<py::float_>(item.second).cast<double>();
+    // Compute Efficiency = Effective Size / Degree
+    std::vector<double> eff_sizes = compute_redundancy_core(G, target_ids, weight_key, is_directed);
 
-        if (!degree.contains(py::cast(node))) {
+    // Cast Graph pointers for fast degree access
+    const Graph* G_ptr = nullptr;
+    const DiGraph* DiG_ptr = nullptr;
+    if (is_directed) DiG_ptr = &G.cast<const DiGraph&>();
+    else G_ptr = &G.cast<const Graph&>();
+
+    std::vector<double> efficiency_results(len);
+
+    #pragma omp parallel for schedule(static)
+    for (size_t i = 0; i < len; ++i) {
+        double es = eff_sizes[i];
+        
+        // Propagate NAN from core
+        if (std::isnan(es)) {
+            efficiency_results[i] = NAN;
             continue;
         }
 
-        double node_degree = py::reinterpret_borrow<py::float_>(degree[py::cast(node)]).cast<double>();
-        if (node_degree == 0.0) {
-            efficiency_dict[py::cast(node)] = py::cast(Py_NAN);
+        node_t v = target_ids[i];
+        double degree = 0;
+
+        if (is_directed) {
+            if (DiG_ptr->adj.count(v)) degree += DiG_ptr->adj.at(v).size();
+            if (DiG_ptr->pred.count(v)) degree += DiG_ptr->pred.at(v).size();
         } else {
-            double efficiency_value = eff_size / node_degree;
-            efficiency_dict[py::cast(node)] = py::cast(efficiency_value);
+            if (G_ptr->adj.count(v)) degree += G_ptr->adj.at(v).size();
+        }
+
+        if (degree > 0) {
+            efficiency_results[i] = es / degree;
+        } else {
+            efficiency_results[i] = NAN; 
         }
     }
 
-    return efficiency_dict;
+    py::array::ShapeContainer ret_shape{ (long)len };
+    return py::array_t<double>(ret_shape, efficiency_results.data());
 }
 
 py::object efficiency(py::object G, py::object nodes, py::object weight, py::object n_workers) {
