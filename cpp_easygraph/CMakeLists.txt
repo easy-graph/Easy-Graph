@@ -41,11 +41,6 @@ else()
 
 endif()
 
-set_target_properties(cpp_easygraph PROPERTIES
-    LINK_SEARCH_START_STATIC ON
-    LINK_SEARCH_END_STATIC ON
-)
-
 if (EASYGRAPH_ENABLE_OPENMP)
     if (APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         find_path(EG_LIBOMP_INCLUDE_DIR
