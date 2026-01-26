@@ -15,10 +15,10 @@ file(GLOB SOURCES
     cpp_easygraph.cpp
 )
 
-# pybind11 submodule
 add_subdirectory(pybind11)
 
 if (EASYGRAPH_ENABLE_GPU)
+
     pybind11_add_module(cpp_easygraph
         ${SOURCES}
         $<TARGET_OBJECTS:gpu_easygraph>
@@ -33,17 +33,21 @@ if (EASYGRAPH_ENABLE_GPU)
     target_link_libraries(cpp_easygraph
         PRIVATE cudart_static
     )
+
 else()
     pybind11_add_module(cpp_easygraph
         ${SOURCES}
     )
+
 endif()
 
-if (EASYGRAPH_ENABLE_OPENMP)
+set_target_properties(cpp_easygraph PROPERTIES
+    LINK_SEARCH_START_STATIC ON
+    LINK_SEARCH_END_STATIC ON
+)
 
-    # macOS + AppleClang: Homebrew libomp is keg-only; help CMake find it.
+if (EASYGRAPH_ENABLE_OPENMP)
     if (APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        # Try common Homebrew prefixes (Apple Silicon + Intel)
         find_path(EG_LIBOMP_INCLUDE_DIR
             NAMES omp.h
             PATHS
@@ -61,11 +65,9 @@ if (EASYGRAPH_ENABLE_OPENMP)
         if (EG_LIBOMP_INCLUDE_DIR AND EG_LIBOMP_LIBRARY)
             message(STATUS "libomp found: ${EG_LIBOMP_LIBRARY}")
 
-            # AppleClang: compile with -Xpreprocessor -fopenmp, link against libomp
             set(OpenMP_C_FLAGS   "-Xpreprocessor -fopenmp" CACHE STRING "" FORCE)
             set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp" CACHE STRING "" FORCE)
 
-            # Provide include & library hints for FindOpenMP
             set(OpenMP_CXX_INCLUDE_DIR "${EG_LIBOMP_INCLUDE_DIR}" CACHE PATH "" FORCE)
             set(OpenMP_omp_LIBRARY     "${EG_LIBOMP_LIBRARY}"     CACHE FILEPATH "" FORCE)
         else()
@@ -76,9 +78,7 @@ if (EASYGRAPH_ENABLE_OPENMP)
         endif()
     endif()
 
-    # Try to find OpenMP (quiet => will not hard-fail)
     find_package(OpenMP QUIET)
-
 endif()
 
 if (OpenMP_CXX_FOUND)
