@@ -1,9 +1,10 @@
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 #include <vector>
 #include <cmath>
 #include <algorithm>
 #include <stdexcept>
-
-#include <omp.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
