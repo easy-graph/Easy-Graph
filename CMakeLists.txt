@@ -2,14 +2,7 @@ cmake_minimum_required(VERSION 3.23)
 
 project(easygraph)
 
-find_package(OpenMP QUIET)
-
-if (OpenMP_FOUND)
-    message(STATUS "OpenMP found, enabling parallel acceleration.")
-    add_compile_options(${OpenMP_CXX_FLAGS})
-else()
-    message(STATUS "OpenMP not found, building in single-thread mode.")
-endif()
+option(EASYGRAPH_ENABLE_OPENMP "Enable OpenMP acceleration (auto-detect)" ON)
 
 option(EASYGRAPH_ENABLE_GPU "EASYGRAPH_ENABLE_GPU" OFF)
 
