@@ -1,12 +1,6 @@
 cmake_minimum_required(VERSION 3.23)
-
 project(cpp_easygraph)
-
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-option(EASYGRAPH_ENABLE_OPENMP "Enable OpenMP acceleration (auto-detect)" ON)
-option(EASYGRAPH_ENABLE_GPU "EASYGRAPH_ENABLE_GPU" OFF)
 
 file(GLOB SOURCES
     classes/*.cpp
@@ -16,6 +10,9 @@ file(GLOB SOURCES
 )
 
 add_subdirectory(pybind11)
+
+option(EASYGRAPH_ENABLE_OPENMP "Enable OpenMP acceleration (auto-detect)" ON)
+option(EASYGRAPH_ENABLE_GPU "EASYGRAPH_ENABLE_GPU" OFF)
 
 if (EASYGRAPH_ENABLE_GPU)
 
