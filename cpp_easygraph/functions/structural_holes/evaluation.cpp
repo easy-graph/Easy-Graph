@@ -1,5 +1,15 @@
 #include "evaluation.h"
 #include <iomanip>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <cmath>
+#include <algorithm>
+#include <string>
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 #ifdef EASYGRAPH_ENABLE_GPU
 #include <gpu_easygraph.h>
 #endif
@@ -52,155 +62,174 @@ weight_t directed_mutual_weight(DiGraph& G, node_t u, node_t v, std::string weig
 
 weight_t normalized_mutual_weight(Graph& G, node_t u, node_t v, std::string weight, norm_t norm, rec_type& nmw_rec) {
     std::pair<node_t, node_t> edge = std::make_pair(u, v);
-    weight_t nmw;
-    if (nmw_rec.count(edge)) {
-        nmw = nmw_rec[edge];
-    } else {
-        weight_t scale = 0;
-        for (auto& w : G.adj[u]) {
-            weight_t temp_weight = mutual_weight(G, u, w.first, weight);
-            scale = (norm == sum) ? (scale + temp_weight) : std::max(scale, temp_weight);
-        }
-        nmw = scale ? (mutual_weight(G, u, v, weight) / scale) : 0;
-        nmw_rec[edge] = nmw;
+    if (nmw_rec.count(edge)) return nmw_rec[edge];
+    
+    weight_t scale = 0;
+    for (auto& w : G.adj[u]) {
+        weight_t temp_weight = mutual_weight(G, u, w.first, weight);
+        scale = (norm == sum) ? (scale + temp_weight) : std::max(scale, temp_weight);
     }
+    weight_t nmw = scale ? (mutual_weight(G, u, v, weight) / scale) : 0;
+    nmw_rec[edge] = nmw;
     return nmw;
 }
 
 weight_t directed_normalized_mutual_weight(DiGraph& G, node_t u, node_t v, std::string weight, norm_t norm, rec_type& nmw_rec) {
     std::pair<node_t, node_t> edge = std::make_pair(u, v);
-    weight_t nmw;
-    if (nmw_rec.count(edge)) {
-        nmw = nmw_rec[edge];
-    } else {
-        weight_t scale = 0;
-        for (auto& w : G.adj[u]) {
-            weight_t temp_weight = directed_mutual_weight(G, u, w.first, weight);
-            scale = (norm == sum) ? (scale + temp_weight) : std::max(scale, temp_weight);
-        }
-        for (auto& w : G.pred[u]) {
-            weight_t temp_weight = directed_mutual_weight(G, u, w.first, weight);
-            scale = (norm == sum) ? (scale + temp_weight) : std::max(scale, temp_weight);
-        }
-        nmw = scale ? (directed_mutual_weight(G, u, v, weight) / scale) : 0;
-        nmw_rec[edge] = nmw;
-    }
-    return nmw;
-}
+    if (nmw_rec.count(edge)) return nmw_rec[edge];
 
-weight_t directed_local_constraint(DiGraph& G, node_t u, node_t v, std::string weight, rec_type& local_constraint_rec, rec_type& sum_nmw_rec) {
-    std::pair<node_t, node_t> edge = std::make_pair(u, v);
-    if (local_constraint_rec.count(edge)) {
-        return local_constraint_rec[edge];
-    } else {
-        weight_t direct = directed_normalized_mutual_weight(G, u, v, weight, sum, sum_nmw_rec);
-        weight_t indirect = 0;
-        std::unordered_set<node_t> neighbors;
-        for (const auto& n : G.adj[v]) {
-            neighbors.insert(n.first);
-        }
-        for (const auto& n : G.pred[v]) {
-            neighbors.insert(n.first);
-        }
-        for (const auto& n : neighbors) {
-            if (n == v) {
-                continue;
-            }
-            indirect += directed_normalized_mutual_weight(G, u, n, weight, sum, sum_nmw_rec) * 
-                        directed_normalized_mutual_weight(G, n, v, weight, sum, sum_nmw_rec);
-        }
-        weight_t result = pow((direct + indirect), 2);
-        local_constraint_rec[edge] = result;
-        return result;
+    weight_t scale = 0;
+    for (auto& w : G.adj[u]) {
+        weight_t temp_weight = directed_mutual_weight(G, u, w.first, weight);
+        scale = (norm == sum) ? (scale + temp_weight) : std::max(scale, temp_weight);
     }
+    for (auto& w : G.pred[u]) {
+        weight_t temp_weight = directed_mutual_weight(G, u, w.first, weight);
+        scale = (norm == sum) ? (scale + temp_weight) : std::max(scale, temp_weight);
+    }
+    weight_t nmw = scale ? (directed_mutual_weight(G, u, v, weight) / scale) : 0;
+    nmw_rec[edge] = nmw;
+    return nmw;
 }
 
 weight_t local_constraint(Graph& G, node_t u, node_t v, std::string weight, rec_type& local_constraint_rec, rec_type& sum_nmw_rec) {
     std::pair<node_t, node_t> edge = std::make_pair(u, v);
-    if (local_constraint_rec.count(edge)) {
-        return local_constraint_rec[edge];
-    } else {
-        weight_t direct = normalized_mutual_weight(G, u, v, weight, sum, sum_nmw_rec);
-        weight_t indirect = 0;
-        for (auto& w : G.adj[u]) {
-            if (w.first == v) {
-                continue;
+    if (local_constraint_rec.count(edge)) return local_constraint_rec[edge];
+
+    weight_t direct = normalized_mutual_weight(G, u, v, weight, sum, sum_nmw_rec);
+    weight_t indirect = 0;
+    for (auto& w : G.adj[u]) {
+        if (w.first == v) continue;
+        indirect += normalized_mutual_weight(G, u, w.first, weight, sum, sum_nmw_rec) *
+                    normalized_mutual_weight(G, w.first, v, weight, sum, sum_nmw_rec);
+    }
+    weight_t result = pow((direct + indirect), 2);
+    local_constraint_rec[edge] = result;
+    return result;
+}
+
+weight_t directed_local_constraint(DiGraph& G, node_t u, node_t v, std::string weight, rec_type& local_constraint_rec, rec_type& sum_nmw_rec) {
+    std::pair<node_t, node_t> edge = std::make_pair(u, v);
+    if (local_constraint_rec.count(edge)) return local_constraint_rec[edge];
+
+    weight_t direct = directed_normalized_mutual_weight(G, u, v, weight, sum, sum_nmw_rec);
+    weight_t indirect = 0;
+    std::unordered_set<node_t> neighbors;
+    for (const auto& n : G.adj[v]) neighbors.insert(n.first);
+    for (const auto& n : G.pred[v]) neighbors.insert(n.first);
+    
+    for (const auto& n : neighbors) {
+        if (n == v) continue;
+        indirect += directed_normalized_mutual_weight(G, u, n, weight, sum, sum_nmw_rec) *
+                    directed_normalized_mutual_weight(G, n, v, weight, sum, sum_nmw_rec);
+    }
+    weight_t result = pow((direct + indirect), 2);
+    local_constraint_rec[edge] = result;
+    return result;
+}
+
+void preprocess_graph_for_constraint(
+    Graph& G, 
+    std::string weight_key,
+    std::unordered_map<node_t, std::unordered_map<node_t, double>>& weighted_adj,
+    std::unordered_map<node_t, double>& strength
+) {
+    for (auto& u_entry : G.adj) {
+        node_t u = u_entry.first;
+        for (auto& v_entry : u_entry.second) {
+            node_t v = v_entry.first;
+            double w = 1.0;
+            if (!weight_key.empty() && v_entry.second.count(weight_key)) {
+                w = v_entry.second[weight_key];
             }
-            indirect += normalized_mutual_weight(G, u, w.first, weight, sum, sum_nmw_rec) * 
-                        normalized_mutual_weight(G, w.first, v, weight, sum, sum_nmw_rec);
-        }
-        weight_t result = pow((direct + indirect), 2);
-        local_constraint_rec[edge] = result;
-        return result;
-    }
-}
-
-std::pair<node_t, weight_t> compute_constraint_of_v(Graph& G, node_t v, std::string weight, rec_type& local_constraint_rec, rec_type& sum_nmw_rec) {
-    weight_t constraint_of_v = 0;
-    if (G.adj[v].size() == 0) {
-        constraint_of_v = Py_NAN;
-    } else {
-        for (const auto& n : G.adj[v]) {
-            weight_t local_cons = local_constraint(G, v, n.first, weight, local_constraint_rec, sum_nmw_rec);
-            constraint_of_v += local_cons;
+            weighted_adj[u][v] += w;
+            strength[u] += w;
+            weighted_adj[v][u] += w;
+            strength[v] += w;
         }
     }
-    return std::make_pair(v, constraint_of_v);
-}
-
-std::pair<node_t, weight_t> directed_compute_constraint_of_v(DiGraph& G, node_t v, std::string weight, rec_type& local_constraint_rec, rec_type& sum_nmw_rec) {
-    weight_t constraint_of_v = 0;
-    if (G.adj[v].size() == 0) {
-        constraint_of_v = Py_NAN;
-    } else {
-        std::unordered_set<node_t> neighbors;
-        for (const auto& n : G.adj[v]) {
-            neighbors.insert(n.first);
-        }
-        for (const auto& n : G.pred[v]) {
-            neighbors.insert(n.first);
-        }
-        for (const auto& n : neighbors) {
-            weight_t local_cons = directed_local_constraint(G, v, n, weight, local_constraint_rec, sum_nmw_rec);
-            constraint_of_v += local_cons;
-        }
-    }
-    return std::make_pair(v, constraint_of_v);
 }
 
 py::object invoke_cpp_constraint(py::object G, py::object nodes, py::object weight) {
     std::string weight_key = weight_to_string(weight);
-    rec_type sum_nmw_rec, local_constraint_rec;
 
     if (nodes.is_none()) {
         nodes = G.attr("nodes");
     }
-
     py::list nodes_list = py::list(nodes);
     int nodes_list_len = py::len(nodes_list);
-    std::vector<double> constraint_results(nodes_list_len, 0.0);
-
-    if (G.attr("is_directed")().cast<bool>()) {
-        DiGraph& G_ = G.cast<DiGraph&>();
-        for (int i = 0; i < nodes_list_len; i++) {
-            py::object v = nodes_list[i];
-            node_t v_id = G_.node_to_id[v].cast<node_t>();
-            std::pair<node_t, weight_t> constraint_pair =
-                directed_compute_constraint_of_v(G_, v_id, weight_key, local_constraint_rec, sum_nmw_rec);
-            constraint_results[i] = constraint_pair.second;
-        }
-    } else {
-        Graph& G_ = G.cast<Graph&>();
-        for (int i = 0; i < nodes_list_len; i++) {
-            py::object v = nodes_list[i];
-            node_t v_id = G_.node_to_id[v].cast<node_t>();
-            std::pair<node_t, weight_t> constraint_pair =
-                compute_constraint_of_v(G_, v_id, weight_key, local_constraint_rec, sum_nmw_rec);
-            constraint_results[i] = constraint_pair.second;
-        }
+    
+    Graph& G_ref = G.cast<Graph&>();
+    std::vector<node_t> node_ids(nodes_list_len);
+    for (int i = 0; i < nodes_list_len; i++) {
+        node_ids[i] = G_ref.node_to_id[nodes_list[i]].cast<node_t>();
     }
 
-    std::reverse(constraint_results.begin(), constraint_results.end());
+    std::unordered_map<node_t, std::unordered_map<node_t, double>> weighted_adj;
+    std::unordered_map<node_t, double> strength;
+    preprocess_graph_for_constraint(G_ref, weight_key, weighted_adj, strength);
+
+    std::vector<double> constraint_results(nodes_list_len, 0.0);
+
+    {
+        py::gil_scoped_release release;
+        #pragma omp parallel for schedule(dynamic)
+        for (int i = 0; i < nodes_list_len; i++) {
+            node_t u = node_ids[i];
+            
+            auto str_it = strength.find(u);
+            if (str_it == strength.end() || str_it->second == 0.0) {
+                constraint_results[i] = Py_NAN;
+                continue;
+            }
+            double u_strength = str_it->second;
+
+            auto& neighbors_u = weighted_adj[u];
+            if (neighbors_u.empty()) {
+                constraint_results[i] = Py_NAN;
+                continue;
+            }
+
+            std::unordered_map<node_t, double> contrib;
+
+            for (auto& neighbor : neighbors_u) {
+                node_t j = neighbor.first;
+                double w_uj = neighbor.second;
+                double p_uj = w_uj / u_strength;
+                
+                contrib[j] += p_uj;
+            }
+
+            for (auto& neighbor_j : neighbors_u) {
+                node_t j = neighbor_j.first;
+                double w_uj = neighbor_j.second;
+                double p_uj = w_uj / u_strength;
+
+                auto q_it = weighted_adj.find(j);
+                if (q_it != weighted_adj.end()) {
+                    double j_strength = strength[j];
+                    for (auto& neighbor_q : q_it->second) {
+                        node_t q = neighbor_q.first;
+                        if (q == u) continue;
+
+                        double w_jq = neighbor_q.second;
+                        double p_jq = w_jq / j_strength;
+
+                        contrib[q] += p_uj * p_jq;
+                    }
+                }
+            }
+
+            double c_u = 0.0;
+            for (auto& neighbor : neighbors_u) {
+                node_t j = neighbor.first;
+                if (contrib.count(j)) {
+                    c_u += pow(contrib[j], 2);
+                }
+            }
+            constraint_results[i] = c_u;
+        }
+    }
 
     py::array::ShapeContainer ret_shape{nodes_list_len};
     py::array_t<double> ret(ret_shape, constraint_results.data());
@@ -221,7 +250,7 @@ static py::object invoke_gpu_constraint(py::object G, py::object nodes, py::obje
     std::vector<int>& E = csr_graph->E;
     std::vector<int>& row = coo_graph->row;
     std::vector<int>& col = coo_graph->col;
-    std::vector<double> *W_p = weight.is_none() ? &(coo_graph->unweighted_W) 
+    std::vector<double> *W_p = weight.is_none() ? &(coo_graph->unweighted_W)
                             : coo_graph->W_map.find(weight_to_string(weight))->second.get();
     std::unordered_map<node_t, int>& node2idx = coo_graph->node2idx;
     int num_nodes = coo_graph->node2idx.size();
@@ -261,88 +290,259 @@ py::object constraint(py::object G, py::object nodes, py::object weight, py::obj
 #endif
 }
 
-weight_t redundancy(Graph& G, node_t u, node_t v, std::string weight, rec_type& sum_nmw_rec, rec_type& max_nmw_rec) {
-    weight_t r = 0;
-    std::unordered_set<node_t> neighbors;
-    for (const auto& n : G.adj[v]) {
-        neighbors.insert(n.first);
-    }
-    for (const auto& w : neighbors) {
-        r += normalized_mutual_weight(G, u, w, weight, sum, sum_nmw_rec) * normalized_mutual_weight(G, v, w, weight, max, max_nmw_rec);
-    }
-    return 1 - r;
+template <typename MapType>
+inline weight_t get_edge_weight(const MapType& attrs, const std::string& weight_key) {
+    if (weight_key.empty()) return 1.0;
+    auto it = attrs.find(weight_key);
+    return it != attrs.end() ? it->second : 1.0;
 }
 
-weight_t directed_redundancy(DiGraph& G, node_t u, node_t v, std::string weight, rec_type& sum_nmw_rec, rec_type& max_nmw_rec) {
-    weight_t r = 0;
-    std::unordered_set<node_t> neighbors;
-    for (const auto& n : G.adj[v]) {
-        neighbors.insert(n.first);
+inline weight_t compute_mutual_weight(const Graph& G, node_t u, node_t v, const std::string& weight_key) {
+    weight_t w = 0;
+    if (G.adj.count(u)) {
+        const auto& adj_u = G.adj.at(u);
+        auto it = adj_u.find(v);
+        if (it != adj_u.end()) w += get_edge_weight(it->second, weight_key);
     }
-    for (const auto& n : G.pred[v]) {
-        neighbors.insert(n.first);
+    if (G.adj.count(v)) {
+        const auto& adj_v = G.adj.at(v);
+        auto it = adj_v.find(u);
+        if (it != adj_v.end()) w += get_edge_weight(it->second, weight_key);
     }
-    for (const auto& w : neighbors) {
-        r += directed_normalized_mutual_weight(G, u, w, weight, sum, sum_nmw_rec) * directed_normalized_mutual_weight(G, v, w, weight, max, max_nmw_rec);
+    return w;
+}
+
+inline weight_t compute_directed_mutual_weight(const DiGraph& G, node_t u, node_t v, const std::string& weight_key) {
+    weight_t w = 0;
+    if (G.adj.count(u)) {
+        const auto& adj_u = G.adj.at(u);
+        auto it = adj_u.find(v);
+        if (it != adj_u.end()) w += get_edge_weight(it->second, weight_key);
     }
-    return 1 - r;
+    if (G.adj.count(v)) {
+        const auto& adj_v = G.adj.at(v);
+        auto it = adj_v.find(u);
+        if (it != adj_v.end()) w += get_edge_weight(it->second, weight_key);
+    }
+    return w;
+}
+
+std::vector<double> compute_redundancy_core(py::object G_obj, const std::vector<node_t>& target_nodes, const std::string& weight_key, bool is_directed) {
+    
+    // Cast to C++ objects once to avoid Python API overhead
+    const Graph* G_ptr = nullptr;
+    const DiGraph* DiG_ptr = nullptr;
+    if (is_directed) {
+        DiG_ptr = &G_obj.cast<const DiGraph&>();
+    } else {
+        G_ptr = &G_obj.cast<const Graph&>();
+    }
+
+    // Pre-compute max ID and node list
+    node_t max_graph_id = 0;
+    std::vector<node_t> all_nodes_vec;
+
+    if (is_directed) {
+        for (const auto& kv : DiG_ptr->adj) if (kv.first > max_graph_id) max_graph_id = kv.first;
+        for (const auto& kv : DiG_ptr->pred) if (kv.first > max_graph_id) max_graph_id = kv.first;
+        all_nodes_vec.reserve(DiG_ptr->adj.size() + DiG_ptr->pred.size());
+        for(const auto& kv : DiG_ptr->adj) all_nodes_vec.push_back(kv.first);
+        for(const auto& kv : DiG_ptr->pred) all_nodes_vec.push_back(kv.first);
+    } else {
+        for (const auto& kv : G_ptr->adj) if (kv.first > max_graph_id) max_graph_id = kv.first;
+        all_nodes_vec.reserve(G_ptr->adj.size());
+        for(const auto& kv : G_ptr->adj) all_nodes_vec.push_back(kv.first);
+    }
+
+    // Deduplicate nodes
+    std::sort(all_nodes_vec.begin(), all_nodes_vec.end());
+    all_nodes_vec.erase(std::unique(all_nodes_vec.begin(), all_nodes_vec.end()), all_nodes_vec.end());
+    
+    // Ensure vector size covers target nodes
+    if (!target_nodes.empty()) {
+        node_t max_target = *std::max_element(target_nodes.begin(), target_nodes.end());
+        max_graph_id = std::max(max_graph_id, max_target);
+    }
+
+    // Pre-compute Scale
+    std::vector<double> scale_sum_vec(max_graph_id + 1, 0.0);
+    std::vector<double> scale_max_vec(max_graph_id + 1, 0.0);
+
+    #pragma omp parallel for schedule(dynamic)
+    for(int i = 0; i < all_nodes_vec.size(); ++i) {
+        node_t u = all_nodes_vec[i];
+        double s_sum = 0;
+        double s_max = 0;
+
+        if (is_directed) {
+            if (DiG_ptr->adj.count(u)) {
+                for(const auto& p : DiG_ptr->adj.at(u)) {
+                    weight_t tw = compute_directed_mutual_weight(*DiG_ptr, u, p.first, weight_key);
+                    s_sum += tw; s_max = std::max(s_max, (double)tw);
+                }
+            }
+            if (DiG_ptr->pred.count(u)) {
+                for(const auto& p : DiG_ptr->pred.at(u)) {
+                    weight_t tw = compute_directed_mutual_weight(*DiG_ptr, u, p.first, weight_key);
+                    s_sum += tw; s_max = std::max(s_max, (double)tw);
+                }
+            }
+        } else {
+            if (G_ptr->adj.count(u)) {
+                for(const auto& p : G_ptr->adj.at(u)) {
+                    weight_t tw = compute_mutual_weight(*G_ptr, u, p.first, weight_key);
+                    s_sum += tw; s_max = std::max(s_max, (double)tw);
+                }
+            }
+        }
+        if (u < scale_sum_vec.size()) {
+            scale_sum_vec[u] = s_sum;
+            scale_max_vec[u] = s_max;
+        }
+    }
+
+    // Compute Redundancy
+    std::vector<double> results(target_nodes.size());
+
+    if (!is_directed) {
+        // Undirected
+        #pragma omp parallel for schedule(dynamic)
+        for (int i = 0; i < target_nodes.size(); i++) {
+            node_t v_id = target_nodes[i];
+            
+            if (G_ptr->adj.find(v_id) == G_ptr->adj.end() || G_ptr->adj.at(v_id).empty()) {
+                results[i] = NAN;
+                continue;
+            }
+
+            const auto& v_neighbors = G_ptr->adj.at(v_id);
+            double redundancy_sum = 0;
+            double scale_v_sum = (v_id < scale_sum_vec.size()) ? scale_sum_vec[v_id] : 0;
+
+            // Direct iteration avoids malloc locks
+            for (const auto& neighbor_info : v_neighbors) {
+                node_t u_id = neighbor_info.first;
+                double scale_u_max = (u_id < scale_max_vec.size()) ? scale_max_vec[u_id] : 0;
+                double r_vu = 0;
+
+                for (const auto& w_pair : v_neighbors) {
+                    node_t w_id = w_pair.first;
+                    if (u_id == w_id) continue;
+
+                    weight_t mw_uw = compute_mutual_weight(*G_ptr, u_id, w_id, weight_key);
+                    if (mw_uw == 0) continue;
+
+                    weight_t mw_vw = compute_mutual_weight(*G_ptr, v_id, w_id, weight_key);
+
+                    double p_iq = (scale_v_sum > 0) ? (mw_vw / scale_v_sum) : 0;
+                    double m_jq = (scale_u_max > 0) ? (mw_uw / scale_u_max) : 0;
+
+                    r_vu += p_iq * m_jq;
+                }
+                redundancy_sum += (1.0 - r_vu);
+            }
+            results[i] = redundancy_sum;
+        }
+    } else {
+        //Directed
+        #pragma omp parallel for schedule(dynamic)
+        for (int i = 0; i < target_nodes.size(); i++) {
+            node_t v_id = target_nodes[i];
+
+            bool has_neighbors = (DiG_ptr->adj.count(v_id) && !DiG_ptr->adj.at(v_id).empty()) || 
+                                 (DiG_ptr->pred.count(v_id) && !DiG_ptr->pred.at(v_id).empty());
+            
+            if (!has_neighbors) {
+                results[i] = NAN;
+                continue;
+            }
+
+            double redundancy_sum = 0;
+            double scale_v_sum = (v_id < scale_sum_vec.size()) ? scale_sum_vec[v_id] : 0;
+
+            // Prepare common candidates
+            std::vector<node_t> common_candidates;
+            if (DiG_ptr->adj.count(v_id)) {
+                for(auto& p : DiG_ptr->adj.at(v_id)) common_candidates.push_back(p.first);
+            }
+            if (DiG_ptr->pred.count(v_id)) {
+                for(auto& p : DiG_ptr->pred.at(v_id)) common_candidates.push_back(p.first);
+            }
+            std::sort(common_candidates.begin(), common_candidates.end());
+            common_candidates.erase(std::unique(common_candidates.begin(), common_candidates.end()), common_candidates.end());
+
+            // Loop A: Out-neighbors
+            if (DiG_ptr->adj.count(v_id)) {
+                for (const auto& neighbor_info : DiG_ptr->adj.at(v_id)) {
+                    node_t u_id = neighbor_info.first;
+                    double scale_u_max = (u_id < scale_max_vec.size()) ? scale_max_vec[u_id] : 0;
+                    double r_vu = 0;
+
+                    for (const auto& w_id : common_candidates) {
+                        if (u_id == w_id) continue;
+                        weight_t mw_uw = compute_directed_mutual_weight(*DiG_ptr, u_id, w_id, weight_key);
+                        if (mw_uw == 0) continue; 
+                        weight_t mw_vw = compute_directed_mutual_weight(*DiG_ptr, v_id, w_id, weight_key);
+
+                        double p_iq = (scale_v_sum > 0) ? (mw_vw / scale_v_sum) : 0;
+                        double m_jq = (scale_u_max > 0) ? (mw_uw / scale_u_max) : 0;
+                        r_vu += p_iq * m_jq;
+                    }
+                    redundancy_sum += (1.0 - r_vu);
+                }
+            }
+
+            // Loop B: In-neighbors
+            if (DiG_ptr->pred.count(v_id)) {
+                for (const auto& neighbor_info : DiG_ptr->pred.at(v_id)) {
+                    node_t u_id = neighbor_info.first;
+                    double scale_u_max = (u_id < scale_max_vec.size()) ? scale_max_vec[u_id] : 0;
+                    double r_vu = 0;
+
+                    for (const auto& w_id : common_candidates) {
+                        if (u_id == w_id) continue;
+                        weight_t mw_uw = compute_directed_mutual_weight(*DiG_ptr, u_id, w_id, weight_key);
+                        if (mw_uw == 0) continue; 
+                        weight_t mw_vw = compute_directed_mutual_weight(*DiG_ptr, v_id, w_id, weight_key);
+
+                        double p_iq = (scale_v_sum > 0) ? (mw_vw / scale_v_sum) : 0;
+                        double m_jq = (scale_u_max > 0) ? (mw_uw / scale_u_max) : 0;
+                        r_vu += p_iq * m_jq;
+                    }
+                    redundancy_sum += (1.0 - r_vu);
+                }
+            }
+            results[i] = redundancy_sum;
+        }
+    }
+
+    return results;
 }
 
 py::object invoke_cpp_effective_size(py::object G, py::object nodes, py::object weight) {
-    std::string weight_key = weight_to_string(weight);
-    rec_type sum_nmw_rec, max_nmw_rec;
-
-    if (nodes.is_none()) {
-        nodes = G.attr("nodes");
-    }
-
+    std::string weight_key = weight.is_none() ? "" : weight.cast<std::string>();
+    bool is_directed = G.attr("is_directed")().cast<bool>();
+    
+    if (nodes.is_none()) nodes = G.attr("nodes");
     py::list nodes_list = py::list(nodes);
-    int nodes_list_len = py::len(nodes_list);
-    std::vector<double> effective_size_results(nodes_list_len, 0.0);
-    
-    if (!G.attr("is_directed")().cast<bool>()){
-        Graph& G_ = G.cast<Graph&>();
-        for (int i = 0; i < nodes_list_len; i++) {
-            weight_t redundancy_sum = 0;
-            py::object v = nodes_list[i];
-            node_t v_id = G_.node_to_id[v].cast<node_t>();
-            if (py::len(G[v]) == 0) {
-                effective_size_results[i] = Py_NAN;
-                continue;
-            }
-            for (const auto& neighbor_info : G_.adj[v_id]) {
-                node_t u_id = neighbor_info.first;
-                redundancy_sum += redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
-            }
-            effective_size_results[i] = redundancy_sum;
+    size_t len = py::len(nodes_list);
+    std::vector<node_t> target_ids(len);
+
+    if (py::hasattr(G, "node_to_id")) {
+        py::object node_to_id = G.attr("node_to_id"); 
+        for (size_t i = 0; i < len; i++) {
+            target_ids[i] = node_to_id[nodes_list[i]].cast<node_t>();
         }
-    } else{
-        DiGraph& G_ = G.cast<DiGraph&>();
-        for (int i = 0; i < nodes_list_len; i++) {
-            weight_t redundancy_sum = 0;
-            py::object v = nodes_list[i];
-            node_t v_id = G_.node_to_id[v].cast<node_t>();
-            if (py::len(G[v]) == 0) {
-                effective_size_results[i] = Py_NAN;
-                continue;
-            }
-            for (const auto& neighbor_info : G_.adj[v_id]) {
-                node_t u_id = neighbor_info.first;
-                redundancy_sum += directed_redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
-            }
-            for (const auto& neighbor_info : G_.pred[v_id]) {
-                node_t u_id = neighbor_info.first;
-                redundancy_sum += directed_redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
-            }
-            effective_size_results[i] = redundancy_sum;
+    } else {
+        for (size_t i = 0; i < len; i++) {
+            target_ids[i] = nodes_list[i].cast<node_t>();
         }
     }
 
-    std::reverse(effective_size_results.begin(), effective_size_results.end());
+    std::vector<double> results = compute_redundancy_core(G, target_ids, weight_key, is_directed);
     
-    py::array::ShapeContainer ret_shape{nodes_list_len};
-    py::array_t<double> ret(ret_shape, effective_size_results.data());
-    return ret;
+    py::array::ShapeContainer ret_shape{ (long)results.size() };
+    return py::array_t<double>(ret_shape, results.data());
 }
 
 #ifdef EASYGRAPH_ENABLE_GPU
@@ -435,7 +635,7 @@ static py::object invoke_gpu_efficiency(py::object G, py::object nodes, py::obje
         nodes_list = py::list(nodes);
         for (auto node : nodes_list) {
             int node_id = node2idx[G_.node_to_id[node].cast<node_t>()];
-            node_mask[node_id] = 1; 
+            node_mask[node_id] = 1;
         }
     } else {
         nodes_list = py::list(G.attr("nodes"));
@@ -487,80 +687,66 @@ static py::object invoke_gpu_efficiency(py::object G, py::object nodes, py::obje
 
 
 py::object invoke_cpp_efficiency(py::object G, py::object nodes, py::object weight, py::object n_workers) {
-    rec_type sum_nmw_rec, max_nmw_rec;
-    py::dict effective_size_dict = py::dict();
-    if (nodes.is_none()) {
-        nodes = G;
-    }
-    nodes = py::list(nodes);
-    if (!G.attr("is_directed")().cast<bool>()){
-        Graph& G_ = G.cast<Graph&>();
-        std::string weight_key = weight_to_string(weight);
-        int nodes_len = py::len(nodes);
-        for (int i = 0; i < nodes_len; i++) {
-            py::object v = nodes[py::cast(i)];
-            if (py::len(G[v]) == 0) {
-                effective_size_dict[v] = py::cast(Py_NAN);
-                continue;
-            }
-            weight_t redundancy_sum = 0;
-            node_t v_id = G_.node_to_id[v].cast<node_t>();
-            for (const auto& neighbor_info : G_.adj[v_id]) {
-                node_t u_id = neighbor_info.first;
-                redundancy_sum += redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
-            }
-            effective_size_dict[v] = redundancy_sum;
-        }
-    } else{
-        DiGraph& G_ = G.cast<DiGraph&>();
-        std::string weight_key = weight_to_string(weight);
-        int nodes_len = py::len(nodes);
-        for (int i = 0; i < nodes_len; i++) {
-            py::object v = nodes[py::cast(i)];
-            if (py::len(G[v]) == 0) {
-                effective_size_dict[v] = py::cast(Py_NAN);
-                continue;
-            }
-            weight_t redundancy_sum = 0;
-            node_t v_id = G_.node_to_id[v].cast<node_t>();
-            for (const auto& neighbor_info : G_.adj[v_id]) {
-                node_t u_id = neighbor_info.first;
-                redundancy_sum += directed_redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
-            }
-            for (const auto& neighbor_info : G_.pred[v_id]) {
-                node_t u_id = neighbor_info.first;
-                redundancy_sum += directed_redundancy(G_, v_id, u_id, weight_key, sum_nmw_rec, max_nmw_rec);
-            }
-            effective_size_dict[v] = redundancy_sum;
-        }
-    }
+    std::string weight_key = weight.is_none() ? "" : weight.cast<std::string>();
+    bool is_directed = G.attr("is_directed")().cast<bool>();
+    
+    // Parsing Nodes
+    if (nodes.is_none()) nodes = G.attr("nodes");
+    py::list nodes_list = py::list(nodes);
+    size_t len = py::len(nodes_list);
+    std::vector<node_t> target_ids(len);
 
-    py::dict degree;
-    if (weight.is_none()) {
-        degree = G.attr("degree")(py::none()).cast<py::dict>();
+    if (py::hasattr(G, "node_to_id")) {
+        py::object node_to_id = G.attr("node_to_id"); 
+        for (size_t i = 0; i < len; i++) {
+            target_ids[i] = node_to_id[nodes_list[i]].cast<node_t>();
+        }
     } else {
-        degree = G.attr("degree")(weight).cast<py::dict>();
+        for (size_t i = 0; i < len; i++) {
+            target_ids[i] = nodes_list[i].cast<node_t>();
+        }
     }
 
-    py::dict efficiency_dict;
-    for (auto item : effective_size_dict) {
-        int node = py::reinterpret_borrow<py::int_>(item.first).cast<int>();
-        double eff_size = py::reinterpret_borrow<py::float_>(item.second).cast<double>();
+    // Compute Efficiency = Effective Size / Degree
+    std::vector<double> eff_sizes = compute_redundancy_core(G, target_ids, weight_key, is_directed);
 
-        if (!degree.contains(py::cast(node))) {
+    // Cast Graph pointers for fast degree access
+    const Graph* G_ptr = nullptr;
+    const DiGraph* DiG_ptr = nullptr;
+    if (is_directed) DiG_ptr = &G.cast<const DiGraph&>();
+    else G_ptr = &G.cast<const Graph&>();
+
+    std::vector<double> efficiency_results(len);
+
+    #pragma omp parallel for schedule(static)
+    for (size_t i = 0; i < len; ++i) {
+        double es = eff_sizes[i];
+        
+        // Propagate NAN from core
+        if (std::isnan(es)) {
+            efficiency_results[i] = NAN;
             continue;
         }
 
-        double node_degree = py::reinterpret_borrow<py::float_>(degree[py::cast(node)]).cast<double>();
-        if (node_degree == 0.0) {
-            efficiency_dict[py::cast(node)] = py::cast(Py_NAN);
+        node_t v = target_ids[i];
+        double degree = 0;
+
+        if (is_directed) {
+            if (DiG_ptr->adj.count(v)) degree += DiG_ptr->adj.at(v).size();
+            if (DiG_ptr->pred.count(v)) degree += DiG_ptr->pred.at(v).size();
         } else {
-            double efficiency_value = eff_size / node_degree;
-            efficiency_dict[py::cast(node)] = py::cast(efficiency_value);
+            if (G_ptr->adj.count(v)) degree += G_ptr->adj.at(v).size();
+        }
+
+        if (degree > 0) {
+            efficiency_results[i] = es / degree;
+        } else {
+            efficiency_results[i] = NAN; 
         }
     }
 
-    return efficiency_dict;
+    py::array::ShapeContainer ret_shape{ (long)len };
+    return py::array_t<double>(ret_shape, efficiency_results.data());
 }
 
 py::object efficiency(py::object G, py::object nodes, py::object weight, py::object n_workers) {
@@ -627,7 +813,7 @@ py::object invoke_cpp_hierarchy(py::object G, py::object nodes, py::object weigh
     py::list nodes_list = py::list(nodes);
     int nodes_list_len = py::len(nodes_list);
     py::dict hierarchy = py::dict();
-    
+
     if(G.attr("is_directed")().cast<bool>()){
         DiGraph& G_ = G.cast<DiGraph&>();
         for (int i = 0; i < nodes_list_len; i++) {
@@ -761,7 +947,7 @@ static py::object invoke_gpu_hierarchy(py::object G, py::object nodes, py::objec
     std::vector<int>& E = csr_graph->E;
     std::vector<int>& row = coo_graph->row;
     std::vector<int>& col = coo_graph->col;
-    std::vector<double> *W_p = weight.is_none() ? &(coo_graph->unweighted_W) 
+    std::vector<double> *W_p = weight.is_none() ? &(coo_graph->unweighted_W)
                             : coo_graph->W_map.find(weight_to_string(weight))->second.get();
     std::unordered_map<node_t, int>& node2idx = coo_graph->node2idx;
     int num_nodes = coo_graph->node2idx.size();
@@ -777,7 +963,7 @@ static py::object invoke_gpu_hierarchy(py::object G, py::object nodes, py::objec
         }
     } else {
         nodes_list = py::list(G.attr("nodes"));
-        std::fill(node_mask.begin(), node_mask.end(), 1); 
+        std::fill(node_mask.begin(), node_mask.end(), 1);
     }
 
     int gpu_r = gpu_easygraph::hierarchy(V, E, row, col, num_nodes, *W_p, is_directed, node_mask, hierarchy_results);

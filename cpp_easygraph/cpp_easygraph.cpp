@@ -75,16 +75,20 @@ PYBIND11_MODULE(cpp_easygraph, m) {
         .def_property("pred", &DiGraph::get_pred,nullptr)
         .def("generate_linkgraph", &DiGraph_generate_linkgraph,py::arg("weight") = "weight");
 
+    m.def("cpp_degree_centrality", &degree_centrality, py::arg("G"));
+    m.def("cpp_in_degree_centrality", &in_degree_centrality, py::arg("G"));
+    m.def("cpp_out_degree_centrality", &out_degree_centrality, py::arg("G"));
     m.def("cpp_closeness_centrality", &closeness_centrality, py::arg("G"), py::arg("weight") = "weight", py::arg("cutoff") = py::none(), py::arg("sources") = py::none());
     m.def("cpp_betweenness_centrality", &betweenness_centrality, py::arg("G"), py::arg("weight") = "weight", py::arg("cutoff") = py::none(),py::arg("sources") = py::none(), py::arg("normalized") = py::bool_(true), py::arg("endpoints") = py::bool_(false));
     m.def("cpp_katz_centrality", &cpp_katz_centrality, py::arg("G"), py::arg("alpha") = 0.1, py::arg("beta") = 1.0, py::arg("max_iter") = 1000, py::arg("tol") = 1e-6, py::arg("normalized") = true);
+    m.def("cpp_eigenvector_centrality", &cpp_eigenvector_centrality, py::arg("G"), py::arg("max_iter") = 100, py::arg("tol") = 1.0e-6, py::arg("nstart") = py::none(), py::arg("weight") = "weight");
     m.def("cpp_k_core", &core_decomposition, py::arg("G"));
     m.def("cpp_density", &density, py::arg("G"));
     m.def("cpp_constraint", &constraint, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
     m.def("cpp_effective_size", &effective_size, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
     m.def("cpp_efficiency", &efficiency, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
     m.def("cpp_hierarchy", &hierarchy, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
-    m.def("cpp_pagerank", &_pagerank, py::arg("G"), py::arg("alpha") = 0.85, py::arg("max_iterator") = 500, py::arg("threshold") = 1e-6);
+    m.def("cpp_pagerank", &_pagerank, py::arg("G"), py::arg("alpha") = 0.85, py::arg("max_iterator") = 500, py::arg("threshold") = 1e-6, py::arg("weight") = "weight");
     m.def("cpp_dijkstra_multisource", &_dijkstra_multisource, py::arg("G"), py::arg("sources"), py::arg("weight") = "weight", py::arg("target") = py::none());    
     m.def("cpp_spfa", &_spfa, py::arg("G"), py::arg("source"), py::arg("weight") = "weight");
     m.def("cpp_clustering", &clustering, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none());

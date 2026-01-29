@@ -8,7 +8,7 @@ __all__ = ["pagerank"]
 
 @not_implemented_for("multigraph")
 @hybrid("cpp_pagerank")
-def pagerank(G, alpha=0.85):
+def pagerank(G, alpha=0.85, weight=None):
     """
     Returns the PageRank value of each node in G.
 
@@ -20,12 +20,15 @@ def pagerank(G, alpha=0.85):
     alpha : float
         The damping factor. Default is 0.85
 
+    weight : None or string, optional (default=None)
+        If None, all edge weights are considered equal.
+        Otherwise holds the name of the edge attribute used as weight.
     """
     import numpy as np
 
     if len(G) == 0:
         return {}
-    M = google_matrix(G, alpha=alpha)
+    M = google_matrix(G, alpha=alpha, weight=weight)
 
     # use numpy LAPACK solver
     eigenvalues, eigenvectors = np.linalg.eig(M.T)
@@ -36,10 +39,10 @@ def pagerank(G, alpha=0.85):
     return dict(zip(G, map(float, largest / norm)))
 
 
-def google_matrix(G, alpha):
+def google_matrix(G, alpha, weight=None):
     import numpy as np
 
-    M = eg.to_numpy_array(G)
+    M = eg.to_numpy_array(G, weight=weight).astype(float)
     N = len(G)
     if N == 0:
         return M
