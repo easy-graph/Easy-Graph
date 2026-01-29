@@ -369,7 +369,7 @@ std::vector<double> compute_redundancy_core(py::object G_obj, const std::vector<
     std::vector<double> scale_max_vec(max_graph_id + 1, 0.0);
 
     #pragma omp parallel for schedule(dynamic)
-    for(int i = 0; i < all_nodes_vec.size(); ++i) {
+    for(int i = 0; i < (int)all_nodes_vec.size(); ++i) {
         node_t u = all_nodes_vec[i];
         double s_sum = 0;
         double s_max = 0;
@@ -407,7 +407,7 @@ std::vector<double> compute_redundancy_core(py::object G_obj, const std::vector<
     if (!is_directed) {
         // Undirected
         #pragma omp parallel for schedule(dynamic)
-        for (int i = 0; i < target_nodes.size(); i++) {
+        for (int i = 0; i < (int)target_nodes.size(); i++) {
             node_t v_id = target_nodes[i];
             
             if (G_ptr->adj.find(v_id) == G_ptr->adj.end() || G_ptr->adj.at(v_id).empty()) {
@@ -525,16 +525,16 @@ py::object invoke_cpp_effective_size(py::object G, py::object nodes, py::object 
     
     if (nodes.is_none()) nodes = G.attr("nodes");
     py::list nodes_list = py::list(nodes);
-    size_t len = py::len(nodes_list);
+    int len = py::len(nodes_list);
     std::vector<node_t> target_ids(len);
 
     if (py::hasattr(G, "node_to_id")) {
         py::object node_to_id = G.attr("node_to_id"); 
-        for (size_t i = 0; i < len; i++) {
+        for (int i = 0; i < len; i++) {
             target_ids[i] = node_to_id[nodes_list[i]].cast<node_t>();
         }
     } else {
-        for (size_t i = 0; i < len; i++) {
+        for (int i = 0; i < len; i++) {
             target_ids[i] = nodes_list[i].cast<node_t>();
         }
     }
@@ -693,16 +693,16 @@ py::object invoke_cpp_efficiency(py::object G, py::object nodes, py::object weig
     // Parsing Nodes
     if (nodes.is_none()) nodes = G.attr("nodes");
     py::list nodes_list = py::list(nodes);
-    size_t len = py::len(nodes_list);
+    int len = py::len(nodes_list);
     std::vector<node_t> target_ids(len);
 
     if (py::hasattr(G, "node_to_id")) {
         py::object node_to_id = G.attr("node_to_id"); 
-        for (size_t i = 0; i < len; i++) {
+        for (int i = 0; i < len; i++) {
             target_ids[i] = node_to_id[nodes_list[i]].cast<node_t>();
         }
     } else {
-        for (size_t i = 0; i < len; i++) {
+        for (int i = 0; i < len; i++) {
             target_ids[i] = nodes_list[i].cast<node_t>();
         }
     }
@@ -719,7 +719,7 @@ py::object invoke_cpp_efficiency(py::object G, py::object nodes, py::object weig
     std::vector<double> efficiency_results(len);
 
     #pragma omp parallel for schedule(static)
-    for (size_t i = 0; i < len; ++i) {
+    for (int i = 0; i < len; ++i) {
         double es = eff_sizes[i];
         
         // Propagate NAN from core
