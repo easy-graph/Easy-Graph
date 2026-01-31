@@ -155,6 +155,7 @@ setuptools.setup(
             "torch>=2.0",
             "fastjsonschema",
             "torch_geometric>=2.3",
+        ],
     },
     fastjsonschema
     setup_requires=[CYTHON_STR],
