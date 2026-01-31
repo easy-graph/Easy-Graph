@@ -157,7 +157,6 @@ setuptools.setup(
             "torch_geometric>=2.3",
         ],
     },
-    fastjsonschema
     setup_requires=[CYTHON_STR],
     cmdclass={
         "build_ext": CMakeBuild,
