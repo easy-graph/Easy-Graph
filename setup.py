@@ -149,6 +149,7 @@ setuptools.setup(
         "matplotlib",
         "requests",
         "optuna",
+        "fastjsonschema",
     ],
     extras_require={
         "torch": [
