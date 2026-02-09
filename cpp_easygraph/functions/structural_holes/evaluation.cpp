@@ -666,7 +666,6 @@ py::object efficiency(py::object G, py::object nodes, py::object weight, py::obj
 py::object invoke_cpp_hierarchy(py::object G, py::object nodes, py::object weight, py::object n_workers) {
     std::string weight_key = weight_to_string(weight);
 
-    // 1. 获取节点列表 (Python -> C++)
     if (nodes.is_none()) {
         nodes = G.attr("nodes");
     }
@@ -679,75 +678,68 @@ py::object invoke_cpp_hierarchy(py::object G, py::object nodes, py::object weigh
         node_ids[i] = G_ref.node_to_id[nodes_list[i]].cast<node_t>();
     }
 
-    // 2. 预处理图结构 (复用 Constraint 的预处理)
-    // 这一步避免了在并行区调用 Python API
     std::unordered_map<node_t, std::unordered_map<node_t, double>> weighted_adj;
     std::unordered_map<node_t, double> strength;
     preprocess_graph_for_constraint(G_ref, weight_key, weighted_adj, strength);
 
     std::vector<double> hierarchy_results(nodes_list_len, 0.0);
 
-    // 3. 并行计算 (释放 GIL)
+    // Release GIL for parallel computation
     {
         py::gil_scoped_release release;
         
-        // 使用 OpenMP 自动并行化，替代手写的 split/thread
         #pragma omp parallel for schedule(dynamic)
         for (int i = 0; i < nodes_list_len; i++) {
             node_t u = node_ids[i];
             
-            // 3.1 基础检查
+            // Validate node strength
             auto str_it = strength.find(u);
             if (str_it == strength.end() || str_it->second == 0.0) continue;
             double u_strength = str_it->second;
 
             auto& neighbors_u = weighted_adj[u];
             int N = neighbors_u.size();
-            if (N <= 1) continue; // 只有一个邻居或没有邻居，Hierarchy 为 0
+            if (N <= 1) continue; 
 
-            // 3.2 计算 dyadic constraint (p_ij + sum p_iq p_qj)
-            // 这是一个临时 map，存储每个邻居 j 对 u 的贡献值 (未平方)
+            // Calculate dyadic constraint components
             std::unordered_map<node_t, double> contrib; 
 
-            // 第一步：直接连接贡献 p_uj
+            // Direct 
             for (auto& neighbor : neighbors_u) {
                 node_t j = neighbor.first;
                 double p_uj = neighbor.second / u_strength;
                 contrib[j] += p_uj;
             }
 
-            // 第二步：间接连接贡献 sum(p_uq * p_qj)
-            // 这里逻辑直接照搬 constraint 函数
+            // Indirect
             for (auto& neighbor_j : neighbors_u) {
-                node_t j = neighbor_j.first; // 这里实际是 q
-                double p_uq = neighbor_j.second / u_strength; // p_uq
+                node_t q = neighbor_j.first; 
+                double p_uq = neighbor_j.second / u_strength;
 
-                auto q_it = weighted_adj.find(j); // 找 q 的邻居
+                auto q_it = weighted_adj.find(q);
                 if (q_it != weighted_adj.end()) {
-                    double q_strength = strength[j];
+                    double q_strength = strength[q];
                     for (auto& neighbor_k : q_it->second) {
-                        node_t k = neighbor_k.first; // 这里实际是 j (目标邻居)
-                        if (k == u) continue;
+                        node_t j = neighbor_k.first;
+                        if (j == u) continue;
 
-                        // 只有当 k 也是 u 的邻居时，才构成闭环，计入 constraint
-                        if (weighted_adj[u].count(k)) {
-                            double p_qk = neighbor_k.second / q_strength;
-                            contrib[k] += p_uq * p_qk;
+                        // Check if closed triad exists
+                        if (weighted_adj[u].count(j)) {
+                            double p_qj = neighbor_k.second / q_strength;
+                            contrib[j] += p_uq * p_qj;
                         }
                     }
                 }
             }
 
-            // 3.3 计算 Hierarchy
-            // Hierarchy 公式: H = [sum (C_j/C * N * log(C_j/C * N))] / (N * log(N))
-            
+            // Compute Hierarchy score
             double C_total = 0.0;
-            std::unordered_map<node_t, double> C_j; // 存储每个邻居的 constraint 值 (平方后)
+            std::unordered_map<node_t, double> C_j; 
 
             for (auto& neighbor : neighbors_u) {
                 node_t j = neighbor.first;
                 if (contrib.count(j)) {
-                    double val = std::pow(contrib[j], 2); // 别忘了平方
+                    double val = std::pow(contrib[j], 2); 
                     C_j[j] = val;
                     C_total += val;
                 }
@@ -755,25 +747,23 @@ py::object invoke_cpp_hierarchy(py::object G, py::object nodes, py::object weigh
 
             if (C_total > 0) {
                 double hierarchy_sum = 0.0;
-                double constant = N * std::log(N); // 分母部分
+                double denominator = N * std::log(N);
 
                 for (auto& item : C_j) {
                     double c_val = item.second;
-                    // 防止 log(0)
                     if (c_val > 0) {
-                        double p_i = c_val / C_total; // 该邻居占总 constraint 的比例
+                        double p_i = c_val / C_total;
                         double term = p_i * N;
                         if (term > 0) {
                             hierarchy_sum += term * std::log(term);
                         }
                     }
                 }
-                hierarchy_results[i] = hierarchy_sum / constant;
+                hierarchy_results[i] = hierarchy_sum / denominator;
             }
         }
     }
 
-    // 4. 返回结果
     py::array::ShapeContainer ret_shape{nodes_list_len};
     py::array_t<double> ret(ret_shape, hierarchy_results.data());
     return ret;
