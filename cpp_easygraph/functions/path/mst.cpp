@@ -195,6 +195,13 @@ struct IntUnionFind {
         return parent[i] = find(parent[i]); 
     }
 
+    int find_readonly(int i) const {
+        while (i != parent[i]) {
+            i = parent[i];
+        }
+        return i;
+    }
+    
     bool unite(int i, int j) {
         int root_i = find(i);
         int root_j = find(j);
@@ -250,8 +257,8 @@ py::object boruvka_mst_edges(py::object G, py::object minimum, py::object weight
 
             #pragma omp parallel for
             for (int i = 0; i < (int)active_edges.size(); ++i) {
-                int root_u = uf.find(active_edges[i].u);
-                int root_v = uf.find(active_edges[i].v);
+                int root_u = uf.find_readonly(active_edges[i].u);
+                int root_v = uf.find_readonly(active_edges[i].v);   
 
                 if (root_u != root_v) {
                     auto update_best = [&](int root, int edge_idx) {
