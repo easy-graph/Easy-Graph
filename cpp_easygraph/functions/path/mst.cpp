@@ -170,160 +170,133 @@ py::object prim_mst_edges(py::object G, py::object minimum, py::object weight, p
     return res;
 }
 
+struct CompactEdge {
+    int u, v, id;
+    double wt;
+};
+
+struct AtomicBest {
+    std::atomic<int> edge_idx;
+    AtomicBest() : edge_idx(-1) {}
+    AtomicBest(const AtomicBest& other) : edge_idx(other.edge_idx.load()) {}
+};
+
 struct IntUnionFind {
     std::vector<int> parent;
+    std::vector<int> rank;
     int component_count;
 
-    IntUnionFind(int n) : component_count(n) {
-        parent.resize(n);
+    IntUnionFind(int n) : parent(n), rank(n, 0), component_count(n) {
         for (int i = 0; i < n; i++) parent[i] = i;
     }
 
     int find(int i) {
-        int root = i;
-        while (root != parent[root]) root = parent[root];
-        
-        // 路径压缩：平摊复杂度 O(α(N))
-        int curr = i;
-        while (curr != root) {
-            int nxt = parent[curr];
-            parent[curr] = root;
-            curr = nxt;
-        }
-        return root;
+        if (parent[i] == i) return i;
+        return parent[i] = find(parent[i]); 
     }
 
-    void unite(int i, int j) {
+    bool unite(int i, int j) {
         int root_i = find(i);
         int root_j = find(j);
         if (root_i != root_j) {
-            parent[root_i] = root_j;
+            if (rank[root_i] < rank[root_j]) parent[root_i] = root_j;
+            else if (rank[root_i] > rank[root_j]) parent[root_j] = root_i;
+            else { parent[root_i] = root_j; rank[root_j]++; }
             component_count--;
+            return true;
         }
+        return false;
     }
 };
 
 py::object boruvka_mst_edges(py::object G, py::object minimum, py::object weight, py::object data, py::object ignore_nan) {
     Graph& G_ = G.cast<Graph&>();
     std::string weight_key = weight_to_string(weight);
-    int sign = minimum.cast<py::bool_>().equal(py::cast(true)) ? 1 : -1;
+    int sign = minimum.cast<bool>() ? 1 : -1;
     bool return_data = data.cast<bool>();
     bool ignore_n = ignore_nan.cast<bool>();
 
-    // 步骤 A：映射 Python 节点 ID 到连续的 C++ 整数 [0, V-1]
-    std::unordered_map<node_t, int> node_to_int;
-    for (auto const& item : G_.node) {
-        node_t node_id = item.first;
-        node_to_int[node_id] = node_to_int.size();
-    }
-    int num_nodes = node_to_int.size();
-    // 步骤 B：边集扁平化 (SoA - Structure of Arrays)
-    // original_edges 用于保留 Python 属性；另外三个 vector 专供 OpenMP 狂飙
-    std::vector<graph_edge> original_edges; 
-    std::vector<int> edge_u;
-    std::vector<int> edge_v;
-    std::vector<double> edge_wt;
+    std::shared_ptr<COOGraph> coo = G_.gen_COO(weight_key);
+    int num_nodes = coo->nodes.size();
+    int num_edges = coo->row.size();
 
-    for (graph_edge& edge : G_._get_edges()) {
-        double wt = (edge.attr.count(weight_key) ? edge.attr[weight_key] : 1.0) * sign;
-        
+    if (num_nodes == 0) return py::list();
+
+    std::vector<CompactEdge> active_edges;
+    active_edges.reserve(num_edges);
+    
+    const auto& W_vec = *(coo->W_map[weight_key]); 
+
+    for (int i = 0; i < num_edges; ++i) {
+        double wt = W_vec[i] * sign;
         if (std::isnan(wt)) {
             if (!ignore_n) {
-                PyErr_Format(PyExc_ValueError, "NaN found as an edge weight. Edge attributes: %R", attr_to_dict(edge.attr).ptr());
+                PyErr_Format(PyExc_ValueError, "NaN found as an edge weight.");
                 return py::none();
             }
             continue;
         }
-        
-        original_edges.push_back(edge);
-        edge_u.push_back(node_to_int[edge.u]);
-        edge_v.push_back(node_to_int[edge.v]);
-        edge_wt.push_back(wt);
+        active_edges.push_back({coo->row[i], coo->col[i], i, wt});
     }
 
-    int num_edges = original_edges.size();
     IntUnionFind uf(num_nodes);
-    std::vector<bool> in_mst(num_edges, false); // 记录被选中边的索引
-    
-    // 步骤 C：核心并行计算 (释放 GIL，进入纯 C++ 多核域)
+    std::vector<bool> in_mst(num_edges, false);
     {
         py::gil_scoped_release release;
         
-        bool added_edges = true;
-        // 只要还有多个连通分量，并且上一轮有新边加入，就继续循环
-        while (uf.component_count > 1 && added_edges) {
-            added_edges = false;
-            
-            // cheapest_edge 存的是“边的索引 e”，初始化为 -1
-            std::vector<int> cheapest_edge(num_nodes, -1);
+        while (uf.component_count > 1) {
+            std::vector<AtomicBest> best_at(num_nodes);
+            bool changed = false;
 
-            #pragma omp parallel
-            {
-                // 线程本地的最短边记录，避免多线程写冲突
-                std::vector<int> local_cheapest(num_nodes, -1);
+            #pragma omp parallel for
+            for (int i = 0; i < (int)active_edges.size(); ++i) {
+                int root_u = uf.find(active_edges[i].u);
+                int root_v = uf.find(active_edges[i].v);
 
-                // 无锁遍历所有边
-                #pragma omp for nowait
-                for (int e = 0; e < num_edges; e++) {
-                    int u = edge_u[e];
-                    int v = edge_v[e];
-                    double wt = edge_wt[e];
-
-                    int set_u = uf.find(u);
-                    int set_v = uf.find(v);
-
-                    if (set_u != set_v) {
-                        // 比较并更新 u 所在分量的最小边
-                        if (local_cheapest[set_u] == -1 || wt < edge_wt[local_cheapest[set_u]]) {
-                            local_cheapest[set_u] = e;
+                if (root_u != root_v) {
+                    auto update_best = [&](int root, int edge_idx) {
+                        int current = best_at[root].edge_idx.load(std::memory_order_relaxed);
+                        while (current == -1 || active_edges[edge_idx].wt < active_edges[current].wt) {
+                            if (best_at[root].edge_idx.compare_exchange_weak(current, edge_idx)) break;
                         }
-                        // 比较并更新 v 所在分量的最小边
-                        if (local_cheapest[set_v] == -1 || wt < edge_wt[local_cheapest[set_v]]) {
-                            local_cheapest[set_v] = e;
-                        }
-                    }
+                    };
+                    update_best(root_u, i);
+                    update_best(root_v, i);
                 }
+            }
 
-                // 归约：将本地的最短边合并到全局数组
-                #pragma omp critical
-                {
-                    for (int i = 0; i < num_nodes; i++) {
-                        if (local_cheapest[i] != -1) {
-                            if (cheapest_edge[i] == -1 || edge_wt[local_cheapest[i]] < edge_wt[cheapest_edge[i]]) {
-                                cheapest_edge[i] = local_cheapest[i];
-                            }
-                        }
-                    }
-                }
-            } // #pragma omp parallel 结束
-
-            // 顺序合并本轮找到的最短边
-            for (int i = 0; i < num_nodes; i++) {
-                if (cheapest_edge[i] != -1) {
-                    int e = cheapest_edge[i];
-                    int set_u = uf.find(edge_u[e]);
-                    int set_v = uf.find(edge_v[e]);
-
-                    if (set_u != set_v) {
-                        uf.unite(set_u, set_v);
-                        in_mst[e] = true;
-                        added_edges = true;
+            for (int i = 0; i < num_nodes; ++i) {
+                int e_idx = best_at[i].edge_idx.load();
+                if (e_idx != -1) {
+                    const auto& e = active_edges[e_idx];
+                    if (uf.unite(e.u, e.v)) {
+                        in_mst[e.id] = true;
+                        changed = true;
                     }
                 }
             }
-        }
-    } // 重新获取 GIL
 
-    // 步骤 D：利用保留的 original_edges 还原 Python 对象并返回
+            if (!changed) break;
+
+            auto new_end = std::remove_if(active_edges.begin(), active_edges.end(), [&](const CompactEdge& e) {
+                return uf.find(e.u) == uf.find(e.v);
+            });
+            active_edges.erase(new_end, active_edges.end());
+        }
+    }
+
     py::list ret;
-    for (int e = 0; e < num_edges; e++) {
-        if (in_mst[e]) {
-            const graph_edge& edge = original_edges[e];
-            py::object u_obj = G_.id_to_node[py::cast(edge.u)];
-            py::object v_obj = G_.id_to_node[py::cast(edge.v)];
+    for (int i = 0; i < num_edges; ++i) {
+        if (in_mst[i]) {
+            node_t u = coo->nodes[coo->row[i]];
+            node_t v = coo->nodes[coo->col[i]];
             
+            py::object u_obj = G_.id_to_node[py::cast(u)];
+            py::object v_obj = G_.id_to_node[py::cast(v)];
+
             if (return_data) {
-                ret.append(py::make_tuple(u_obj, v_obj, attr_to_dict(edge.attr)));
+                const auto& edge_attr = G_.adj.at(u).at(v);
+                ret.append(py::make_tuple(u_obj, v_obj, attr_to_dict(edge_attr)));
             } else {
                 ret.append(py::make_tuple(u_obj, v_obj));
             }
