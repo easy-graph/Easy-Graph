@@ -9,3 +9,4 @@ py::object Floyd(py::object G,py::object weight);
 py::object Prim(py::object G,py::object weight);
 py::object Kruskal(py::object G,py::object weight);
 py::object average_shortest_path_length(py::object G, py::object weight, py::object method);
+py::object eccentricity(py::object G, py::object v, py::object sp);

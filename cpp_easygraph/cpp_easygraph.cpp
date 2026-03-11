@@ -102,6 +102,7 @@ PYBIND11_MODULE(cpp_easygraph, m) {
     m.def("cpp_prim_mst_edges", &prim_mst_edges, py::arg("G"), py::arg("minimum") = true, py::arg("weight") = "weight", py::arg("data") = true, py::arg("ignore_nan") = false);
     m.def("cpp_boruvka_mst_edges", &boruvka_mst_edges, py::arg("G"), py::arg("minimum") = true, py::arg("weight") = "weight", py::arg("data") = true, py::arg("ignore_nan") = false);
     m.def("cpp_average_shortest_path_length", &average_shortest_path_length, py::arg("G"), py::arg("weight") = py::none(), py::arg("method") = py::none());
+    m.def("cpp_eccentricity", &eccentricity, py::arg("G"), py::arg("v") = py::none(), py::arg("sp") = py::none());
     m.def("cpp_connected_components_undirected", &connected_component_undirected, py::arg("G"));
     m.def("cpp_connected_components_directed", &connected_component_directed, py::arg("G"));
 }
