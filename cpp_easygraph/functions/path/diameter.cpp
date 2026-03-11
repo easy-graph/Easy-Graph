@@ -16,7 +16,6 @@
 
 namespace py = pybind11;
 
-// ... (保留之前的 _bfs_eccentricity 函数不变) ...
 double _bfs_eccentricity(const Graph_L& G_l, int source) {
     int N = G_l.n;
     std::vector<int> dis(N + 1, -1);
@@ -55,10 +54,9 @@ double _bfs_eccentricity(const Graph_L& G_l, int source) {
 
 py::object eccentricity(py::object G, py::object v = py::none(), py::object sp = py::none()) {
     Graph& G_ = G.cast<Graph&>();
-    // 兼容判定有向图
+
     bool is_directed = py::hasattr(G, "is_directed") ? G.attr("is_directed")().cast<bool>() : false;
     
-    // 💡 修复点 1：不使用 .order()，改用 len(G.nodes)，这在 Graph 和 GraphC 中绝对通用
     int order = py::len(G.attr("nodes"));
 
     if (!sp.is_none()) {
@@ -68,7 +66,6 @@ py::object eccentricity(py::object G, py::object v = py::none(), py::object sp =
         py::list nodes_to_check;
         bool is_single = false;
         
-        // 兼容判断 v 参数类型
         if (v.is_none()) {
             nodes_to_check = py::list(G.attr("nodes"));
         } else if (py::isinstance<py::list>(v) || py::isinstance<py::tuple>(v) || py::isinstance<py::set>(v)) {
@@ -102,8 +99,6 @@ py::object eccentricity(py::object G, py::object v = py::none(), py::object sp =
         return result;
     }
 
-    // ========== sp=None (OpenMP 加速) ==========
-
     if (G_.linkgraph_dirty) {
         G_.linkgraph_structure = graph_to_linkgraph(G_, is_directed, "", true, false);
         G_.linkgraph_dirty = false;
@@ -113,14 +108,12 @@ py::object eccentricity(py::object G, py::object v = py::none(), py::object sp =
     int N = G_l.n;
     if (N == 0) return py::dict();
 
-    // 💡 修复点 2：手动构建 ID ↔ Node 映射，不再依赖不稳定的 .node_index 和 .index_node
     py::dict node_index;
     std::vector<py::object> index_to_node_vec;
 
     if (py::hasattr(G, "node_index")) {
         node_index = G.attr("node_index").cast<py::dict>();
     } else {
-        // Fallback: 如果是 GraphC 没有 node_index，我们自己按遍历顺序生成一个
         int idx = 0;
         for (py::handle n : G.attr("nodes")) {
             node_index[n] = py::cast(idx++);
@@ -140,14 +133,12 @@ py::object eccentricity(py::object G, py::object v = py::none(), py::object sp =
             }
         }
     } else {
-        // Fallback: 如果是 GraphC 没有 index_node，我们通过刚才的 node_index 反推
         index_to_node_vec.resize(py::len(node_index));
         for (auto item : node_index) {
             index_to_node_vec[item.second.cast<int>()] = item.first.cast<py::object>();
         }
     }
 
-    // 解析 v 参数为 C++ ID 列表
     std::vector<int> target_ids;
     bool is_single_node = false;
 
@@ -202,14 +193,12 @@ py::object eccentricity(py::object G, py::object v = py::none(), py::object sp =
         throw py::value_error(msg);
     }
 
-    // 打包返回
     if (is_single_node) {
         return py::cast(ecc_values[0]);
     } else {
         py::dict result;
         for (int i = 0; i < num_targets; i++) {
             int internal_id = target_ids[i];
-            // ID 还原为节点名称 (注意 internal_id 是 1-based, std::vector 是 0-based)
             py::object original_node = index_to_node_vec[internal_id - 1]; 
             result[original_node] = ecc_values[i];
         }
