@@ -10,4 +10,11 @@ struct CSRGraph {
 
     std::vector<node_t> nodes;
     std::unordered_map<node_t, int> node2idx;
+
+    // Oriented CSR cache used by triangle counting; invalidated on graph change
+    bool oriented_valid = false;
+    std::vector<int> rank_arr;
+    std::vector<int>  order;
+    std::vector<int>  oriented_V;
+    std::vector<int>  oriented_E;
 };
