@@ -15,7 +15,7 @@
 
 namespace py = pybind11;
 
-class CSRMatrix {
+class _CSRMatrix {
 public:
     std::vector<int> indptr;
     std::vector<int> indices;
@@ -23,14 +23,14 @@ public:
     int rows, cols;
     bool is_weighted;
 
-    CSRMatrix(int r, int c) : rows(r), cols(c), is_weighted(false) {
+    _CSRMatrix(int r, int c) : rows(r), cols(c), is_weighted(false) {
         indptr.assign(r + 1, 0);
     }
 };
 
 // Power iteration with branch optimization for weighted/unweighted paths
 std::vector<double> power_iteration_optimized(
-    const CSRMatrix& A,
+    const _CSRMatrix& A,
     int max_iter,
     double tol,
     std::vector<double>& x
@@ -95,11 +95,11 @@ std::vector<double> power_iteration_optimized(
 }
 
 // Build transpose CSR with fallback logic for missing weight keys
-CSRMatrix build_transpose_matrix_smart(Graph& graph, const std::vector<node_t>& nodes, const std::string& weight_key) {
+_CSRMatrix build_transpose_matrix_smart(Graph& graph, const std::vector<node_t>& nodes, const std::string& weight_key) {
     std::shared_ptr<CSRGraph> csr_ptr = weight_key.empty() ? graph.gen_CSR() : graph.gen_CSR(weight_key);
     
     int n = static_cast<int>(nodes.size());
-    CSRMatrix At(n, n);
+    _CSRMatrix At(n, n);
     if (!csr_ptr) return At;
 
     const auto& src_indptr = csr_ptr->V;
@@ -166,7 +166,7 @@ py::object cpp_eigenvector_centrality(
         for (auto& pair : graph.node) nodes.push_back(pair.first);
         int n = nodes.size();
         
-        CSRMatrix A_transpose = build_transpose_matrix_smart(graph, nodes, weight_key);
+        _CSRMatrix A_transpose = build_transpose_matrix_smart(graph, nodes, weight_key);
         
         // Initialize x vector (prefer degree-based or uniform)
         std::vector<double> x(n, 1.0 / n);
