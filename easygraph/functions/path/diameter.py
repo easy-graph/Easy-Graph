@@ -1,10 +1,11 @@
 import easygraph as eg
 import easygraph.functions.path
 
+from easygraph.utils.decorators import *
 
 __all__ = ["diameter", "eccentricity"]
 
-
+@hybrid("cpp_eccentricity")
 def eccentricity(G, v=None, sp=None):
     """Returns the eccentricity of nodes in G.
 

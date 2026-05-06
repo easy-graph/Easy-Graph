@@ -1,5 +1,8 @@
 #include "path.h"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 #ifdef EASYGRAPH_ENABLE_GPU
 #include <gpu_easygraph.h>
 #endif
@@ -10,69 +13,103 @@
 #include "../../classes/segment_tree.cpp"
 
 
-std::vector<float> _dijkstra(Graph_L &G_l, int source, std::string weight, int target) {
-    const int dis_inf = 0x3f3f3f3f;
+#include <vector>
+#include <queue>
+#include <limits>
+#include <string>
+
+
+std::vector<double> _dijkstra(const Graph_L& G_l, int source, int target) {
     int N = G_l.n;
-    std::vector<float> dis(N+1,INFINITY);
-    Segment_tree_zkw segment_tree_zkw(N);
-    segment_tree_zkw.init(N);
-    segment_tree_zkw.change(source, 0);
-    dis[source] = 0;
-    std::vector<LinkEdge>& E = G_l.edges;
-    std::vector<int>& head = G_l.head;
-    while(segment_tree_zkw.t[1] != dis_inf) {
-        int u = segment_tree_zkw.num[1];
-        if(u == 0) break;
-        segment_tree_zkw.change(u, dis_inf);
-        if(u == target){
-            break;
-        }
-        for(int p = head[u]; p != -1; p = E[p].next) {
+    const double INF = std::numeric_limits<double>::infinity();
+    std::vector<double> dis(N + 1, INF);
+    std::priority_queue<std::pair<double, int>, 
+                        std::vector<std::pair<double, int>>, 
+                        std::greater<std::pair<double, int>>> pq;
+
+    dis[source] = 0.0;
+    pq.push({0.0, source});
+
+    const std::vector<int>& head = G_l.head;
+    const std::vector<LinkEdge>& E = G_l.edges;
+
+    while (!pq.empty()) {
+        std::pair<double, int> top = pq.top();
+        pq.pop();
+        
+        double d = top.first;
+        int u = top.second;
+
+        //Lazy deletion
+        if (d > dis[u]) continue;
+
+        // cutoff
+        if (u == target) break;
+
+        for (int p = head[u]; p != -1; p = E[p].next) {
             int v = E[p].to;
-            if (dis[v] > dis[u] + E[p].w) {
-                dis[v] = dis[u] + E[p].w;
-                segment_tree_zkw.change(v, dis[v]);
+            double w = static_cast<double>(E[p].w); 
+            
+            if (dis[u] + w < dis[v]) {
+                dis[v] = dis[u] + w;
+                pq.push({dis[v], v});
             }
         }
     }
-
     return dis;
-
 }
-py::object _invoke_cpp_dijkstra_multisource(py::object G,py::object sources, py::object weight, py::object target) {
-    py::list res_lst = py::list();
+
+
+py::object _invoke_cpp_dijkstra_multisource(py::object G, py::object sources, py::object weight, py::object target) {
     bool is_directed = G.attr("is_directed")().cast<bool>();
     Graph& G_ = G.cast<Graph&>();
-    node_t target_id = G_.node_to_id.attr("get")(target, -1).cast<node_t>();
     std::string weight_key = weight_to_string(weight);
+    
     Graph_L G_l;
     if(G_.linkgraph_dirty){
         G_l = graph_to_linkgraph(G_, is_directed, weight_key, true, false);
-        G_.linkgraph_structure=G_l;
+        G_.linkgraph_structure = G_l;
         G_.linkgraph_dirty = false;
-    }
-    else{
+    } else {
         G_l = G_.linkgraph_structure;
     }
 
+    node_t target_id = -1;
+    if (!target.is_none()) {
+        target_id = G_.node_to_id.attr("get")(target, -1).cast<node_t>();
+    }
 
-    int N = G_l.n;
     py::list sources_list = py::list(sources);
-    int sources_list_len = py::len(sources_list);
-    std::vector<double> sssp;
-    for(int i = 0; i < sources_list_len; i++){
-        if(G_.node_to_id.attr("get")(sources_list[i],py::none()).is(py::none())){
+    int num_sources = py::len(sources_list);
+    int N = G_l.n;
+    
+    std::vector<node_t> source_ids(num_sources);
+    for(int i = 0; i < num_sources; i++){
+        if(G_.node_to_id.attr("get")(sources_list[i], py::none()).is(py::none())){
             printf("The node should exist in the graph!");
             return py::none();
         }
-        node_t source_id = G_.node_to_id.attr("get")(sources_list[i]).cast<node_t>();
-        const std::vector<float>& dis = _dijkstra(G_l,source_id,weight_key,target_id);
-        for(int i = 1;i<=N;i++){
-            sssp.push_back(dis[i]);
-        }
+        source_ids[i] = G_.node_to_id.attr("get")(sources_list[i]).cast<node_t>();
     }
-    py::array::ShapeContainer ret_shape{(int)sources_list.size(), N};
-    py::array_t<double> ret(ret_shape, sssp.data());
+    std::vector<double> results(num_sources * N);
+    {
+        py::gil_scoped_release release;
+
+        #pragma omp parallel for schedule(dynamic)
+        for (int i = 0; i < num_sources; i++) {
+            node_t s = source_ids[i];
+
+            std::vector<double> dists = _dijkstra(G_l, s, target_id);
+            
+            size_t offset = (size_t)i * N; 
+            for (int j = 1; j <= N; j++) {
+                results[offset + (j - 1)] = dists[j];
+            }
+        }
+    } 
+
+    py::array::ShapeContainer ret_shape{num_sources, N};
+    py::array_t<double> ret(ret_shape, results.data());
 
     return ret;
 }

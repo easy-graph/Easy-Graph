@@ -1,5 +1,7 @@
 #include "mst.h"
-
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 #include <cmath>
 
 #include "../../classes/graph.h"
@@ -166,4 +168,147 @@ py::object prim_mst_edges(py::object G, py::object minimum, py::object weight, p
         }
     }
     return res;
+}
+
+struct CompactEdge {
+    int u, v, id;
+    double wt;
+};
+
+struct AtomicBest {
+    std::atomic<int> edge_idx;
+    AtomicBest() : edge_idx(-1) {}
+    AtomicBest(const AtomicBest& other) : edge_idx(other.edge_idx.load()) {}
+};
+
+struct IntUnionFind {
+    std::vector<int> parent;
+    std::vector<int> rank;
+    int component_count;
+
+    IntUnionFind(int n) : parent(n), rank(n, 0), component_count(n) {
+        for (int i = 0; i < n; i++) parent[i] = i;
+    }
+
+    int find(int i) {
+        if (parent[i] == i) return i;
+        return parent[i] = find(parent[i]); 
+    }
+
+    int find_readonly(int i) const {
+        while (i != parent[i]) {
+            i = parent[i];
+        }
+        return i;
+    }
+    
+    bool unite(int i, int j) {
+        int root_i = find(i);
+        int root_j = find(j);
+        if (root_i != root_j) {
+            if (rank[root_i] < rank[root_j]) parent[root_i] = root_j;
+            else if (rank[root_i] > rank[root_j]) parent[root_j] = root_i;
+            else { parent[root_i] = root_j; rank[root_j]++; }
+            component_count--;
+            return true;
+        }
+        return false;
+    }
+};
+
+py::object boruvka_mst_edges(py::object G, py::object minimum, py::object weight, py::object data, py::object ignore_nan) {
+    Graph& G_ = G.cast<Graph&>();
+    std::string weight_key = weight_to_string(weight);
+    int sign = minimum.cast<bool>() ? 1 : -1;
+    bool return_data = data.cast<bool>();
+    bool ignore_n = ignore_nan.cast<bool>();
+
+    std::shared_ptr<COOGraph> coo = G_.gen_COO(weight_key);
+    int num_nodes = coo->nodes.size();
+    int num_edges = coo->row.size();
+
+    if (num_nodes == 0) return py::list();
+
+    std::vector<CompactEdge> active_edges;
+    active_edges.reserve(num_edges);
+    
+    const auto& W_vec = *(coo->W_map[weight_key]); 
+
+    for (int i = 0; i < num_edges; ++i) {
+        double wt = W_vec[i] * sign;
+        if (std::isnan(wt)) {
+            if (!ignore_n) {
+                PyErr_Format(PyExc_ValueError, "NaN found as an edge weight.");
+                return py::none();
+            }
+            continue;
+        }
+        active_edges.push_back({coo->row[i], coo->col[i], i, wt});
+    }
+
+    IntUnionFind uf(num_nodes);
+    std::vector<bool> in_mst(num_edges, false);
+    {
+        py::gil_scoped_release release;
+        
+        while (uf.component_count > 1) {
+            std::vector<AtomicBest> best_at(num_nodes);
+            bool changed = false;
+
+            #pragma omp parallel for
+            for (int i = 0; i < (int)active_edges.size(); ++i) {
+                int root_u = uf.find_readonly(active_edges[i].u);
+                int root_v = uf.find_readonly(active_edges[i].v);   
+
+                if (root_u != root_v) {
+                    auto update_best = [&](int root, int edge_idx) {
+                        int current = best_at[root].edge_idx.load(std::memory_order_relaxed);
+                        while (current == -1 || active_edges[edge_idx].wt < active_edges[current].wt) {
+                            if (best_at[root].edge_idx.compare_exchange_weak(current, edge_idx)) break;
+                        }
+                    };
+                    update_best(root_u, i);
+                    update_best(root_v, i);
+                }
+            }
+
+            for (int i = 0; i < num_nodes; ++i) {
+                int e_idx = best_at[i].edge_idx.load();
+                if (e_idx != -1) {
+                    const auto& e = active_edges[e_idx];
+                    if (uf.unite(e.u, e.v)) {
+                        in_mst[e.id] = true;
+                        changed = true;
+                    }
+                }
+            }
+
+            if (!changed) break;
+
+            auto new_end = std::remove_if(active_edges.begin(), active_edges.end(), [&](const CompactEdge& e) {
+                return uf.find(e.u) == uf.find(e.v);
+            });
+            active_edges.erase(new_end, active_edges.end());
+        }
+    }
+
+    py::list ret;
+    for (int i = 0; i < num_edges; ++i) {
+        if (in_mst[i]) {
+            node_t u = coo->nodes[coo->row[i]];
+            node_t v = coo->nodes[coo->col[i]];
+            
+            py::object u_obj = G_.id_to_node[py::cast(u)];
+            py::object v_obj = G_.id_to_node[py::cast(v)];
+
+            if (return_data) {
+                const auto& edge_attr = G_.adj.at(u).at(v);
+                ret.append(py::make_tuple(u_obj, v_obj, attr_to_dict(edge_attr)));
+            } else {
+                ret.append(py::make_tuple(u_obj, v_obj));
+            }
+        }
+    }
+
+    return ret;
 }
