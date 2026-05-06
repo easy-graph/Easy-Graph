@@ -109,7 +109,7 @@ with open("README.md", encoding="utf-8") as fh:
 CYTHON_STR = "Cython"
 setuptools.setup(
     name="Python-EasyGraph",
-    version="1.5.3",
+    version="1.6",
     author="Fudan DataNET Group",
     author_email="mgao21@m.fudan.edu.cn",
     description="Easy Graph",
@@ -149,7 +149,15 @@ setuptools.setup(
         "matplotlib",
         "requests",
         "optuna",
+        "fastjsonschema",
     ],
+    extras_require={
+        "torch": [
+            "torch>=2.0",
+            "fastjsonschema",
+            "torch_geometric>=2.3",
+        ],
+    },
     setup_requires=[CYTHON_STR],
     cmdclass={
         "build_ext": CMakeBuild,

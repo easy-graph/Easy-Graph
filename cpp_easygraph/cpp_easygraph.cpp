@@ -81,14 +81,14 @@ PYBIND11_MODULE(cpp_easygraph, m) {
     m.def("cpp_closeness_centrality", &closeness_centrality, py::arg("G"), py::arg("weight") = "weight", py::arg("cutoff") = py::none(), py::arg("sources") = py::none());
     m.def("cpp_betweenness_centrality", &betweenness_centrality, py::arg("G"), py::arg("weight") = "weight", py::arg("cutoff") = py::none(),py::arg("sources") = py::none(), py::arg("normalized") = py::bool_(true), py::arg("endpoints") = py::bool_(false));
     m.def("cpp_katz_centrality", &cpp_katz_centrality, py::arg("G"), py::arg("alpha") = 0.1, py::arg("beta") = 1.0, py::arg("max_iter") = 1000, py::arg("tol") = 1e-6, py::arg("normalized") = true);
-    m.def("cpp_eigenvector_centrality", &cpp_eigenvector_centrality, py::arg("G"), py::arg("max_iter") = 100, py::arg("tol") = 1.0e-6, py::arg("nstart") = py::none(), py::arg("weight") = py::none());
+    m.def("cpp_eigenvector_centrality", &cpp_eigenvector_centrality, py::arg("G"), py::arg("max_iter") = 100, py::arg("tol") = 1.0e-6, py::arg("nstart") = py::none(), py::arg("weight") = "weight");
     m.def("cpp_k_core", &core_decomposition, py::arg("G"));
     m.def("cpp_density", &density, py::arg("G"));
     m.def("cpp_constraint", &constraint, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
     m.def("cpp_effective_size", &effective_size, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
     m.def("cpp_efficiency", &efficiency, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
     m.def("cpp_hierarchy", &hierarchy, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none(), py::arg("n_workers") = py::none());
-    m.def("cpp_pagerank", &_pagerank, py::arg("G"), py::arg("alpha") = 0.85, py::arg("max_iterator") = 500, py::arg("threshold") = 1e-6, py::arg("weight") = py::none());
+    m.def("cpp_pagerank", &_pagerank, py::arg("G"), py::arg("alpha") = 0.85, py::arg("max_iterator") = 500, py::arg("threshold") = 1e-6, py::arg("weight") = "weight");
     m.def("cpp_dijkstra_multisource", &_dijkstra_multisource, py::arg("G"), py::arg("sources"), py::arg("weight") = "weight", py::arg("target") = py::none());    
     m.def("cpp_spfa", &_spfa, py::arg("G"), py::arg("source"), py::arg("weight") = "weight");
     m.def("cpp_clustering", &clustering, py::arg("G"), py::arg("nodes") = py::none(), py::arg("weight") = py::none());
@@ -100,6 +100,9 @@ PYBIND11_MODULE(cpp_easygraph, m) {
     m.def("cpp_plain_bfs", &plain_bfs, py::arg("G"), py::arg("source"));
     m.def("cpp_kruskal_mst_edges", &kruskal_mst_edges, py::arg("G"), py::arg("minimum") = true, py::arg("weight") = "weight", py::arg("data") = true, py::arg("ignore_nan") = false);
     m.def("cpp_prim_mst_edges", &prim_mst_edges, py::arg("G"), py::arg("minimum") = true, py::arg("weight") = "weight", py::arg("data") = true, py::arg("ignore_nan") = false);
+    m.def("cpp_boruvka_mst_edges", &boruvka_mst_edges, py::arg("G"), py::arg("minimum") = true, py::arg("weight") = "weight", py::arg("data") = true, py::arg("ignore_nan") = false);
+    m.def("cpp_average_shortest_path_length", &average_shortest_path_length, py::arg("G"), py::arg("weight") = py::none(), py::arg("method") = py::none());
+    m.def("cpp_eccentricity", &eccentricity, py::arg("G"), py::arg("v") = py::none(), py::arg("sp") = py::none());
     m.def("cpp_connected_components_undirected", &connected_component_undirected, py::arg("G"));
     m.def("cpp_connected_components_directed", &connected_component_directed, py::arg("G"));
 }

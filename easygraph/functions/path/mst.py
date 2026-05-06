@@ -14,7 +14,7 @@ __all__ = [
     "maximum_spanning_tree",
 ]
 
-
+@hybrid("cpp_boruvka_mst_edges")
 def boruvka_mst_edges(G, minimum=True, weight="weight", data=True, ignore_nan=False):
     """Iterate over edges of a Borůvka's algorithm min/max spanning tree.
 

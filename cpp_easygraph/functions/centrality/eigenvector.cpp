@@ -2,17 +2,16 @@
 #include <cmath>
 #include <algorithm>
 #include <iostream>
-#include <chrono>
-#include <random>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
+
 #ifdef _OPENMP
 #include <omp.h>
 #endif
 
-#include "centrality.h"
 #include "../../classes/graph.h"
+#include "../../common/utils.h"
 
 namespace py = pybind11;
 
@@ -20,16 +19,16 @@ class CSRMatrix {
 public:
     std::vector<int> indptr;
     std::vector<int> indices;
-    std::vector<double> data;
-    int rows;
-    int cols;
+    std::vector<double> data; // Empty if unweighted (all 1.0)
+    int rows, cols;
+    bool is_weighted;
 
-    CSRMatrix() : rows(0), cols(0) {}
-    CSRMatrix(int r, int c) : rows(r), cols(c) {
+    CSRMatrix(int r, int c) : rows(r), cols(c), is_weighted(false) {
         indptr.assign(r + 1, 0);
     }
 };
 
+// Power iteration with branch optimization for weighted/unweighted paths
 std::vector<double> power_iteration_optimized(
     const CSRMatrix& A,
     int max_iter,
@@ -38,7 +37,9 @@ std::vector<double> power_iteration_optimized(
 ) {
     const int n = A.rows;
     std::vector<double> x_next(n);
-    
+    bool use_weight = A.is_weighted && !A.data.empty();
+
+    // Initial normalization
     double norm = 0.0;
     #pragma omp parallel for reduction(+:norm)
     for (int i = 0; i < n; ++i) norm += x[i] * x[i];
@@ -53,7 +54,6 @@ std::vector<double> power_iteration_optimized(
     }
 
     double delta = tol + 1.0;
-
     for (int iter = 0; iter < max_iter && delta >= tol; ++iter) {
         double next_norm_sq = 0.0;
 
@@ -63,8 +63,14 @@ std::vector<double> power_iteration_optimized(
             const int start = A.indptr[i];
             const int end = A.indptr[i+1];
             
-            for (int j = start; j < end; ++j) {
-                sum += A.data[j] * x[A.indices[j]];
+            if (use_weight) {
+                for (int j = start; j < end; ++j) {
+                    sum += A.data[j] * x[A.indices[j]];
+                }
+            } else {
+                for (int j = start; j < end; ++j) {
+                    sum += x[A.indices[j]];
+                }
             }
             
             x_next[i] = sum;
@@ -83,73 +89,62 @@ std::vector<double> power_iteration_optimized(
             delta += std::abs(val - x[i]);
             x_next[i] = val;
         }
-
         x.swap(x_next);
     }
-
     return x;
 }
 
-CSRMatrix build_transpose_matrix(Graph& graph, const std::vector<node_t>& nodes, const std::string& weight_key) {
-    try {
-        std::shared_ptr<CSRGraph> csr_ptr;
-        if (weight_key.empty()) {
-            csr_ptr = graph.gen_CSR();
-        } else {
-            csr_ptr = graph.gen_CSR(weight_key);
-        }
+// Build transpose CSR with fallback logic for missing weight keys
+CSRMatrix build_transpose_matrix_smart(Graph& graph, const std::vector<node_t>& nodes, const std::string& weight_key) {
+    std::shared_ptr<CSRGraph> csr_ptr = weight_key.empty() ? graph.gen_CSR() : graph.gen_CSR(weight_key);
+    
+    int n = static_cast<int>(nodes.size());
+    CSRMatrix At(n, n);
+    if (!csr_ptr) return At;
 
-        if (!csr_ptr) return CSRMatrix(nodes.size(), nodes.size());
+    const auto& src_indptr = csr_ptr->V;
+    const auto& src_indices = csr_ptr->E;
+    std::vector<double> src_data;
+    bool actually_weighted = false;
 
-        const int n = static_cast<int>(nodes.size());
-        const auto& src_indptr = csr_ptr->V;
-        const auto& src_indices = csr_ptr->E;
-        std::vector<double> src_data;
-
-        if (weight_key.empty()) {
-             src_data = csr_ptr->unweighted_W.empty() ? 
-                       std::vector<double>(csr_ptr->E.size(), 1.0) : 
-                       csr_ptr->unweighted_W;
-        } else {
-            auto it = csr_ptr->W_map.find(weight_key);
-            if (it != csr_ptr->W_map.end() && it->second) {
-                src_data = *(it->second);
-            } else {
-                src_data = std::vector<double>(csr_ptr->E.size(), 1.0);
+    // Detect if weighted calculation is required
+    if (!weight_key.empty()) {
+        auto it = csr_ptr->W_map.find(weight_key);
+        if (it != csr_ptr->W_map.end() && it->second) {
+            src_data = *(it->second);
+            for (double w : src_data) {
+                if (std::abs(w - 1.0) > 1e-9) {
+                    actually_weighted = true;
+                    break;
+                }
             }
         }
-
-        int rows = n;
-        int cols = n;
-        CSRMatrix At(cols, rows);
-        
-        for (int x : src_indices) {
-            if (x >= 0 && x < cols) At.indptr[x + 1]++;
-        }
-        for (int i = 0; i < cols; ++i) {
-            At.indptr[i + 1] += At.indptr[i];
-        }
-
-        size_t nnz = src_indices.size();
-        At.indices.resize(nnz);
-        At.data.resize(nnz);
-        std::vector<int> cur_pos(At.indptr.begin(), At.indptr.end());
-
-        for (int r = 0; r < rows; ++r) {
-            int start = src_indptr[r];
-            int end = src_indptr[r+1];
-            for (int p = start; p < end; ++p) {
-                int c = src_indices[p];
-                if (c < 0 || c >= cols) continue;
-                int dest = cur_pos[c]++;
-                At.indices[dest] = r;
-                At.data[dest] = (p < static_cast<int>(src_data.size())) ? src_data[p] : 1.0;
-            }
-        }
-        return At;
-    } catch (...) {
-        return CSRMatrix(nodes.size(), nodes.size());
     }
+
+    At.is_weighted = actually_weighted;
+
+    // Calculate row counts for transpose
+    for (int x_idx : src_indices) {
+        if (x_idx >= 0 && x_idx < n) At.indptr[x_idx + 1]++;
+    }
+    for (int i = 0; i < n; ++i) At.indptr[i + 1] += At.indptr[i];
+
+    At.indices.resize(src_indices.size());
+    if (actually_weighted) At.data.resize(src_indices.size());
+    
+    std::vector<int> cur_pos(At.indptr.begin(), At.indptr.end());
+
+    // Populate transpose CSR data
+    for (int r = 0; r < n; ++r) {
+        for (int p = src_indptr[r]; p < src_indptr[r+1]; ++p) {
+            int c = src_indices[p];
+            if (c < 0 || c >= n) continue;
+            int dest = cur_pos[c]++;
+            At.indices[dest] = r;
+            if (actually_weighted) At.data[dest] = src_data[p];
+        }
+    }
+    return At;
 }
 
 py::object cpp_eigenvector_centrality(
@@ -163,55 +158,41 @@ py::object cpp_eigenvector_centrality(
         Graph& graph = G.cast<Graph&>();
         int max_iter = py_max_iter.cast<int>();
         double tol = py_tol.cast<double>();
-        std::string weight_key = "";
-        if (!py_weight.is_none()) {
-            weight_key = py_weight.cast<std::string>();
-        }
+        std::string weight_key = py_weight.is_none() ? "" : py_weight.cast<std::string>();
 
         if (graph.node.empty()) return py::dict();
 
         std::vector<node_t> nodes;
-        nodes.reserve(graph.node.size());
-        for (auto& node_pair : graph.node) {
-            nodes.push_back(node_pair.first);
-        }
-        const int n = nodes.size();
+        for (auto& pair : graph.node) nodes.push_back(pair.first);
+        int n = nodes.size();
         
-        CSRMatrix A_transpose = build_transpose_matrix(graph, nodes, weight_key);
+        CSRMatrix A_transpose = build_transpose_matrix_smart(graph, nodes, weight_key);
         
-        std::vector<double> x(n, 0.0);
-        
-        if (py_nstart.is_none()) {
-            #pragma omp parallel for
+        // Initialize x vector (prefer degree-based or uniform)
+        std::vector<double> x(n, 1.0 / n);
+        if (!py_nstart.is_none()) {
+            py::dict nstart = py_nstart.cast<py::dict>();
             for (int i = 0; i < n; i++) {
-                if (A_transpose.indptr[i + 1] != A_transpose.indptr[i]) {
-                    x[i] = static_cast<double>(A_transpose.indptr[i+1] - A_transpose.indptr[i]); 
-                } else {
-                    x[i] = 1.0 / n;
-                }
+                py::object node_obj = graph.id_to_node[py::cast(nodes[i])];
+                if (nstart.contains(node_obj)) x[i] = nstart[node_obj].cast<double>();
             }
         } else {
-            py::dict nstart = py_nstart.cast<py::dict>();
-            for (size_t i = 0; i < nodes.size(); i++) {
-                py::object node_obj = graph.id_to_node[py::cast(nodes[i])];
-                if (nstart.contains(node_obj)) {
-                    x[i] = nstart[node_obj].cast<double>();
-                } else {
-                    x[i] = 0.0;
-                }
+            for (int i = 0; i < n; i++) {
+                int degree = A_transpose.indptr[i+1] - A_transpose.indptr[i];
+                x[i] = (degree > 0) ? (double)degree : 1.0/n;
             }
         }
 
-        std::vector<double> centrality = power_iteration_optimized(A_transpose, max_iter, tol, x);
+        std::vector<double> res = power_iteration_optimized(A_transpose, max_iter, tol, x);
 
         py::dict result;
-        for (size_t i = 0; i < nodes.size(); i++) {
+        for (int i = 0; i < n; i++) {
             py::object node_obj = graph.id_to_node[py::cast(nodes[i])];
-            result[node_obj] = centrality[i];
+            result[node_obj] = res[i];
         }
         return result;
 
     } catch (const std::exception& e) {
-        throw std::runtime_error(std::string("C++ exception: ") + e.what());
+        throw std::runtime_error(std::string("C++ Eigenvector Error: ") + e.what());
     }
 }

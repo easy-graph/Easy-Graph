@@ -2,9 +2,10 @@ import warnings
 
 import easygraph as eg
 
+from easygraph.utils.decorators import *
 from easygraph.functions.path.path import *
 
-
+@hybrid("cpp_average_shortest_path_length")
 def average_shortest_path_length(G, weight=None, method=None):
     r"""Returns the average shortest path length.
 
