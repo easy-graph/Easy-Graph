@@ -109,7 +109,7 @@ with open("README.md", encoding="utf-8") as fh:
 CYTHON_STR = "Cython"
 setuptools.setup(
     name="Python-EasyGraph",
-    version="1.6",
+    version="1.6.1",
     author="Fudan DataNET Group",
     author_email="mgao21@m.fudan.edu.cn",
     description="Easy Graph",
