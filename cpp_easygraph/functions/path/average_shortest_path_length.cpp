@@ -62,7 +62,9 @@ double _dijkstra_sum(const Graph_L& G_l, int source) {
     const std::vector<LinkEdge>& E = G_l.edges;
 
     while (!pq.empty()) {
-        auto [d, u] = pq.top();
+        auto top_node = pq.top();
+        double d = top_node.first;
+        int u = top_node.second;
         pq.pop();
 
         if (d > dis[u]) continue;
