@@ -18,6 +18,8 @@ ___________________________________________________________________________
 [license-url]: https://github.com/easy-graph/Easy-Graph/blob/master/LICENSE
 [downloads-image]: https://static.pepy.tech/personalized-badge/python-easygraph?period=total&units=abbreviation&left_color=brightgreen&right_color=yellowgreen&left_text=Downloads
 [downloads-url]: https://pypi.org/project/Python-EasyGraph/
+[downloads-image]: https://img.shields.io/pepy/dt/python-easygraph?label=Downloads&color=yellowgreen
+[downloads-url]: https://pypi.org/project/Python-EasyGraph/
 
 - **Documentation:** https://easy-graph.github.io/
 - **Source Code:** https://github.com/easy-graph/Easy-Graph
