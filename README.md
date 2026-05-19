@@ -16,7 +16,7 @@ ___________________________________________________________________________
 [python-url]: https://pypi.org/project/Python-EasyGraph/
 [license-image]: https://img.shields.io/pypi/l/Python-EasyGraph?label=License
 [license-url]: https://github.com/easy-graph/Easy-Graph/blob/master/LICENSE
-[downloads-image]: https://img.shields.io/pepy/dt/python-easygraph?label=Downloads&color=yellowgreen
+[downloads-image]: https://img.shields.io/pepy/dt/python-easygraph?label=Downloads&labelColor=brightgreen&color=yellowgreen
 [downloads-url]: https://pypi.org/project/Python-EasyGraph/
 
 - **Documentation:** https://easy-graph.github.io/
