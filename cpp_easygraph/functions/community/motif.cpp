@@ -8,7 +8,11 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
+#ifdef _OPENMP
 #include <omp.h>
+#else
+#warning "OpenMP is not available: motif counting functions will fall back to single-threaded execution."
+#endif
 #include "../../classes/graph.h"
 #include "../../classes/linkgraph.h"
 #include "motif.h"
@@ -245,11 +249,16 @@ public:
         }
         
         vector<vector<MotifResult>> thread_results(8);
-        
+
+        #ifdef _OPENMP
         omp_set_num_threads(8);
+        #endif
         #pragma omp parallel
         {
-            int thread_id = omp_get_thread_num();
+            int thread_id = 0;
+            #ifdef _OPENMP
+            thread_id = omp_get_thread_num();
+            #endif
             vector<MotifResult>& local_results = thread_results[thread_id];
             local_results.reserve(10000);
             
@@ -350,7 +359,9 @@ public:
             return count;
         }
         
+        #ifdef _OPENMP
         omp_set_num_threads(8);
+        #endif
         #pragma omp parallel reduction(+:count)
         {
             #pragma omp for schedule(dynamic)

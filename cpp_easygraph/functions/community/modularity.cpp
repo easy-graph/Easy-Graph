@@ -2,7 +2,11 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <string>
+#ifdef _OPENMP
 #include <omp.h>
+#else
+#warning "OpenMP is not available: modularity utility functions will fall back to single-threaded execution."
+#endif
 
 #include "../../classes/graph.h"
 #include "../../common/utils.h"
@@ -143,15 +147,35 @@ void calculate_degrees_and_edges_adj_serial(
     }
 }
 
+    // The input `communities` may be either:
+    //   (a) a membership list: a flat sequence of ints, membership[i] = community id of node (i+1); or
+    //   (b) a community list: a sequence of iterables of node ids
+
 py::object cpp_modularity(py::object G, py::object communities, py::object weight=py::str("weight")) {
     Graph& G_ = G.cast<Graph&>();
     bool directed = G.attr("is_directed")().cast<bool>();
     adj_dict_factory& adj = G_.adj;
     const int N = G_.node.size();
 
-    // The input `communities` may be either:
-    //   (a) a membership list: a flat sequence of ints, membership[i] = community id of node (i+1); or
-    //   (b) a community list: a sequence of iterables of node ids
+
+    {
+        bool is_empty_seq = false;
+        try {
+            py::sequence seq = communities.cast<py::sequence>();
+            is_empty_seq = (seq.size() == 0);
+        } catch (const py::cast_error&) {
+            is_empty_seq = false;
+        }
+        if (is_empty_seq) {
+            py::module warnings = py::module::import("warnings");
+            warnings.attr("warn")(
+                "cpp_modularity: received an empty community list; returning Q = 0.0."
+            );
+            return py::float_(0.0);
+        }
+    }
+
+
     std::vector<int> membership_vec;
 
     bool is_membership = false;
@@ -205,7 +229,19 @@ py::object cpp_modularity(py::object G, py::object communities, py::object weigh
     }
     
     if (!directed) addVectorsInPlace(k_out, k_in);
-    
+
+    // Handle empty graph / zero total edge weight: m == 0 makes
+    // `norm = 1.0 / (directed_factor * m)` divide by zero and produces
+    // inf / nan. Define Q = 0.0 in this degenerate case (no edges -> no
+    // community structure to measure), with a Python warning.
+    if (m == 0.0) {
+        py::module warnings = py::module::import("warnings");
+        warnings.attr("warn")(
+            "cpp_modularity: graph has no edges (m == 0); returning Q = 0.0."
+        );
+        return py::float_(0.0);
+    }
+
     double directed_factor = directed ? 1.0 : 2.0;
     double norm = 1.0 / (directed_factor * m);
     e *= norm;

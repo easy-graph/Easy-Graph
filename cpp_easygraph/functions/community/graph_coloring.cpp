@@ -11,6 +11,8 @@
 
 #ifdef _OPENMP
 #include <omp.h>
+#else
+#warning "OpenMP is not available: omp_graph_coloring will fall back to single-threaded execution."
 #endif
 
 #include "../../classes/linkgraph.h"
