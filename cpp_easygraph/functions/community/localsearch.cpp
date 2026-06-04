@@ -154,7 +154,8 @@ py::object cpp_localsearch(
     }
     
     while (!bfs_queue.empty()) {
-        auto [parent, dist] = bfs_queue.front();
+        int parent, dist;
+        std::tie(parent, dist) = bfs_queue.front();
         bfs_queue.pop();
         
         for (int pred : dag_pred[parent]) {

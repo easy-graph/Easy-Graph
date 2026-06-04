@@ -6,7 +6,11 @@
 #include <cstdint>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#ifdef _OPENMP
 #include <omp.h>
+#else
+#warning "OpenMP is not available: cpp_louvain_communities will fall back to single-threaded execution."
+#endif
 #include "../../classes/graph.h"
 #include "../../common/utils.h"
 #include "../../classes/linkgraph.h"
@@ -467,7 +471,9 @@ py::object cpp_louvain_communities_serial(py::object G, py::object weight, py::o
 py::object cpp_louvain_communities(py::object G, py::object weight, py::object threshold, py::object resolution) {
     Graph& G_ = G.cast<Graph&>();
 
+    #ifdef _OPENMP
     omp_set_num_threads(8);
+    #endif
 
     Graph_L original_GL = G_._get_linkgraph_structure();
 
