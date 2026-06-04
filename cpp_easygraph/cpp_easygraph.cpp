@@ -105,4 +105,16 @@ PYBIND11_MODULE(cpp_easygraph, m) {
     m.def("cpp_eccentricity", &eccentricity, py::arg("G"), py::arg("v") = py::none(), py::arg("sp") = py::none());
     m.def("cpp_connected_components_undirected", &connected_component_undirected, py::arg("G"));
     m.def("cpp_connected_components_directed", &connected_component_directed, py::arg("G"));
+
+    // community methods
+    m.def("cpp_modularity", &cpp_modularity, py::arg("G"), py::arg("communities"), py::arg("weight") = py::str("weight"));
+    m.def("cpp_greedy_modularity_communities", &cpp_greedy_modularity_communities, py::arg("G"), py::arg("weight") = py::str("weight"));
+    m.def("cpp_enumerate_subgraph", &cpp_enumerate_subgraph, py::arg("G"), py::arg("k"));
+    m.def("cpp_random_enumerate_subgraph", &cpp_random_enumerate_subgraph, py::arg("G"), py::arg("k"), py::arg("cut_prob"));
+    m.def("cpp_louvain_communities", &cpp_louvain_communities, py::arg("G"), py::arg("weight") = py::str("weight"), py::arg("threshold") = py::float_(0.00002), py::arg("resolution") = py::float_(1.0));
+    m.def("cpp_louvain_communities_serial", &cpp_louvain_communities_serial, py::arg("G"), py::arg("weight") = py::str("weight"), py::arg("threshold") = py::float_(0.00002), py::arg("resolution") = py::float_(1.0));
+    m.def("cpp_LPA", &cpp_LPA, py::arg("G"));
+    m.def("cpp_ego_graph", &cpp_ego_graph, py::arg("G"), py::arg("n"), py::arg("radius") = py::int_(1), py::arg("center") = py::bool_(true), py::arg("undirected") = py::bool_(false), py::arg("distance") = py::none());
+    m.def("cpp_ego_graph_csr", &cpp_ego_graph_csr, py::arg("G"), py::arg("n"), py::arg("radius") = py::int_(1), py::arg("center") = py::bool_(true), py::arg("undirected") = py::bool_(false), py::arg("distance") = py::none());
+    m.def("cpp_localsearch", &cpp_localsearch, py::arg("G"), py::arg("center_num") = py::none(), py::arg("auto_choose_centers") = py::bool_(false), py::arg("maximum_tree") = py::bool_(true), py::arg("seed") = py::none(), py::arg("self_loop") = py::bool_(false));
 }

@@ -7,3 +7,4 @@
 #include "cores/__init__.h"
 #include "centrality/__init__.h"
 #include "pagerank/__init__.h"
+#include "community/__init__.h"

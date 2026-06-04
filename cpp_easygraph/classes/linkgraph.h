@@ -87,3 +87,5 @@ struct compare_node {
 		return d > rhs.d;
 	}
 };
+
+std::vector<double> _dijkstra(const Graph_L& G_l, int source, int target);
