@@ -207,3 +207,6 @@ Temporary Items
 tmp_test/allset_test.py
 tmp_test/
 RandomNetwork.txt
+TEST/
+CON_TEST/
+Comm_TEST/

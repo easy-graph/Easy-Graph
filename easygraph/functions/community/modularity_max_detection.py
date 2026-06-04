@@ -70,9 +70,9 @@ def greedy_modularity_communities(G, weight="weight"):
     a = [k[i] * q0 for i in range(N)]
     dq_dict = {
         i: {
-            j: 2 * q0 - 2 * k[i] * k[j] * q0 * q0
-            for j in [node_for_label[u] for u in G.neighbors(label_for_node[i])]
-            if j != i
+            node_for_label[u]: 2 * q0 * d.get(weight, 1) - 2 * k[i] * k[node_for_label[u]] * q0 * q0
+            for u, d in G.adj[label_for_node[i]].items()
+            if node_for_label[u] != i
         }
         for i in range(N)
     }
