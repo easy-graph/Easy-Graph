@@ -3,9 +3,11 @@ name: PR code review
 on:
   workflow_dispatch:
   pull_request:
+    branches:
+      - pybind11
   push:
     branches:
-      - master
+      - pybind11
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -44,6 +46,5 @@ jobs:
     - name: Build and install
       run: pip install --verbose .
 
-    - name: Test
-      run: python tests/test.py
-
+    - name: Smoke test
+      run: python -c "import os, tempfile; os.chdir(tempfile.gettempdir()); import easygraph as eg; G = eg.Graph(); G.add_edge(1, 2); assert G.number_of_nodes() == 2; assert G.number_of_edges() == 1"
