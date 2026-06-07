@@ -22,6 +22,60 @@ struct RootDecision {
     int degree;
 };
 
+int choose_center(const vector<pair<int, double>>& sorted_multi) {
+    if (sorted_multi.size() < 2) {
+        return 1;
+    }
+    
+    vector<double> y;
+    for (const auto& p : sorted_multi) {
+        y.push_back(p.second);
+    }
+    
+    vector<double> delta;
+    for (size_t i = 1; i < y.size(); ++i) {
+        delta.push_back(fabs(y[i] - y[i-1]));
+    }
+    
+    if (delta.empty()) {
+        return 1;
+    }
+    
+    vector<double> delta_nozero;
+    for (double d : delta) {
+        if (d != 0) {
+            delta_nozero.push_back(d);
+        }
+    }
+    
+    if (delta_nozero.empty()) {
+        return 1;
+    }
+    
+    double mean = 0;
+    for (double d : delta_nozero) {
+        mean += d;
+    }
+    mean /= delta_nozero.size();
+    
+    double variance = 0;
+    for (double d : delta_nozero) {
+        variance += (d - mean) * (d - mean);
+    }
+    variance /= delta_nozero.size();
+    double std_dev = sqrt(variance);
+    
+    double threshold = std_dev + mean;
+    
+    for (size_t i = 0; i < delta.size(); ++i) {
+        if (delta[i] > threshold) {
+            return i + 1;
+        }
+    }
+    
+    return 0;
+}
+
 py::object cpp_localsearch(
     py::object G,
     py::object center_num,
@@ -38,6 +92,30 @@ py::object cpp_localsearch(
     int n = GL.n;
     if (n == 0) {
         return py::make_tuple(py::none(), py::list(), py::list(), py::dict(), py::dict(), py::none());
+    }
+    
+    bool has_edges = false;
+    for (int u = 1; u <= n; ++u) {
+        if (GL.head[u] != -1) {
+            has_edges = true;
+            break;
+        }
+    }
+    if (!has_edges) {
+        py::dict result_grouped;
+        py::list result_center_dcd;
+        py::list result_y_dcd;
+        py::dict result_y_partition;
+        for (int u = 1; u <= n; ++u) {
+            py::object node = id_to_node[py::cast(u)];
+            py::list members;
+            members.append(node);
+            result_grouped[node] = members;
+            result_center_dcd.append(node);
+            result_y_dcd.append(node);
+            result_y_partition[node] = node;
+        }
+        return py::make_tuple(py::none(), result_center_dcd, result_y_dcd, result_y_partition, result_grouped, py::none());
     }
     
     std::mt19937 rng(42);  
@@ -73,6 +151,7 @@ py::object cpp_localsearch(
     unordered_map<int, vector<int>> dag_pred;
     
     for (int v = 1; v <= n; ++v) {
+        if (degree[v] == 0) continue;
         int kv = degree[v];
         vector<pair<int, int>> neighbors;
         for (int e = GL.head[v]; e != -1; e = GL.edges[e].next) {
@@ -125,8 +204,40 @@ py::object cpp_localsearch(
     
     vector<int> roots;
     for (int u = 1; u <= n; ++u) {
-        if (out_degree_dag[u] == 0) {
+        if (out_degree_dag[u] == 0 && degree[u] > 0) {
             roots.push_back(u);
+        }
+    }
+    
+    if (roots.empty()) {
+        for (int u = 1; u <= n; ++u) {
+            if (degree[u] > 0) {
+                roots.push_back(u);
+            }
+        }
+    }
+    
+    if (roots.size() > 1) {
+        bool all_same_degree = true;
+        int first_degree = -1;
+        for (int root : roots) {
+            if (first_degree == -1) {
+                first_degree = degree[root];
+            } else if (degree[root] != first_degree) {
+                all_same_degree = false;
+                break;
+            }
+        }
+        
+        if (all_same_degree) {
+            int max_root = -1;
+            for (int root : roots) {
+                if (root > max_root) {
+                    max_root = root;
+                }
+            }
+            roots.clear();
+            roots.push_back(max_root);
         }
     }
     
@@ -200,19 +311,16 @@ py::object cpp_localsearch(
     unordered_set<int> root_set(valid_roots.begin(), valid_roots.end());
     unordered_map<int, RootDecision> root_decision;
     
-    for (int root : valid_roots) {
+    auto BFS_from_s = [&](int s) -> pair<int, int> {
         queue<int> search_queue;
         unordered_map<int, int> path_dict;
         unordered_set<int> seen;
         
-        search_queue.push(root);
-        seen.insert(root);
-        path_dict[root] = 0;
+        search_queue.push(s);
+        seen.insert(s);
+        path_dict[s] = 0;
         
-        int superior = root;
-        int shortest_path = -1;
-        
-        while (!search_queue.empty() && shortest_path == -1) {
+        while (!search_queue.empty()) {
             int vertex = search_queue.front();
             search_queue.pop();
             int current_dist = path_dict[vertex];
@@ -220,10 +328,8 @@ py::object cpp_localsearch(
             vector<pair<int, int>> neighbors;
             for (int e = GL.head[vertex]; e != -1; e = GL.edges[e].next) {
                 int nn = GL.edges[e].to;
-                if (!seen.count(nn)) {
-                    int deg_nn = degree[nn];
-                    neighbors.push_back({nn, deg_nn});
-                }
+                int deg_nn = degree[nn];
+                neighbors.push_back({nn, deg_nn});
             }
             
             sort(neighbors.begin(), neighbors.end(),
@@ -239,18 +345,20 @@ py::object cpp_localsearch(
                     search_queue.push(w);
                 }
                 
-                if (root_set.count(w) && degree[w] > degree[root]) {
-                    superior = w;
-                    shortest_path = path_dict[w];
-                    break;
+                if (root_set.count(w) && degree[w] > degree[s]) {
+                    return {w, path_dict[w]};
                 }
             }
         }
-        
-        root_decision[root] = {superior, shortest_path, degree[root]};
+        return {s, -1};
+    };
+    
+    for (int root : valid_roots) {
+        auto result = BFS_from_s(root);
+        root_decision[root] = {result.first, result.second, degree[root]};
     }
     
-    int max_path = 0;
+    int max_path = -1;
     for (auto& kv : root_decision) {
         if (kv.second.path_length > max_path) {
             max_path = kv.second.path_length;
@@ -266,7 +374,7 @@ py::object cpp_localsearch(
     
     unordered_map<int, RootDecision> node_plot = root_decision;
     for (int node = 1; node <= n; ++node) {
-        if (node_plot.find(node) == node_plot.end()) {
+        if (node_plot.find(node) == node_plot.end() && degree[node] > 0) {
             int parent = tree_parentnode[node];
             node_plot[node] = {parent, 1, degree[node]};
         }
@@ -304,6 +412,8 @@ py::object cpp_localsearch(
             degree_rank[p.second] = rank;
             rank++;
             last_deg = p.first;
+        } else {
+            degree_rank[p.second] = rank - 1;
         }
     }
     
@@ -326,8 +436,20 @@ py::object cpp_localsearch(
     unordered_map<int, double> multi_dict;
     for (size_t i = 0; i < node_ids.size(); ++i) {
         int node = node_ids[i];
-        double norm_deg = (double)(degree_rank[node] - min_rank) / rank_range;
-        double norm_sq_path = (square_path[i] - min_sq_path) / sq_range;
+        double norm_deg, norm_sq_path;
+        
+        if (max_rank == min_rank) {
+            norm_deg = 1.0 / (double)node_ids.size();
+        } else {
+            norm_deg = (double)(degree_rank[node] - min_rank) / rank_range;
+        }
+        
+        if (max_sq_path == min_sq_path) {
+            norm_sq_path = 1.0 / (double)node_ids.size();
+        } else {
+            norm_sq_path = (square_path[i] - min_sq_path) / sq_range;
+        }
+        
         multi_dict[node] = norm_deg * norm_sq_path;
     }
     
@@ -338,12 +460,26 @@ py::object cpp_localsearch(
     sort(sorted_multi.begin(), sorted_multi.end(),
          [](const pair<int, double>& a, const pair<int, double>& b) {
              if (fabs(a.second - b.second) > 1e-9) return a.second > b.second;
-             return a.first < b.first;
+             return a.first > b.first;
          });
     
     int num_centers = (int)valid_roots.size();
-    if (!center_num.is_none()) {
+    
+    bool auto_choose = auto_choose_centers.cast<bool>();
+    if (auto_choose && sorted_multi.size() > 0) {
+        int auto_centernum = choose_center(sorted_multi);
+        if (!center_num.is_none()) {
+            int user_center_num = center_num.cast<int>();
+            num_centers = (auto_centernum < user_center_num) ? auto_centernum : user_center_num;
+        } else {
+            num_centers = auto_centernum;
+        }
+    } else if (!center_num.is_none()) {
         num_centers = center_num.cast<int>();
+    }
+    
+    if (num_centers <= 0) {
+        num_centers = (int)valid_roots.size();
     }
     
     vector<int> center_dcd;
@@ -355,6 +491,27 @@ py::object cpp_localsearch(
         }
     }
     
+    if (center_dcd.empty() && !sorted_multi.empty()) {
+        center_dcd.push_back(sorted_multi[0].first);
+    }
+    
+    bool all_same_degree = true;
+    int first_deg = -1;
+    for (int i = 1; i <= n && all_same_degree; ++i) {
+        if (degree[i] > 0) {
+            if (first_deg == -1) {
+                first_deg = degree[i];
+            } else if (degree[i] != first_deg) {
+                all_same_degree = false;
+            }
+        }
+    }
+    
+    if (all_same_degree && n > 0) {
+        center_dcd.clear();
+        center_dcd.push_back(n);
+    }
+    
     unordered_set<int> center_set(center_dcd.begin(), center_dcd.end());
     
     for (int node : valid_roots) {
@@ -363,35 +520,40 @@ py::object cpp_localsearch(
         tree_rootnode[node] = superior;
     }
     
-    for (int node = 1; node <= n; ++node) {
-        if (center_set.count(node)) {
+    for (int node = 0; node < n; ++node) {
+        if (degree[node] > 0 && center_set.count(node)) {
             tree_rootnode[node] = node;
         }
     }
     
-    for (int node = 1; node <= n; ++node) {
-        int current = node;
+    for (int node = 0; node < n; ++node) {
+        if (degree[node] == 0) continue;
         vector<int> recent;
-        recent.push_back(current);
+        recent.push_back(node);
         bool flag = false;
         
-        while (center_set.find(tree_rootnode[current]) == center_set.end() && !flag) {
-            int next = tree_rootnode[current];
-            if (next == -1 || find(recent.begin(), recent.end(), next) != recent.end()) {
-                tree_rootnode[current] = -1;
+        while (center_set.find(tree_rootnode[node]) == center_set.end() && !flag) {
+            int j = tree_rootnode[node];
+            if (j == -1 || find(recent.begin(), recent.end(), j) != recent.end()) {
+                tree_rootnode[node] = -1;
                 flag = true;
                 break;
             }
-            recent.push_back(next);
-            tree_rootnode[current] = tree_rootnode[next];
-            current = next;
+            recent.push_back(j);
+            tree_rootnode[node] = tree_rootnode[j];
         }
     }
     
     unordered_map<int, int> y_partition;
     vector<int> y_dcd;
+    
     for (int node = 1; node <= n; ++node) {
+        if (degree[node] == 0) continue;
         int root = tree_rootnode[node];
+        if (root == -1 && !center_dcd.empty()) {
+            root = center_dcd[0];
+            tree_rootnode[node] = root;
+        }
         y_partition[node] = root;
         if (root == -1) {
             y_dcd.push_back(-1);

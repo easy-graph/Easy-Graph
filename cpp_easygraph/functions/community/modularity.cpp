@@ -13,8 +13,6 @@
 
 using namespace std;
 
-const size_t PARALLEL_THRESHOLD = 100000;
-
 void addVectorsInPlace(std::vector<double>& v1, std::vector<double>& v2) {
     if (v1.size() != v2.size()) {
         throw std::invalid_argument("Vectors must have the same size for element-wise addition.");
@@ -106,47 +104,6 @@ void calculate_degrees_and_edges_adj_parallel(
     }
 }
 
-void calculate_degrees_and_edges_adj_serial(
-    const adj_dict_factory& adj,
-    const std::vector<int>& membership,
-    bool directed,
-    int num_communities,
-    double& e,
-    double& m,
-    std::vector<double>& k_out,
-    std::vector<double>& k_in
-    )
-{   
-    double directed_factor = directed ? 1.0 : 2.0;
-    
-    for (auto adj_it = adj.begin(); adj_it != adj.end(); ++adj_it) {
-        node_t u = adj_it->first;
-        int c1 = membership[u - 1];
-        const auto& u_neighbors = adj_it->second;
-        
-        for (const auto& v_pair : u_neighbors) {
-            node_t v = v_pair.first;
-            
-            if (!directed && u > v) continue;
-            
-            int c2 = membership[v - 1];
-            
-            double w = 1.0;
-            if (!v_pair.second.empty()) {
-                w = v_pair.second.begin()->second;
-            }
-            
-            if (c1 == c2) {
-                e += directed_factor * w;
-            }
-            
-            k_out[c1] += w;
-            k_in[c2] += w;
-            m += w;
-        }
-    }
-}
-
     // The input `communities` may be either:
     //   (a) a membership list: a flat sequence of ints, membership[i] = community id of node (i+1); or
     //   (b) a community list: a sequence of iterables of node ids
@@ -222,11 +179,7 @@ py::object cpp_modularity(py::object G, py::object communities, py::object weigh
     std::vector<double> k_out(num_communities, 0.0);
     std::vector<double> k_in(num_communities, 0.0);
     
-    if (N >= (int)PARALLEL_THRESHOLD) {
-        calculate_degrees_and_edges_adj_parallel(adj, membership_vec, directed, num_communities, e, m, k_out, k_in);
-    } else {
-        calculate_degrees_and_edges_adj_serial(adj, membership_vec, directed, num_communities, e, m, k_out, k_in);
-    }
+    calculate_degrees_and_edges_adj_parallel(adj, membership_vec, directed, num_communities, e, m, k_out, k_in);
     
     if (!directed) addVectorsInPlace(k_out, k_in);
 
