@@ -45,7 +45,6 @@ jobs:
         uses: pypa/cibuildwheel@v2.23.3
         with:
           output-dir: dist/
-          merge-multiple: true
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -73,5 +72,4 @@ jobs:
           with:
             password: ${{ secrets.PYPI_API_TOKEN }}
             skip-existing: true
-
 
