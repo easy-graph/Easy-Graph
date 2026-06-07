@@ -40,6 +40,8 @@ def NOBE_SH(G, K, topk):
         raise ValueError("Embedding dimension K must be a positive integer.")
     if topk <= 0:
         raise ValueError("Parameter topk must be a positive integer.")
+    if G.number_of_nodes() == 0:
+        raise ValueError("NOBE_SH is not defined for an empty graph.")
     from sklearn.cluster import KMeans
 
     Y = eg.graph_embedding.NOBE(G, K)
@@ -109,6 +111,8 @@ def NOBE_GA_SH(G, K, topk):
         raise ValueError("Embedding dimension K must be a positive integer.")
     if topk <= 0:
         raise ValueError("Parameter topk must be a positive integer.")
+    if G.number_of_nodes() == 0:
+        raise ValueError("NOBE_GA_SH is not defined for an empty graph.")
     from sklearn.cluster import KMeans
 
     Y = eg.NOBE_GA(G, K)

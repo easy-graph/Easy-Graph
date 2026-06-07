@@ -24,9 +24,15 @@ def vlen(vector):
 
 
 def common_tangent_radian(r1, r2, d):
+    if r1 < 0 or r2 < 0:
+        raise ValueError("Circle radii must be non-negative.")
+    if d <= 0 or d < abs(r2 - r1):
+        raise ValueError("No common tangent exists for the given circles.")
     value = abs(r2 - r1) / d
-    if value > 1.0: value = 1.0
-    elif value < -1.0: value = -1.0
+    if value > 1.0:
+        value = 1.0
+    elif value < -1.0:
+        value = -1.0
     alpha = math.acos(value)
     alpha = alpha if r1 > r2 else pi - alpha
     return alpha

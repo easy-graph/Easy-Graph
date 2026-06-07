@@ -410,15 +410,16 @@ class GraphML:
         # These additions to types allow writing numpy types
         try:
             import numpy as np
-        except:
+        except ImportError:
             pass
         else:
+            np_float = getattr(np, "float_", np.float64)
             # prepend so that python types are created upon read (last entry wins)
             types = [
                 (np.float64, "float"),
                 (np.float32, "float"),
                 (np.float16, "float"),
-                (np.float_, "float"),
+                (np_float, "float"),
                 (np.int_, "int"),
                 (np.int8, "int"),
                 (np.int16, "int"),
