@@ -312,10 +312,10 @@ double modularity_optimization_parallel_simplified(const Graph_L& G, vector<int>
                 }
 
                 if (best_comm != old_comm) {
-                    #pragma omp atomic update
+                    #pragma omp atomic
                     comm_weights[old_comm] -= weight_all;
 
-                    #pragma omp atomic update
+                    #pragma omp atomic
                     comm_weights[best_comm] += weight_all;
 
                     membership[u - 1] = best_comm;

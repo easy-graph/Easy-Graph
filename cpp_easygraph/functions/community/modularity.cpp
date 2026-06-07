@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <string>
+#include <cstddef>
 #ifdef _OPENMP
 #include <omp.h>
 #else
@@ -18,8 +19,10 @@ void addVectorsInPlace(std::vector<double>& v1, std::vector<double>& v2) {
         throw std::invalid_argument("Vectors must have the same size for element-wise addition.");
     }
 
+    const std::ptrdiff_t n = static_cast<std::ptrdiff_t>(v1.size());
+
     #pragma omp parallel for
-    for (size_t i = 0; i < v1.size(); ++i) {
+    for (std::ptrdiff_t i = 0; i < n; ++i) {
         double sum = v1[i] + v2[i];
         v1[i] = sum;
         v2[i] = sum;
@@ -32,8 +35,10 @@ double dotProduct(const std::vector<double>& v1, const std::vector<double>& v2) 
     }
     
     double result = 0.0;
+    const std::ptrdiff_t n = static_cast<std::ptrdiff_t>(v1.size());
+
     #pragma omp parallel for reduction(+:result)
-    for (size_t i = 0; i < v1.size(); ++i) {
+    for (std::ptrdiff_t i = 0; i < n; ++i) {
         result += v1[i] * v2[i];
     }
     return result;
