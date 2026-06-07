@@ -47,6 +47,9 @@ class CMakeBuild(build_ext):
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
             f"-DPYTHON_EXECUTABLE={sys.executable}",
+            f"-DPython_EXECUTABLE={sys.executable}",
+            f"-DPython3_EXECUTABLE={sys.executable}",
+            "-DPYBIND11_FINDPYTHON=ON",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
             f"-DEASYGRAPH_ENABLE_GPU={'ON' if enable_gpu else 'OFF'}",
         ]
