@@ -1,4 +1,3 @@
-import random
 import sys
 
 import easygraph as eg
@@ -12,17 +11,12 @@ class TestLocalAssort:
     @classmethod
     def setup_class(self):
         self.G = eg.get_graph_karateclub()
-        random_value = [0, 1, 2, 3, 4, 5]
         edgelist = []
-        valuelist = []
         node_num = len(self.G.nodes)
         for e in self.G.edges:
             edgelist.append([e[0] - 1, e[1] - 1])
-        for i in range(0, node_num):
-            valuelist.append(random.choice(random_value))
         self.edgelist = np.int32(edgelist)
-        valuelist = np.int32(valuelist)
-        self.valuelist = valuelist
+        self.valuelist = np.arange(node_num, dtype=np.int32) % 6
 
     @pytest.mark.skipif(
         sys.version_info.major <= 3 and sys.version_info.minor <= 7,
