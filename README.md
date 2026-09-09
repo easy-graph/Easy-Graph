@@ -1,32 +1,36 @@
 EasyGraph
-==================
-[![GitHub Stars](https://img.shields.io/github/stars/easy-graph/Easy-Graph?style=social)](https://github.com/easy-graph/Easy-Graph/stargazers)
+=========
 
-⭐ If you find EasyGraph useful, please consider giving us a star!
+**A high-performance Python library for graph and hypergraph analysis.**
 
-Copyright (C) <2020-2026> by [DataNET Group, Fudan University](https://fudan-datanet.mysxl.cn/)
-
-___________________________________________________________________________
-
+[![GitHub Stars][stars-image]][stars-url]
 [![PyPI Version][pypi-image]][pypi-url]
 [![Python][python-image]][python-url]
 [![License][license-image]][license-url]
 [![Downloads][downloads-image]][downloads-url]
 
-[pypi-image]: https://img.shields.io/pypi/v/Python-EasyGraph.svg?label=PyPI
-[pypi-url]: https://pypi.org/project/Python-EasyGraph/
-[python-image]: https://img.shields.io/pypi/pyversions/Python-EasyGraph.svg?label=Python
-[python-url]: https://pypi.org/project/Python-EasyGraph/
-[license-image]: https://img.shields.io/pypi/l/Python-EasyGraph?label=License
-[license-url]: https://github.com/easy-graph/Easy-Graph/blob/master/LICENSE
-[downloads-image]: https://img.shields.io/pepy/dt/python-easygraph?label=Downloads&labelColor=brightgreen&color=yellowgreen
-[downloads-url]: https://pypi.org/project/Python-EasyGraph/
+⭐ **If you find EasyGraph useful, please consider giving us a star!**
+
+Copyright © 2020–2026 by [DataNET Group, Fudan University](https://fudan-datanet.mysxl.cn/)
+
+---
 
 - **Documentation:** https://easy-graph.github.io/
 - **Source Code:** https://github.com/easy-graph/Easy-Graph
 - **Issue Tracker:** https://github.com/easy-graph/Easy-Graph/issues
 - **PyPI Homepage:** https://pypi.org/project/Python-EasyGraph/
-- **Youtube channel:** https://www.youtube.com/@python-easygraph
+- **YouTube Channel:** https://www.youtube.com/@python-easygraph
+
+[stars-image]: https://img.shields.io/github/stars/easy-graph/Easy-Graph?style=flat-square&logo=github&label=Stars&color=f5c518
+[stars-url]: https://github.com/easy-graph/Easy-Graph/stargazers
+[pypi-image]: https://img.shields.io/pypi/v/Python-EasyGraph?style=flat-square&label=PyPI
+[pypi-url]: https://pypi.org/project/Python-EasyGraph/
+[python-image]: https://img.shields.io/pypi/pyversions/Python-EasyGraph?style=flat-square&label=Python
+[python-url]: https://pypi.org/project/Python-EasyGraph/
+[license-image]: https://img.shields.io/pypi/l/Python-EasyGraph?style=flat-square&label=License
+[license-url]: https://github.com/easy-graph/Easy-Graph/blob/pybind11/LICENSE
+[downloads-image]: https://img.shields.io/pepy/dt/python-easygraph?style=flat-square&label=Downloads&color=yellowgreen
+[downloads-url]: https://pepy.tech/project/python-easygraph
 
 # Introduction
 The framework of EasyGraph is composed of four components: **EasyGraph (Core)**, **EasyHypergraph**, **EGGPU**, and **EasyGNN**. 
