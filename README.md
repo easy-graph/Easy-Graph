@@ -1,5 +1,8 @@
 EasyGraph
 ==================
+[![GitHub Stars](https://img.shields.io/github/stars/easy-graph/Easy-Graph?style=social)](https://github.com/easy-graph/Easy-Graph/stargazers)
+
+⭐ If you find EasyGraph useful, please consider giving us a star!
 
 Copyright (C) <2020-2026> by [DataNET Group, Fudan University](https://fudan-datanet.mysxl.cn/)
 
