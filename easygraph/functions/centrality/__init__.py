@@ -6,4 +6,5 @@ from .flowbetweenness import *
 from .laplacian import *
 from .pagerank import *
 from .katz_centrality import *
+from .gpu_katz_centrality import *
 from .eigenvector import *

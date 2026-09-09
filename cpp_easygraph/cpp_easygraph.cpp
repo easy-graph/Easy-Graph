@@ -81,6 +81,23 @@ PYBIND11_MODULE(cpp_easygraph, m) {
     m.def("cpp_closeness_centrality", &closeness_centrality, py::arg("G"), py::arg("weight") = "weight", py::arg("cutoff") = py::none(), py::arg("sources") = py::none());
     m.def("cpp_betweenness_centrality", &betweenness_centrality, py::arg("G"), py::arg("weight") = "weight", py::arg("cutoff") = py::none(),py::arg("sources") = py::none(), py::arg("normalized") = py::bool_(true), py::arg("endpoints") = py::bool_(false));
     m.def("cpp_katz_centrality", &cpp_katz_centrality, py::arg("G"), py::arg("alpha") = 0.1, py::arg("beta") = 1.0, py::arg("max_iter") = 1000, py::arg("tol") = 1e-6, py::arg("normalized") = true);
+    m.def("cpp_gpu_katz_centrality", &cpp_gpu_katz_centrality,
+          py::arg("G"), py::arg("alpha") = 0.1, py::arg("beta") = 1.0,
+          py::arg("max_iter") = 1000, py::arg("tol") = 1e-6,
+          py::arg("normalized") = true);
+    m.def("cpp_prepare_gpu_katz", &cpp_prepare_gpu_katz, py::arg("G"));
+    m.def("cpp_run_prepared_gpu_katz", &cpp_run_prepared_gpu_katz,
+          py::arg("context"), py::arg("alpha") = 0.1, py::arg("beta") = 1.0,
+          py::arg("max_iter") = 1000, py::arg("tol") = 1e-6,
+          py::arg("normalized") = true);
+    m.def("cpp_load_gpu_katz_tsv_dataset", &cpp_load_gpu_katz_tsv_dataset,
+          py::arg("arcs_path"), py::arg("node_map_path"));
+    m.def("cpp_gpu_katz_tsv_dataset_to_digraph", &cpp_gpu_katz_tsv_dataset_to_digraph,
+          py::arg("dataset"));
+    m.def("cpp_prepare_gpu_katz_tsv_dataset", &cpp_prepare_gpu_katz_tsv_dataset,
+          py::arg("dataset"));
+    m.def("cpp_gpu_katz_tsv_dataset_metadata", &cpp_gpu_katz_tsv_dataset_metadata,
+          py::arg("dataset"));
     m.def("cpp_eigenvector_centrality", &cpp_eigenvector_centrality, py::arg("G"), py::arg("max_iter") = 100, py::arg("tol") = 1.0e-6, py::arg("nstart") = py::none(), py::arg("weight") = "weight");
     m.def("cpp_k_core", &core_decomposition, py::arg("G"));
     m.def("cpp_density", &density, py::arg("G"));
