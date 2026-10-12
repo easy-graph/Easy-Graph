@@ -43,8 +43,12 @@ when building and installing the corresponding platform wheel.
 
 1. Review `easygraph/_torch_compatibility.json`; every non-null row becomes a
    platform- and Python-specific PyTorch version interval in `setup.py`. Pip can
-   choose a compatible older wheel based on OS/libc tags. macOS default PyTorch
-   markers also require the minimum OS family observed in the available wheels.
+   choose a compatible older wheel based on OS/libc tags. The policy records
+   minimum macOS versions for release review; do not encode them using
+   `platform_release` comparisons, because older pip versions evaluate those
+   comparisons on other operating systems and reject non-version kernel names.
+   If that minimum rises above EasyGraph's wheel deployment target, review the
+   target and default dependency policy before publishing.
    Intervals that include PyTorch before 2.3 require NumPy<2 for compatibility
    with its older binary ABI; newer Python intervals retain NumPy 2 support.
 2. Update EasyGraph's version, `python_requires` upper bound, classifier and

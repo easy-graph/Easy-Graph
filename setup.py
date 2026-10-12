@@ -7,10 +7,10 @@ import sys
 
 from distutils import sysconfig
 from pathlib import Path
-from packaging.version import Version
 
 import setuptools
 
+from packaging.version import Version
 from setuptools.command.build_ext import build_ext
 
 
@@ -142,10 +142,9 @@ def default_torch_requirements():
             "and ({})"
         ).format(row["python_version"], target["sys_platform"],
                  target["platform_system"], machines)
-        if target["sys_platform"] == "darwin":
-            major, minor = map(int, row["minimum_macos_version"].split("."))
-            darwin_major = major + 9 if major >= 11 else minor + 4
-            marker += " and platform_release >= '{}'".format(darwin_major)
+        # Pip selects compatible OS versions from wheel platform tags. Do not
+        # compare platform_release: older marker parsers evaluate every branch
+        # and reject Linux kernel strings such as "6.8.0-1064-azure" as versions.
         minimum = row["minimum_torch_version"]
         requirements.append("torch>={},<={}; {}".format(
             minimum, row["torch_version"], marker
