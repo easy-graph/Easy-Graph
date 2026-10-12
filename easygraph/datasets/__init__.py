@@ -1,21 +1,23 @@
-# risky imports
-try:
-    from easygraph.datasets.get_sample_graph import *
-    from easygraph.datasets.gnn_benchmark import *
-    from easygraph.datasets.hypergraph.coauthorship import *
-    from easygraph.datasets.hypergraph.contact_primary_school import *
-    from easygraph.datasets.hypergraph.cooking_200 import Cooking200
-    from easygraph.datasets.hypergraph.House_Committees import House_Committees
-    from easygraph.datasets.karate import KarateClubDataset
-    from easygraph.datasets.mathoverflow_answers import mathoverflow_answers
+from easygraph._optional import HAS_TORCH as _HAS_TORCH
+from easygraph._optional import optional_torch_modules as _torch_imports
+from easygraph.datasets.get_sample_graph import *
 
-    from .ppi import LegacyPPIDataset
-    from .ppi import PPIDataset
-except Exception as e:
-    print(
-        " Please install Pytorch before use graph-related datasets and"
-        " hypergraph-related datasets."
-    )
+
+# Torch-dependent dataset imports
+if _HAS_TORCH:
+    with _torch_imports():
+        from easygraph.datasets.gnn_benchmark import *
+        from easygraph.datasets.hypergraph.coauthorship import *
+        from easygraph.datasets.hypergraph.contact_primary_school import *
+        from easygraph.datasets.hypergraph.cooking_200 import Cooking200
+        from easygraph.datasets.hypergraph.House_Committees import House_Committees
+        from easygraph.datasets.karate import KarateClubDataset
+        from easygraph.datasets.hypergraph.mathoverflow_answers import (
+            mathoverflow_answers,
+        )
+
+        from .ppi import LegacyPPIDataset
+        from .ppi import PPIDataset
 
 from .amazon_photo import AmazonPhotoDataset
 from .arxiv import ArxivHEPTHDataset

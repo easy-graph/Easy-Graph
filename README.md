@@ -102,7 +102,7 @@ It bridges the gap between EasyGraph and higher-order relationships. EasyHypergr
 
 ## Supported Versions
 
-``3.8 <= Python <= 3.14`` is required.
+``3.8 <= Python < 3.16`` is required.
 
 ## Installation With pip
 ```
@@ -146,9 +146,15 @@ If prebuilt EasyGraph wheels are not supported for your platform (OS / CPU arch,
 
 ## Hint
 
-EasyGraph uses  1.12.1 <= [PyTorch](https://pytorch.org/get-started/locally/) < 2.0 for machine learning functions.
-Note that this does not prevent your from running non-machine learning functions normally, if there is no PyTorch in your environment.
-But you will receive some warnings which remind you some unavailable modules when they depend on it.
+EasyGraph automatically installs a compatible PyTorch version when a compatible
+stable wheel is listed in its release policy for your Python version, OS and CPU
+on PyPI. Otherwise, core graph algorithms and the C++ backend remain available,
+and importing EasyGraph shows one message linking to the [official PyTorch
+installer](https://pytorch.org/get-started/locally/). Install PyTorch from there
+and restart Python to enable its features. Additional graph-learning packages
+may require `pip install 'Python-EasyGraph[torch]'` or their own installation
+instructions. Maintainers can refresh the policy for a new Python release using
+[the release checklist](scripts/PYTHON_RELEASE.md).
 
 # Simple Example
 

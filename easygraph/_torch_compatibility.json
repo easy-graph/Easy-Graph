@@ -1,0 +1,438 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-12T06:05:18+00:00",
+  "source_url": "https://pypi.org/pypi/torch/json",
+  "official_install_url": "https://pytorch.org/get-started/locally/",
+  "minimum_torch_version": "2.0",
+  "availability_scope": "PyPI wheel platform/CPU family, Python .0 baseline, available torch interval, and minimum macOS wheel tag. Pip must select a compatible wheel; actual resolution, core imports, libc, GPU drivers, and transitive dependencies require validation on the intended operating system.",
+  "python_versions": [
+    "3.8",
+    "3.9",
+    "3.10",
+    "3.11",
+    "3.12",
+    "3.13",
+    "3.14",
+    "3.15"
+  ],
+  "targets": [
+    {
+      "id": "linux_x86_64",
+      "sys_platform": "linux",
+      "platform_system": "Linux",
+      "platform_machines": [
+        "x86_64",
+        "AMD64",
+        "amd64"
+      ],
+      "wheel_platform_suffixes": [
+        "_x86_64"
+      ]
+    },
+    {
+      "id": "linux_aarch64",
+      "sys_platform": "linux",
+      "platform_system": "Linux",
+      "platform_machines": [
+        "aarch64",
+        "arm64",
+        "ARM64"
+      ],
+      "wheel_platform_suffixes": [
+        "_aarch64"
+      ]
+    },
+    {
+      "id": "windows_amd64",
+      "sys_platform": "win32",
+      "platform_system": "Windows",
+      "platform_machines": [
+        "AMD64",
+        "amd64",
+        "x86_64"
+      ],
+      "wheel_platform_suffixes": [
+        "win_amd64"
+      ]
+    },
+    {
+      "id": "windows_arm64",
+      "sys_platform": "win32",
+      "platform_system": "Windows",
+      "platform_machines": [
+        "ARM64",
+        "arm64",
+        "aarch64"
+      ],
+      "wheel_platform_suffixes": [
+        "win_arm64"
+      ]
+    },
+    {
+      "id": "macos_x86_64",
+      "sys_platform": "darwin",
+      "platform_system": "Darwin",
+      "platform_machines": [
+        "x86_64",
+        "AMD64",
+        "amd64"
+      ],
+      "wheel_platform_suffixes": [
+        "_x86_64",
+        "_universal2"
+      ]
+    },
+    {
+      "id": "macos_arm64",
+      "sys_platform": "darwin",
+      "platform_system": "Darwin",
+      "platform_machines": [
+        "arm64",
+        "aarch64",
+        "ARM64"
+      ],
+      "wheel_platform_suffixes": [
+        "_arm64",
+        "_universal2"
+      ]
+    }
+  ],
+  "support": [
+    {
+      "python_version": "3.8",
+      "target_id": "linux_x86_64",
+      "torch_version": "2.4.1",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.8",
+      "target_id": "linux_aarch64",
+      "torch_version": "2.4.1",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.8",
+      "target_id": "windows_amd64",
+      "torch_version": "2.4.1",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.8",
+      "target_id": "windows_arm64",
+      "torch_version": null,
+      "minimum_torch_version": null,
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.8",
+      "target_id": "macos_x86_64",
+      "torch_version": "2.2.2",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": "10.9"
+    },
+    {
+      "python_version": "3.8",
+      "target_id": "macos_arm64",
+      "torch_version": "2.4.1",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": "11.0"
+    },
+    {
+      "python_version": "3.9",
+      "target_id": "linux_x86_64",
+      "torch_version": "2.8.0",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.9",
+      "target_id": "linux_aarch64",
+      "torch_version": "2.8.0",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.9",
+      "target_id": "windows_amd64",
+      "torch_version": "2.8.0",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.9",
+      "target_id": "windows_arm64",
+      "torch_version": null,
+      "minimum_torch_version": null,
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.9",
+      "target_id": "macos_x86_64",
+      "torch_version": "2.2.2",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": "10.9"
+    },
+    {
+      "python_version": "3.9",
+      "target_id": "macos_arm64",
+      "torch_version": "2.8.0",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": "11.0"
+    },
+    {
+      "python_version": "3.10",
+      "target_id": "linux_x86_64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.10",
+      "target_id": "linux_aarch64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.10",
+      "target_id": "windows_amd64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.10",
+      "target_id": "windows_arm64",
+      "torch_version": null,
+      "minimum_torch_version": null,
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.10",
+      "target_id": "macos_x86_64",
+      "torch_version": "2.2.2",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": "10.9"
+    },
+    {
+      "python_version": "3.10",
+      "target_id": "macos_arm64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": "11.0"
+    },
+    {
+      "python_version": "3.11",
+      "target_id": "linux_x86_64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.11",
+      "target_id": "linux_aarch64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.11",
+      "target_id": "windows_amd64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.11",
+      "target_id": "windows_arm64",
+      "torch_version": null,
+      "minimum_torch_version": null,
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.11",
+      "target_id": "macos_x86_64",
+      "torch_version": "2.2.2",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": "10.9"
+    },
+    {
+      "python_version": "3.11",
+      "target_id": "macos_arm64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.0.0",
+      "minimum_macos_version": "11.0"
+    },
+    {
+      "python_version": "3.12",
+      "target_id": "linux_x86_64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.2.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.12",
+      "target_id": "linux_aarch64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.2.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.12",
+      "target_id": "windows_amd64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.2.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.12",
+      "target_id": "windows_arm64",
+      "torch_version": null,
+      "minimum_torch_version": null,
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.12",
+      "target_id": "macos_x86_64",
+      "torch_version": "2.2.2",
+      "minimum_torch_version": "2.2.0",
+      "minimum_macos_version": "10.9"
+    },
+    {
+      "python_version": "3.12",
+      "target_id": "macos_arm64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.2.0",
+      "minimum_macos_version": "11.0"
+    },
+    {
+      "python_version": "3.13",
+      "target_id": "linux_x86_64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.5.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.13",
+      "target_id": "linux_aarch64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.6.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.13",
+      "target_id": "windows_amd64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.6.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.13",
+      "target_id": "windows_arm64",
+      "torch_version": null,
+      "minimum_torch_version": null,
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.13",
+      "target_id": "macos_x86_64",
+      "torch_version": null,
+      "minimum_torch_version": null,
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.13",
+      "target_id": "macos_arm64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.6.0",
+      "minimum_macos_version": "11.0"
+    },
+    {
+      "python_version": "3.14",
+      "target_id": "linux_x86_64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.9.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.14",
+      "target_id": "linux_aarch64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.9.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.14",
+      "target_id": "windows_amd64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.9.0",
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.14",
+      "target_id": "windows_arm64",
+      "torch_version": null,
+      "minimum_torch_version": null,
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.14",
+      "target_id": "macos_x86_64",
+      "torch_version": null,
+      "minimum_torch_version": null,
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.14",
+      "target_id": "macos_arm64",
+      "torch_version": "2.14.1",
+      "minimum_torch_version": "2.9.0",
+      "minimum_macos_version": "11.0"
+    },
+    {
+      "python_version": "3.15",
+      "target_id": "linux_x86_64",
+      "torch_version": null,
+      "minimum_torch_version": null,
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.15",
+      "target_id": "linux_aarch64",
+      "torch_version": null,
+      "minimum_torch_version": null,
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.15",
+      "target_id": "windows_amd64",
+      "torch_version": null,
+      "minimum_torch_version": null,
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.15",
+      "target_id": "windows_arm64",
+      "torch_version": null,
+      "minimum_torch_version": null,
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.15",
+      "target_id": "macos_x86_64",
+      "torch_version": null,
+      "minimum_torch_version": null,
+      "minimum_macos_version": null
+    },
+    {
+      "python_version": "3.15",
+      "target_id": "macos_arm64",
+      "torch_version": null,
+      "minimum_torch_version": null,
+      "minimum_macos_version": null
+    }
+  ]
+}

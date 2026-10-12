@@ -1,3 +1,8 @@
 include README.md
 include CMakeLists.txt
+include scripts/wheel_smoke.py
+include scripts/check_pytorch_support.py
+include scripts/PYTHON_RELEASE.md
+recursive-include scripts/tests *.py
+include easygraph/_torch_compatibility.json
 recursive-include cpp_easygraph *

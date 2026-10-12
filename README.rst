@@ -55,7 +55,7 @@ Install
 
 - **Prerequisites**
 
-``3.8 <= Python <= 3.11`` is required.
+``3.8 <= Python < 3.16`` is required.
 
 .. Installation with ``pip`` (outdated)
 
@@ -80,11 +80,15 @@ If prebuilt EasyGraph wheels are not supported for your platform (OS / CPU arch,
 
 - **Hint**
 
-    EasyGraph uses  1.12.1 <= `PyTorch <https://pytorch.org/get-started/locally/>`_ < 2.0 for machine
-    learning functions.
-    Note that this does not prevent your from running non-machine learning functions normally,
-    if there is no PyTorch in your environment.
-    But you will receive some warnings which remind you some unavailable modules when they depend on it.
+    EasyGraph automatically installs a compatible PyTorch version when its release
+    policy lists a compatible stable wheel for your Python version, OS and CPU
+    on PyPI. Otherwise, core graph algorithms and the C++ backend remain available.
+    Importing EasyGraph shows one message with the
+    `official PyTorch installer <https://pytorch.org/get-started/locally/>`_.
+    Install PyTorch there and restart Python to enable its features. Additional
+    graph-learning packages may need ``Python-EasyGraph[torch]`` or their own
+    installation instructions. See ``scripts/PYTHON_RELEASE.md`` for the
+    repeatable release checklist.
 
 Simple Example
 --------------

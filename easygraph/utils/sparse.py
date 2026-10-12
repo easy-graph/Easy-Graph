@@ -4,6 +4,8 @@ __all__ = ["sparse_dropout"]
 # if not type checking
 from typing import TYPE_CHECKING
 
+from easygraph._optional import require_torch
+
 
 if TYPE_CHECKING:
     import torch
@@ -12,7 +14,7 @@ if TYPE_CHECKING:
 def sparse_dropout(
     sp_mat: "torch.Tensor", p: float, fill_value: float = 0.0
 ) -> "torch.Tensor":
-    import torch
+    torch = require_torch("Sparse tensor dropout")
 
     r"""Dropout function for sparse matrix. This function will return a new sparse matrix with the same shape as the input sparse matrix, but with some elements dropped out.
 
