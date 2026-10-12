@@ -1,8 +1,15 @@
 name: Build,download and publish wheels
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      artifact_run_id:
+        description: Successful wheel run to publish without rebuilding (leave empty to build)
+        required: false
+        type: string
 jobs:
   build_sdist:
     name: Build source distribution
+    if: inputs.artifact_run_id == ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,6 +26,7 @@ jobs:
 
   build_wheels:
       name: Build wheels on ${{ matrix.os }}
+      if: inputs.artifact_run_id == ''
       runs-on: ${{ matrix.os }}
       strategy:
         matrix:
@@ -67,18 +75,34 @@ jobs:
 
   upload_pypi:
       needs: [build_wheels, build_sdist]
-      if: github.ref == 'refs/heads/pybind11'
+      if: >-
+        always() &&
+        ((github.ref == 'refs/heads/pybind11' && needs.build_wheels.result == 'success' && needs.build_sdist.result == 'success') || inputs.artifact_run_id != '')
       runs-on: ubuntu-latest
       environment: pypi
       permissions:
         id-token: write
+        actions: read
       steps:
+        - name: Verify the reused wheel run succeeded
+          if: inputs.artifact_run_id != ''
+          env:
+            GH_TOKEN: ${{ github.token }}
+            GH_REPO: ${{ github.repository }}
+            RUN_ID: ${{ inputs.artifact_run_id }}
+          run: |
+            [[ "$RUN_ID" =~ ^[0-9]+$ ]] || exit 1
+            gh api "repos/$GH_REPO/actions/runs/$RUN_ID" \
+              --jq '.status == "completed" and .conclusion == "success" and .path == ".github/workflows/wheel_publish.yml"' | grep -qx true
+
         - uses: actions/download-artifact@v4
           with:
             # unpacks all CIBW artifacts into dist/
             pattern: cibw-*
             path: dist
             merge-multiple: true
+            run-id: ${{ inputs.artifact_run_id || github.run_id }}
+            github-token: ${{ github.token }}
 
         - name: Publish distribution 📦 to PyPI
           uses: pypa/gh-action-pypi-publish@v1.12.4
