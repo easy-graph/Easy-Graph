@@ -176,6 +176,8 @@ exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
 # test-command = "pytest"
 
 build = ["cp38-*", "cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*", "cp315-*"]
+# PyTorch and the scientific dependencies require 64-bit Python wheels.
+archs = "auto64"
 test-command = "python {project}/scripts/wheel_smoke.py"
 
 # Skip building free-threaded compatible wheels on Windows
