@@ -67,6 +67,7 @@ jobs:
 
   upload_pypi:
       needs: [build_wheels, build_sdist]
+      if: github.ref == 'refs/heads/pybind11'
       runs-on: ubuntu-latest
       environment: pypi
       permissions:
