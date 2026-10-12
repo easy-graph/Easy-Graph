@@ -6,6 +6,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       #  sdist used to compile in user local environment
       - name: Build sdist
         run: pipx run build --sdist
@@ -24,13 +26,13 @@ jobs:
           # macos-15-intel is for the x86_64
           # note: Apple has discontinued support for the x86_64 (Intel) architecture
           os: [ ubuntu-latest, windows-latest,  macos-15, macos-15-intel]
-#          modify python version in project.toml
+#          modify Python versions in pyproject.toml
       steps: 
       # 检出代码
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          submodules: true
+          submodules: recursive
       
       - uses: actions/setup-python@v5
 
@@ -41,8 +43,18 @@ jobs:
         run: python -m pip install --upgrade pip setuptools wheel build packaging
 
 
-      - name: Build wheels
+      # cibuildwheel 4 supports Python 3.15 but no longer supports Python 3.8.
+      - name: Build Python 3.8-3.13 wheels
         uses: pypa/cibuildwheel@v2.23.3
+        env:
+          CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
+        with:
+          output-dir: dist/
+
+      - name: Build Python 3.14-3.15 wheels
+        uses: pypa/cibuildwheel@v4.3.0
+        env:
+          CIBW_BUILD: "cp314-* cp315-*"
         with:
           output-dir: dist/
 

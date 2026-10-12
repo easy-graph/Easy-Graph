@@ -1,3 +1,4 @@
+import json
 import os
 import platform
 import re
@@ -6,6 +7,7 @@ import sys
 
 from distutils import sysconfig
 from pathlib import Path
+from packaging.version import Version
 
 import setuptools
 
@@ -110,9 +112,53 @@ with open("README.md", encoding="utf-8") as fh:
     long_description = fh.read()
 
 CYTHON_STR = "Cython"
+
+
+def default_torch_requirements():
+    # Refresh explicitly with scripts/check_pytorch_support.py before releases.
+    # Never query the network while building package metadata.
+    policy_path = Path(__file__).parent / "easygraph" / "_torch_compatibility.json"
+    with policy_path.open(encoding="utf-8") as stream:
+        policy = json.load(stream)
+    if policy["schema_version"] != 1:
+        raise ValueError("Unsupported PyTorch compatibility policy schema")
+    targets = {target["id"]: target for target in policy["targets"]}
+    requirements = []
+    for row in policy["support"]:
+        if row["torch_version"] is None:
+            continue
+        target = targets[row["target_id"]]
+        # PyPI's Linux torch wheels target glibc, not musl/Alpine.
+        if (target["sys_platform"] == "linux" and sys.platform == "linux"
+                and platform.libc_ver()[0] != "glibc"):
+            continue
+        machines = " or ".join(
+            "platform_machine == '{}'".format(machine)
+            for machine in target["platform_machines"]
+        )
+        marker = (
+            "python_version == '{}' and sys_platform == '{}' and "
+            "platform_system == '{}' and platform_python_implementation == 'CPython' "
+            "and ({})"
+        ).format(row["python_version"], target["sys_platform"],
+                 target["platform_system"], machines)
+        if target["sys_platform"] == "darwin":
+            major, minor = map(int, row["minimum_macos_version"].split("."))
+            darwin_major = major + 9 if major >= 11 else minor + 4
+            marker += " and platform_release >= '{}'".format(darwin_major)
+        minimum = row["minimum_torch_version"]
+        requirements.append("torch>={},<={}; {}".format(
+            minimum, row["torch_version"], marker
+        ))
+        # Older macOS torch binaries use NumPy 1's C ABI.
+        if Version(minimum) < Version("2.3"):
+            requirements.append("numpy<2; {}".format(marker))
+    return requirements
+
+
 setuptools.setup(
     name="Python-EasyGraph",
-    version="1.6.2",
+    version="1.6.3",
     author="Fudan DataNET Group",
     author_email="mgao21@m.fudan.edu.cn",
     description="Easy Graph",
@@ -120,6 +166,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/easy-graph/Easy-Graph",
     packages=setuptools.find_packages(),
+    package_data={"easygraph": ["_torch_compatibility.json"]},
     classifiers=[
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
@@ -128,10 +175,11 @@ setuptools.setup(
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
         "Programming Language :: Python :: 3.14",
+        "Programming Language :: Python :: 3.15",
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.8, <3.15",
+    python_requires=">=3.8, <3.16",
     install_requires=[
         "numpy>=1.23; python_version < '3.14'",
         "numpy>=2.0; python_version >= '3.14'",
@@ -144,6 +192,7 @@ setuptools.setup(
         "scikit-learn>=0.24.0; python_version>='3.8' and python_version<'3.14'",
         "scipy>=1.5.0, <=1.7.3; python_version=='3.7'",
         "scipy>=1.8.0; python_version>='3.8' and python_version<'3.14'",
+        "scipy>=1.18.1; python_version>='3.14'",
         "statsmodels>=0.12.0; python_version>='3.7' and python_version<'3.14'",
         "progressbar>=2.5",
         "nose>=0.10.1",
@@ -153,7 +202,7 @@ setuptools.setup(
         "requests",
         "optuna",
         "fastjsonschema",
-    ],
+    ] + default_torch_requirements(),
     extras_require={
         "torch": [
             "torch>=2.0",

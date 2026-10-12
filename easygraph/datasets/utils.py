@@ -7,7 +7,8 @@ from pathlib import Path
 
 import numpy as np
 import requests
-import torch as th
+
+from easygraph._optional import require_torch
 
 
 __all__ = [
@@ -58,11 +59,13 @@ def _set_features(G, features):
 
 
 def nonzero_1d(input):
+    th = require_torch("Dataset tensor operations")
     x = th.nonzero(input, as_tuple=False).squeeze()
     return x if x.dim() == 1 else x.view(-1)
 
 
 def tensor(data, dtype=None):
+    th = require_torch("Dataset tensor operations")
     if isinstance(data, numbers.Number):
         data = [data]
     if isinstance(data, list) and len(data) > 0 and isinstance(data[0], th.Tensor):
@@ -77,6 +80,7 @@ def tensor(data, dtype=None):
 
 
 def data_type_dict():
+    th = require_torch("Dataset tensor operations")
     return {
         "float16": th.float16,
         "float32": th.float32,
