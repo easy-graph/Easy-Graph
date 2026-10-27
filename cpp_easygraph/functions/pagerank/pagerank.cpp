@@ -3,11 +3,9 @@
 #include <string>
 #include <algorithm>
 #include <pybind11/pybind11.h>
-#ifdef _OPENMP
-#include <omp.h>
-#endif
 
 #include "pagerank.h"
+#include "../../common/pagerank_parallel.h"
 #include "../../classes/directed_graph.h"
 #include "../../classes/graph.h"
 #include "../../common/utils.h"
@@ -68,46 +66,42 @@ py::object _pagerank(py::object G, double alpha, int max_iterator, double thresh
     int cnt = 0;
 
     while (cnt < max_iterator) {
-        double dangling_sum = 0.0;
-
-        #pragma omp parallel for reduction(+:dangling_sum)
-        for (int i = 1; i <= N; ++i) {
-            bool is_dangling = use_weighted_logic ? (outWeightSum[i] < 1e-15) : (outDegree[i] == 0);
-            if (is_dangling) dangling_sum += oldPR[i];
-        }
+        const double dangling_sum = easygraph_parallel::sum(N, [&](std::size_t index) {
+            const int i = static_cast<int>(index) + 1;
+            const bool is_dangling = use_weighted_logic ? (outWeightSum[i] < 1e-15) : (outDegree[i] == 0);
+            return is_dangling ? oldPR[i] : 0.0;
+        });
 
         if (!use_weighted_logic) {
-            #pragma omp parallel for schedule(dynamic, 128)
-            for (int i = 1; i <= N; ++i) {
-                if (outDegree[i] == 0) continue;
+            easygraph_parallel::for_each(N, [&](std::size_t index) {
+                const int i = static_cast<int>(index) + 1;
+                if (outDegree[i] == 0) return;
                 double out_val = (oldPR[i] / outDegree[i]) * alpha;
                 for (int p = head[i]; p != -1; p = E[p].next) {
-                    #pragma omp atomic
-                    newPR[E[p].to] += out_val;
+                    easygraph_parallel::add(newPR[E[p].to], out_val);
                 }
-            }
+            });
         } else {
-            #pragma omp parallel for schedule(dynamic, 128)
-            for (int i = 1; i <= N; ++i) {
-                if (outWeightSum[i] < 1e-15) continue;
+            easygraph_parallel::for_each(N, [&](std::size_t index) {
+                const int i = static_cast<int>(index) + 1;
+                if (outWeightSum[i] < 1e-15) return;
                 double out_val = (oldPR[i] / outWeightSum[i]) * alpha;
                 for (int p = head[i]; p != -1; p = E[p].next) {
-                    #pragma omp atomic
-                    newPR[E[p].to] += out_val * E[p].w;
+                    easygraph_parallel::add(newPR[E[p].to], out_val * E[p].w);
                 }
-            }
+            });
         }
 
-        double diff_sum = 0.0;
         double jump_val = (1.0 - alpha) / N + (dangling_sum / N) * alpha;
 
-        #pragma omp parallel for reduction(+:diff_sum)
-        for (int i = 1; i <= N; ++i) {
+        const double diff_sum = easygraph_parallel::sum(N, [&](std::size_t index) {
+            const int i = static_cast<int>(index) + 1;
             double final_pr = newPR[i] + jump_val;
-            diff_sum += std::fabs(final_pr - oldPR[i]);
+            const double difference = std::fabs(final_pr - oldPR[i]);
             oldPR[i] = final_pr;
             newPR[i] = 0.0;
-        }
+            return difference;
+        });
 
         if (diff_sum < threshold * N) break;
         cnt++;

@@ -1,0 +1,13 @@
+.git
+build
+dist
+output
+*.so
+*.egg-info
+**/__pycache__
+.pytest_cache
+.venv
+venv
+deploy/k8s/vendor
+deploy/k8s/validation
+deploy/k8s/runs

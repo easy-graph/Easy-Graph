@@ -112,6 +112,11 @@ The conda package is no longer updated or maintained.
 
 If you've previously installed EasyGraph with conda, please uninstall it with ``conda`` and reinstall with ``pip``.
 
+The same Python package includes the distributed Kubernetes client. After an
+administrator prepares MPI Operator and shared storage, users can launch a
+Session without building a Worker image locally. See the
+[distributed Kubernetes guide](https://github.com/easy-graph/Easy-Graph/blob/pybind11/docs/distributed_k8s.md).
+
 ## Build From Source
 If prebuilt EasyGraph wheels are not supported for your platform (OS / CPU arch, check [here](https://pypi.org/simple/python-easygraph/)), or you want to have GPU-based functions enabled, you can build it locally.
 

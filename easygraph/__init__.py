@@ -27,6 +27,8 @@ from easygraph.nn import *
 from easygraph.readwrite import *
 from easygraph.utils import *
 
+from easygraph.distributed import Session, session
+
 
 _warn_missing_torch()
 

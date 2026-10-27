@@ -144,15 +144,18 @@ import cpp_easygraph
 def hybrid(cpp_method_name):
     def _hybrid(py_method):
         @functools.wraps(py_method)
-        def method(*args, **kwargs):
-            G = args[0]
+        def method(G, *args, **kwargs):
+            if getattr(G, "_easygraph_distributed", False):
+                from easygraph.distributed.dispatch import dispatch
+
+                return dispatch(cpp_method_name, G, *args, **kwargs)
             if G.cflag and cpp_method_name is not None:
                 try:
                     cpp_method = getattr(cpp_easygraph, cpp_method_name)
-                    return cpp_method(*args, **kwargs)
+                    return cpp_method(G, *args, **kwargs)
                 except AttributeError as e:
                     print(f"Warning: {e}. Use python method instead.")
-            return py_method(*args, **kwargs)
+            return py_method(G, *args, **kwargs)
 
         return method
 

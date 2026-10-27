@@ -6,6 +6,8 @@ option(EASYGRAPH_ENABLE_OPENMP "Enable OpenMP acceleration (auto-detect)" ON)
 
 option(EASYGRAPH_ENABLE_GPU "EASYGRAPH_ENABLE_GPU" OFF)
 
+option(EASYGRAPH_ENABLE_DISTRIBUTED "Build the optional MPI graph analytics backend" OFF)
+
 add_subdirectory(cpp_easygraph)
 
 if (EASYGRAPH_ENABLE_GPU)

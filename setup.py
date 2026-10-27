@@ -32,6 +32,8 @@ class CMakeExtension(setuptools.Extension):
 class CMakeBuild(build_ext):
     def build_extension(self, ext: CMakeExtension) -> None:
         enable_gpu = "EASYGRAPH_ENABLE_GPU" in os.environ and "TRUE" in os.environ.get("EASYGRAPH_ENABLE_GPU").upper()
+        enable_distributed = os.environ.get("EASYGRAPH_ENABLE_DISTRIBUTED", "OFF").upper() in {"1", "ON", "TRUE", "YES"}
+        import pybind11
 
         # Must be in this form due to bug in .resolve() only fixed in Python 3.10+
         ext_fullpath = Path.cwd() / self.get_ext_fullpath(ext.name)
@@ -54,8 +56,10 @@ class CMakeBuild(build_ext):
             "-DPYBIND11_FINDPYTHON=ON",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
             f"-DEASYGRAPH_ENABLE_GPU={'ON' if enable_gpu else 'OFF'}",
+            f"-DEASYGRAPH_ENABLE_DISTRIBUTED={'ON' if enable_distributed else 'OFF'}",
+            f"-Dpybind11_DIR={pybind11.get_cmake_dir()}",
         ]
-        build_args = []
+        build_args = ["--target", ext.name]
         # Adding CMake arguments set as environment variable
         # (needed e.g. to build for ARM OSx on conda-forge)
         if "CMAKE_ARGS" in os.environ:
@@ -157,7 +161,7 @@ def default_torch_requirements():
 
 setuptools.setup(
     name="Python-EasyGraph",
-    version="1.6.3",
+    version="1.6.4",
     author="Fudan DataNET Group",
     author_email="mgao21@m.fudan.edu.cn",
     description="Easy Graph",
@@ -215,5 +219,9 @@ setuptools.setup(
     },
     ext_modules=[
         CMakeExtension("cpp_easygraph")
-    ],
+    ] + (
+        [CMakeExtension("cpp_easygraph_distributed")]
+        if os.environ.get("EASYGRAPH_ENABLE_DISTRIBUTED", "OFF").upper() in {"1", "ON", "TRUE", "YES"}
+        else []
+    ),
 )

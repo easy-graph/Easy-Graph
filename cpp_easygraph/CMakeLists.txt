@@ -9,7 +9,17 @@ file(GLOB SOURCES
     cpp_easygraph.cpp
 )
 
-add_subdirectory(pybind11)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/pybind11/CMakeLists.txt")
+    add_subdirectory(pybind11)
+else()
+    find_package(pybind11 CONFIG REQUIRED)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/EasyGraphOpenMP.cmake")
+
+if(EASYGRAPH_ENABLE_DISTRIBUTED)
+    add_subdirectory(distributed)
+endif()
 
 option(EASYGRAPH_ENABLE_OPENMP "Enable OpenMP acceleration (auto-detect)" ON)
 option(EASYGRAPH_ENABLE_GPU "EASYGRAPH_ENABLE_GPU" OFF)
@@ -38,46 +48,4 @@ else()
 
 endif()
 
-if (EASYGRAPH_ENABLE_OPENMP)
-    if (APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        find_path(EG_LIBOMP_INCLUDE_DIR
-            NAMES omp.h
-            PATHS
-                /opt/homebrew/opt/libomp/include
-                /usr/local/opt/libomp/include
-        )
-
-        find_library(EG_LIBOMP_LIBRARY
-            NAMES omp libomp
-            PATHS
-                /opt/homebrew/opt/libomp/lib
-                /usr/local/opt/libomp/lib
-        )
-
-        if (EG_LIBOMP_INCLUDE_DIR AND EG_LIBOMP_LIBRARY)
-            message(STATUS "libomp found: ${EG_LIBOMP_LIBRARY}")
-
-            set(OpenMP_C_FLAGS   "-Xpreprocessor -fopenmp" CACHE STRING "" FORCE)
-            set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp" CACHE STRING "" FORCE)
-
-            set(OpenMP_CXX_INCLUDE_DIR "${EG_LIBOMP_INCLUDE_DIR}" CACHE PATH "" FORCE)
-            set(OpenMP_omp_LIBRARY     "${EG_LIBOMP_LIBRARY}"     CACHE FILEPATH "" FORCE)
-        else()
-            message(STATUS
-                "libomp not found on macOS. OpenMP will be disabled.\n"
-                "To enable OpenMP, run: brew install libomp"
-            )
-        endif()
-    endif()
-
-    find_package(OpenMP QUIET)
-endif()
-
-if (OpenMP_CXX_FOUND)
-    message(STATUS "OpenMP found, enabling parallel acceleration.")
-    target_link_libraries(cpp_easygraph PRIVATE OpenMP::OpenMP_CXX)
-    target_compile_definitions(cpp_easygraph PRIVATE EASYGRAPH_USE_OPENMP=1)
-else()
-    message(STATUS "OpenMP not found, building in single-thread mode.")
-    target_compile_definitions(cpp_easygraph PRIVATE EASYGRAPH_USE_OPENMP=0)
-endif()
+target_link_libraries(cpp_easygraph PRIVATE easygraph_openmp)

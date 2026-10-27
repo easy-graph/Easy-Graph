@@ -1,0 +1,11 @@
+Port 2222
+ListenAddress 0.0.0.0
+HostKey /tmp/ssh_host_ed25519_key
+PidFile /tmp/sshd.pid
+AuthorizedKeysFile .ssh/authorized_keys
+StrictModes no
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+UsePAM no
+AllowUsers mpiuser
+Subsystem sftp internal-sftp

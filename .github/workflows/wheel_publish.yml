@@ -77,7 +77,7 @@ jobs:
       needs: [build_wheels, build_sdist]
       if: >-
         always() &&
-        ((github.ref == 'refs/heads/pybind11' && needs.build_wheels.result == 'success' && needs.build_sdist.result == 'success') || inputs.artifact_run_id != '')
+        (((github.ref == 'refs/heads/pybind11' || startsWith(github.ref, 'refs/tags/v')) && needs.build_wheels.result == 'success' && needs.build_sdist.result == 'success') || inputs.artifact_run_id != '')
       runs-on: ubuntu-latest
       environment: pypi
       permissions:
