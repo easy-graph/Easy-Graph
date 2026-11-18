@@ -29,8 +29,8 @@ Copyright © 2020–2026 by [DataNET Group, Fudan University](https://fudan-data
 [python-url]: https://pypi.org/project/Python-EasyGraph/
 [license-image]: https://img.shields.io/pypi/l/Python-EasyGraph?style=flat-square&label=License
 [license-url]: https://github.com/easy-graph/Easy-Graph/blob/pybind11/LICENSE
-[downloads-image]: https://img.shields.io/pepy/dt/python-easygraph?style=flat-square&label=Downloads&color=yellowgreen
-[downloads-url]: https://pepy.tech/project/python-easygraph
+[downloads-image]: https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Fapi.pepy.tech%2Fpersonalized-badge%2Fpython-easygraph%3Fperiod%3Dtotal%26units%3Dnone&query=round%28number%28translate%28%28%2F%2F%2A%5Blocal-name%28%29%3D%27text%27%5D%29%5Blast%28%29%5D%2C%20%27%2C%20%27%2C%20%27%27%29%29%20div%2010000%29%20div%20100&suffix=M&label=Downloads&style=flat-square&color=yellowgreen
+[downloads-url]: https://pepy.tech/projects/python-easygraph
 
 # Introduction
 The framework of EasyGraph is composed of four components: **EasyGraph (Core)**, **EasyHypergraph**, **EGGPU**, and **EasyGNN**. 
